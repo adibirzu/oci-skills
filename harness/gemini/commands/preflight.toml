@@ -1,0 +1,13 @@
+# Gemini CLI custom command: /oci:preflight
+# Confirms which OCI tenancy/compartment you are about to act on (read-only).
+description = "Confirm the target OCI tenancy/compartment before any change (read-only)."
+prompt = """
+Run the OCI preflight check and report the resolved tenancy, region, and auth
+mode (names only — never raw OCIDs). If the user supplied a compartment OCID in
+"{{args}}", resolve and show its name too.
+
+Execute: ./scripts/oci_preflight.sh {{args}}
+
+Then summarize whether it is safe to proceed, and STOP for confirmation before
+any mutating action.
+"""

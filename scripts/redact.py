@@ -1,0 +1,166 @@
+#!/usr/bin/env python3
+"""redact.py — mask OCI-sensitive values in text or JSON.
+
+Use this before printing, logging, exporting, or committing anything that may
+contain OCIDs, IP addresses, tenancy namespaces, API-key fingerprints, auth
+tokens, or other secrets. It never phones home and never reads credentials.
+
+Usage:
+    cat output.json | python3 redact.py            # stdin -> stdout
+    python3 redact.py file.txt                      # file -> stdout
+    python3 redact.py --check file.txt              # exit 1 if anything matched
+    echo "$VALUE" | python3 redact.py --summary     # print counts to stderr
+
+Exit codes:
+    0  clean, or redaction performed and printed
+    1  --check mode and at least one sensitive value was found
+"""
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from dataclasses import dataclass
+from typing import Pattern
+
+
+@dataclass(frozen=True)
+class Rule:
+    name: str
+    pattern: Pattern[str]
+    replacement: str
+
+
+# Ordered most-specific first so OCIDs are masked before the generic hex rule.
+RULES: tuple[Rule, ...] = (
+    Rule(
+        "ocid",
+        re.compile(r"ocid1\.[a-z0-9]+\.[a-z0-9-]*\.[a-z0-9-]*\.[a-z0-9]+"),
+        "<OCID-REDACTED>",
+    ),
+    Rule(
+        "api_key_fingerprint",
+        re.compile(r"\b(?:[0-9a-f]{2}:){15}[0-9a-f]{2}\b"),
+        "<FINGERPRINT-REDACTED>",
+    ),
+    Rule(
+        "install_key",
+        re.compile(r"\bisk_[0-9a-fA-F]{20,}\b"),
+        "<INSTALL-KEY-REDACTED>",
+    ),
+    Rule(
+        "private_key_block",
+        re.compile(
+            r"-----BEGIN [A-Z ]*PRIVATE KEY-----.*?-----END [A-Z ]*PRIVATE KEY-----",
+            re.DOTALL,
+        ),
+        "<PRIVATE-KEY-REDACTED>",
+    ),
+    Rule(
+        "ipv4",
+        re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b"),
+        "<IP-REDACTED>",
+    ),
+    # Long hex/base64-ish blobs (datakeys, auth tokens). Kept last so it does not
+    # eat OCIDs or fingerprints, which are masked above. The char class excludes
+    # "/" so slash-separated API paths (e.g. versioned endpoint paths) are not
+    # mistaken for secrets; base64 secrets still trip the >=40 contiguous run.
+    Rule(
+        "secret_blob",
+        re.compile(r"\b[A-Za-z0-9+]{40,}={0,2}\b"),
+        "<SECRET-REDACTED>",
+    ),
+)
+
+
+def _ip_is_safe(ip: str, strict: bool = False) -> bool:
+    """True for IPv4 values that are never sensitive and may stay verbatim.
+
+    Lenient (default): also treats RFC1918 private ranges and RFC5737
+    documentation ranges as safe, so the CI gate does not false-positive on the
+    generic example topology used throughout the docs.
+
+    Strict (`--strict`): only link-local (IMDS 169.254/16), loopback, and the
+    unspecified/default address are safe. Use this when sanitizing *live* OCI
+    CLI/SDK output for sharing, where a real `10.x`/`172.16-31.x`/`192.168.x`
+    address would reveal internal topology and must be masked.
+    """
+    try:
+        octets = [int(part) for part in ip.split(".")]
+    except ValueError:
+        return False  # not numeric — let the regex result stand (mask it)
+    if len(octets) != 4 or any(octet > 255 for octet in octets):
+        return False  # unreachable given the upstream regex; be conservative
+    a, b, c = octets[0], octets[1], octets[2]
+    if a in (0, 127):                       # unspecified / default route / loopback
+        return True
+    if a == 169 and b == 254:               # link-local (instance metadata service)
+        return True
+    if strict:
+        return False                        # everything else is masked in strict mode
+    if a == 10:                             # RFC1918
+        return True
+    if a == 172 and 16 <= b <= 31:          # RFC1918
+        return True
+    if a == 192 and b == 168:               # RFC1918
+        return True
+    if (a, b, c) in ((192, 0, 2), (198, 51, 100), (203, 0, 113)):  # RFC5737 doc
+        return True
+    return False
+
+
+def redact(text: str, strict: bool = False) -> tuple[str, dict[str, int]]:
+    """Return (redacted_text, {rule_name: count})."""
+    counts: dict[str, int] = {}
+    for rule in RULES:
+        def _sub(match: "re.Match[str]", _name: str = rule.name,
+                 _repl: str = rule.replacement) -> str:
+            if _name == "ipv4" and _ip_is_safe(match.group(0), strict):
+                return match.group(0)  # well-known non-sensitive address
+            counts[_name] = counts.get(_name, 0) + 1
+            return _repl
+        text = rule.pattern.sub(_sub, text)
+    return text, counts
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Mask OCI-sensitive values in text.")
+    parser.add_argument("file", nargs="?", help="input file (default: stdin)")
+    parser.add_argument("--check", action="store_true",
+                        help="exit 1 if any sensitive value is found (CI gate)")
+    parser.add_argument("--summary", action="store_true",
+                        help="print per-rule match counts to stderr")
+    parser.add_argument("--strict", action="store_true",
+                        help="also mask RFC1918/RFC5737 IPs (use when sanitizing "
+                             "live OCI output that may reveal real topology)")
+    args = parser.parse_args(argv)
+
+    if args.file:
+        try:
+            with open(args.file, "r", encoding="utf-8", errors="replace") as handle:
+                raw = handle.read()
+        except OSError as exc:  # surface, never swallow
+            print(f"redact: cannot read {args.file}: {exc}", file=sys.stderr)
+            return 2
+    else:
+        raw = sys.stdin.read()
+
+    cleaned, counts = redact(raw, strict=args.strict)
+    total = sum(counts.values())
+
+    if args.summary or args.check:
+        if counts:
+            detail = ", ".join(f"{name}={n}" for name, n in sorted(counts.items()))
+            print(f"redact: {total} sensitive value(s) found ({detail})", file=sys.stderr)
+        else:
+            print("redact: no sensitive values found", file=sys.stderr)
+
+    if args.check:
+        return 1 if total else 0
+
+    sys.stdout.write(cleaned)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

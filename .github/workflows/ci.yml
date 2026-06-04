@@ -1,0 +1,106 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: secret scan + redaction gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+      - name: redaction gate (no OCIDs/IPs/secrets in tracked files)
+        run: |
+          set -euo pipefail
+          fail=0
+          while IFS= read -r f; do
+            case "$f" in
+              *.png|*.jpg|*.jpeg|*.gif|*.pdf|*.ico) continue ;;
+            esac
+            if ! python3 scripts/redact.py --check "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::sensitive value detected by redact.py"
+              python3 scripts/redact.py --summary "$f" >/dev/null || true
+              fail=1
+            fi
+          done < <(git ls-files)
+          exit "$fail"
+
+  lint:
+    name: shell + python lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: shellcheck
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y shellcheck
+          shellcheck scripts/*.sh install.sh
+
+      - name: ruff + compile
+        run: |
+          pip install ruff
+          ruff check scripts/*.py
+          python3 -m py_compile scripts/*.py
+
+  validate:
+    name: validate skill manifests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: SKILL.md + plugin frontmatter + evals JSON
+        run: |
+          pip install pyyaml
+          python3 - <<'PY'
+          import json, pathlib, sys
+          import yaml
+
+          errors = []
+
+          def check_frontmatter(path):
+              text = path.read_text(encoding="utf-8")
+              if not text.startswith("---"):
+                  errors.append(f"{path}: missing YAML frontmatter")
+                  return
+              fm = text.split("---", 2)[1]
+              data = yaml.safe_load(fm) or {}
+              for key in ("name", "description"):
+                  if not data.get(key):
+                      errors.append(f"{path}: frontmatter missing '{key}'")
+
+          check_frontmatter(pathlib.Path("SKILL.md"))
+          for p in pathlib.Path("plugins").glob("*/SKILL.md"):
+              check_frontmatter(p)
+
+          try:
+              json.loads(pathlib.Path("evals/evals.json").read_text())
+          except Exception as exc:  # noqa: BLE001
+              errors.append(f"evals/evals.json: invalid JSON ({exc})")
+
+          if errors:
+              print("\n".join(errors))
+              sys.exit(1)
+          print("all skill manifests valid")
+          PY
