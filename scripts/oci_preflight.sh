@@ -12,6 +12,7 @@
 # Env: OCI_CLI_PROFILE, OCI_REGION, OCI_AUTH_MODE (see common.sh).
 
 set -o errexit -o nounset -o pipefail
+# shellcheck source=scripts/common.sh
 source "$(dirname "$0")/common.sh"
 
 COMPARTMENT_OCID=""

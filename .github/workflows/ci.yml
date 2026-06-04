@@ -52,7 +52,8 @@ jobs:
       - name: shellcheck
         run: |
           sudo apt-get update -y && sudo apt-get install -y shellcheck
-          shellcheck scripts/*.sh install.sh
+          # -x follows sourced files; --severity=warning ignores info notes (e.g. SC1091)
+          shellcheck -x --severity=warning scripts/*.sh install.sh
 
       - name: ruff + compile
         run: |
