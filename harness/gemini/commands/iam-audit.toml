@@ -1,0 +1,13 @@
+# Gemini CLI custom command: /oci:iam-audit
+# Read-only IAM posture snapshot for the current tenancy.
+description = "Read-only OCI IAM posture snapshot (compartments, policies, users, MFA, broad grants)."
+prompt = """
+Produce a read-only IAM posture snapshot for the OCI tenancy. Use the profile or
+auth mode the user named in "{{args}}" (default profile DEFAULT).
+
+Execute: python3 ./scripts/iam_audit.py {{args}}
+
+Highlight any tenancy-wide `manage all-resources` policies and users without MFA.
+Present findings in the Finding / Evidence / Action / Verification / KB format.
+Do not print raw OCIDs.
+"""

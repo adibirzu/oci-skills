@@ -1,0 +1,71 @@
+# Helper Conventions
+
+Every script in this pack is built on `scripts/common.sh`. Use these helpers
+instead of re-deriving auth, validation, or redaction logic.
+
+## Bash skeleton
+
+```bash
+#!/usr/bin/env bash
+set -o errexit -o nounset -o pipefail
+source "$(dirname "$0")/common.sh"
+
+load_env .env.local                 # optional dotenv, never clobbers PATH/HOME
+require_cmd oci jq                   # fail fast if tooling is missing
+require_vars COMPARTMENT_OCID        # fail fast if inputs are missing
+banner "What this script does"
+preflight_identity                   # prove we can reach the intended tenancy
+
+# All CLI calls go through the wrapper — it negotiates auth + region.
+oci_cli iam compartment list --compartment-id "$COMPARTMENT_OCID" --all
+
+# Mutations go through the guard.
+run_mutating "tag the compartment" \
+  oci_cli iam compartment update --compartment-id "$COMPARTMENT_OCID" \
+    --freeform-tags '{"managed-by":"oci-skills"}'
+```
+
+| Helper | Purpose |
+|--------|---------|
+| `oci_cli ...` | One entrypoint for the CLI. Negotiates auth mode + profile + region. |
+| `require_vars A B` | Die if any named env var is empty. |
+| `require_cmd oci jq` | Die if any command is missing from PATH. |
+| `load_env [file]` | Source a dotenv without overwriting PATH/HOME. |
+| `resolve_auth_mode` | Echo the effective auth mode (auto-detected). |
+| `preflight_identity` | Confirm IAM is reachable; print auth context. |
+| `confirm "msg"` | y/N prompt; honors `OCI_SKILLS_FORCE`; safe with no TTY. |
+| `run_mutating "desc" cmd...` | Run, or print under `OCI_SKILLS_DRY_RUN=true`. |
+| `wait_for_state "compute instance" ocid STATE [timeout]` | Poll lifecycle-state; pass the FULL CLI path (id flag derived from last word). |
+| `redact "str"` | Mask OCIDs/IPs/hex in a string (fast, partial). |
+| `banner` / `info` / `ok` / `warn` / `err` / `die` | Structured stderr logging. |
+
+## Python SDK skeleton
+
+```python
+import oci
+
+def make_client(client_cls, profile="DEFAULT", auth="config"):
+    if auth in ("instance_principal", "resource_principal"):
+        signer = (oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
+                  if auth == "instance_principal"
+                  else oci.auth.signers.get_resource_principals_signer())
+        return client_cls({}, signer=signer)
+    config = oci.config.from_file(profile_name=profile)
+    oci.config.validate_config(config)
+    return client_cls(config)
+
+# Always page; never assume a single response holds every resource.
+items = oci.pagination.list_call_get_all_results(
+    client.list_compartments, compartment_id=tenancy_id,
+    compartment_id_in_subtree=True,
+).data
+```
+
+## CLI conventions
+
+- Parse JSON with `jq` or `--query` JMESPath; never grep OCIDs out of prose.
+- Identity Domains (SCIM) filters use **camelCase** field names
+  (`userName eq "x"`); response fields are **kebab-case**.
+- Auth tokens come from `iam auth-token create`, not from identity-domains.
+- Resolve the object-storage namespace with `oci os ns get` for OCIR pushes.
+- Prefer `--compartment-id-in-subtree true` to traverse a hierarchy in one call.

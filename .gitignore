@@ -1,0 +1,32 @@
+# Secrets and credentials — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.wallet
+id_rsa*
+oci_api_key*
+~/.oci/*
+.oci/
+
+# OCI / tooling output that may contain OCIDs, IPs, or tenancy data
+*.local.json
+*-credentials.json
+*-redactions.md
+scan-output/
+reports/*-private*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Node / misc
+node_modules/
+.DS_Store
+*.log

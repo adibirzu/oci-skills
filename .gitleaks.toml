@@ -1,0 +1,42 @@
+title = "oci-skills gitleaks config"
+# Extends the default gitleaks ruleset with OCI-specific detectors so no real
+# tenancy data, OCIDs, keys, or IPs can be committed. Run: gitleaks detect .
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "oci-ocid"
+description = "OCI resource identifier (OCID)"
+regex = '''ocid1\.(tenancy|compartment|user|group|policy|instance|vcn|subnet|networksecuritygroup|loadbalancer|cluster|bootvolume|vnic|vault|key|secret|bucket|autonomousdatabase)\.oc1\.[a-z0-9-]*\.[a-z0-9]{20,}'''
+tags = ["oci", "ocid"]
+
+[[rules]]
+id = "oci-api-key-fingerprint"
+description = "OCI API key fingerprint"
+regex = '''\b(?:[0-9a-f]{2}:){15}[0-9a-f]{2}\b'''
+tags = ["oci", "fingerprint"]
+
+[[rules]]
+id = "oci-install-key"
+description = "Management Agent install key"
+regex = '''\bisk_[0-9a-fA-F]{20,}\b'''
+tags = ["oci", "install-key"]
+
+[[rules]]
+id = "oci-auth-token-config"
+description = "Auth token in an OCI config-style assignment"
+regex = '''(?i)(security_token|auth_token|pass_phrase)\s*=\s*[^\s#]{12,}'''
+tags = ["oci", "token"]
+
+[allowlist]
+description = "Placeholders and documentation are allowed"
+regexes = [
+  '''<[A-Z_]+(_OCID|_ID|_KEY|_IP|_DATAKEY)?>''',
+  '''ocid1\.[a-z]+\.oc1\.\.aaaa…''',
+  '''10\.0\.0\.0/16''',
+]
+paths = [
+  '''(.*?)(\.example)$''',
+  '''README\.md''',
+]
