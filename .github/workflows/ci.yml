@@ -22,6 +22,7 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITLEAKS_CONFIG: .gitleaks.toml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: redaction gate (no OCIDs/IPs/secrets in tracked files)
         run: |
@@ -89,7 +90,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: SKILL.md + plugin frontmatter + evals JSON
+      - name: skill frontmatter + plugin/marketplace + evals JSON
         run: |
           pip install pyyaml
           python3 - <<'PY'
@@ -109,17 +110,23 @@ jobs:
                   if not data.get(key):
                       errors.append(f"{path}: frontmatter missing '{key}'")
 
-          check_frontmatter(pathlib.Path("SKILL.md"))
-          for p in pathlib.Path("plugins").glob("*/SKILL.md"):
+          skills = sorted(pathlib.Path("skills").glob("*/SKILL.md"))
+          if not skills:
+              errors.append("skills/: no skills/<name>/SKILL.md found")
+          for p in skills:
               check_frontmatter(p)
 
-          try:
-              json.loads(pathlib.Path("evals/evals.json").read_text())
-          except Exception as exc:  # noqa: BLE001
-              errors.append(f"evals/evals.json: invalid JSON ({exc})")
+          def check_json(path):
+              try:
+                  json.loads(pathlib.Path(path).read_text())
+              except Exception as exc:  # noqa: BLE001
+                  errors.append(f"{path}: invalid JSON ({exc})")
+
+          for j in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", "evals/evals.json"):
+              check_json(j)
 
           if errors:
               print("\n".join(errors))
               sys.exit(1)
-          print("all skill manifests valid")
+          print(f"all manifests valid ({len(skills)} skills)")
           PY

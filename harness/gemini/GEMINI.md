@@ -22,10 +22,10 @@ balancers, OKE, compute, OCIR).
 
 ## Routing
 
-- IAM / tenancy → `./plugins/oci-iam-admin/SKILL.md` + `./references/iam-tenancy.md`
-- Security / compliance → `./plugins/oci-security-compliance/SKILL.md` + `./references/security-compliance.md`
-- Observability / DB → `./plugins/oci-observability-db/SKILL.md` + `./references/observability-db.md`
-- Networking / compute → `./plugins/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
+- IAM / tenancy → `./skills/oci-iam-admin/SKILL.md` + `./references/iam-tenancy.md`
+- Security / compliance → `./skills/oci-security-compliance/SKILL.md` + `./references/security-compliance.md`
+- Observability / DB → `./skills/oci-observability-db/SKILL.md` + `./references/observability-db.md`
+- Networking / compute → `./skills/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
 
 ## Rules
 

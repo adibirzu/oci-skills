@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard_destructive.py\"",
+            "description": "Block destructive OCI CLI commands until preflighted and confirmed (honors OCI_SKILLS_FORCE)."
+          }
+        ]
+      }
+    ]
+  }
+}
