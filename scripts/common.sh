@@ -146,7 +146,10 @@ oci_cli() {
     config|*)            auth_args=() ;;  # default: config file + profile
   esac
   local -a base=(oci)
-  base+=("${auth_args[@]}")
+  # Expand auth_args defensively: in config mode it is empty, and bash 3.2
+  # (the default /bin/bash on macOS) raises "unbound variable" under `set -u`
+  # for "${empty[@]}". The ${arr[@]+...} guard is portable to bash 3.2+.
+  base+=(${auth_args[@]+"${auth_args[@]}"})
   if [[ "$mode" == "config" && -n "${OCI_CLI_PROFILE:-}" ]]; then
     base+=(--profile "$OCI_CLI_PROFILE")
   fi

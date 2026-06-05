@@ -89,7 +89,8 @@ Install targets (override with env vars — see `install.sh` header):
 
 ## Requirements
 
-- [OCI CLI](https://docs.oracle.com/iaas/Content/API/SDKDocs/cliinstall.htm) +
+- `bash` (3.2+, so the macOS system `/bin/bash` works), plus the
+  [OCI CLI](https://docs.oracle.com/iaas/Content/API/SDKDocs/cliinstall.htm) and
   `jq` on PATH for the shell scripts.
 - Python 3.10+ and the `oci` SDK (`pip install oci`) for `iam_audit.py`.
 - A configured `~/.oci/config` profile, or instance/resource/workload-identity
