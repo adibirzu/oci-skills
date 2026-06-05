@@ -42,9 +42,9 @@ CI runs the same checks on every PR.
 - New operational fixes get a `KB-<n>` entry in `references/KB.md`.
 - Keep references concise; one domain per file.
 
-## Adding a plugin
+## Adding a domain skill
 
-1. Create `plugins/<name>/SKILL.md` with YAML frontmatter (`name`,
+1. Create `skills/<name>/SKILL.md` with YAML frontmatter (`name`,
    `description`, `license`) and the Finding/Evidence/Action/Verification/KB
    output block.
 2. Add `references/<name>.md` for the deep reference.

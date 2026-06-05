@@ -42,6 +42,27 @@ Every plugin inherits the same contract (see
 
 ## Install
 
+### As a Claude Code plugin (slash commands + safety hook)
+
+```text
+/plugin marketplace add adibirzu/oci-skills      # or: /plugin marketplace add ~/dev/oci-skills
+/plugin install oci-administrator@oci-skills
+```
+
+This gives you the slash commands below plus a PreToolUse hook that blocks
+destructive `oci` commands until they are preflighted and confirmed:
+
+| Command | Does |
+|---|---|
+| `/oci-administrator:context` | Manage named contexts (name → profile + compartment + region). |
+| `/oci-administrator:preflight` | Confirm the target tenancy/compartment by name (read-only). |
+| `/oci-administrator:audit` | Read-only IAM posture snapshot. |
+| `/oci-administrator:kb` | Search the KB for a known fix. |
+| `/oci-administrator:troubleshoot` | KB-first, route to domain, propose a gated fix. |
+
+The copy-install paths below additionally deliver the auto-triggering knowledge
+skills and the multi-harness adapters (Codex, Gemini, Antigravity).
+
 ### One line (recommended)
 
 Installs into every agent harness it detects (Claude Code, Codex, Gemini CLI,
@@ -99,14 +120,22 @@ Install targets (override with env vars — see `install.sh` header):
 ## Repository layout
 
 ```
+.claude-plugin/          # Claude Code plugin manifest + marketplace entry
+  plugin.json  marketplace.json
 SKILL.md                 # Claude Code entrypoint (router)
 AGENTS.md                # Codex / Antigravity entrypoint (mirror)
+commands/                # Claude Code slash commands (context/preflight/audit/kb/troubleshoot)
+hooks/                   # PreToolUse guard that blocks destructive oci commands
+  hooks.json  guard_destructive.py
 references/              # domain + safety knowledge (progressive disclosure)
-  tenancy-safety.md  helper-conventions.md  KB.md
+  tenancy-safety.md  helper-conventions.md  KB.md  named-contexts.md
+  credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
 scripts/                # shared core
-  common.sh  oci_preflight.sh  redact.py  iam_audit.py  kb_lookup.py
-plugins/                # four admin domain sub-skills
+  common.sh  oci_context.py  oci_preflight.sh  redact.py  iam_audit.py  kb_lookup.py
+skills/                  # five auto-discoverable skills (router + four domains)
+  oci-administrator/  oci-iam-admin/  oci-security-compliance/
+  oci-observability-db/  oci-networking-compute/
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
 bootstrap.sh            # one-line remote installer (curl | bash)
@@ -117,11 +146,16 @@ Makefile                # make install / list / dry-run
 ## Quick start
 
 ```bash
+# 0. (Optional) register a friendly context so you never paste OCIDs again
+./scripts/oci_context.py add dev --profile DEFAULT --region eu-frankfurt-1 \
+  --compartment <COMPARTMENT_OCID> --description "sandbox"
+eval "$(./scripts/oci_context.py use dev)"          # sets profile/region/compartment
+
 # 1. Confirm you are pointed at the right tenancy (read-only)
-./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>
+./scripts/oci_preflight.sh -c "${OCI_SKILLS_COMPARTMENT:-<COMPARTMENT_OCID>}"
 
 # 2. Read-only IAM posture snapshot
-python3 ./scripts/iam_audit.py --profile DEFAULT
+python3 ./scripts/iam_audit.py --profile "${OCI_CLI_PROFILE:-DEFAULT}"
 
 # 3. Look up a known fix before debugging
 python3 ./scripts/kb_lookup.py "kubectl unauthorized oke"

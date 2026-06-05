@@ -26,28 +26,47 @@ of four domain plugins, all sharing one tenancy-safety core.
 
 1. Identify the **domain** of the request (IAM, Security, Observability/DB,
    Networking/Compute) and the **tenancy/compartment** it targets.
-2. Confirm the target tenancy before any change:
+2. Prefer a **named context** over raw OCIDs — `dev`, `prod`, etc. resolve to a
+   profile + compartment + region (see
+   [references/named-contexts.md](../../references/named-contexts.md)):
    ```bash
-   ./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>
+   eval "$(scripts/oci_context.py use dev)"   # sets profile/region/compartment
    ```
-3. Search the KB before deep debugging:
+3. Confirm the target tenancy before any change (by name, never raw OCID):
+   ```bash
+   ./scripts/oci_preflight.sh -c "${OCI_SKILLS_COMPARTMENT:-<COMPARTMENT_OCID>}"
+   ```
+4. Search the KB before deep debugging:
    ```bash
    python3 scripts/kb_lookup.py "symptom words"
    ```
-4. Read [references/tenancy-safety.md](references/tenancy-safety.md) and
-   [references/helper-conventions.md](references/helper-conventions.md) once per
-   session, then load only the domain reference you need.
+5. Read [references/tenancy-safety.md](../../references/tenancy-safety.md) and
+   [references/helper-conventions.md](../../references/helper-conventions.md) once per
+   session, then load only the domain reference you need. For auth/secret questions
+   read [references/credential-management.md](../../references/credential-management.md).
+
+## Slash commands (Claude Code plugin)
+
+When installed as a plugin, these wrap the safety core so the user works by name:
+
+| Command | Does |
+|---|---|
+| `/oci-administrator:context` | Manage named contexts (name → profile + compartment + region). |
+| `/oci-administrator:preflight` | Confirm the target tenancy/compartment by name (read-only gate). |
+| `/oci-administrator:audit` | Read-only IAM posture snapshot. |
+| `/oci-administrator:kb` | Search the KB for a known fix. |
+| `/oci-administrator:troubleshoot` | KB-first, route to domain, propose a gated fix. |
 
 ## Domain routing
 
 | Request mentions… | Plugin | Reference |
 |---|---|---|
-| users, groups, dynamic groups, policies, compartments, budgets, quotas, service limits, tags, regions | **oci-iam-admin** | [references/iam-tenancy.md](references/iam-tenancy.md) |
-| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs | **oci-security-compliance** | [references/security-compliance.md](references/security-compliance.md) |
-| APM, Log Analytics, Monitoring, alarms, dashboards, Database Management, Operations Insights, metrics | **oci-observability-db** | [references/observability-db.md](references/observability-db.md) |
-| VCN, subnet, NSG, route table, gateway, load balancer, OKE, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](references/networking-compute.md) |
+| users, groups, dynamic groups, policies, compartments, budgets, quotas, service limits, tags, regions | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
+| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
+| APM, Log Analytics, Monitoring, alarms, dashboards, Database Management, Operations Insights, metrics | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
+| VCN, subnet, NSG, route table, gateway, load balancer, OKE, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
 
-Each plugin lives in `plugins/<name>/SKILL.md` and leans on this shared core.
+Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
 
 ## Operating rules
 
@@ -64,6 +83,7 @@ Each plugin lives in `plugins/<name>/SKILL.md` and leans on this shared core.
 | Script | Purpose |
 |---|---|
 | `scripts/common.sh` | Shared helpers (auth, validation, dry-run, redaction). |
+| `scripts/oci_context.py` | Named contexts (name → profile + compartment + region); no OCIDs to memorize. |
 | `scripts/oci_preflight.sh` | Confirm tenancy/compartment before mutating. |
 | `scripts/iam_audit.py` | Read-only IAM posture snapshot (SDK). |
 | `scripts/redact.py` | Mask OCIDs/IPs/secrets in text or JSON (CI gate). |
