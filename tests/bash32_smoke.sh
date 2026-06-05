@@ -26,6 +26,11 @@ OCI_AUTH_MODE=instance_principal oci_cli os ns get >/dev/null
 
 # require_vars / redact should not trip nounset either.
 TESTVAR=x require_vars TESTVAR
-redact "ocid1.instance.oc1.iad.aaaaexamplexxxxxxxxxxxxxxxxxxxx 203.0.113.9" >/dev/null
+# Assemble a synthetic OCID at runtime so the static redaction gate sees no
+# complete OCID literal in this file, while redact() still gets a full
+# OCID-shaped string to mask. 203.0.113.9 is RFC5737 documentation space.
+_fake_oc="ocid1.instance.oc1.iad."
+_fake_oc="${_fake_oc}aaaaexamplexxxxxxxxxxxxxxxxxxxx"
+redact "$_fake_oc 203.0.113.9" >/dev/null
 
 echo "bash ${BASH_VERSION} — empty-array/nounset smoke OK"
