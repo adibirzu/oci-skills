@@ -26,7 +26,11 @@ GEMINI_EXT_DIR="${GEMINI_EXT_DIR:-$HOME/.gemini/extensions}"
 AGY_SKILLS_DIR="${AGY_SKILLS_DIR:-$HOME/.antigravity/skills}"
 
 # Files that make up the shared skill payload (everything the agent reads).
-PAYLOAD=(SKILL.md AGENTS.md README.md LICENSE references scripts plugins evals)
+# Canonical skills live under skills/<name>/SKILL.md (plugin-native layout). For
+# copy-install we also synthesize a bundle-root SKILL.md so single-skill harnesses
+# still find the router at the top of the installed directory.
+PAYLOAD=(skills references scripts commands hooks AGENTS.md README.md LICENSE evals)
+ROUTER_SRC="skills/oci-administrator/SKILL.md"
 
 say()  { printf '[install] %s\n' "$*"; }
 warn() { printf '[install][warn] %s\n' "$*" >&2; }
@@ -44,6 +48,12 @@ copy_payload() {  # copy_payload <dest_dir>
     rm -rf "${dest:?}/$item"
     cp -R "$REPO_DIR/$item" "$dest/$item"
   done
+  # Synthesize the bundle-root router for single-skill harnesses. The canonical
+  # router lives 2 levels deep (skills/oci-administrator/) so its links use
+  # ../../ ; at the bundle root those resolve to ./ instead.
+  if [[ -f "$REPO_DIR/$ROUTER_SRC" ]]; then
+    sed 's#\.\./\.\./#./#g' "$REPO_DIR/$ROUTER_SRC" > "$dest/SKILL.md"
+  fi
   find "$dest/scripts" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
 }
 

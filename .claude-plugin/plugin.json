@@ -1,0 +1,23 @@
+{
+  "name": "oci-administrator",
+  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration for Claude Code — safety-first slash commands for IAM, Security & Compliance, Observability & Database, and Networking & Compute. Work by friendly context name instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
+  "version": "1.1.0",
+  "author": {
+    "name": "adibirzu",
+    "url": "https://github.com/adibirzu"
+  },
+  "homepage": "https://github.com/adibirzu/oci-skills",
+  "repository": "https://github.com/adibirzu/oci-skills",
+  "license": "MIT",
+  "keywords": [
+    "oci",
+    "oracle-cloud",
+    "iam",
+    "cloud-guard",
+    "vault",
+    "oke",
+    "vcn",
+    "observability",
+    "devops"
+  ]
+}

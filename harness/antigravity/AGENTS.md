@@ -7,8 +7,8 @@ Antigravity skills directory and links this file as the active `AGENTS.md`.
 ## Capability
 
 Administer, audit, provision, secure, and troubleshoot Oracle Cloud
-Infrastructure across four domains, each with a dedicated plugin under
-`plugins/` and a reference under `references/`:
+Infrastructure across four domains, each with a dedicated skill under
+`skills/` and a reference under `references/`:
 
 - **IAM & Tenancy** — users, groups, dynamic groups, policies, compartments,
   budgets, quotas, service limits, tags, Identity Domains.
