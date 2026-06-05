@@ -53,7 +53,7 @@ jobs:
         run: |
           sudo apt-get update -y && sudo apt-get install -y shellcheck
           # -x follows sourced files; --severity=warning ignores info notes (e.g. SC1091)
-          shellcheck -x --severity=warning scripts/*.sh install.sh
+          shellcheck -x --severity=warning scripts/*.sh install.sh bootstrap.sh
 
       - name: ruff + compile
         run: |

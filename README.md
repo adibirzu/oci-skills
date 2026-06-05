@@ -42,14 +42,40 @@ Every plugin inherits the same contract (see
 
 ## Install
 
-```bash
-git clone https://github.com/adibirzu/oci-skills.git
-cd oci-skills
+### One line (recommended)
 
-./install.sh --list        # show detected harnesses
-./install.sh               # install into every detected harness
-./install.sh claude codex  # or pick specific ones
-DRY_RUN=true ./install.sh  # preview, copy nothing
+Installs into every agent harness it detects (Claude Code, Codex, Gemini CLI,
+Antigravity):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/adibirzu/oci-skills/main/bootstrap.sh | bash
+```
+
+Pick specific harnesses, or pin a fork/branch:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/adibirzu/oci-skills/main/bootstrap.sh | bash -s -- claude codex
+OCI_SKILLS_REF=main curl -fsSL https://raw.githubusercontent.com/adibirzu/oci-skills/main/bootstrap.sh | bash
+```
+
+`bootstrap.sh` clones (or fast-forwards) the repo into
+`~/.local/share/oci-skills`, then runs the installer. Re-run it any time to
+update. Requires `git`.
+
+### From a clone
+
+```bash
+git clone https://github.com/adibirzu/oci-skills.git && cd oci-skills
+
+make install               # install into every detected harness
+make list                  # show detected harnesses
+make install-claude        # or a single harness: -claude / -codex / -gemini / -antigravity
+make dry-run               # preview, copy nothing
+
+# equivalently, the installer directly:
+./install.sh               # every detected harness
+./install.sh claude codex  # pick specific ones
+DRY_RUN=true ./install.sh  # preview
 ```
 
 Install targets (override with env vars — see `install.sh` header):
@@ -82,7 +108,9 @@ scripts/                # shared core
 plugins/                # four admin domain sub-skills
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
+bootstrap.sh            # one-line remote installer (curl | bash)
 install.sh              # multi-harness installer
+Makefile                # make install / list / dry-run
 ```
 
 ## Quick start
