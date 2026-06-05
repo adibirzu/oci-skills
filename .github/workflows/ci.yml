@@ -61,6 +61,24 @@ jobs:
           ruff check scripts/*.py
           python3 -m py_compile scripts/*.py
 
+  bash32:
+    name: bash 3.2 portability (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: confirm /bin/bash is 3.2
+        run: /bin/bash --version | head -1
+
+      - name: syntax-check all scripts under bash 3.2
+        run: |
+          for f in scripts/*.sh install.sh bootstrap.sh tests/*.sh; do
+            /bin/bash -n "$f"
+          done
+
+      - name: empty-array / nounset smoke (the macOS default-bash trap)
+        run: /bin/bash tests/bash32_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest
