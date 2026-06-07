@@ -7,7 +7,7 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration skill pack. Route any OCI request to one
-of four domain skills under `skills/`, all sharing the safety core in
+of five domain skills under `skills/`, all sharing the safety core in
 `scripts/` and `references/`.
 
 ## Always, before acting
@@ -24,6 +24,7 @@ of four domain skills under `skills/`, all sharing the safety core in
 | Cloud Guard, Vault, WAF, CIS/ISO-42001, audit | `skills/oci-security-compliance/` · `references/security-compliance.md` |
 | APM, Log Analytics, Monitoring, DBM, Ops Insights | `skills/oci-observability-db/` · `references/observability-db.md` |
 | VCN, NSG, LB, OKE, compute, OCIR | `skills/oci-networking-compute/` · `references/networking-compute.md` |
+| cost, usage, spend, budget, forecast, billing, FinOps | `skills/oci-cost/` · `references/cost-management.md` (read-only; `scripts/oci_cost.sh`) |
 
 ## Hard rules
 
