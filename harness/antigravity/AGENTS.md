@@ -7,7 +7,7 @@ Antigravity skills directory and links this file as the active `AGENTS.md`.
 ## Capability
 
 Administer, audit, provision, secure, and troubleshoot Oracle Cloud
-Infrastructure across five domains, each with a dedicated skill under
+Infrastructure across six domains, each with a dedicated skill under
 `skills/` and a reference under `references/`:
 
 - **IAM & Tenancy** — users, groups, dynamic groups, policies, compartments,
@@ -21,6 +21,9 @@ Infrastructure across five domains, each with a dedicated skill under
 - **Cost & Usage (FinOps)** — Usage API spend by service/compartment/region/tag,
   budgets (limit vs actual vs forecast), cost-tracking tags, guardrails.
   Read-only via `./scripts/oci_cost.sh`.
+- **Log Analytics (Logan)** — the OCL query language, sources/parsers/fields,
+  entities/log groups, detections (Sigma→OCL), saved/scheduled searches,
+  dashboards, migration. Read-only query via `./scripts/oci_logan.sh`.
 
 ## Operating contract (non-negotiable)
 

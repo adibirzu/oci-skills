@@ -101,8 +101,14 @@ oci_cli logging-management agent-configuration list --compartment-id <COMPARTMEN
 
 ## Log Analytics (LQL, sources, saved searches)
 
+> **For anything beyond a one-off query, use the dedicated `oci-log-analytics`
+> skill** — it has the full OCL cheat-sheet, the `oci_logan.sh` read-only query
+> helper, sources/parsers/fields/entities, detections (Sigma→OCL), and migration
+> patterns. See [log-analytics.md](log-analytics.md). This section is a quick
+> pointer only.
+
 *Why:* Log Analytics is a separate service with its own `<NAMESPACE>`; queries use
-LQL (not MQL), and saved searches make dashboards reproducible.
+OCL (not MQL), and saved searches make dashboards reproducible.
 
 ```bash
 oci_cli log-analytics query --namespace-name <NAMESPACE> \
@@ -172,37 +178,105 @@ run_mutating "create connector" \
     --display-name "<name>" --source file://source.json --target file://target.json
 ```
 
-## Database Management (DBM)
+## Database Management (DBM) + Operations Insights (OPSI) — enablement matrix
 
-DBM enablement attaches monitoring to a DB system, external DB, or PDB and feeds
-**Performance Hub** and fleet views. *Why:* enabling is a work-request-backed,
-idempotent mutation — list monitored databases first to avoid double-enable.
+DBM feeds **Performance Hub** and fleet views; OPSI ingests AWR/SQL for capacity
+and SQL analysis. Both are work-request-backed, idempotent mutations — discover
+first, then enable. *Why the matrix:* **the enable path differs fundamentally by
+target type.** ADB uses **native `db autonomous-database` verbs** (managed
+credentials, no PE, no Vault secret); DBCS/Exadata use the **`database-management`
+/ `opsi` service APIs over private endpoints** with a monitoring user + Vault
+secret. For OCI-native DBCS/Exadata the **Managed Database OCID == the database
+(or pluggable-database) OCID**.
+
+| Target | DBM enable | OPSI enable | Prereqs |
+|---|---|---|---|
+| Base DB / DBCS (CDB) | `db database enable-database-management --management-type ADVANCED` | `opsi database-insights create-pe-comanged-database --database-resource-type database` | DBM PE, OPSI PE, Vault secret, monitoring user+grants, real service name |
+| DBCS PDB | `db pluggable-database enable-pluggable-database-management` | `... create-pe-comanged-database --database-resource-type pluggabledatabase` | **Parent CDB DBM enabled first** |
+| Exadata (ExaCS/ExaCC) | same DBCS verbs | same, `--deployment-type EXACS\|EXACC` | same as DBCS |
+| Autonomous DB (ADB) | `db autonomous-database enable-autonomous-database-management` | `opsi database-insights enable-autonomous-database --is-advanced-features-enabled false` | none — managed credentials, no PE/Vault |
+| External DB / Exadata | Management Agent + `dbmgmt` plugin | Management Agent + `opsi` plugin | agent registered, plugins `RUNNING` |
+
+> CLI spelling trap: the create verb is misspelled `create-pe-comanged-database`
+> ("comanged"); the enable-on-existing verb is `enable-pe-comanaged-database`.
 
 ```bash
-oci_cli database-management managed-database list --compartment-id <COMPARTMENT_OCID> --all
-run_mutating "enable DBM" \
-  oci_cli database-management external-database enable-database-management \
-    --external-database-id <DB_OCID> \
-    --database-management-config file://dbm_config.json
-# Fleet + Performance Hub are read views over enabled databases:
+# Base DB / DBCS (CDB). Service name MUST be the real listener service.
+run_mutating "enable DBM (CDB)" oci_cli db database enable-database-management \
+  --database-id <DB_OCID> --management-type ADVANCED \
+  --password-secret-id <VAULT_SECRET_OCID> --private-end-point-id <DBM_PE_OCID> \
+  --service-name <DB_UNIQUE_NAME>.<DB_DOMAIN> --user-name <MONITORING_USER>
+
+# Reconcile an already-enabled connection in place (fix stale service name /
+# rotated credential WITHOUT disable+re-enable). Note: --wait-for-state is the
+# DB lifecycle state AVAILABLE, not work-request SUCCEEDED.
+run_mutating "reconcile DBM" oci_cli db database modify-database-management \
+  --database-id <DB_OCID> --management-type ADVANCED \
+  --service-name <DB_UNIQUE_NAME>.<DB_DOMAIN> --password-secret-id <VAULT_SECRET_OCID> \
+  --private-end-point-id <DBM_PE_OCID> --user-name <MONITORING_USER> \
+  --wait-for-state AVAILABLE --max-wait-seconds 900
+
+# OPSI co-managed create (DBCS/Exadata). Pass ONLY the OPSI PE — never both PEs.
+run_mutating "create OPSI insight" oci_cli opsi database-insights create-pe-comanged-database \
+  --compartment-id <COMPARTMENT_OCID> --database-id <DB_OCID> \
+  --database-resource-type database \
+  --service-name <DB_UNIQUE_NAME>.<DB_DOMAIN> \
+  --credential-details file://credential-details.json \
+  --deployment-type VIRTUAL_MACHINE --opsi-private-endpoint-id <OPSI_PE_OCID> \
+  --connection-details file://connection-details.json \
+  --wait-for-state SUCCEEDED --max-wait-seconds 1200
+
+# Autonomous DB — native verbs, no PE/Vault/monitoring-user.
+run_mutating "enable ADB management" \
+  oci_cli db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
+run_mutating "enable ADB OPSI" oci_cli opsi database-insights enable-autonomous-database \
+  --database-insight-id <OPSI_INSIGHT_OCID> --is-advanced-features-enabled false
+```
+
+**DB-side prerequisites (DBCS/Exadata only).** A monitoring user (commonly the
+CDB common user `DBSNMP`, so grant `CONTAINER=ALL` from root) needs at minimum
+`create session`, `select any dictionary`, `select_catalog_role`; Performance Hub
+adds `advisor`, `execute on dbms_workload_repository`, `administer sql tuning set`
+(fixes `ORA-13750`). Put the user on a non-locking profile
+(`FAILED_LOGIN_ATTEMPTS UNLIMITED`) or the local Oracle Cloud Agent's stale
+password re-locks it (`ORA-28000` loop). PDB Performance Hub is empty unless
+`awr_pdb_autoflush_enabled=true` is set at root **and** in each PDB. Store the
+monitoring password as a base64 KMS Vault secret and reference it via
+`passwordSecretId`. See `KB.md` (observability-db) for the failure modes.
+
+**Private endpoints.** Create the **DBM PE** (`database-management
+private-endpoint create`) and a **separate OPSI PE** (`opsi opsi-private-endpoint
+create`); the OPSI create rejects passing both PE ids. The PE subnet needs a
+**Service Gateway + route rule** (`destination-type=SERVICE_CIDR_BLOCK`) and NSG
+ingress on `1521/1522`.
+
+**Discovery & validation (read).** DBM reports `ENABLED` even when its data path
+is broken (it connects by managed-DB OCID), so **OPSI is where auth/service-name
+defects first surface** — only OPSI's create runs an explicit connect-and-collect
+test. "Collecting" = DBM managed-database `database-status: UP` + OPSI insight
+`lifecycle-state: ACTIVE` with `database-connection-status-details: SUCCESS`.
+The `opsi database-insights list` control plane is **non-deterministic** when many
+`--lifecycle-state` values combine with `--all` — prefer a single-resource
+`database-insights get --database-insight-id <ID>`, or query one state per call and
+union by OCID. Never conclude "absent" from an empty/partial list.
+
+```bash
+# OCI-native: the managed-database id IS the database/PDB OCID.
 oci_cli database-management managed-database get --managed-database-id <DB_OCID>
+oci_cli opsi database-insights get --database-insight-id <OPSI_INSIGHT_OCID>
+# Find FAILED enablement work requests:
+oci_cli database-management work-request list --compartment-id <COMPARTMENT_OCID>
+oci_cli opsi work-requests list --compartment-id <COMPARTMENT_OCID> --sort-order DESC
+# A FAILED insight cannot be deleted directly — disable, then delete, then recreate.
 ```
 
-## Operations Insights (OPSI)
-
-Database Insights ingest AWR/SQL data for capacity and SQL analysis. *Why:*
-enable/disable are async work requests; capacity and SQL Insights only populate
-after the database insight reaches `ENABLED`.
-
-```bash
-oci_cli opsi database-insights list --compartment-id <COMPARTMENT_OCID> --all
-run_mutating "enable database insight" \
-  oci_cli opsi database-insights enable-database-insight \
-    --database-insight-id <DB_INSIGHT_OCID>
-# Capacity / SQL insights (read):
-oci_cli opsi database-insights summarize-database-insight-resource-capacity-trend \
-  --compartment-id <COMPARTMENT_OCID> --resource-metric CPU
-```
+**Data Safe** is a standalone `target-database` resource (not a DB status flag),
+connected through a Data Safe PE with a DB service account; register with
+`file://` JSON payloads (`databaseDetails` keyed off `dbSystemId`+`serviceName`
+for cloud DBs, or `autonomousDatabaseId` for ADB). `target-database update`
+returns a work request (`--wait-for-state SUCCEEDED`) and needs `--force`
+non-interactively. Audit queries use `scim_query` time filters, not
+`time_started`/`time_ended` (see `KB.md`).
 
 ## Autonomous Database admin (idempotent provision)
 
