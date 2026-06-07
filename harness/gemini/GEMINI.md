@@ -26,6 +26,7 @@ balancers, OKE, compute, OCIR).
 - Security / compliance → `./skills/oci-security-compliance/SKILL.md` + `./references/security-compliance.md`
 - Observability / DB → `./skills/oci-observability-db/SKILL.md` + `./references/observability-db.md`
 - Networking / compute → `./skills/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
+- Cost / usage / budgets (FinOps) → `./skills/oci-cost/SKILL.md` + `./references/cost-management.md` (read-only via `./scripts/oci_cost.sh`)
 
 ## Rules
 
