@@ -13,7 +13,7 @@ plugins, packaged for **Claude Code, Codex, Gemini CLI, and Antigravity**.
 OCI administration knowledge tends to get copy-pasted across scripts: the same
 `oci` CLI auth negotiation, the same "check the service limit first", the same
 "is the WAF rule in OBSERVE or BLOCK?" gotchas. This pack centralizes those into
-one reusable core plus five domain skills, with a hard rule that nothing
+one reusable core plus six domain skills, with a hard rule that nothing
 sensitive is ever printed or committed.
 
 ## Domains
@@ -25,6 +25,7 @@ sensitive is ever printed or committed.
 | **oci-observability-db** | Monitoring & alarms, Logging, Log Analytics, APM (traces/RUM), Notifications, Service Connector Hub, Database Management, Operations Insights, Autonomous DB. |
 | **oci-networking-compute** | VCN, subnets, NSGs, route tables, gateways, load balancers, OKE, compute instances, OCIR. |
 | **oci-cost** | Cost & usage reporting (Usage API: spend by service/compartment/region/tag), budgets (limit vs actual vs forecast), cost-tracking tags, guardrail recommendations. |
+| **oci-log-analytics** | OCI Log Analytics (Logan): the OCL query language, a read-only query helper, sources/parsers/fields/entities/log groups, detections (incl. Sigma→OCL), saved/scheduled searches, dashboards, content migration. |
 
 ## Safety model
 
@@ -59,6 +60,7 @@ destructive `oci` commands until they are preflighted and confirmed:
 | `/oci-administrator:preflight` | Confirm the target tenancy/compartment by name (read-only). |
 | `/oci-administrator:audit` | Read-only IAM posture snapshot. |
 | `/oci-administrator:cost` | Read-only cost, usage & budget summary. |
+| `/oci-administrator:logan` | Read-only Log Analytics (OCL) query with a time window. |
 | `/oci-administrator:kb` | Search the KB for a known fix. |
 | `/oci-administrator:troubleshoot` | KB-first, route to domain, propose a gated fix. |
 
@@ -126,19 +128,19 @@ Install targets (override with env vars — see `install.sh` header):
   plugin.json  marketplace.json
 SKILL.md                 # Claude Code entrypoint (router)
 AGENTS.md                # Codex / Antigravity entrypoint (mirror)
-commands/                # Claude Code slash commands (context/preflight/audit/cost/kb/troubleshoot)
+commands/                # Claude Code slash commands (context/preflight/audit/cost/logan/kb/troubleshoot)
 hooks/                   # PreToolUse guard that blocks destructive oci commands
   hooks.json  guard_destructive.py
 references/              # domain + safety knowledge (progressive disclosure)
   tenancy-safety.md  helper-conventions.md  KB.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
-  cost-management.md
+  cost-management.md  log-analytics.md
 scripts/                # shared core
-  common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  redact.py  iam_audit.py  kb_lookup.py
-skills/                  # six auto-discoverable skills (router + five domains)
+  common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  redact.py  iam_audit.py  kb_lookup.py
+skills/                  # seven auto-discoverable skills (router + six domains)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
-  oci-observability-db/  oci-networking-compute/  oci-cost/
+  oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
 bootstrap.sh            # one-line remote installer (curl | bash)
