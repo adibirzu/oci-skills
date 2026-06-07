@@ -27,6 +27,7 @@ balancers, OKE, compute, OCIR).
 - Observability / DB → `./skills/oci-observability-db/SKILL.md` + `./references/observability-db.md`
 - Networking / compute → `./skills/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
 - Cost / usage / budgets (FinOps) → `./skills/oci-cost/SKILL.md` + `./references/cost-management.md` (read-only via `./scripts/oci_cost.sh`)
+- Log Analytics / Logan / OCL queries → `./skills/oci-log-analytics/SKILL.md` + `./references/log-analytics.md` (read-only query via `./scripts/oci_logan.sh`)
 
 ## Rules
 

@@ -11,8 +11,9 @@ description: >-
   Networking & Compute (VCN, subnets, NSGs, route tables, load balancers, OKE,
   compute instances, OCIR). Triggers on mentions of OCI, oci-cli, OCID,
   compartment, tenancy, IAM policy, Cloud Guard, Vault, WAF, OKE, VCN, NSG,
-  Log Analytics, APM, service limits, cost, usage, spend, budget, billing,
-  Usage API, FinOps, or ~/.oci/config. This is the
+  Log Analytics, OCL, Logan, log query, APM, service limits, cost, usage, spend,
+  budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, or ~/.oci/config.
+  This is the
   tenancy-agnostic admin pack; for the OCI-DEMO component system use
   oracle-oci-management instead.
 license: MIT
@@ -21,12 +22,13 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of five domain skills, all sharing one tenancy-safety core.
+of six domain skills, all sharing one tenancy-safety core.
 
 ## First move (always)
 
 1. Identify the **domain** of the request (IAM, Security, Observability/DB,
-   Networking/Compute) and the **tenancy/compartment** it targets.
+   Networking/Compute, Cost/FinOps, Log Analytics) and the
+   **tenancy/compartment** it targets.
 2. Prefer a **named context** over raw OCIDs — `dev`, `prod`, etc. resolve to a
    profile + compartment + region (see
    [references/named-contexts.md](../../references/named-contexts.md)):
@@ -56,6 +58,7 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | `/oci-administrator:preflight` | Confirm the target tenancy/compartment by name (read-only gate). |
 | `/oci-administrator:audit` | Read-only IAM posture snapshot. |
 | `/oci-administrator:cost` | Read-only cost, usage & budget summary. |
+| `/oci-administrator:logan` | Read-only Log Analytics (OCL) query with a time window. |
 | `/oci-administrator:kb` | Search the KB for a known fix. |
 | `/oci-administrator:troubleshoot` | KB-first, route to domain, propose a gated fix. |
 
@@ -68,6 +71,7 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | APM, Log Analytics, Monitoring, alarms, dashboards, Database Management, Operations Insights, metrics | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
 | VCN, subnet, NSG, route table, gateway, load balancer, OKE, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
 | cost, spend, usage, billing, invoice, forecast, FinOps, cost-tracking tag, Usage API | **oci-cost** | [references/cost-management.md](../../references/cost-management.md) |
+| Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
 
@@ -89,6 +93,8 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 | `scripts/oci_context.py` | Named contexts (name → profile + compartment + region); no OCIDs to memorize. |
 | `scripts/oci_preflight.sh` | Confirm tenancy/compartment before mutating. |
 | `scripts/iam_audit.py` | Read-only IAM posture snapshot (SDK). |
+| `scripts/oci_cost.sh` | Read-only cost/usage by service + budgets (FinOps). |
+| `scripts/oci_logan.sh` | Read-only Log Analytics (OCL) query with a friendly time window. |
 | `scripts/redact.py` | Mask OCIDs/IPs/secrets in text or JSON (CI gate). |
 | `scripts/kb_lookup.py` | Search `references/KB.md` for a known fix. |
 

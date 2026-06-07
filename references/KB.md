@@ -354,3 +354,171 @@ not replicated into the consuming cluster/namespace.
 **Root cause:** Usage API access depends on tenancy-level policy grants for the calling principal and is independent of budget provisioning; it is queried at tenant scope.
 **Fix:** Treat Usage API checks as warn-only unless the calling principal is explicitly granted `read usage-report in tenancy`; gate strict behavior behind an opt-in flag.
 **Status:** resolved.
+
+## KB-048 — OPSI create fails at ~80% with `DbcsEntityChangeWorkflowFailed` (observability-db)
+
+**Symptom:** `opsi database-insights create-pe-comanged-database` reaches ~80% then FAILED; the insight list is empty while DBM looks healthy.
+**Root cause:** Wrong `serviceName` (a bare DB/PDB name → `ORA-12514`) and/or the Vault password drifted from the DB account password (`ORA-01017`). OPSI runs an explicit connect test; DBM does not, so it masked the defect.
+**Fix:** Use the real listener service (`<db_unique_name>.<domain>` / `<pdb>.<domain>`), sync the monitoring password to the Vault secret, disable + delete the FAILED insight, then re-create.
+**Status:** resolved.
+
+## KB-049 — DBM stays enabled but never collects after re-enable (observability-db)
+
+**Symptom:** DBM monitoring stays Stopped/UNKNOWN even though the credential is correct.
+**Root cause:** A re-run only tolerated the "already enabled" 409 and skipped DBM, so a corrected service name never reached the connection.
+**Fix:** Reconcile in place with `db database modify-database-management` (or `modify-pluggable-database-management`) using `--wait-for-state AVAILABLE` — no disable/re-enable needed.
+**Status:** resolved.
+
+## KB-050 — Monitoring user re-locks minutes after rotation (`ORA-28000` loop) (observability-db)
+
+**Symptom:** DBM goes green, then flips to Stopped; the DB account cycles OPEN→LOCKED.
+**Root cause:** The local Oracle Cloud Agent keeps authenticating with the old password, tripping `FAILED_LOGIN_ATTEMPTS`.
+**Fix:** Put the monitoring user on a non-locking common profile (`CREATE PROFILE C##..._MON LIMIT FAILED_LOGIN_ATTEMPTS UNLIMITED; ALTER USER ... PROFILE ... CONTAINER=ALL; ... ACCOUNT UNLOCK CONTAINER=ALL`).
+**Status:** resolved.
+
+## KB-051 — PDB Performance Hub ADDM/AWR empty + `ORA-13750` on STS create (observability-db)
+
+**Symptom:** A PDB's ADDM/AWR views show no data; creating a SQL Tuning Set from Performance Hub fails `ORA-13750`.
+**Root cause:** Auto-AWR runs at CDB root only by default (`AWR_PDB_AUTOFLUSH_ENABLED=FALSE`); the monitoring user lacks STS admin.
+**Fix:** Set `awr_pdb_autoflush_enabled=true` at root **and** per-PDB, set a PDB snapshot interval, seed a snapshot, and grant `administer [any] sql tuning set`.
+**Status:** resolved.
+
+## KB-052 — ADDM `ORA-13703` inside a PDB (mixed dbids) (observability-db)
+
+**Symptom:** `DBMS_ADDM.ANALYZE_DB` raises `ORA-13703` "snapshots not found" in a PDB.
+**Root cause:** Inside a PDB, `dba_hist_snapshot` lists both root and PDB snapshots; `ANALYZE_DB` analyzes the PDB `CON_DBID`.
+**Fix:** Filter the snapshot pair to `dbid = sys_context('USERENV','CON_DBID')`; pass `task_name` only once (it is positional IN OUT, else `PLS-00703`).
+**Status:** resolved.
+
+## KB-053 — Monitoring password rejected by verify function / too long (observability-db)
+
+**Symptom:** `ALTER USER` fails `ORA-20000` (needs ≥2 special chars) or `ORA-00972` (identifier too long); in-PDB alter fails `ORA-65066`.
+**Root cause:** CDB password-verify complexity + SQL identifier length limits; a common user must be changed from root.
+**Fix:** Choose a shorter password with mixed case, a digit, and ≥2 special chars; change the common user with `CONTAINER=ALL` from `CDB$ROOT`.
+**Status:** resolved.
+
+## KB-054 — OPSI create rejects both PE ids / wrong resource type (observability-db)
+
+**Symptom:** `Cannot provide both opsiPrivateEndpointId and dbmPrivateEndpointId`, or `ORACLE_DATABASE` rejected as unsupported.
+**Root cause:** The OPSI create accepts only the OPSI PE; the resource type must be the OCI lowercase string.
+**Fix:** Pass only `--opsi-private-endpoint-id`; use `--database-resource-type database` (CDB/non-CDB) or `pluggabledatabase` (PDB).
+**Status:** resolved.
+
+## KB-055 — `opsi database-insights list` is non-deterministic (observability-db)
+
+**Symptom:** Discovery/validate reports an insight as NOT_FOUND while it is actually ACTIVE; repeated lists flap between 0/partial/full.
+**Root cause:** Combining the full `--lifecycle-state` set with `--all` in one call makes the list control plane non-deterministic.
+**Fix:** Prefer single-resource `opsi database-insights get --database-insight-id <ID>`; otherwise query one lifecycle state per call and union by OCID. Treat empty/partial reads as inconclusive, never as absence.
+**Status:** resolved.
+
+## KB-056 — Preferred-credential set fails `RelatedResourceNotAuthorizedOrNotFound` (observability-db)
+
+**Symptom:** The generic `database-management preferred-credential update --type NAMED_CREDENTIAL` fails.
+**Root cause:** The generic update mis-maps the request body.
+**Fix:** Use the dedicated verb `preferred-credential update-preferred-credential-update-named-preferred-credential-details --managed-database-id <ID> --credential-name PC_READ|PC_WRITE --named-credential-id <NAMED_CRED_OCID>`.
+**Status:** resolved.
+
+## KB-057 — Data Safe target stuck `NEEDS_ATTENTION` with `ORA-01017` (observability-db)
+
+**Symptom:** A Data Safe target registers but stays `NEEDS_ATTENTION`; lifecycle details show "Failed to connect... ORA-01017" although the network path is fine.
+**Root cause:** Stale/invalid service-account password.
+**Fix:** Rotate the account password `CONTAINER=ALL`, then update both the Vault secret and the Data Safe target (`data-safe target-database update --credentials file://... --force`; work request → `--wait-for-state SUCCEEDED`).
+**Status:** resolved.
+
+## KB-058 — DB-system create blocked by a per-AD `database` service limit (observability-db)
+
+**Symptom:** DB system create fails `vm-block-storage-gb LimitExceeded` even though block-volume quota is free.
+**Root cause:** This is a **Database** service limit enforced **per availability domain**; one AD was full.
+**Fix:** Pin the DB system to an AD with headroom; check `oci limits resource-availability get --service-name database --limit-name vm-block-storage-gb --availability-domain <AD> --compartment-id <TENANCY_OCID>`.
+**Status:** resolved.
+
+## KB-059 — Redacting the data path collapses OCID joins (observability-db)
+
+**Symptom:** Every database is reported as Data Safe/OPSI ENABLED (false positives) by a discovery tool.
+**Root cause:** Redacting CLI stdout **before** JSON parse turned every OCID into one identical token, so OCID-keyed joins matched everything.
+**Fix:** Redact only at the display/serialize boundary (`--json` output, logs, error strings) — never in values that downstream logic parses/joins on.
+**Status:** resolved.
+
+## KB-060 — OCL: string-typed integer fields must be quoted (log-analytics)
+
+**Symptom:** `Invalid string value for the field 'Event ID': 4625`.
+**Root cause:** Fields like `Event ID`, `Logon Type`, `Response Code`, `Status Code` are stored as **strings** in OCI Log Analytics.
+**Fix:** Quote the literal: `'Event ID' = '4625'`, not `= 4625`.
+**Status:** resolved.
+
+## KB-061 — OCL: numeric LONG fields must NOT be quoted (log-analytics)
+
+**Symptom:** `Invalid long value for the field 'Destination Port': '443'`.
+**Root cause:** True numeric fields (`Source Port`, `Destination Port`, `Bytes Sent`) require a bare integer literal.
+**Fix:** Use `'Destination Port' = 443` (no quotes); only quote string-typed fields.
+**Status:** resolved.
+
+## KB-062 — OCL: multi-word field names need single quotes (log-analytics)
+
+**Symptom:** Parse error / field not recognized on `Host Name`, `Principal Name`, etc.
+**Root cause:** Unquoted multi-token field names are mis-tokenized.
+**Fix:** Wrap every multi-word field in single quotes: `'Host Name'`, `'Principal Name'`, `'Log Source'`.
+**Status:** resolved.
+
+## KB-063 — OCL: time range belongs in the API, not the query string (log-analytics)
+
+**Symptom:** A saved search returns nothing (or errors) when authors embed time literals.
+**Root cause:** OCL saved searches rely on the execution-time `TimeRange` (`--time-start`/`--time-end`/`--timezone`), not inline time.
+**Fix:** Keep queries time-agnostic; pass the window at call time. `oci_logan.sh -t <N{m|h|d|w}>` does this.
+**Status:** resolved.
+
+## KB-064 — LA source/parser lookups miss by display name (log-analytics)
+
+**Symptom:** A "missing" source gets duplicated, or an upsert hits an unexpected conflict.
+**Root cause:** Each artifact has an immutable internal `name` AND a `display_name`; matching one alone fails.
+**Fix:** Search `source list --is-system ALL` against **both** names before create.
+**Status:** resolved.
+
+## KB-065 — LA parser/source upsert needs the current etag (log-analytics)
+
+**Symptom:** `412 Precondition Failed` / concurrency error on upsert.
+**Root cause:** OCI uses optimistic concurrency on sources/parsers.
+**Fix:** `get` the resource to read its `etag`, then pass `if_match=<etag>` on upsert.
+**Status:** resolved.
+
+## KB-066 — LA entity name is immutable after creation (log-analytics)
+
+**Symptom:** Rename attempts fail; a solution UI shows a stale entity.
+**Root cause:** The LA entity `name` cannot be changed post-create.
+**Fix:** Update `metadata` and `time-last-discovered` instead; only fix the name on greenfield create.
+**Status:** resolved.
+
+## KB-067 — Null `cluster_date` breaks Kubernetes entity metric joins (log-analytics)
+
+**Symptom:** The OKE observability solution shows no metrics despite data flowing.
+**Root cause:** Required entity metadata (`cluster`, `cluster_date`, `metrics_namespace`) is missing or `null`.
+**Fix:** Set a real RFC3339 `cluster_date` (derive from `ce cluster` `metadata["time-created"]`) and repair via `entity update --metadata`.
+**Status:** resolved.
+
+## KB-068 — LA on-demand upload requires the log-group OCID (log-analytics)
+
+**Symptom:** On-demand uploaded events never appear or land in the wrong group.
+**Root cause:** `opc_meta_loggrpid` was omitted from `upload_log_file`.
+**Fix:** Always pass the target `<LOG_GROUP_OCID>` and the correct `log_source_name`.
+**Status:** resolved.
+
+## KB-069 — OCL `like` (glob) vs `matches` (regex) confusion (log-analytics)
+
+**Symptom:** A `matches` pattern returns nothing, or a `like` with `^...$` never matches.
+**Root cause:** `like` uses `*` glob wildcards; `matches` uses regex anchors.
+**Fix:** `'F' like '*substr*'` for substring; `'F' matches '^regex$'` for patterns — never mix the two syntaxes.
+**Status:** resolved.
+
+## KB-070 — LA query excludes child compartments by default (log-analytics)
+
+**Symptom:** Data in child compartments is missing from results.
+**Root cause:** The query was scoped to a single compartment.
+**Fix:** Set `--compartment-id-in-subtree true` (SDK `compartment_id_in_subtree=True`) to include children. `oci_logan.sh` does this by default.
+**Status:** resolved.
+
+## KB-071 — LA live query validation times out during bulk promotion (log-analytics)
+
+**Symptom:** `query validation exceeded <N>s` uniformly when validating many queries.
+**Root cause:** Validating many data-scanning queries live exhausts the deadline.
+**Fix:** Use `parse_query` (syntax-only, no scan) in CI; validate live in small batches against synthetic data with a per-query deadline.
+**Status:** resolved.
