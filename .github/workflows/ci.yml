@@ -130,3 +130,6 @@ jobs:
               sys.exit(1)
           print(f"all manifests valid ({len(skills)} skills)")
           PY
+
+      - name: eval routing validator
+        run: python3 tests/check_eval_routing.py
