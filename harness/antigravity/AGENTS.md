@@ -7,7 +7,7 @@ Antigravity skills directory and links this file as the active `AGENTS.md`.
 ## Capability
 
 Administer, audit, provision, secure, and troubleshoot Oracle Cloud
-Infrastructure across six domains, each with a dedicated skill under
+Infrastructure across eight domains, each with a dedicated skill under
 `skills/` and a reference under `references/`:
 
 - **IAM & Tenancy** — users, groups, dynamic groups, policies, compartments,
@@ -24,6 +24,10 @@ Infrastructure across six domains, each with a dedicated skill under
 - **Log Analytics (Logan)** — the OCL query language, sources/parsers/fields,
   entities/log groups, detections (Sigma→OCL), saved/scheduled searches,
   dashboards, migration. Read-only query via `./scripts/oci_logan.sh`.
+- **Resource Manager (ORM)** — managed Terraform: stacks, plan/apply/destroy
+  jobs, tfstate, drift, schema.yaml packaging.
+- **Data Safe** — target registration, security/user assessment, activity
+  auditing, data discovery, data masking.
 
 ## Operating contract (non-negotiable)
 

@@ -522,3 +522,87 @@ not replicated into the consuming cluster/namespace.
 **Root cause:** Validating many data-scanning queries live exhausts the deadline.
 **Fix:** Use `parse_query` (syntax-only, no scan) in CI; validate live in small batches against synthetic data with a per-query deadline.
 **Status:** resolved.
+
+## KB-072 — KMS key list needs the vault management-endpoint (security)
+
+**Symptom:** `oci kms management key list` returns nothing or errors with an endpoint problem.
+**Root cause:** The KMS management plane is **per-vault**, not regional; the default control-plane endpoint cannot list keys.
+**Fix:** Read `.management-endpoint` from `kms vault get/list` and pass `--endpoint <VAULT_MANAGEMENT_ENDPOINT>` on `kms management` calls.
+**Status:** resolved.
+
+## KB-073 — Cloud Guard findings only appear in the reporting region (security)
+
+**Symptom:** `cloud-guard problem list` is empty although Cloud Guard is ENABLED.
+**Root cause:** Problems aggregate in the single configured **reporting region**; queries from any other region return empty.
+**Fix:** Read `reporting-region` from `cloud-guard configuration get` and query problems with `--region <REPORTING_REGION>`.
+**Status:** resolved.
+
+## KB-074 — Subtree visibility needs both `--compartment-id-in-subtree` and `--access-level` (security)
+
+**Symptom:** Child-compartment Cloud Guard problems / compartments are missing from results.
+**Root cause:** Default list scope is the single compartment at the caller's own access level.
+**Fix:** Add `--compartment-id-in-subtree true --access-level ACCESSIBLE` to compartment and problem `list` calls.
+**Status:** resolved.
+
+## KB-075 — Regional resources missed when scanning only the home region (networking-compute)
+
+**Symptom:** Buckets/subnets/keys in non-home regions are never flagged by a posture scan.
+**Root cause:** Regional resource `list` calls default to the configured region.
+**Fix:** Enumerate `iam region-subscription list --tenancy-id <TENANCY_OCID>` (status READY/ACTIVE) and repeat each list with `--region <REGION>`.
+**Status:** resolved.
+
+## KB-076 — `audit config` vs `audit configuration` verb varies by CLI version (cli)
+
+**Symptom:** `oci audit config get` (or `audit configuration get`) errors as an unknown command.
+**Root cause:** The subcommand name differs across OCI CLI versions.
+**Fix:** Try `audit config get`, fall back to `audit configuration get`; both return `retention-period-days`.
+**Status:** resolved.
+
+## KB-077 — A public subnet is `prohibit-public-ip-on-vnic == false`, not an `isPublic` flag (networking-compute)
+
+**Symptom:** No boolean "isPublic" field exists on a subnet, so public subnets aren't detected.
+**Root cause:** OCI models public/private as `prohibit-public-ip-on-vnic` (true == private).
+**Fix:** Treat `prohibit-public-ip-on-vnic == false` (or absent) as a public subnet.
+**Status:** resolved.
+
+## KB-078 — Open-port checks miss protocol-only `0.0.0.0/0` rules (networking-compute)
+
+**Symptom:** Internet-open SSH/RDP rules are missed by a security-list/NSG scan.
+**Root cause:** A rule can specify protocol `6` (TCP) with **no** `tcp-options`/port range, implicitly opening all ports.
+**Fix:** Flag `source==0.0.0.0/0` when `tcp-options.destination-port-range.min in {22,3389}` **OR** when `protocol=="6"` with no port options.
+**Status:** resolved.
+
+## KB-079 — Bucket `public-access-type` is absent (not `NoPublicAccess`) on private buckets (security)
+
+**Symptom:** Private buckets are misclassified as public (or a `KeyError`).
+**Root cause:** The `public-access-type` field may be omitted on private buckets.
+**Fix:** Default the value to `"NoPublicAccess"` before comparing.
+**Status:** resolved.
+
+## KB-080 — `auto` auth mode silently picks the wrong identity (cli)
+
+**Symptom:** A tool reads the wrong tenancy / has unexpected permissions.
+**Root cause:** `auto` mode picks the config profile if one is ready, else instance principal — silently, with no log of which.
+**Fix:** Pin `OCI_AUTH_MODE` / `OCI_CLI_AUTH` explicitly (`config` or `instance_principal`) and assert the resolved tenancy before acting.
+**Status:** resolved.
+
+## KB-081 — Per-bucket CMK detection requires the namespace and the detailed `get` (security)
+
+**Symptom:** `os bucket get` fails, or the KMS key can't be detected from `os bucket list`.
+**Root cause:** Bucket `get` needs `--namespace <OS_NAMESPACE>` (from `os ns get`), and `kms-key-id` appears only on the detailed `get`, not on `list`.
+**Fix:** Resolve the namespace once, then `os bucket get --namespace <OS_NAMESPACE> --bucket-name <BUCKET>` and read `kms-key-id`.
+**Status:** resolved.
+
+## KB-082 — KMS auto-rotation vs rotated-once are different signals (security)
+
+**Symptom:** Keys reported compliant though never actually rotated (or vice-versa).
+**Root cause:** `is-auto-rotation-enabled` (policy) and `current-key-version` (has been versioned) measure different things.
+**Fix:** Evaluate both — auto-rotation enabled for hygiene, plus a present current version for actual rotation evidence.
+**Status:** resolved.
+
+## KB-083 — ORM job hangs on `--wait-for-state SUCCEEDED` when it FAILs (cli)
+
+**Symptom:** A Resource Manager plan/apply/destroy job never returns; the process must be killed.
+**Root cause:** Same as KB-007 — a `FAILED`/`CANCELED` job is not `SUCCEEDED`, so the CLI polls for the entire `--max-wait-seconds` window.
+**Fix:** Poll `resource-manager job get --query 'data."lifecycle-state"'` and break on all terminal states; dump `job get-job-logs-content` on failure.
+**Status:** resolved.
