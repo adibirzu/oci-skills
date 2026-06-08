@@ -28,6 +28,8 @@ balancers, OKE, compute, OCIR).
 - Networking / compute → `./skills/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
 - Cost / usage / budgets (FinOps) → `./skills/oci-cost/SKILL.md` + `./references/cost-management.md` (read-only via `./scripts/oci_cost.sh`)
 - Log Analytics / Logan / OCL queries → `./skills/oci-log-analytics/SKILL.md` + `./references/log-analytics.md` (read-only query via `./scripts/oci_logan.sh`)
+- Resource Manager / ORM / Terraform stacks → `./skills/oci-resource-manager/SKILL.md` + `./references/resource-manager.md`
+- Data Safe / assessments / masking → `./skills/oci-data-safe/SKILL.md` + `./references/data-safe.md`
 
 ## Rules
 

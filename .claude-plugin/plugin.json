@@ -1,7 +1,7 @@
 {
   "name": "oci-administrator",
-  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration for Claude Code — safety-first slash commands for IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost & Usage (FinOps), and Log Analytics (OCL queries). Work by friendly context name instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
-  "version": "1.4.0",
+  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration for Claude Code — safety-first skills for IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost & Usage (FinOps), Log Analytics (OCL queries), Resource Manager (Terraform stacks), and Data Safe. Work by friendly context name instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
+  "version": "1.5.0",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -23,6 +23,9 @@
     "log-analytics",
     "logan",
     "siem",
+    "resource-manager",
+    "terraform",
+    "data-safe",
     "devops"
   ]
 }
