@@ -606,3 +606,73 @@ not replicated into the consuming cluster/namespace.
 **Root cause:** Same as KB-007 — a `FAILED`/`CANCELED` job is not `SUCCEEDED`, so the CLI polls for the entire `--max-wait-seconds` window.
 **Fix:** Poll `resource-manager job get --query 'data."lifecycle-state"'` and break on all terminal states; dump `job get-job-logs-content` on failure.
 **Status:** resolved.
+
+## KB-084 — OCI Functions image must be amd64 (events-functions)
+
+**Symptom:** A function deploys fine but every invoke errors or hangs.
+**Root cause:** The image was built on arm64 (Apple Silicon); OCIR-hosted functions run on x86_64.
+**Fix:** Build with `--platform linux/amd64` (or on an x86 builder), re-push, and redeploy.
+**Status:** resolved.
+
+## KB-085 — Service Connector is ACTIVE but moves no data (events-functions)
+
+**Symptom:** An SCH connector shows `ACTIVE` but the target stays empty.
+**Root cause:** SCH runs as the `serviceconnector` service principal, not the user; the per-source/target IAM policy is missing, so create succeeds but runtime reads/writes are denied.
+**Fix:** Add policies for `request.principal.type='serviceconnector'` — e.g. `use stream-pull`/`stream-consume` for a streaming source and the target verb (`loganalytics-log-group`, etc.), scoped to the compartment.
+**Status:** resolved.
+
+## KB-086 — ONS email/HTTPS subscription silently drops messages (events-functions)
+
+**Symptom:** Published notifications never arrive.
+**Root cause:** The subscription is stuck in `PENDING` — a confirmation link was sent to the endpoint and never clicked; messages are dropped until confirmed.
+**Fix:** Confirm via the emailed link; verify `lifecycle-state == ACTIVE`. Links expire — delete and recreate the subscription to re-trigger.
+**Status:** resolved.
+
+## KB-087 — Events rule never fires (events-functions)
+
+**Symptom:** A rule is enabled with a correct-looking condition but nothing is invoked.
+**Root cause:** The source service isn't emitting events for that resource (e.g. Object Storage emits events only when enabled per bucket), or the `eventType` reverse-DNS string is slightly off.
+**Fix:** Enable emit-events on the resource; confirm the exact CloudEvents `eventType`; remember filters under `data` are arrays (OR-match), empty `{}` matches all.
+**Status:** resolved.
+
+## KB-088 — Streaming put_messages partial failure returns 200 (events-functions)
+
+**Symptom:** A producer reports success but some records never land in the stream.
+**Root cause:** `put_messages` returns per-entry results; individual entries can carry `.error` while the overall call returns 200.
+**Fix:** Iterate `resp.data.entries` and count any `entry.error` as a failure; retry the failed entries.
+**Status:** resolved.
+
+## KB-089 — Stream message size/count limits exceeded (events-functions)
+
+**Symptom:** Large batches are rejected by Streaming.
+**Root cause:** ~1 MB / 100-message per-`PutMessages` limits, and payloads are base64-encoded (inflating size ~33%).
+**Fix:** Batch size-aware — estimate base64 bytes + per-entry overhead and flush before the limit; cap entries at 100.
+**Status:** resolved.
+
+## KB-090 — Single-line PEM key from an env var rejected by the SDK (events-functions)
+
+**Symptom:** `validate_config` / auth fails when the private key is supplied via an environment variable.
+**Root cause:** Env vars collapse the PEM to one line or to literal `\n`, which the SDK won't parse.
+**Fix:** Normalize `\n`, extract the body between `-----BEGIN/END-----`, and re-wrap to 64-char lines before constructing the client.
+**Status:** resolved.
+
+## KB-091 — Producer uses a Stream Pool OCID instead of a Stream OCID (events-functions)
+
+**Symptom:** `put_messages` fails with not-found / invalid id.
+**Root cause:** A Stream **Pool** OCID was passed where a **Stream** OCID is required.
+**Fix:** Use `ocid1.stream...`; guard by rejecting any id containing `streampool`.
+**Status:** resolved.
+
+## KB-092 — SCH/Function async create used before ACTIVE (events-functions)
+
+**Symptom:** A script uses a half-created connector/function and fails.
+**Root cause:** Create returns a work request before the resource is `ACTIVE`.
+**Fix:** Pass `--wait-for-state ACTIVE --max-wait-seconds N` (120–300s) and resolve the OCID by re-listing on completion.
+**Status:** resolved.
+
+## KB-093 — LA custom source/parser not created by Terraform (events-functions)
+
+**Symptom:** An SCH `loggingAnalytics` target is wired but Log Analytics can't parse the records.
+**Root cause:** The OCI Terraform provider does not manage LA fields/parser/source; only the connector and log group are created.
+**Fix:** After `terraform apply`, create the custom source named in `logSourceIdentifier` with `oci log-analytics source upsert-source` (or a post-apply script). See the oci-log-analytics skill.
+**Status:** resolved.
