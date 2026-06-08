@@ -13,7 +13,8 @@ description: >-
   compartment, tenancy, IAM policy, Cloud Guard, Vault, WAF, OKE, VCN, NSG,
   Log Analytics, OCL, Logan, log query, APM, service limits, cost, usage, spend,
   budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, Resource Manager,
-  ORM, Terraform stack, or ~/.oci/config. This is the
+  ORM, Terraform stack, Functions, Events, Notifications, Service Connector Hub,
+  serverless, or ~/.oci/config. This is the
   tenancy-agnostic admin pack; for the OCI-DEMO component system use
   oracle-oci-management instead.
 license: MIT
@@ -22,7 +23,7 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of eight domain skills, all sharing one tenancy-safety core.
+of nine domain skills, all sharing one tenancy-safety core.
 
 ## First move (always)
 
@@ -59,6 +60,8 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | `/oci-administrator:audit` | Read-only IAM posture snapshot. |
 | `/oci-administrator:cost` | Read-only cost, usage & budget summary. |
 | `/oci-administrator:logan` | Read-only Log Analytics (OCL) query with a time window. |
+| `/oci-administrator:orm` | Read-only Resource Manager overview (stacks + latest job). |
+| `/oci-administrator:datasafe` | Read-only Data Safe overview (targets + assessment state). |
 | `/oci-administrator:kb` | Search the KB for a known fix. |
 | `/oci-administrator:troubleshoot` | KB-first, route to domain, propose a gated fix. |
 
@@ -66,14 +69,15 @@ When installed as a plugin, these wrap the safety core so the user works by name
 
 | Request mentions… | Plugin | Reference |
 |---|---|---|
-| users, groups, dynamic groups, policies, compartments, budgets, quotas, service limits, tags, regions | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
-| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
-| APM, Log Analytics, Monitoring, alarms, dashboards, Database Management, Operations Insights, metrics | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
-| VCN, subnet, NSG, route table, gateway, load balancer, OKE, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
+| users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
+| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
+| APM, Monitoring, alarm, dashboard, Database Management, Operations Insights, metric, autonomous database | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
+| VCN, subnet, NSG, network security group, route table, gateway, load balancer, OKE, kubectl, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
 | cost, spend, usage, billing, invoice, forecast, FinOps, cost-tracking tag, Usage API | **oci-cost** | [references/cost-management.md](../../references/cost-management.md) |
 | Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
 | Resource Manager, ORM, RMS, Terraform stack, plan/apply/destroy job, tfstate, drift, schema.yaml, "deploy to Oracle Cloud" | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
+| Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, SCH, serverless, event-driven | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
 
@@ -97,6 +101,8 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 | `scripts/iam_audit.py` | Read-only IAM posture snapshot (SDK). |
 | `scripts/oci_cost.sh` | Read-only cost/usage by service + budgets (FinOps). |
 | `scripts/oci_logan.sh` | Read-only Log Analytics (OCL) query with a friendly time window. |
+| `scripts/oci_orm.sh` | Read-only Resource Manager overview (stacks + latest job state). |
+| `scripts/oci_datasafe.sh` | Read-only Data Safe overview (targets + assessment state). |
 | `scripts/redact.py` | Mask OCIDs/IPs/secrets in text or JSON (CI gate). |
 | `scripts/kb_lookup.py` | Search `references/KB.md` for a known fix. |
 

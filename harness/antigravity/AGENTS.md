@@ -7,7 +7,7 @@ Antigravity skills directory and links this file as the active `AGENTS.md`.
 ## Capability
 
 Administer, audit, provision, secure, and troubleshoot Oracle Cloud
-Infrastructure across eight domains, each with a dedicated skill under
+Infrastructure across nine domains, each with a dedicated skill under
 `skills/` and a reference under `references/`:
 
 - **IAM & Tenancy** — users, groups, dynamic groups, policies, compartments,
@@ -28,6 +28,9 @@ Infrastructure across eight domains, each with a dedicated skill under
   jobs, tfstate, drift, schema.yaml packaging.
 - **Data Safe** — target registration, security/user assessment, activity
   auditing, data discovery, data masking.
+- **Events & Functions (serverless)** — OCI Functions, the Events service
+  (rules→FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out,
+  Streaming transport.
 
 ## Operating contract (non-negotiable)
 
