@@ -1,12 +1,15 @@
 # oci-skills — OCI Administrator skill pack
 
 A tenancy-agnostic **Oracle Cloud Infrastructure (OCI) administration** skill
-pack for AI coding agents. One safety-first knowledge core, four admin domain
-plugins, packaged for **Claude Code, Codex, Gemini CLI, and Antigravity**.
+pack for AI coding agents. One safety-first knowledge core, eight admin domain
+skills, packaged for **Claude Code, Codex, Gemini CLI, and Antigravity**.
 
 > Built to be reused in *any* tenancy. It ships **no** OCIDs, IPs, keys, or
 > tenancy data — only generic command patterns and `<PLACEHOLDER>` tokens you
 > resolve at runtime from your own environment.
+
+**New here? → [docs/QUICKSTART.md](docs/QUICKSTART.md)** — install, bind a named
+context, preflight, and run the read-only "what's going on?" loop in five minutes.
 
 ## Why
 
@@ -26,6 +29,8 @@ sensitive is ever printed or committed.
 | **oci-networking-compute** | VCN, subnets, NSGs, route tables, gateways, load balancers, OKE, compute instances, OCIR. |
 | **oci-cost** | Cost & usage reporting (Usage API: spend by service/compartment/region/tag), budgets (limit vs actual vs forecast), cost-tracking tags, guardrail recommendations. |
 | **oci-log-analytics** | OCI Log Analytics (Logan): the OCL query language, a read-only query helper, sources/parsers/fields/entities/log groups, detections (incl. Sigma→OCL), saved/scheduled searches, dashboards, content migration. |
+| **oci-resource-manager** | Resource Manager (managed Terraform): stacks, plan/apply/destroy jobs, job logs/state, drift detection, state import, variables, and schema.yaml stack packaging. |
+| **oci-data-safe** | Data Safe: target-database registration (ADB + cloud DB), private endpoints, Security/User Assessment, Activity Auditing, Data Discovery, Data Masking. |
 
 ## Safety model
 
@@ -135,12 +140,13 @@ references/              # domain + safety knowledge (progressive disclosure)
   tenancy-safety.md  helper-conventions.md  KB.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
-  cost-management.md  log-analytics.md
+  cost-management.md  log-analytics.md  resource-manager.md  data-safe.md
 scripts/                # shared core
   common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  redact.py  iam_audit.py  kb_lookup.py
-skills/                  # seven auto-discoverable skills (router + six domains)
+skills/                  # nine auto-discoverable skills (router + eight domains)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
   oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/
+  oci-resource-manager/  oci-data-safe/
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
 bootstrap.sh            # one-line remote installer (curl | bash)

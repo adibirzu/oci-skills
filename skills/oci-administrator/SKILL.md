@@ -12,8 +12,8 @@ description: >-
   compute instances, OCIR). Triggers on mentions of OCI, oci-cli, OCID,
   compartment, tenancy, IAM policy, Cloud Guard, Vault, WAF, OKE, VCN, NSG,
   Log Analytics, OCL, Logan, log query, APM, service limits, cost, usage, spend,
-  budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, or ~/.oci/config.
-  This is the
+  budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, Resource Manager,
+  ORM, Terraform stack, or ~/.oci/config. This is the
   tenancy-agnostic admin pack; for the OCI-DEMO component system use
   oracle-oci-management instead.
 license: MIT
@@ -22,7 +22,7 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of six domain skills, all sharing one tenancy-safety core.
+of eight domain skills, all sharing one tenancy-safety core.
 
 ## First move (always)
 
@@ -72,6 +72,8 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | VCN, subnet, NSG, route table, gateway, load balancer, OKE, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
 | cost, spend, usage, billing, invoice, forecast, FinOps, cost-tracking tag, Usage API | **oci-cost** | [references/cost-management.md](../../references/cost-management.md) |
 | Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
+| Resource Manager, ORM, RMS, Terraform stack, plan/apply/destroy job, tfstate, drift, schema.yaml, "deploy to Oracle Cloud" | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
+| Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
 
