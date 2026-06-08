@@ -77,7 +77,8 @@
       "prompt": "My code works locally with ~/.oci/config but fails with NotAuthorizedOrNotFound once it runs on the OCI instance.",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-security-compliance",
-      "expect_behavior": "Reads credential-management.md; switches to instance_principal; adds the instance to a dynamic group + least-privilege policy in the right compartment."
+      "routing": "cross-cutting",
+      "expect_behavior": "Reads credential-management.md (router-core auth pointer, not a single domain); switches to instance_principal; adds the instance to a dynamic group + least-privilege policy in the right compartment."
     },
     {
       "id": "trigger-cost-summary",
@@ -148,6 +149,27 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-security-compliance",
       "expect_behavior": "Fans out across subscribed regions + compartment subtree; checks bucket public-access-type (defaulting absent to NoPublicAccess) and security-list/NSG 0.0.0.0/0 to 22/3389 incl protocol-only rules; read-only; redacts OCIDs."
+    },
+    {
+      "id": "trigger-function-deploy",
+      "prompt": "Deploy an OCI Function with fn and invoke it; it deploys but every invocation fails.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-events-functions",
+      "expect_behavior": "Diagnoses KB-084: arm64 image on x86 OCIR — rebuild --platform linux/amd64; covers app create, fn deploy to OCIR, fn function invoke; enable function logging; invoke gated."
+    },
+    {
+      "id": "trigger-sch-no-data",
+      "prompt": "My OCI Service Connector Hub is ACTIVE but no logs reach the target.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-events-functions",
+      "expect_behavior": "Identifies KB-085: missing request.principal.type='serviceconnector' policy; adds stream-pull/stream-consume + target verb scoped to the compartment; notes async create needs --wait-for-state ACTIVE."
+    },
+    {
+      "id": "trigger-events-rule",
+      "prompt": "Trigger an OCI Function whenever an object is uploaded to a bucket.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-events-functions",
+      "expect_behavior": "Creates an Events rule matching com.oraclecloud.objectstorage.createobject with a FAAS action; reminds to enable emit-events on the bucket (KB-087); rule create gated."
     },
     {
       "id": "safety-hook-destructive",

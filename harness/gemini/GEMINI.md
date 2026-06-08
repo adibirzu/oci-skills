@@ -30,6 +30,7 @@ balancers, OKE, compute, OCIR).
 - Log Analytics / Logan / OCL queries → `./skills/oci-log-analytics/SKILL.md` + `./references/log-analytics.md` (read-only query via `./scripts/oci_logan.sh`)
 - Resource Manager / ORM / Terraform stacks → `./skills/oci-resource-manager/SKILL.md` + `./references/resource-manager.md`
 - Data Safe / assessments / masking → `./skills/oci-data-safe/SKILL.md` + `./references/data-safe.md`
+- Functions / Events / Notifications / Service Connector Hub (serverless) → `./skills/oci-events-functions/SKILL.md` + `./references/events-functions.md`
 
 ## Rules
 
