@@ -261,6 +261,40 @@ FRAMEWORK_MAP = {
 ISO-42001 (AI governance), NIS2, and data-sovereignty checks from the same scan.
 Always pipe scanner output through `redact.py` before persisting.
 
+### CIS OCI Benchmark — high-value check → read API
+
+Prefer Oracle's official **OCI Security Health Check Standard** tool for the full
+benchmark; for targeted checks, these are the read calls behind the most
+impactful controls (all read-only; add `--output json` + auth):
+
+| CIS area | Check | Read API | Pass when |
+|---|---|---|---|
+| IAM 1.7 | MFA on all console users | `iam user list --compartment-id <TENANCY_OCID> --all` → `is-mfa-activated` | all `true` |
+| IAM 1.8 | Strong password policy | `iam authentication-policy get --compartment-id <TENANCY_OCID>` → `password-policy.minimum-password-length` | `>= 14` |
+| IAM 1.12/13 | Keys rotated ≤90d | per user `iam customer-secret-key list` / `api-key list` → `time-created` | `age <= 90d` |
+| Net 2.1–2.4 | No `0.0.0.0/0` → 22/3389 | `network security-list list` + `network nsg rules list` → ingress `source==0.0.0.0/0`, port 22/3389 | zero matches |
+| Net 2.5 | VCN flow logging on | `logging log list --log-group-id <LOG_GROUP_OCID>` cross-ref subnets | flow logs present |
+| Storage 5.1.1 | No public buckets | `os bucket list --compartment-id <COMPARTMENT_OCID> --all` → `public-access-type` | `== NoPublicAccess` |
+| Storage CMK | Buckets use a CMK | `os bucket get --namespace <OS_NAMESPACE> --bucket-name <BUCKET>` → `kms-key-id` | non-null |
+| Audit 4.1 | Audit retention ≥365d | `audit config get` (or `audit configuration get`) → `retention-period-days` | `>= 365` |
+| CG 3.x | Cloud Guard enabled | `cloud-guard configuration get` → `status` | `ENABLED` |
+
+```bash
+# Multi-compartment, multi-region fan-out (only what the caller can read):
+oci_cli iam compartment list --compartment-id <TENANCY_OCID> \
+  --compartment-id-in-subtree true --access-level ACCESSIBLE --all
+for region in $(oci_cli iam region-subscription list --tenancy-id <TENANCY_OCID> \
+    --query 'data[?status==`READY`]."region-name"' --raw-output); do
+  OCI_REGION="$region" oci_cli os bucket list --compartment-id <COMPARTMENT_OCID> --all
+done
+```
+
+Gotchas worth remembering (see `KB.md` for full entries): a public subnet is
+`prohibit-public-ip-on-vnic == false` (there is no `isPublic` flag); a `0.0.0.0/0`
+rule with protocol `6` and **no** port options means *all* ports; `public-access-type`
+may be **absent** on private buckets (default it before comparing); `kms-key-id`
+appears only on the detailed bucket `get`, not on `list`.
+
 ---
 
 ## IAM policy least-privilege review
