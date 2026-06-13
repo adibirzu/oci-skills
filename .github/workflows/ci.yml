@@ -85,6 +85,9 @@ jobs:
       - name: empty-array / nounset smoke (the macOS default-bash trap)
         run: /bin/bash tests/bash32_smoke.sh
 
+      - name: action-ledger smoke (audit_log + run_mutating, redacted)
+        run: /bin/bash tests/audit_ledger_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest
@@ -138,3 +141,12 @@ jobs:
 
       - name: eval routing validator
         run: python3 tests/check_eval_routing.py
+
+      - name: no stale domain-count drift in docs/manifests
+        run: |
+          set -euo pipefail
+          if grep -REn 'six domain|four admin domain' README.md .claude-plugin/; then
+            echo "::error::stale domain count (expected 'nine') — update README/marketplace"
+            exit 1
+          fi
+          echo "domain-count references consistent"

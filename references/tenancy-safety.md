@@ -56,6 +56,34 @@ confirm "Delete compartment '$name'? This is irreversible." || exit 0
 - `OCI_SKILLS_DRY_RUN=true` — print mutating commands, change nothing.
 - `OCI_SKILLS_FORCE=true` — skip prompts (only for trusted automation).
 
+### The destructive-command hook fails open — by design, but loudly
+
+The Claude Code plugin wires a `PreToolUse` hook (`hooks/guard_destructive.py`)
+that blocks destructive `oci` / `oci_cli` / `oci_<domain>.sh` commands until they
+are preflighted and confirmed. It is **defense-in-depth, not a hard wall** — it
+fails *open* in three cases, so it can never wedge the agent loop:
+
+1. **Guard script not locatable** (`CLAUDE_PLUGIN_ROOT` unset in a copy-install)
+   — the hook prints `destructive guard not found … running UNGUARDED` to stderr
+   and allows the command. The notice is the signal: if you see it, the only
+   thing standing between you and a `delete` is `confirm`/`run_mutating`.
+2. **Malformed hook payload** — allowed silently (never block on a parse error).
+3. **`OCI_SKILLS_FORCE=true`** — the operator has explicitly opted out.
+
+Because the hook is best-effort, the in-script guards (`confirm`,
+`run_mutating`) remain the authoritative control. Never rely on the hook alone.
+
+### Action ledger (self-telemetry)
+
+`audit_log` appends one **redacted** JSON line per guarded action (dry-run vs
+real, confirm accepted/declined/forced) to a local ledger —
+`$OCI_SKILLS_AUDIT_LOG`, else `$XDG_STATE_HOME/oci-skills/audit.jsonl`, else
+`~/.local/state/oci-skills/audit.jsonl`. It is out of the repo tree by design
+(never in `git status`), every line passes through the redactor before it is
+written, and it never fails the caller. Disable with `OCI_SKILLS_NO_AUDIT=1` or
+`OCI_SKILLS_AUDIT_LOG=/dev/null`. Use it to answer "did the guard ever fire, and
+what did this session actually attempt?" without re-reading scrollback.
+
 ## Never print or commit secrets
 
 OCIDs, public/private IPs, API-key fingerprints, tenancy namespaces, datakeys,
