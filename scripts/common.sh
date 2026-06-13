@@ -163,20 +163,77 @@ oci_cli() {
 # Safety: confirmation + dry-run for mutating operations
 # ---------------------------------------------------------------------------
 
+# audit_log EVENT [KEY=VALUE ...] — append one redacted JSON line describing a
+# skill action to the local action ledger. Best-effort observability: it NEVER
+# fails the caller and NEVER persists secrets (the whole line is passed through
+# the same redactor as the CI gate before it is written).
+#
+# Path resolution (all out of the repo tree by design, so it never shows up in
+# `git status`):  $OCI_SKILLS_AUDIT_LOG  >  $XDG_STATE_HOME/oci-skills/audit.jsonl
+#                 >  ~/.local/state/oci-skills/audit.jsonl
+# Disable entirely with OCI_SKILLS_AUDIT_LOG=/dev/null or OCI_SKILLS_NO_AUDIT=1.
+audit_log() {
+  [[ "${OCI_SKILLS_NO_AUDIT:-}" == "1" ]] && return 0
+  local event="${1:-unknown}"; shift 2>/dev/null || true
+  local log_file="${OCI_SKILLS_AUDIT_LOG:-${XDG_STATE_HOME:-$HOME/.local/state}/oci-skills/audit.jsonl}"
+  [[ "$log_file" == "/dev/null" ]] && return 0
+  command -v python3 >/dev/null 2>&1 || return 0     # JSON build needs python; skip silently
+  local dir; dir="$(dirname "$log_file")"
+  mkdir -p "$dir" 2>/dev/null || { log "audit_log: cannot create $dir (skipping)"; return 0; }
+
+  local ts mode
+  ts="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
+  mode="$(resolve_auth_mode 2>/dev/null || echo unknown)"
+
+  # python builds the JSON object (safe escaping) from fixed context + caller
+  # KEY=VALUE extras, then applies redact.py's rules in-process before printing.
+  OCI_AUDIT_REDACT="$_OCI_SKILLS_SCRIPT_DIR/redact.py" \
+  python3 - "$ts" "$event" "$mode" "${OCI_CLI_PROFILE:-DEFAULT}" "${OCI_REGION:-}" \
+            "${OCI_SKILLS_DRY_RUN:-false}" "${OCI_SKILLS_FORCE:-false}" "$@" \
+            >> "$log_file" 2>/dev/null <<'PY' || true
+import importlib.util, json, os, sys
+ts, event, mode, profile, region, dry_run, forced, *extra = sys.argv[1:]
+obj = {"ts": ts, "event": event, "auth_mode": mode, "profile": profile,
+       "region": region, "dry_run": dry_run == "true", "forced": forced == "true"}
+for kv in extra:
+    key, sep, val = kv.partition("=")
+    if key and sep:
+        obj[key] = val
+line = json.dumps(obj, separators=(",", ":"))
+path = os.environ.get("OCI_AUDIT_REDACT", "")
+try:
+    spec = importlib.util.spec_from_file_location("redact", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["redact"] = mod          # register BEFORE exec so @dataclass resolves
+    spec.loader.exec_module(mod)
+    line = mod.redact(line)[0]           # mask any OCID/IP/secret before persisting
+except Exception:
+    sys.exit(0)                          # redactor unavailable -> persist nothing (fail closed)
+print(line)
+PY
+}
+
 # confirm "message" — return 0 if the user agrees (or OCI_SKILLS_FORCE=true).
 confirm() {
   local msg="${1:-Proceed?}"
   if [[ "${OCI_SKILLS_FORCE:-}" == "true" ]]; then
     warn "OCI_SKILLS_FORCE=true — auto-confirming: $msg"
+    audit_log confirm_forced "msg=$msg"
     return 0
   fi
   if ! _oci_is_tty; then
+    audit_log confirm_refused_no_tty "msg=$msg"
     die "refusing destructive action without a TTY (set OCI_SKILLS_FORCE=true to override): $msg"
   fi
   local reply
   printf '%s%s [y/N] %s' "$_C_YELLOW" "$msg" "$_C_RESET" >&2
   read -r reply
-  [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]
+  if [[ "$reply" =~ ^[Yy]([Ee][Ss])?$ ]]; then
+    audit_log confirm_accepted "msg=$msg"
+    return 0
+  fi
+  audit_log confirm_declined "msg=$msg"
+  return 1
 }
 
 # run_mutating "description" CMD... — run a mutating command, or print it under dry-run.
@@ -184,9 +241,11 @@ run_mutating() {
   local desc="$1"; shift
   if [[ "${OCI_SKILLS_DRY_RUN:-}" == "true" ]]; then
     warn "DRY-RUN ($desc): $*"
+    audit_log mutating_dry_run "desc=$desc"
     return 0
   fi
   info "$desc"
+  audit_log mutating_run "desc=$desc"
   "$@"
 }
 
