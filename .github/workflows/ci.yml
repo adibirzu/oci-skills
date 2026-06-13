@@ -88,6 +88,9 @@ jobs:
       - name: action-ledger smoke (audit_log + run_mutating, redacted)
         run: /bin/bash tests/audit_ledger_smoke.sh
 
+      - name: oci_cli retry/backoff smoke (throttle vs 5xx vs mutation)
+        run: /bin/bash tests/oci_retry_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest

@@ -18,6 +18,7 @@
 #                         oke_workload | config (default: auto-detect)
 #   OCI_SKILLS_FORCE      set to "true" to skip confirmation prompts (use with care)
 #   OCI_SKILLS_DRY_RUN    set to "true" to print mutating commands instead of running
+#   OCI_SKILLS_MAX_RETRIES  transient-failure retry budget for oci_cli (default 3)
 
 set -o errexit
 set -o nounset
@@ -132,8 +133,31 @@ resolve_auth_mode() {
 # OCI CLI wrapper — the one true entrypoint for every CLI call
 # ---------------------------------------------------------------------------
 
-# oci_cli ARGS... — invoke the OCI CLI with negotiated auth + region.
-# Honors OCI_SKILLS_DRY_RUN for any call whose first arg implies mutation.
+# Verbs that change state. Used to decide whether a 5xx/transport failure is
+# safe to retry: a rejected (throttled) request never reached the service, but a
+# mutating request that 5xx'd may have partially applied, so it is NOT retried.
+_OCI_MUTATING_RE='(create|update|delete|terminate|deregister|disable|enable|attach|detach|change-compartment|move|rotate|bulk-delete|restore|put-|upload|patch|schedule-|cancel)'
+
+# _oci_retryable STDERR_TEXT KIND — return 0 if the failure is transient and the
+# call may be retried. KIND is "read" or "mutating".
+#   throttling (429/TooManyRequests/rate-limit) -> retry for ANY kind (the
+#       request was rejected before processing, so re-issuing is safe)
+#   5xx / transport timeout/reset               -> retry only for read calls
+_oci_retryable() {
+  local errtext="$1" kind="$2"
+  if printf '%s' "$errtext" | grep -qiE 'TooManyRequests|\b429\b|throttl|rate.?limit'; then
+    return 0
+  fi
+  if [[ "$kind" == "read" ]] && printf '%s' "$errtext" \
+       | grep -qiE '\b50[0-9]\b|ServiceUnavailable|InternalServerError|BackendError|timed? ?out|Connection (reset|refused|aborted)|EOF occurred'; then
+    return 0
+  fi
+  return 1
+}
+
+# oci_cli ARGS... — invoke the OCI CLI with negotiated auth + region, retrying
+# transient failures with exponential backoff (OCI_SKILLS_MAX_RETRIES, default 3;
+# delays 1,2,4,… s). Mutating calls retry only on throttling, never on 5xx.
 oci_cli() {
   require_cmd oci
   local mode; mode="$(resolve_auth_mode)"
@@ -156,7 +180,30 @@ oci_cli() {
   if [[ -n "${OCI_REGION:-}" ]]; then
     base+=(--region "$OCI_REGION")
   fi
-  "${base[@]}" "$@"
+
+  # Classify the call so we know whether a 5xx is retry-safe.
+  local kind="read"
+  if printf ' %s ' "$*" | grep -qiE "[ /]$_OCI_MUTATING_RE"; then
+    kind="mutating"
+  fi
+
+  local max="${OCI_SKILLS_MAX_RETRIES:-3}" attempt=0 rc=0 errf
+  errf="$(mktemp "${TMPDIR:-/tmp}/oci-cli-err.XXXXXX")"
+  while :; do
+    # `if` exempts the call from errexit so we can capture rc and the stderr.
+    if "${base[@]}" "$@" 2>"$errf"; then rc=0; cat "$errf" >&2; break; fi
+    rc=$?
+    cat "$errf" >&2
+    attempt=$(( attempt + 1 ))
+    if (( attempt > max )) || ! _oci_retryable "$(cat "$errf")" "$kind"; then
+      break
+    fi
+    local delay=$(( 1 << (attempt - 1) ))
+    warn "oci_cli transient failure (rc=$rc, attempt ${attempt}/${max}, ${kind}) — retry in ${delay}s"
+    sleep "$delay"
+  done
+  rm -f "$errf"
+  return "$rc"
 }
 
 # ---------------------------------------------------------------------------
