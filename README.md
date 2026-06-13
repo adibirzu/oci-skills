@@ -16,7 +16,7 @@ context, preflight, and run the read-only "what's going on?" loop in five minute
 OCI administration knowledge tends to get copy-pasted across scripts: the same
 `oci` CLI auth negotiation, the same "check the service limit first", the same
 "is the WAF rule in OBSERVE or BLOCK?" gotchas. This pack centralizes those into
-one reusable core plus six domain skills, with a hard rule that nothing
+one reusable core plus nine domain skills, with a hard rule that nothing
 sensitive is ever printed or committed.
 
 ## Domains
