@@ -53,6 +53,20 @@ banner() {
   printf '%s\n== %s ==%s\n' "$_C_DIM" "$msg" "$_C_RESET" >&2
 }
 
+# print_self_help — print the calling script's header doc-comment (every `#`
+# line except the shebang) as help text. `$0` is the script that sourced us, so
+# each domain script gets its own header. Call from a getopts `-h` branch.
+print_self_help() {
+  grep '^#' "$0" | grep -v '^#!' | sed 's/^# \{0,1\}//'
+}
+
+# context_header — print the resolved profile / region / auth-mode on one line.
+# The shared "which identity am I about to use?" banner for read-only overviews.
+context_header() {
+  local mode; mode="$(resolve_auth_mode)"
+  info "profile : ${OCI_CLI_PROFILE:-DEFAULT}   region: ${OCI_REGION:-<profile default>}   auth: $mode"
+}
+
 # ---------------------------------------------------------------------------
 # Input validation
 # ---------------------------------------------------------------------------
@@ -127,6 +141,32 @@ resolve_auth_mode() {
   fi
   if _imds_reachable; then echo "instance_principal"; return 0; fi
   echo "config"
+}
+
+# resolve_tenancy_ocid [explicit] — echo the tenancy OCID, or empty if unknown.
+# Precedence: explicit arg > $OCI_SKILLS_TENANCY > (config auth only) the active
+# profile's `tenancy=` in ~/.oci/config / $OCI_CLI_CONFIG_FILE. Principal-based
+# auth has no config to read, so the caller must supply it. Echoes nothing (not
+# an error) when it cannot be resolved — the caller decides whether to die.
+resolve_tenancy_ocid() {
+  local tenant="${1:-${OCI_SKILLS_TENANCY:-}}"
+  if [[ -n "$tenant" ]]; then printf '%s' "$tenant"; return 0; fi
+  [[ "$(resolve_auth_mode)" == "config" ]] || return 0
+  local profile="${OCI_CLI_PROFILE:-DEFAULT}"
+  awk -v p="[$profile]" '
+      $0==p {f=1; next}
+      /^\[/ {f=0}
+      f && /^[[:space:]]*tenancy[[:space:]]*=/ {sub(/^[^=]*=[[:space:]]*/,""); print; exit}
+    ' "${OCI_CLI_CONFIG_FILE:-$HOME/.oci/config}" 2>/dev/null | tr -d '[:space:]'
+}
+
+# resolve_compartment [explicit] — echo the compartment to operate in: the
+# explicit arg if given, else $OCI_SKILLS_COMPARTMENT, else the tenancy root.
+# Echoes empty if none can be resolved (caller decides whether to die).
+resolve_compartment() {
+  local explicit="${1:-${OCI_SKILLS_COMPARTMENT:-}}"
+  if [[ -n "$explicit" ]]; then printf '%s' "$explicit"; return 0; fi
+  resolve_tenancy_ocid
 }
 
 # ---------------------------------------------------------------------------
@@ -300,16 +340,36 @@ run_mutating() {
 # Polling
 # ---------------------------------------------------------------------------
 
+# _id_flag_for "FULL CLI PATH" — echo the OCID flag for a resource command path.
+# Most resources flag on the last word ("compute instance" -> --instance-id), but
+# several OCI resources are multi-word and the naive last-word rule is wrong
+# ("compute instance" is fine, but "database autonomous-database" must be
+# --autonomous-database-id, not --database-id; "lb load-balancer" must be
+# --load-balancer-id). Match the known multi-word tails first, then fall back.
+_id_flag_for() {
+  case "$1" in
+    *autonomous-container-database) echo "--autonomous-container-database-id" ;;
+    *autonomous-database)      echo "--autonomous-database-id" ;;
+    *network-load-balancer)    echo "--network-load-balancer-id" ;;
+    *load-balancer)            echo "--load-balancer-id" ;;
+    *db-system)                echo "--db-system-id" ;;
+    *mount-target)             echo "--mount-target-id" ;;
+    *file-system)              echo "--file-system-id" ;;
+    *node-pool)                echo "--node-pool-id" ;;
+    *boot-volume)              echo "--boot-volume-id" ;;
+    *) echo "--${1##* }-id" ;;     # default: last word of the command path
+  esac
+}
+
 # wait_for_state "FULL CLI PATH" RESOURCE_OCID TARGET_STATE [TIMEOUT_SEC]
 # Polls `oci <full path> get` lifecycle-state at 10s intervals.
 #
 # "kind" MUST be the full CLI command path, e.g. "compute instance",
-# "network vcn", "lb load-balancer". The id flag is derived from the LAST word:
-#   "compute instance" -> --instance-id   "network vcn" -> --vcn-id
+# "network vcn", "lb load-balancer". The id flag is derived by _id_flag_for,
+# which handles multi-word resources (e.g. "database autonomous-database").
 wait_for_state() {
   local kind="$1" ocid="$2" target="$3" timeout="${4:-300}"
-  local last="${kind##* }"          # last word of the command path
-  local id_flag="--${last}-id"
+  local id_flag; id_flag="$(_id_flag_for "$kind")"
   # load-balancer lifecycle is exposed differently; callers can override the
   # query by passing OCI_SKILLS_STATE_QUERY, default to the standard field.
   local query="${OCI_SKILLS_STATE_QUERY:-data.\"lifecycle-state\"}"
