@@ -76,6 +76,7 @@ def _run_main(monkeypatch, payload_text: str) -> int:
     import io
     monkeypatch.setattr(sys, "stdin", io.StringIO(payload_text))
     monkeypatch.delenv("OCI_SKILLS_FORCE", raising=False)
+    monkeypatch.setenv("OCI_SKILLS_NO_AUDIT", "1")   # don't touch the real ledger in tests
     return guard.main()
 
 
@@ -98,10 +99,43 @@ def test_main_malformed_payload_fails_open(monkeypatch) -> None:
 
 
 def test_main_force_env_allows(monkeypatch) -> None:
+    import io
     import json
     monkeypatch.setenv("OCI_SKILLS_FORCE", "true")
-    import io
+    monkeypatch.setenv("OCI_SKILLS_NO_AUDIT", "1")
     payload = json.dumps({"tool_name": "Bash",
                           "tool_input": {"command": "oci os bucket delete --name x"}})
     monkeypatch.setattr(sys, "stdin", io.StringIO(payload))
     assert guard.main() == 0
+
+
+def test_main_block_writes_redacted_ledger(monkeypatch, tmp_path) -> None:
+    import io
+    import json
+    ledger = tmp_path / "audit.jsonl"
+    monkeypatch.setenv("OCI_SKILLS_AUDIT_LOG", str(ledger))
+    monkeypatch.delenv("OCI_SKILLS_NO_AUDIT", raising=False)
+    monkeypatch.delenv("OCI_SKILLS_FORCE", raising=False)
+    cmd = "oci_cli ce cluster delete --cluster-id CID"
+    monkeypatch.setattr(sys, "stdin", io.StringIO(
+        json.dumps({"tool_name": "Bash", "tool_input": {"command": cmd}})))
+    assert guard.main() == 2
+    lines = ledger.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 1
+    rec = json.loads(lines[0])
+    assert rec["event"] == "guard_blocked"
+    assert rec["auth_mode"] == "hook"
+    assert rec["command"] == cmd          # nothing sensitive here to mask
+
+
+def test_main_no_audit_env_suppresses_ledger(monkeypatch, tmp_path) -> None:
+    import io
+    import json
+    ledger = tmp_path / "audit.jsonl"
+    monkeypatch.setenv("OCI_SKILLS_AUDIT_LOG", str(ledger))
+    monkeypatch.setenv("OCI_SKILLS_NO_AUDIT", "1")
+    monkeypatch.delenv("OCI_SKILLS_FORCE", raising=False)
+    monkeypatch.setattr(sys, "stdin", io.StringIO(
+        json.dumps({"tool_name": "Bash", "tool_input": {"command": "oci os bucket delete --name x"}})))
+    assert guard.main() == 2
+    assert not ledger.exists()

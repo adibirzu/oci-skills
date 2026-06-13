@@ -33,7 +33,7 @@ while getopts ":d:g:c:t:n:h" opt; do
     c) COMPARTMENT_OCID="$OPTARG" ;;
     t) TENANT_OCID="$OPTARG" ;;
     n) TOP="$OPTARG" ;;
-    h) grep '^#' "$0" | grep -v '^#!' | sed 's/^# \{0,1\}//'; exit 0 ;;
+    h) print_self_help; exit 0 ;;
     *) die "usage: $0 [-d DAYS] [-g DAILY|MONTHLY] [-c COMPARTMENT_OCID] [-t TENANCY_OCID] [-n TOP_N]" ;;
   esac
 done
@@ -52,16 +52,9 @@ info "profile   : ${OCI_CLI_PROFILE:-DEFAULT}"
 info "region    : ${OCI_REGION:-<profile default>}"
 
 # Resolve the tenancy OCID. The Usage API is tenancy-scoped and needs it
-# explicitly. For config auth we read it from ~/.oci/config; principal-based auth
+# explicitly. For config auth it comes from ~/.oci/config; principal-based auth
 # must supply it via -t or OCI_SKILLS_TENANCY since there is no config to read.
-if [[ -z "$TENANT_OCID" && "$mode" == "config" ]]; then
-  profile="${OCI_CLI_PROFILE:-DEFAULT}"
-  TENANT_OCID="$(awk -v p="[$profile]" '
-      $0==p {f=1; next}
-      /^\[/ {f=0}
-      f && /^[[:space:]]*tenancy[[:space:]]*=/ {sub(/^[^=]*=[[:space:]]*/,""); print; exit}
-    ' "${OCI_CLI_CONFIG_FILE:-$HOME/.oci/config}" 2>/dev/null | tr -d '[:space:]')"
-fi
+TENANT_OCID="$(resolve_tenancy_ocid "$TENANT_OCID")"
 [[ -n "$TENANT_OCID" ]] \
   || die "cannot determine tenancy OCID — set OCI_SKILLS_TENANCY or pass -t (required for principal auth)"
 

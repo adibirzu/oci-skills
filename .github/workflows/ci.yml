@@ -91,6 +91,9 @@ jobs:
       - name: oci_cli retry/backoff smoke (throttle vs 5xx vs mutation)
         run: /bin/bash tests/oci_retry_smoke.sh
 
+      - name: common helpers smoke (tenancy/compartment/help/id-flag)
+        run: /bin/bash tests/common_helpers_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest
