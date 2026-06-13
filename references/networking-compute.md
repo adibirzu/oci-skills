@@ -254,6 +254,49 @@ client = oci.object_storage.ObjectStorageClient({}, signer=signer)
 *Why:* requires a dynamic group + policy matching the cluster's workload-identity
 resource principal — not the node's instance principal.
 
+### OKE application rollout hardening
+
+Before any rollout, prove the Kubernetes context, OCI exec profile, region, and
+cluster identity. A context name is only a local label and may point at a
+production cluster even when it looks like a test name.
+
+```bash
+kubectl config view -o json \
+  | jq -r '.contexts[] | [.name, .context.cluster, .context.user] | @tsv'
+kubectl config view -o json \
+  | jq -r '.users[] | [.name, ((.user.exec.args // []) | join(" "))] | @tsv'
+oci_cli ce cluster get --cluster-id "<CLUSTER_OCID>" \
+  --query 'data.{name:name,state:"lifecycle-state","kubernetes-version":"kubernetes-version"}'
+```
+
+Recommended guardrails for app deployments on OKE:
+
+- Print the resolved context/profile/region before mutating actions.
+- Refuse rollout/apply/update when the resolved profile is in
+  `PROTECTED_OCI_PROFILES` unless an explicit break-glass confirmation is set.
+- Load only the env file named by the operator; do not auto-load sibling repo
+  `.env` files.
+- Keep app secrets in OCI Vault and Kubernetes `ExternalSecret` resources.
+  Literal Kubernetes secret fallback should be disabled by default and reserved
+  for non-production recovery.
+- For database operations, prefer managed Database Tools or predefined
+  read-only toolsets over shipping database credentials and ad-hoc SQL into
+  the application pod.
+- After credential rotation, update Vault first, verify `ExternalSecret`
+  readiness, then restart the affected workload and run an in-pod health check.
+
+### OKE observability prerequisites
+
+For OKE threat hunting and troubleshooting, collect at least:
+
+- Kubernetes audit logs.
+- Container stdout/stderr or runtime process telemetry.
+- Worker-node Linux audit/syslog or an approved security sensor.
+- VCN Flow Logs, and Load Balancer Access Logs when traffic crosses an LB.
+
+Treat VCN flow logs as correlation evidence; they may not expose every packet
+attribute that a host sensor can see.
+
 ## OCIR (Container Registry)
 
 ```bash

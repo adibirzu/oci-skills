@@ -59,7 +59,12 @@ confirm "Delete compartment '$name'? This is irreversible." || exit 0
 ## Never print or commit secrets
 
 OCIDs, public/private IPs, API-key fingerprints, tenancy namespaces, datakeys,
-install keys, and auth tokens must never land in logs, docs, or git. Two tools:
+install keys, and auth tokens must never land in logs, docs, or git. Treat
+internal topology as sensitive too: Kubernetes context/profile mappings,
+load-balancer or worker-node addresses, APM/Log Analytics namespaces, registry
+namespaces, API-key fingerprints, and paths or endpoints that identify a real
+tenant should be replaced with placeholders before committing or sharing.
+Two tools:
 
 ```bash
 echo "$cli_output" | redact                 # common.sh helper (delegates to redact.py)
@@ -74,7 +79,18 @@ those private ranges too, since a real worker-node IP reveals internal topology.
 Link-local (IMDS), loopback, and `0.0.0.0` are never masked.
 
 When documenting, use `<PLACEHOLDER>` tokens (e.g. `<COMPARTMENT_OCID>`,
-`<APM_PRIVATE_DATAKEY>`) and resolve them at runtime from the environment.
+`<APM_PRIVATE_DATAKEY>`, `<LA_NAMESPACE>`, `<OKE_CLUSTER_CONTEXT>`) and resolve
+them at runtime from the environment. Never copy values from a live runbook into
+public docs just because they are "not passwords".
+
+## Environment and context isolation
+
+Deployment wrappers should load only the env file they were explicitly given.
+Do not implicitly read sibling-repository `.env` files or a convenient current
+Kubernetes context. Before any OKE rollout or OCI DevOps job, print and verify
+the resolved OCI profile, region, compartment name, Kubernetes context, and
+cluster name. Gate known production profiles behind an explicit break-glass
+variable so routine evolution tests cannot mutate the wrong tenancy.
 
 ## Service limits and capacity
 
