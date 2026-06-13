@@ -37,7 +37,7 @@ If the resolved tenancy is not the one you expect, **stop**. See
 | Reach OCI services privately | Service gateway | no internet path |
 | Internet-facing app | Public subnet + IGW + LB | verify backend health |
 | Run a workload VM | Compute instance | pre-check shape/image per AD |
-| Run containers | OKE | two-layer authz (KB-001) |
+| Run containers | OKE | two-layer authz (KB-001); verify context/profile before rollout |
 | Pull images | OCIR | cross-tenancy = replicate secret (KB-006) |
 
 ## Common tasks
@@ -63,6 +63,12 @@ oci_cli ce cluster create-kubeconfig --cluster-id "<CLUSTER_OCID>" \
   --file "$KUBECONFIG" --kube-endpoint PRIVATE_ENDPOINT --token-version 2.0.0
 kubectl auth can-i --list      # empty/forbidden => principal not RBAC-bound
 
+# Before mutating an OKE environment, prove kube context -> OCI exec profile.
+kubectl config view -o json \
+  | jq -r '.contexts[] | [.name, .context.cluster, .context.user] | @tsv'
+kubectl config view -o json \
+  | jq -r '.users[] | [.name, ((.user.exec.args // []) | join(" "))] | @tsv'
+
 # Resolve the OCIR namespace for an image path
 NS=$(oci_cli os ns get --raw-output); echo "<region>.ocir.io/${NS}/<repo>:<tag>"
 ```
@@ -80,6 +86,9 @@ Full command shapes: `../../references/networking-compute.md`.
   appends, so don't duplicate or shadow allow/deny.
 - **Capacity** — pre-check shape/image per AD and service limits before launch
   (KB-003) instead of half-creating.
+- **OKE rollout context** — context names are labels, not proof of tenancy.
+  Verify the OCI exec profile and cluster identity before deploy/rollout, and
+  use explicit break-glass variables for protected profiles.
 
 ## Expected output
 

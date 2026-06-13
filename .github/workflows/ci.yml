@@ -60,7 +60,12 @@ jobs:
         run: |
           pip install ruff
           ruff check scripts/*.py
-          python3 -m py_compile scripts/*.py
+          python3 -m py_compile scripts/*.py hooks/*.py
+
+      - name: unit tests (safety core — redact + destructive guard)
+        run: |
+          pip install pytest
+          python3 -m pytest tests/ -q
 
   bash32:
     name: bash 3.2 portability (macOS)

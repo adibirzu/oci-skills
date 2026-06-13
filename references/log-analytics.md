@@ -163,6 +163,32 @@ degrades to a `| stats ... | where count > N` tail (`requires_aggregation: true`
 Aggregating queries (with a `stats … | where` threshold) are **scheduled-search
 eligible**; plain filters are better as dashboard widgets / interactive hunts.
 
+### OKE detection packs and safe validation
+
+For OKE-focused detections, define a source contract before writing queries.
+Minimum useful coverage is Kubernetes audit events, container logs/runtime
+events, worker-node Linux audit/syslog, VCN Flow Logs, and Load Balancer Access
+Logs when services are behind an LB.
+
+Build multi-signal scenarios as a timeline query first, then split reusable
+atomic searches from it. A good timeline correlates namespace, pod, node,
+process, actor, and network tuple fields so operators can move from "something
+happened" to "which pod/node/user/path was involved" without pasting tenant
+values into the query.
+
+Safe promotion gate:
+
+1. Keep scenario content tenant-neutral and free of OCIDs, IPs, namespaces, and
+   entity names.
+2. Validate syntax with `parse_query` in CI.
+3. Validate semantics with synthetic Log Analytics events in a dedicated log
+   group/source, not by running exploit tooling or creating privileged test pods.
+4. Run live queries only after collection prerequisites are confirmed. An empty
+   result means "no matching rows in this window/source set", not "no risk".
+
+Use MITRE tags and false-positive notes in every scenario so scheduled searches
+can become operator runbooks instead of anonymous OCL snippets.
+
 ## Migration / ingestion / dashboards
 
 - **Dashboards**: `management-dashboard import-dashboard` /

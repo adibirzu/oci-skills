@@ -70,7 +70,44 @@ RULES: tuple[Rule, ...] = (
         re.compile(r"\b[A-Za-z0-9+]{40,}={0,2}\b"),
         "<SECRET-REDACTED>",
     ),
+    # Standard-alphabet base64 secrets contain "/", which `secret_blob` above
+    # deliberately excludes (so slash-separated endpoint paths are not eaten). A
+    # 40+ char run that DOES contain "/" is ambiguous: it is either a real
+    # datakey/auth token (e.g. `openssl rand -base64 48` output) or a URL path
+    # like `/20200101/opentelemetry/private/v1/traces`. `_b64_slash_is_secret`
+    # in the substitution callback resolves it; ordered last so the slash-free
+    # rule consumes pure runs first.
+    Rule(
+        "secret_blob_slash",
+        re.compile(r"[A-Za-z0-9+/]{40,}={0,2}"),
+        "<SECRET-REDACTED>",
+    ),
 )
+
+
+def _b64_slash_is_secret(token: str) -> bool:
+    """True if a 40+ char run containing "/" is a base64 secret, not a URL path.
+
+    Only `secret_blob_slash` matches (`secret_blob` already masked slash-free
+    runs), so every input here contains at least one "/". OCI endpoint paths are
+    "/"-separated short lowercase words / version segments; base64 datakeys and
+    auth tokens are high-entropy with mixed case + digits and no path structure.
+
+    Conservative trade-off: an all-lowercase base64 blob that happens to look
+    path-shaped is kept verbatim (a possible false negative) rather than risk
+    masking every documented endpoint path. Slash-free secrets are unaffected.
+    """
+    body = token.strip("/")
+    segments = [seg for seg in body.split("/") if seg]
+    # Path-like: every segment is a short lowercase/word/version token.
+    if segments and all(
+        re.fullmatch(r"[a-z0-9][a-z0-9._-]{0,39}", seg) for seg in segments
+    ):
+        return False
+    has_upper = any(ch.isupper() for ch in token)
+    has_lower = any(ch.islower() for ch in token)
+    has_digit = any(ch.isdigit() for ch in token)
+    return has_upper and has_lower and has_digit
 
 
 def _ip_is_safe(ip: str, strict: bool = False) -> bool:
@@ -115,8 +152,11 @@ def redact(text: str, strict: bool = False) -> tuple[str, dict[str, int]]:
     for rule in RULES:
         def _sub(match: "re.Match[str]", _name: str = rule.name,
                  _repl: str = rule.replacement) -> str:
-            if _name == "ipv4" and _ip_is_safe(match.group(0), strict):
-                return match.group(0)  # well-known non-sensitive address
+            token = match.group(0)
+            if _name == "ipv4" and _ip_is_safe(token, strict):
+                return token  # well-known non-sensitive address
+            if _name == "secret_blob_slash" and not _b64_slash_is_secret(token):
+                return token  # URL/endpoint path, not a secret
             counts[_name] = counts.get(_name, 0) + 1
             return _repl
         text = rule.pattern.sub(_sub, text)

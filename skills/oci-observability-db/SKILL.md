@@ -40,6 +40,7 @@ namespaces — use `<PLACEHOLDER>` tokens.
 | Service log / custom log / agent | Logging section |
 | LQL query / saved search | Log Analytics section |
 | Traces / RUM / data keys | APM section |
+| GenAI / agent traces / trace integrity | Agentic AI observability profile |
 | Topic / subscription | Notifications |
 | Archive logs / forward metrics | Service Connector Hub |
 | Monitor a DB / Performance Hub / fleet | Database Management (DBM) |
@@ -95,6 +96,14 @@ oci_cli apm-domain list-data-keys --apm-domain-id <APM_DOMAIN_ID> | redact
 ```
 OTLP traces POST to `/20200101/opentelemetry/private/v1/traces` with the
 **private** datakey header; RUM uses the **public** key only.
+
+**Agentic AI trace profile**:
+Use OTel GenAI attributes plus OCI extensions, keep prompt/response capture off
+by default, and link `trace_id`, `session_id`, `conversation_id`, tool calls,
+guardrail decisions, approvals, and eval scores. For promotion gates, report
+`trace.integrity.score` and `trace.integrity.state`; traces marked
+`non_gateable` or `non_exportable` need missing-span/attribute evidence before
+release.
 
 ## Safety notes
 
