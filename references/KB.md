@@ -746,3 +746,10 @@ not replicated into the consuming cluster/namespace.
 **Root cause:** The `secret_blob` rule used `[A-Za-z0-9+]{40,}` (no `/`) on purpose, so slash-separated endpoint paths were not eaten — but that also meant any secret with a `/` split into sub-40 runs and slipped through.
 **Fix:** Added a `secret_blob_slash` rule (`[A-Za-z0-9+/]{40,}`) with a `_b64_slash_is_secret` discriminator that keeps URL/endpoint paths verbatim (short lowercase `/`-segments) but masks high-entropy mixed-case+digit runs. Fenced with `tests/test_redact.py`. Test fixtures are assembled at runtime so the test files themselves stay clean under the gate.
 **Status:** resolved.
+
+## KB-104 — wait_for_state derived the wrong --id flag for multi-word resources (networking-compute)
+
+**Symptom:** Polling an Autonomous Database, Load Balancer, DB System, or other multi-word resource with `wait_for_state` failed with an "unrecognized argument" / missing-id error, because the wrong `--<x>-id` flag was passed.
+**Root cause:** The id flag was derived from the LAST word of the command path (`"database autonomous-database"` → `--database-id`, `"lb load-balancer"` → `--balancer-id`), which is correct only for single-word resources.
+**Fix:** Extracted `_id_flag_for` in `common.sh` with a `case` that matches known multi-word tails (autonomous-database, autonomous-container-database, network-load-balancer, load-balancer, db-system, mount-target, file-system, node-pool, boot-volume) before the last-word fallback. Order most-specific first (`*network-load-balancer` before `*load-balancer`). Fenced by `tests/common_helpers_smoke.sh`.
+**Status:** resolved.
