@@ -151,6 +151,44 @@ curl -sS -X POST \
 RUM uses the **public** key in the browser snippet; never embed the private key
 client-side.
 
+### Agentic AI observability profile
+
+For agent systems, classic request traces are not enough. Model the run as an
+agent episode: user intent, routing, model calls, retrieval, memory, tool calls,
+guardrails, approvals, retries, budget decisions, side effects, and evaluator
+verdicts linked by `trace_id`, `span_id`, `session_id`, and `conversation_id`.
+
+Recommended OCI-native pattern:
+
+- Use OpenTelemetry semantic attributes for GenAI spans (`gen_ai.*`) and add
+  OCI-specific attributes only as an extension layer.
+- Keep prompt/response capture disabled by default in public or shared
+  environments; enable it only for approved evaluation runs.
+- Split APM domains when needed: runtime/platform telemetry, GenAI telemetry,
+  and application-under-investigation telemetry can be separate domains. Store
+  each private data key in Vault/ExternalSecrets and keep domain IDs/endpoints
+  out of committed docs.
+- Fan out through an OTel collector when comparing OCI APM, Log Analytics,
+  Grafana/Tempo/Prometheus/Loki, Langfuse, OpenLIT, Phoenix, or Jaeger.
+- Emit a privacy-safe synthetic smoke trace/log/metric with a deterministic
+  run id after import so dashboards can be validated without live user content.
+
+Trace integrity is a useful release gate. Compute and export fields such as:
+
+```text
+trace.integrity.score
+trace.integrity.state                 # evidence_complete | evidence_degraded | governance_incomplete | non_gateable | non_exportable
+trace.integrity.missing_spans
+trace.integrity.missing_attributes
+trace.integrity.missing_governance_spans
+trace.integrity.missing_export_attributes
+```
+
+Gate promotion on low `non_gateable`/`non_exportable` rates and on drilldown
+coverage from evaluation results to spans. Observability should record evidence;
+guardrails, approval systems, and budget controllers remain the decision
+authorities.
+
 ## Notifications (ONS topics + subscriptions)
 
 *Why:* alarms, Service Connectors, and budgets all fan out through a topic; create

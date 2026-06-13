@@ -676,3 +676,73 @@ not replicated into the consuming cluster/namespace.
 **Root cause:** The OCI Terraform provider does not manage LA fields/parser/source; only the connector and log group are created.
 **Fix:** After `terraform apply`, create the custom source named in `logSourceIdentifier` with `oci log-analytics source upsert-source` (or a post-apply script). See the oci-log-analytics skill.
 **Status:** resolved.
+
+## KB-094 — OKE rollout targets the wrong tenancy because context name was trusted (networking-compute)
+
+**Symptom:** A rollout or evolution test is about to mutate the wrong OKE cluster, even though the local Kubernetes context name looked harmless.
+**Root cause:** Kubernetes context names are local labels. The actual OCI exec plugin profile, region, and cluster OCID may point at a protected tenancy.
+**Fix:** Before mutating, print and verify `kubectl config view` context/user exec args plus `ce cluster get` for the target cluster. Refuse protected profiles unless an explicit break-glass confirmation is set.
+**Status:** resolved.
+
+## KB-095 — OKE app secrets drift because Kubernetes literals replaced Vault/ExternalSecrets (security)
+
+**Symptom:** Pods restart with stale passwords/tokens, or a control-plane UI displays a different credential than the backend accepts.
+**Root cause:** Runtime secrets were patched directly into Kubernetes or duplicated across env sources instead of treating OCI Vault plus `ExternalSecret` as the source of truth.
+**Fix:** Rotate/update the OCI Vault secret first, verify the matching `ExternalSecret` is ready, then restart affected workloads. Disable literal Kubernetes secret fallback by default; allow it only through an explicit non-production break-glass flag.
+**Status:** resolved.
+
+## KB-096 — `oauth2-proxy` cookie secret length is wrong (security)
+
+**Symptom:** `oauth2-proxy` fails startup or rejects sessions after a secret rotation.
+**Root cause:** The cookie secret must be a valid literal 16, 24, or 32 byte value. Storing base64 output such as `openssl rand -base64 32` directly creates a 44 byte string, not a 32 byte secret.
+**Fix:** Store a literal valid-length secret or decode/trim to the required byte length before writing the Kubernetes/Vault value. Verify the deployed value length without printing the value.
+**Status:** resolved.
+
+## KB-097 — Agentic traces are not release-gateable (observability-db)
+
+**Symptom:** Dashboards show spans, but evaluators, guardrails, approvals, tool calls, or budget decisions cannot be traced back to a complete agent episode.
+**Root cause:** Only request/model spans were emitted; mandatory episode evidence and cross-system IDs were missing or inconsistent.
+**Fix:** Emit an agent episode contract with `trace_id`, `span_id`, `session_id`, `conversation_id`, model/tool/retrieval/memory/guardrail/approval/eval spans, and trace-integrity fields. Gate release on low `non_gateable` and `non_exportable` rates.
+**Status:** resolved.
+
+## KB-098 — APM shows traces in one domain while incident lookups query another (observability-db)
+
+**Symptom:** Traces exist in OCI APM, but deep links or incident lookup tools return empty results.
+**Root cause:** Runtime telemetry, GenAI telemetry, and application-under-investigation telemetry were split across APM domains, while tools used only a default domain id.
+**Fix:** Make domain selection explicit: runtime endpoint/data key, GenAI endpoint/data key, default lookup domain, and app-specific lookup domains. Keep private data keys in Vault/ExternalSecrets and redact every domain id in docs.
+**Status:** resolved.
+
+## KB-099 — "No active alarms" confused with "no alarm definitions" (observability-db)
+
+**Symptom:** An operator asks for OCI alarms and receives an empty active-alarm result, then assumes no alarm definitions exist.
+**Root cause:** Firing alarm status and configured alarm definitions are different data surfaces.
+**Fix:** Route "active/firing/current alarms" to alarm-status queries, and "definitions/configured alarms" to `monitoring alarm list`. State which surface was checked and offer the other when results are empty.
+**Status:** resolved.
+
+## KB-100 — SQLcl AWR fallback uses snapshots from a previous DB incarnation (observability-db)
+
+**Symptom:** A local SQLcl AWR report fails with stale snapshot errors or reports data for an unexpected database incarnation.
+**Root cause:** Snapshot selection did not filter by the current DBID and instance number, so reused ADB/service names could match old rows.
+**Fix:** When falling back to SQLcl/AWR views, filter snapshot pairs by current `DBID` and current instance number before calling `DBMS_WORKLOAD_REPOSITORY`.
+**Status:** resolved.
+
+## KB-101 — OKE Log Analytics detection pack validated without live attack activity (log-analytics)
+
+**Symptom:** Detection validation requires creating privileged pods or running controlled attack tooling in a cluster.
+**Root cause:** The pack lacked a synthetic-event validation path and source contract.
+**Fix:** Define required sources, validate OCL syntax with `parse_query`, then test scenario semantics against synthetic Log Analytics events in an isolated log group. Use live queries only after collection prerequisites are confirmed.
+**Status:** resolved.
+
+## KB-102 — Destructive-command guard was blind to the `oci_cli` wrapper (security)
+
+**Symptom:** A destructive call routed through the pack's own `oci_cli` wrapper or a domain helper script (`oci_*.sh`) ran without the PreToolUse guard ever firing, even though the same verb typed as raw `oci …` was blocked.
+**Root cause:** `hooks/guard_destructive.py` keyed on `\boci\b`. `_` is a word character, so the word boundary never matched `oci_cli` — the exact entrypoint every SKILL/AGENTS file mandates ("All CLI through `oci_cli`"). The guard only saw bare `oci` invocations.
+**Fix:** Match all three real invocation shapes (`oci`, `oci_cli`, `oci_<domain>.{sh,py}`) via a dedicated `OCI_INVOCATION` regex, separate from the destructive-verb matcher. Added the Vault/KMS soft-delete scheduling verbs (`schedule-*-deletion`, via `\bdeletion\b`) and `change-compartment`. Fenced with `tests/test_guard_destructive.py`.
+**Status:** resolved.
+
+## KB-103 — Redaction gate under-masked standard-alphabet base64 secrets (security)
+
+**Symptom:** A base64 datakey/auth token containing `/` (standard alphabet) was only partially masked — `redact.py` masked the run up to the first slash and left the rest in cleartext.
+**Root cause:** The `secret_blob` rule used `[A-Za-z0-9+]{40,}` (no `/`) on purpose, so slash-separated endpoint paths were not eaten — but that also meant any secret with a `/` split into sub-40 runs and slipped through.
+**Fix:** Added a `secret_blob_slash` rule (`[A-Za-z0-9+/]{40,}`) with a `_b64_slash_is_secret` discriminator that keeps URL/endpoint paths verbatim (short lowercase `/`-segments) but masks high-entropy mixed-case+digit runs. Fenced with `tests/test_redact.py`. Test fixtures are assembled at runtime so the test files themselves stay clean under the gate.
+**Status:** resolved.

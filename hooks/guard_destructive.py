@@ -19,32 +19,67 @@ import os
 import re
 import sys
 
-# Destructive OCI verbs/subcommands. Word-boundary matched so we don't trip on
-# substrings like "undelete-ready" or paths.
+# An OCI invocation token. The previous single `\boci\b` matched only the raw
+# CLI: `_` is a word character, so `\boci\b` never fired on `oci_cli` — the
+# pack's *mandated* wrapper ("All CLI through oci_cli"). Every wrapper-routed
+# destructive call (the documented happy path) slipped straight through the
+# guard. Match all three real invocation shapes instead:
+#   bare `oci …`            the raw OCI CLI
+#   `oci_cli …`             the common.sh wrapper function
+#   `oci_<domain>.sh|.py`   a domain helper script (e.g. oci_datasafe.sh deregister)
+OCI_INVOCATION = re.compile(
+    r"(?<![\w.-])oci(?![\w.-])"      # bare `oci`, not part of oci_cli/path/etc.
+    r"|\boci_cli\b"                  # the wrapper function (the mandated entrypoint)
+    r"|\boci_[a-z]+\.(?:sh|py)\b",   # a domain helper script
+    re.IGNORECASE,
+)
+
+# Verbs/subcommands that DESTROY or REPLACE tenancy state. Word-boundary matched
+# so we don't trip on substrings ("undelete-ready" keeps its data). `\bdelete\b`
+# already covers every `delete-*` subcommand (the `-` is a boundary) and
+# `\bterminate\b` covers `fast-terminate`; the non-`delete` stems below catch
+# destructive ops that share no covered stem — notably the Vault/KMS soft-delete
+# scheduling verbs (`schedule-secret-deletion`/`schedule-key-deletion`, via
+# `\bdeletion\b`) and compartment moves.
 DESTRUCTIVE = re.compile(
-    r"\boci\b(?=.*\b("
-    r"delete|terminate|bulk-delete|destroy|delete-compartment|"
-    r"remove-user-from-group|delete-group|delete-policy|delete-dynamic-group|"
-    r"delete-bucket|delete-object|delete-vcn|delete-subnet|node-pool[- ]delete|"
-    r"cluster[- ]delete|deregister|disable)\b)",
-    re.IGNORECASE | re.DOTALL,
+    r"\b("
+    r"delete|terminate|destroy|bulk-delete|deregister|disable|"
+    r"deletion|change-compartment|detach|purge|remove-user-from-group"
+    r")\b",
+    re.IGNORECASE,
 )
 
 
-def main() -> int:
-    if os.environ.get("OCI_SKILLS_FORCE", "").lower() == "true":
+def _should_block(command: str) -> bool:
+    """True if `command` is an OCI invocation carrying a destructive verb.
+
+    Pure (no IO/env), so the guard's decision surface is unit-testable.
+    """
+    if not command:
+        return False
+    if not OCI_INVOCATION.search(command):
+        return False
+    return bool(DESTRUCTIVE.search(command))
+
+
+def evaluate(payload: dict, force: bool) -> int:
+    """Return the hook exit code for a parsed payload (0 allow, 2 block)."""
+    if force:
         return 0
+    if payload.get("tool_name") != "Bash":
+        return 0
+    command = (payload.get("tool_input") or {}).get("command", "")
+    return 2 if _should_block(command) else 0
+
+
+def main() -> int:
+    force = os.environ.get("OCI_SKILLS_FORCE", "").lower() == "true"
     try:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
         return 0  # never block on a malformed payload — fail open, stay out of the way
 
-    if payload.get("tool_name") != "Bash":
-        return 0
-    command = (payload.get("tool_input") or {}).get("command", "")
-    if not command or "oci" not in command:
-        return 0
-    if not DESTRUCTIVE.search(command):
+    if evaluate(payload, force) == 0:
         return 0
 
     sys.stderr.write(

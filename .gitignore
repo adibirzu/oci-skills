@@ -25,6 +25,9 @@ __pycache__/
 venv/
 .pytest_cache/
 .ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 
 # Node / misc
 node_modules/
