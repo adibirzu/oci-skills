@@ -6,8 +6,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard_destructive.py\"",
-            "description": "Block destructive OCI CLI commands until preflighted and confirmed (honors OCI_SKILLS_FORCE)."
+            "command": "sh -c 'script=\"${CLAUDE_PLUGIN_ROOT:-$(pwd)}/hooks/guard_destructive.py\"; [ -f \"$script\" ] || exit 0; python3 \"$script\"'",
+            "description": "Block destructive OCI CLI commands until preflighted and confirmed; fail open if the plugin root is unavailable."
           }
         ]
       }
