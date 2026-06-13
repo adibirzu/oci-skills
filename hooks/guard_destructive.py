@@ -14,8 +14,10 @@ Exit codes:
 """
 from __future__ import annotations
 
+import datetime
 import json
 import os
+import pathlib
 import re
 import sys
 
@@ -72,6 +74,44 @@ def evaluate(payload: dict, force: bool) -> int:
     return 2 if _should_block(command) else 0
 
 
+def _audit(event: str, command: str) -> None:
+    """Best-effort: append one redacted JSON line to the shared action ledger.
+
+    Mirrors common.sh:audit_log (same path resolution + redaction) so the guard's
+    decisions land alongside the shell-side actions. Never raises, and never
+    persists an unredacted line — if the redactor cannot load, nothing is written.
+    """
+    if os.environ.get("OCI_SKILLS_NO_AUDIT") == "1":
+        return
+    state_home = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
+    log_file = os.environ.get("OCI_SKILLS_AUDIT_LOG") or os.path.join(
+        state_home, "oci-skills", "audit.jsonl")
+    if log_file == os.devnull:
+        return
+    try:
+        import importlib.util
+
+        rec = {
+            "ts": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "event": event,
+            "auth_mode": "hook",
+            "command": command,
+        }
+        line = json.dumps(rec, separators=(",", ":"))
+        redact_path = pathlib.Path(__file__).resolve().parent.parent / "scripts" / "redact.py"
+        spec = importlib.util.spec_from_file_location("redact", str(redact_path))
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["redact"] = mod          # register BEFORE exec so @dataclass resolves
+        spec.loader.exec_module(mod)
+        line = mod.redact(line)[0]           # mask any OCID/IP/secret before persisting
+        path = pathlib.Path(log_file)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as handle:
+            handle.write(line + "\n")
+    except Exception:
+        pass  # telemetry is best-effort; never break the guard
+
+
 def main() -> int:
     force = os.environ.get("OCI_SKILLS_FORCE", "").lower() == "true"
     try:
@@ -79,9 +119,15 @@ def main() -> int:
     except (json.JSONDecodeError, ValueError):
         return 0  # never block on a malformed payload — fail open, stay out of the way
 
-    if evaluate(payload, force) == 0:
+    command = (payload.get("tool_input") or {}).get("command", "")
+    blockworthy = payload.get("tool_name") == "Bash" and _should_block(command)
+    if not blockworthy:
+        return 0
+    if force:
+        _audit("guard_forced", command)   # operator explicitly bypassed — record it
         return 0
 
+    _audit("guard_blocked", command)
     sys.stderr.write(
         "[oci-administrator] This looks like a DESTRUCTIVE OCI command.\n"
         "Before running it:\n"

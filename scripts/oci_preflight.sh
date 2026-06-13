@@ -19,7 +19,7 @@ COMPARTMENT_OCID=""
 while getopts ":c:h" opt; do
   case "$opt" in
     c) COMPARTMENT_OCID="$OPTARG" ;;
-    h) grep '^#' "$0" | grep -v '^#!' | sed 's/^# \{0,1\}//'; exit 0 ;;
+    h) print_self_help; exit 0 ;;
     *) die "usage: $0 [-c COMPARTMENT_OCID]" ;;
   esac
 done
@@ -34,21 +34,14 @@ info "profile   : ${OCI_CLI_PROFILE:-DEFAULT}"
 info "region    : ${OCI_REGION:-<profile default>}"
 
 # Resolve the tenancy NAME (not OCID) so the operator can eyeball the target.
-# For config auth, read the tenancy OCID straight from ~/.oci/config; for
-# principal-based auth, fall back to the object-storage namespace as a stable,
-# non-secret tenancy fingerprint.
+# For config auth the tenancy OCID comes from ~/.oci/config; for principal-based
+# auth (no config) it is empty unless OCI_SKILLS_TENANCY is set, in which case we
+# fall back to the object-storage namespace as a stable, non-secret fingerprint.
 tenancy_name=""
-if [[ "$mode" == "config" ]]; then
-  profile="${OCI_CLI_PROFILE:-DEFAULT}"
-  tenancy_ocid="$(awk -v p="[$profile]" '
-      $0==p {f=1; next}
-      /^\[/ {f=0}
-      f && /^[[:space:]]*tenancy[[:space:]]*=/ {sub(/^[^=]*=[[:space:]]*/,""); print; exit}
-    ' "${OCI_CLI_CONFIG_FILE:-$HOME/.oci/config}" 2>/dev/null | tr -d '[:space:]')"
-  if [[ -n "$tenancy_ocid" ]]; then
-    tenancy_name="$(oci_cli iam tenancy get --tenancy-id "$tenancy_ocid" \
-      --query 'data.name' --raw-output 2>/dev/null || true)"
-  fi
+tenancy_ocid="$(resolve_tenancy_ocid)"
+if [[ -n "$tenancy_ocid" ]]; then
+  tenancy_name="$(oci_cli iam tenancy get --tenancy-id "$tenancy_ocid" \
+    --query 'data.name' --raw-output 2>/dev/null || true)"
 fi
 
 if [[ -n "$tenancy_name" ]]; then

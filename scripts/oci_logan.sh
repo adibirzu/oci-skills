@@ -38,7 +38,7 @@ while getopts ":q:t:c:n:m:z:Sh" opt; do
     m) MAX_ROWS="$OPTARG" ;;
     z) TZ_NAME="$OPTARG" ;;
     S) SUBTREE="false" ;;
-    h) grep '^#' "$0" | grep -v '^#!' | sed 's/^# \{0,1\}//'; exit 0 ;;
+    h) print_self_help; exit 0 ;;
     *) die "usage: $0 -q QUERY [-t N{m|h|d|w}] [-c COMPARTMENT_OCID] [-n LA_NAMESPACE] [-m MAX_ROWS] [-z TZ] [-S]" ;;
   esac
 done
@@ -57,14 +57,7 @@ info "profile   : ${OCI_CLI_PROFILE:-DEFAULT}"
 info "region    : ${OCI_REGION:-<profile default>}"
 
 # Resolve the tenancy OCID (needed only to auto-resolve the namespace).
-if [[ -z "$TENANT_OCID" && "$mode" == "config" ]]; then
-  profile="${OCI_CLI_PROFILE:-DEFAULT}"
-  TENANT_OCID="$(awk -v p="[$profile]" '
-      $0==p {f=1; next}
-      /^\[/ {f=0}
-      f && /^[[:space:]]*tenancy[[:space:]]*=/ {sub(/^[^=]*=[[:space:]]*/,""); print; exit}
-    ' "${OCI_CLI_CONFIG_FILE:-$HOME/.oci/config}" 2>/dev/null | tr -d '[:space:]')"
-fi
+TENANT_OCID="$(resolve_tenancy_ocid "$TENANT_OCID")"
 
 # Auto-resolve the LA namespace if not supplied.
 if [[ -z "$NAMESPACE" ]]; then

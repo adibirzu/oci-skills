@@ -16,14 +16,13 @@ set -o errexit -o nounset -o pipefail
 source "$(dirname "$0")/common.sh"
 
 COMPARTMENT_OCID="${OCI_SKILLS_COMPARTMENT:-}"
-TENANT_OCID="${OCI_SKILLS_TENANCY:-}"
 MAX=25
 
 while getopts ":c:n:h" opt; do
   case "$opt" in
     c) COMPARTMENT_OCID="$OPTARG" ;;
     n) MAX="$OPTARG" ;;
-    h) grep '^#' "$0" | grep -v '^#!' | sed 's/^# \{0,1\}//'; exit 0 ;;
+    h) print_self_help; exit 0 ;;
     *) die "usage: $0 [-c COMPARTMENT_OCID] [-n MAX]" ;;
   esac
 done
@@ -32,19 +31,9 @@ done
 require_cmd oci jq
 
 banner "OCI Data Safe — targets (read-only)"
-mode="$(resolve_auth_mode)"
-info "profile : ${OCI_CLI_PROFILE:-DEFAULT}   region: ${OCI_REGION:-<profile default>}   auth: $mode"
+context_header
 
-if [[ -z "$COMPARTMENT_OCID" ]]; then
-  if [[ -z "$TENANT_OCID" && "$mode" == "config" ]]; then
-    profile="${OCI_CLI_PROFILE:-DEFAULT}"
-    TENANT_OCID="$(awk -v p="[$profile]" '
-        $0==p {f=1; next} /^\[/ {f=0}
-        f && /^[[:space:]]*tenancy[[:space:]]*=/ {sub(/^[^=]*=[[:space:]]*/,""); print; exit}
-      ' "${OCI_CLI_CONFIG_FILE:-$HOME/.oci/config}" 2>/dev/null | tr -d '[:space:]')"
-  fi
-  COMPARTMENT_OCID="$TENANT_OCID"
-fi
+COMPARTMENT_OCID="$(resolve_compartment "$COMPARTMENT_OCID")"
 [[ -n "$COMPARTMENT_OCID" ]] || die "no compartment — pass -c <COMPARTMENT_OCID> or set OCI_SKILLS_COMPARTMENT"
 echo >&2
 
