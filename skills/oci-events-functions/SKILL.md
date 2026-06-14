@@ -92,3 +92,7 @@ safety rules.
 **Verification** — trigger an event / publish a test message / re-check SCH data flow.
 **KB** — KB entry used (events-functions), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) · [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm) · [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm). Full list in the [events-functions reference](../../references/events-functions.md).

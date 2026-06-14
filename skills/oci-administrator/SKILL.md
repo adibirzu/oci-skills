@@ -139,3 +139,7 @@ intra-domain flow table.
 **Verification** — checks run and result.
 **KB** — KB entry used, or new KB-<n> added.
 ```
+
+## Official documentation
+
+[OCI Documentation (home)](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [OCI CLI / SDK configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm).

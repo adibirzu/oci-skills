@@ -116,3 +116,7 @@ Action:       Set protection action to BLOCK; confirm LB references this policy.
 Verification: Re-run policy get → action "BLOCK"; replay test request → 403.
 KB:           KB-004 (WAF policy not blocking after attach).
 ```
+
+## Official documentation
+
+[Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm) · [Vault / KMS](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm) · [WAF](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm). Full list in the [security-compliance reference](../../references/security-compliance.md).

@@ -117,3 +117,7 @@ identity-domains.
 **Verification** — re-list/get showing the desired state.
 **KB** — KB entry used (e.g. KB-002, KB-003), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm) · [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm). Full list in the [iam-tenancy reference](../../references/iam-tenancy.md).

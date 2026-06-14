@@ -336,3 +336,14 @@ secret/hex blobs. Wire it as a `pre-commit` hook so secrets cannot reach git.
 | Broad Audit/CG windows | Slow, noisy triage; scope window + compartment. |
 | Wrong tenancy/compartment | Run `oci_preflight.sh -c <COMPARTMENT_OCID>` first, every time. |
 | Secrets in logs/commits | Run `redact.py --check` before printing or committing. |
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm)
+- [Vault / Key Management (KMS)](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm)
+- [Security Zones](https://docs.oracle.com/en-us/iaas/security-zone/home.htm)
+- [Web Application Firewall (WAF)](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm)
+- [Audit](https://docs.oracle.com/en-us/iaas/Content/Audit/home.htm)
+- [CIS OCI Foundations Benchmark (landing zone)](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html)
