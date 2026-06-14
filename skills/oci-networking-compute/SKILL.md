@@ -99,3 +99,7 @@ Action:       <oci_cli command run, gated by run_mutating/confirm, or dry-run>
 Verification: <wait_for_state result / kubectl auth can-i / backend-set-health>
 KB:           <KB-### if a known fix applied, else "new entry added">
 ```
+
+## Official documentation
+
+[Networking (VCN)](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm) · [OKE](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm) · [Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm). Full list in the [networking-compute reference](../../references/networking-compute.md).

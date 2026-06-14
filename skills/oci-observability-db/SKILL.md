@@ -124,3 +124,7 @@ Action:       <oci_cli ... via run_mutating, dry-run shown first>
 Verification: <re-list / get showing the resource now exists & ENABLED>
 KB:           <KB-<n> if a new error was resolved, else n/a>
 ```
+
+## Official documentation
+
+[Monitoring](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm) · [Database Management](https://docs.oracle.com/en-us/iaas/database-management/home.htm) · [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm). Full list in the [observability-db reference](../../references/observability-db.md).

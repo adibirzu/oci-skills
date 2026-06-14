@@ -79,6 +79,11 @@ Route by intent — each domain is a focused skill + reference:
 | Log Analytics / OCL queries, sources, detections | `oci-log-analytics` |
 | Terraform stacks, plan/apply/destroy jobs | `oci-resource-manager` |
 | Data Safe targets, assessments, masking | `oci-data-safe` |
+| Functions, Events rules, Notifications, Streaming | `oci-events-functions` |
+
+Each domain's `SKILL.md` and `references/*.md` link the **canonical Oracle docs**
+for the services it covers; start at the
+[OCI Documentation home](https://docs.oracle.com/en-us/iaas/Content/home.htm).
 
 ## 7. The safety contract (always on)
 

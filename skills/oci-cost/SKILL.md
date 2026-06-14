@@ -108,3 +108,7 @@ gated, deferred to oci-iam-admin to execute.
 **Verification** — re-run oci_cost.sh showing the budget/alert now present.
 **KB** — KB entry used, or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Cost Analysis](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costanalysisoverview.htm) · [Budgets](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm). Full list in the [cost-management reference](../../references/cost-management.md).

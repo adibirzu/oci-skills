@@ -95,3 +95,7 @@ oci_cli data-safe audit-event list --compartment-id <COMPARTMENT_OCID> \
 **Verification** — re-read the assessment / target lifecycle-state showing the result.
 **KB** — KB entry used, or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Data Safe](https://docs.oracle.com/en-us/iaas/data-safe/doc/oracle-data-safe-overview.html). Full list in the [data-safe reference](../../references/data-safe.md).

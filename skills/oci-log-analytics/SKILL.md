@@ -108,3 +108,7 @@ oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
 **Verification** — re-run the query / re-list the resource showing the result.
 **KB** — KB entry used (log-analytics), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm). Full list in the [log-analytics reference](../../references/log-analytics.md).

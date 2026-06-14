@@ -33,6 +33,57 @@ sensitive is ever printed or committed.
 | **oci-data-safe** | Data Safe: target-database registration (ADB + cloud DB), private endpoints, Security/User Assessment, Activity Auditing, Data Discovery, Data Masking. |
 | **oci-events-functions** | Event-driven & serverless: OCI Functions (deploy/invoke/config), Events rules (eventType → FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out, Streaming transport. |
 
+## Architecture
+
+A request enters through the **router** (`oci-administrator`), is routed by intent
+to one of nine **domain skills**, and every CLI call funnels through one shared
+**safety core** (`scripts/common.sh`) before it ever reaches the tenancy. The same
+core is installed, unchanged, into each agent harness.
+
+```mermaid
+flowchart TD
+    U([User / agent request]) --> R{{"oci-administrator<br/>router skill"}}
+    R -->|route by intent| D
+
+    subgraph D[Nine domain skills]
+      direction LR
+      IAM[oci-iam-admin]
+      SEC[oci-security-compliance]
+      OBS[oci-observability-db]
+      NET[oci-networking-compute]
+      COST[oci-cost]
+      LOG[oci-log-analytics]
+      ORM[oci-resource-manager]
+      DS[oci-data-safe]
+      EF[oci-events-functions]
+    end
+
+    D --> CORE
+    subgraph CORE["Shared safety core — scripts/common.sh"]
+      direction LR
+      CLI["oci_cli<br/>one auth path"]
+      MUT["run_mutating / confirm<br/>gate mutations"]
+      RED["redact.py<br/>mask OCIDs / IPs / secrets"]
+      CTX["oci_context.py<br/>named contexts"]
+    end
+
+    HOOK[["PreToolUse guard hook<br/>blocks delete / terminate / destroy"]] -. guards .-> CLI
+    CORE --> OCI[("OCI tenancy<br/>via OCI CLI / SDK")]
+
+    R -. installed into .-> H
+    subgraph H[Harness adapters]
+      direction LR
+      C[Claude Code]
+      CX[Codex]
+      G[Gemini CLI]
+      AG[Antigravity]
+    end
+```
+
+**Progressive disclosure keeps it simple:** an agent reads the router, then *one*
+domain `SKILL.md`, then that domain's `references/*.md` only if it needs depth — it
+never loads all nine domains at once. Each layer is one short file.
+
 ## Safety model
 
 Every plugin inherits the same contract (see

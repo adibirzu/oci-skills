@@ -89,3 +89,7 @@ every terminal state**, dumping `get-job-logs-content` on failure.
 **Verification** — a follow-up plan job showing no drift, or the stack outputs.
 **KB** — KB entry used (e.g. KB-007), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm). Full list in the [resource-manager reference](../../references/resource-manager.md).
