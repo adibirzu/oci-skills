@@ -148,6 +148,7 @@ resolve_auth_mode() {
 # profile's `tenancy=` in ~/.oci/config / $OCI_CLI_CONFIG_FILE. Principal-based
 # auth has no config to read, so the caller must supply it. Echoes nothing (not
 # an error) when it cannot be resolved — the caller decides whether to die.
+# shellcheck disable=SC2120  # the explicit arg is optional by design (precedence chain)
 resolve_tenancy_ocid() {
   local tenant="${1:-${OCI_SKILLS_TENANCY:-}}"
   if [[ -n "$tenant" ]]; then printf '%s' "$tenant"; return 0; fi
@@ -163,6 +164,7 @@ resolve_tenancy_ocid() {
 # resolve_compartment [explicit] — echo the compartment to operate in: the
 # explicit arg if given, else $OCI_SKILLS_COMPARTMENT, else the tenancy root.
 # Echoes empty if none can be resolved (caller decides whether to die).
+# shellcheck disable=SC2120  # the explicit arg is optional by design (precedence chain)
 resolve_compartment() {
   local explicit="${1:-${OCI_SKILLS_COMPARTMENT:-}}"
   if [[ -n "$explicit" ]]; then printf '%s' "$explicit"; return 0; fi
