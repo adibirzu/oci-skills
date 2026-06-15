@@ -94,6 +94,9 @@ jobs:
       - name: common helpers smoke (tenancy/compartment/help/id-flag)
         run: /bin/bash tests/common_helpers_smoke.sh
 
+      - name: oci_logan failure-handling smoke (auth-denied vs empty vs rows)
+        run: /bin/bash tests/oci_logan_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest

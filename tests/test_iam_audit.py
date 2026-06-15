@@ -156,3 +156,18 @@ def test_main_config_problem_returns_2(monkeypatch) -> None:
         raise _exc.ConfigFileNotFound("no config file")
     monkeypatch.setattr(iam_audit, "build_identity_client", boom)
     assert iam_audit.main([]) == 2
+
+
+def test_main_authz_error_emits_self_lockout_guidance(monkeypatch, capsys) -> None:
+    # A 404/NotAuthorized while enumerating IAM is the self-lockout signature:
+    # the message must name the authorization problem and hand off an actionable
+    # next step (check own group membership; query Audit for who changed it),
+    # rather than a bare "OCI service error: 404".
+    def boom(profile, auth):
+        raise _ServiceError(404, "NotAuthorizedOrNotFound")
+    monkeypatch.setattr(iam_audit, "build_identity_client", boom)
+    assert iam_audit.main([]) == 1
+    err = capsys.readouterr().err.lower()
+    assert "authoriz" in err                 # names the real problem
+    assert "list-groups" in err              # how to confirm the lockout
+    assert "removeuserfromgroup" in err      # how to find who did it

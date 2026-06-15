@@ -230,10 +230,14 @@ oci_cli() {
   local max="${OCI_SKILLS_MAX_RETRIES:-3}" attempt=0 rc=0 errf
   errf="$(mktemp "${TMPDIR:-/tmp}/oci-cli-err.XXXXXX")"
   while :; do
-    # `if` exempts the call from errexit so we can capture rc and the stderr.
-    if "${base[@]}" "$@" 2>"$errf"; then rc=0; cat "$errf" >&2; break; fi
-    rc=$?
+    # Suspend errexit with `|| rc=$?` so we capture the call's REAL exit code.
+    # NOTE: a bare `if cmd; then …; fi` with no else evaluates to 0 when cmd
+    # fails, so reading `$?` after it would WRONGLY report success and mask
+    # every non-retryable failure. `|| rc=$?` records the true code exactly.
+    rc=0
+    "${base[@]}" "$@" 2>"$errf" || rc=$?
     cat "$errf" >&2
+    if [[ "$rc" -eq 0 ]]; then break; fi
     attempt=$(( attempt + 1 ))
     if (( attempt > max )) || ! _oci_retryable "$(cat "$errf")" "$kind"; then
       break
