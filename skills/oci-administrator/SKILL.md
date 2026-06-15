@@ -25,6 +25,13 @@ license: MIT
 Operate any OCI tenancy safely. This skill routes administrative requests to one
 of nine domain skills, all sharing one tenancy-safety core.
 
+**Scope:** this pack covers OCI *infrastructure and control-plane* administration.
+For tasks *inside* an Oracle Database — SQL/PL/SQL authoring, RMAN backup/recovery,
+AWR/ASH tuning, schema migrations, Data Guard internals — see the `db/` domain of
+[oracle/skills](https://github.com/oracle/skills) (the upstream Oracle-wide skill
+collection). This pack handles the OCI services *around* the database
+(Database Management, Operations Insights, Data Safe, Autonomous DB provisioning).
+
 ## First move (always)
 
 1. Identify the **domain** of the request (IAM, Security, Observability/DB,
@@ -48,6 +55,10 @@ of nine domain skills, all sharing one tenancy-safety core.
    [references/helper-conventions.md](../../references/helper-conventions.md) once per
    session, then load only the domain reference you need. For auth/secret questions
    read [references/credential-management.md](../../references/credential-management.md).
+   For *how to reason* before acting (disambiguation, idempotency, destructive
+   classification) read [references/agent-safety.md](../../references/agent-safety.md);
+   when a call fails, [references/oci-error-catalog.md](../../references/oci-error-catalog.md)
+   maps the error to cause + fix.
 
 ## Slash commands (Claude Code plugin)
 
@@ -80,6 +91,19 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, SCH, serverless, event-driven | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
+
+## Common multi-step flows (cross-domain)
+
+Many requests span domains. Sequence them; each domain skill has its own
+intra-domain flow table.
+
+| Task | Sequence |
+|------|----------|
+| "What's going on in this tenancy?" | `oci_preflight.sh` → `iam_audit.py` (posture) → `oci_cost.sh` (spend) → **oci-security-compliance** `cloud-guard problem list` (open risks) |
+| Investigate a cost spike | **oci-cost** spend-by-service → localize by compartment → **oci-log-analytics** Audit query for *who created it* → **oci-iam-admin** budget + alert |
+| Triage a security finding | **oci-security-compliance** Cloud Guard problem → **oci-log-analytics** audit trail around the event → remediate in the owning domain → re-scan |
+| Stand up a guardrailed workload | **oci-iam-admin** (compartment + scoped policy + budget) → **oci-networking-compute** (VCN/subnet/NSG) → **oci-resource-manager** (reviewed stack apply) |
+| Onboard a database for observability | **oci-observability-db** (enable DBM/OPSI) → **oci-data-safe** (register + Security Assessment) → **oci-observability-db** (alarms on the DB) |
 
 ## Operating rules
 

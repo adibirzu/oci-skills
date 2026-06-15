@@ -40,6 +40,15 @@ If the resolved tenancy is not the one you expect, **stop**. See
 | Run containers | OKE | two-layer authz (KB-001); verify context/profile before rollout |
 | Pull images | OCIR | cross-tenancy = replicate secret (KB-006) |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Open a port safely | `nsg rules list` (read existing) → add one rule with the tightest CIDR (never `0.0.0.0/0` on mgmt ports, KB-045) → re-list to confirm no shadow/duplicate (KB-078) |
+| Launch a VM | `limits resource-availability get` for shape/AD (KB-003) → `compute instance launch` → `wait_for_state … RUNNING` |
+| Deploy to OKE | `ce cluster list` → `create-kubeconfig` → prove kube context → OCI exec profile → `kubectl auth can-i --list` (KB-001) → roll out |
+| Diagnose an unreachable VM | don't trust `ping` (ICMP blocked, KB-044) → check NSG/security-list → route table has an IGW/NAT route (KB-042) → public-subnet flag `prohibit-public-ip-on-vnic` (KB-077) |
+
 ## Common tasks
 
 ```bash

@@ -14,7 +14,12 @@ of nine domain skills under `skills/`, all sharing the safety core in
 
 1. `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>` — confirm the tenancy.
 2. `python3 ./scripts/kb_lookup.py "symptom words"` — check known fixes.
-3. Read `references/tenancy-safety.md` once per session.
+3. Read `references/tenancy-safety.md` once per session. For *how to reason*
+   before acting, read `references/agent-safety.md`; when a call fails, map the
+   error in `references/oci-error-catalog.md`.
+
+Each domain skill carries a **Common multi-step flows** table — use it to
+sequence a request instead of re-deriving the steps.
 
 ## Routing
 
@@ -38,3 +43,9 @@ of nine domain skills under `skills/`, all sharing the safety core in
 - Never print or commit OCIDs, IPs, fingerprints, datakeys, or secrets. Redact
   with `scripts/redact.py`; use `<PLACEHOLDER>` tokens in docs.
 - Add a `KB-<n>` entry after fixing any new operational error.
+
+## Scope
+
+OCI *infrastructure / control-plane* administration. For tasks *inside* an
+Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH tuning, schema migrations, Data Guard
+internals), see the `db/` domain of <https://github.com/oracle/skills>.

@@ -33,6 +33,14 @@ sensitive is ever printed or committed.
 | **oci-data-safe** | Data Safe: target-database registration (ADB + cloud DB), private endpoints, Security/User Assessment, Activity Auditing, Data Discovery, Data Masking. |
 | **oci-events-functions** | Event-driven & serverless: OCI Functions (deploy/invoke/config), Events rules (eventType → FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out, Streaming transport. |
 
+> **Scope & related.** This pack covers OCI *infrastructure and control-plane*
+> administration. For tasks *inside* an Oracle Database (SQL/PL/SQL, RMAN,
+> AWR/ASH tuning, schema migrations, Data Guard internals), see the `db/` domain
+> of [oracle/skills](https://github.com/oracle/skills) — the upstream
+> Oracle-wide skill collection. The two are complementary: this pack manages the
+> OCI services *around* the database (DBM, Operations Insights, Data Safe,
+> Autonomous DB provisioning); `db/` handles what runs *in* it.
+
 ## Safety model
 
 Every plugin inherits the same contract (see
@@ -140,7 +148,8 @@ commands/                # Claude Code slash commands (context/preflight/audit/c
 hooks/                   # PreToolUse guard that blocks destructive oci commands
   hooks.json  guard_destructive.py
 references/              # domain + safety knowledge (progressive disclosure)
-  tenancy-safety.md  helper-conventions.md  KB.md  named-contexts.md
+  tenancy-safety.md  agent-safety.md  oci-error-catalog.md
+  helper-conventions.md  KB.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md

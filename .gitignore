@@ -33,3 +33,8 @@ htmlcov/
 node_modules/
 .DS_Store
 *.log
+
+# Editor swap / backup files
+*.swp
+*.swo
+*~

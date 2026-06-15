@@ -50,6 +50,15 @@ for the safety rules.
 | quota policy, service limit, capacity, LimitExceeded | Quotas & limits |
 | tag namespace, defined/freeform tag, cost-tracking | Tags |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Onboard a team compartment | `compartment create` → idempotent `group create` (search by name, 409 = exists) → scoped `policy create` (verb + resource-family in *this* compartment) → `budget create` + 80% forecast alert |
+| Least-privilege review | `policy list` → grep `manage all-resources in tenancy` → `iam_audit.py` for effective grants → propose a compartment-scoped rewrite |
+| Grant a resource principal | `dynamic-group create` with a matching rule (`instance.id`/`resource.id`) → `policy` allowing the dynamic-group → verify with `dynamic-group get` (KB-021) |
+| Pre-flight a provision | `limits resource-availability get` for the shape/limit → if blocked, request an increase before creating, not mid-create (KB-003, KB-015) |
+
 ## Common tasks
 
 ```bash
