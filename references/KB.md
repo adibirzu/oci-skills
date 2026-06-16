@@ -26,7 +26,7 @@ RBAC. A token can be minted yet bound to no RBAC subject.
 **Fix:** Ensure the caller's IAM principal maps to a Kubernetes RBAC subject
 (a `ClusterRoleBinding` to the user/group OCID, or the `oci:` group mapping).
 Verify with `kubectl auth can-i --list`.
-**See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**See:** [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm)
 **Status:** resolved.
 
 ## KB-002 — Identity Domains user filter returns nothing (iam)
@@ -46,7 +46,7 @@ kebab-case. The filter attribute was kebab-case.
 **Fix:** Pre-check before provisioning:
 `oci limits resource-availability get --service-name <svc> --limit-name <limit> --compartment-id <COMPARTMENT_OCID>`.
 Request a limit increase or pick another AD/region if `available` is 0.
-**See:** [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm)
+**See:** [Service Limits — request an increase](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm)
 **Status:** resolved.
 
 ## KB-004 — WAF policy not blocking after attach (security)
@@ -58,7 +58,7 @@ requests are not blocked.
 policy.
 **Fix:** Set the protection-capability action to `BLOCK`, confirm the LB's WAF
 association points at the intended policy OCID, and re-test.
-**See:** [WAF](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm)
+**See:** [WAF concepts](https://docs.oracle.com/en-us/iaas/Content/WAF/Concepts/overview.htm)
 **Status:** resolved.
 
 ## KB-005 — Vault secret base64 vs raw content (security)
@@ -66,7 +66,7 @@ association points at the intended policy OCID, and re-test.
 **Symptom:** A secret read from Vault is garbled or fails to authenticate.
 **Root cause:** `get_secret_bundle` returns base64-encoded content; it was used raw.
 **Fix:** `base64.b64decode(bundle.secret_bundle_content.content).decode()` before use.
-**See:** [Vault / KMS](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm)
+**See:** [Managing Vault secrets](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/Tasks/managingsecrets.htm)
 **Status:** resolved.
 
 ## KB-006 — Cross-tenancy OCIR pull fails on worker nodes (networking-compute)
@@ -85,7 +85,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** A `resource-manager` (ORM) destroy/apply or other async CLI call with `--wait-for-state SUCCEEDED --max-wait-seconds N` never returns; the process must be killed after tens of minutes.
 **Root cause:** The CLI polls until state equals `SUCCEEDED` or max-wait expires. When the job enters a different terminal state (`FAILED`, `CANCELED`), `FAILED != SUCCEEDED`, so the CLI keeps polling for the entire window instead of exiting.
 **Fix:** Drop `--wait-for-state SUCCEEDED` for operations that can legitimately fail. Fire the create/destroy, capture the job/work-request id, then poll `... job get --query 'data."lifecycle-state"'` and `break` on ALL terminal states (`SUCCEEDED`, `FAILED`, `CANCELED`).
-**See:** [Work requests](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/workrequestoverview.htm)
+**See:** [Resource Manager jobs](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/usingconsole.htm)
 **Status:** resolved.
 
 ## KB-008 — Async create returns a work request, not the resource (empty `data.id`) (cli)
@@ -197,7 +197,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** Instance principal returns `NotAuthorizedOrNotFound` on every call despite a correct-looking dynamic group and policy; and `iam dynamic-group list` shows `matching-rule: null`.
 **Root cause:** The `ALL {resource.type='instance', resource.id='...'}` form is not reliably evaluated for instance-principal authorization. Separately, `ListDynamicGroups` omits the `matchingRule` field entirely — it only appears in `GetDynamicGroup`.
 **Fix:** Use `ANY {instance.id = '<INSTANCE_OCID>'}` for the rule, and verify it with `iam dynamic-group get --dynamic-group-id <OCID>`, never via `list`.
-**See:** [IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm)
+**See:** [Managing dynamic groups](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingdynamicgroups.htm)
 **Status:** resolved.
 
 ## KB-022 — Auth tokens: 2 per user, write-once, and propagation delay (iam)
@@ -245,7 +245,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** Custom-metric alarms fail to create in batch; or `--destinations` with `["ocid..."]` triggers shell glob/parse errors.
 **Root cause:** Custom metric namespaces must match `^[a-z][a-z0-9_]*[a-z0-9]$` (no uppercase); and complex-type JSON passed inline lets the shell interpret `[` as a glob. `--pending-duration` is also required.
 **Fix:** Use a lowercase namespace, pass complex JSON via `--destinations "file://$tmp.json"` (or a heredoc) instead of inline brackets, and include `--pending-duration PT5M`.
-**See:** [Monitoring](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm)
+**See:** [Managing alarms](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/managingalarms.htm)
 **Status:** resolved.
 
 ## KB-028 — Monitoring `PostMetricData` 404s on the default (read) endpoint (observability-db)
@@ -485,7 +485,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** A Data Safe target registers but stays `NEEDS_ATTENTION`; lifecycle details show "Failed to connect... ORA-01017" although the network path is fine.
 **Root cause:** Stale/invalid service-account password.
 **Fix:** Rotate the account password `CONTAINER=ALL`, then update both the Vault secret and the Data Safe target (`data-safe target-database update --credentials file://... --force`; work request → `--wait-for-state SUCCEEDED`).
-**See:** [Data Safe](https://docs.oracle.com/en-us/iaas/data-safe/doc/oracle-data-safe-overview.html)
+**See:** [Register Data Safe target databases](https://docs.oracle.com/en-us/iaas/data-safe/doc/register-target-databases.html)
 **Status:** resolved.
 
 ## KB-058 — DB-system create blocked by a per-AD `database` service limit (observability-db)
@@ -701,7 +701,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** A function deploys fine but every invoke errors or hangs.
 **Root cause:** The image was built on arm64 (Apple Silicon); OCIR-hosted functions run on x86_64.
 **Fix:** Build with `--platform linux/amd64` (or on an x86 builder), re-push, and redeploy.
-**See:** [Container Registry](https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm)
+**See:** [Creating/deploying Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm)
 **Status:** resolved.
 
 ## KB-085 — Service Connector is ACTIVE but moves no data (events-functions)
@@ -757,7 +757,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** `put_messages` fails with not-found / invalid id.
 **Root cause:** A Stream **Pool** OCID was passed where a **Stream** OCID is required.
 **Fix:** Use `ocid1.stream...`; guard by rejecting any id containing `streampool`.
-**See:** [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm)
+**See:** [Managing streams](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/managingstreams.htm)
 **Status:** resolved.
 
 ## KB-092 — SCH/Function async create used before ACTIVE (events-functions)

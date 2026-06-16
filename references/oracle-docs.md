@@ -120,3 +120,21 @@ Safe), the upstream `db/` domain of
 | OCI CLI command reference | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/> |
 | API error reference (status codes) | <https://docs.oracle.com/en-us/iaas/Content/API/References/apierrors.htm> |
 | Work requests | <https://docs.oracle.com/en-us/iaas/Content/General/Concepts/workrequestoverview.htm> |
+
+## Specific pages (KB deep links)
+
+The highest-traffic [KB.md](KB.md) entries cite the exact page behind the fix
+rather than the service home (all verified live):
+
+| Topic | Page | KB |
+|---|---|---|
+| OKE access control (IAM + RBAC two layers) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm> | KB-001 |
+| Service limits (request an increase) | <https://docs.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm> | KB-003 |
+| WAF concepts (protection actions) | <https://docs.oracle.com/en-us/iaas/Content/WAF/Concepts/overview.htm> | KB-004 |
+| Managing Vault secrets | <https://docs.oracle.com/en-us/iaas/Content/KeyManagement/Tasks/managingsecrets.htm> | KB-005 |
+| Resource Manager jobs (plan/apply) | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/usingconsole.htm> | KB-007 |
+| Managing dynamic groups (matching rules) | <https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingdynamicgroups.htm> | KB-021 |
+| Managing alarms (MQL query-text) | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/managingalarms.htm> | KB-027 |
+| Register Data Safe target databases | <https://docs.oracle.com/en-us/iaas/data-safe/doc/register-target-databases.html> | KB-057 |
+| Creating/deploying Functions | <https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm> | KB-084 |
+| Managing streams (stream vs stream pool) | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/managingstreams.htm> | KB-091 |
