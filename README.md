@@ -210,7 +210,7 @@ references/              # domain + safety knowledge (progressive disclosure)
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md
 scripts/                # shared core
   common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh
-  oci_project.sh  redact.py  iam_audit.py  kb_lookup.py
+  oci_project.sh  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
 skills/                  # eleven auto-discoverable skills (router + nine domains + project orchestrator)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
   oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/

@@ -11,6 +11,12 @@ source that backs its claim.
 > doc link anywhere in the pack, prefer a URL already in this table; if you add a
 > new one, confirm it resolves and add it here so the
 > [doc-link lint](../tests/test_doc_links.py) stays the source of truth.
+>
+> Two checks guard these links: the **offline** lint (`tests/test_doc_links.py`,
+> runs in PR CI — well-formed + every used URL registered here + KB citation
+> coverage) and a **live** checker (`scripts/check_doc_links.py --live`, run
+> weekly by `.github/workflows/doc-liveness.yml`) that HTTP-verifies each URL so
+> link rot is caught even when the format is fine.
 
 ## How to cite
 
