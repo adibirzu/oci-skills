@@ -37,6 +37,14 @@ sequence a request instead of re-deriving the steps.
 | Functions, fn deploy, Events rule, ONS, Service Connector Hub (SCH), serverless | `skills/oci-events-functions/` · `references/events-functions.md` |
 | whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the nine domains; helper `scripts/oci_project.sh`) |
 
+**Related: MCP gateway.** This pack is the safety-gated CLI/SDK path. When the
+runtime already speaks MCP, read/aggregated tool access can instead come from the
+`oci-mcp-gateway` (an OKE-deployed aggregator of the logan / oci / security /
+finops / db-observatory backends behind one authenticated `/mcp` endpoint, tools
+namespaced `backendname_toolname`). Route mutations, preflight, and redaction
+through these skills; route read/aggregated queries through the gateway — see
+`references/mcp-gateway.md`.
+
 ## Hard rules
 
 - All CLI through `oci_cli` (negotiates auth/profile/region).

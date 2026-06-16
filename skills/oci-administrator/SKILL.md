@@ -98,6 +98,15 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 **oci-project** sits above the nine domains: it sequences them for whole-project
 work (bootstrap → status → deploy → teardown), scoped to one project compartment.
 
+**Related: MCP gateway.** This pack is the safety-gated CLI/SDK path. When an
+agent runtime already speaks MCP, read/aggregated tool access can instead come
+from the `oci-mcp-gateway` (an OKE-deployed aggregator of the logan / oci /
+security / finops / db-observatory backends behind one authenticated `/mcp`
+endpoint, tools namespaced `backendname_toolname`). Rule of thumb: route
+mutations, preflight, and redaction through these skills; route read/aggregated
+queries through the gateway — see
+[references/mcp-gateway.md](../../references/mcp-gateway.md).
+
 ## Common multi-step flows (cross-domain)
 
 Many requests span domains. Sequence them; each domain skill has its own

@@ -863,3 +863,11 @@ not replicated into the consuming cluster/namespace.
 **Fix:** Extracted `_id_flag_for` in `common.sh` with a `case` that matches known multi-word tails (autonomous-database, autonomous-container-database, network-load-balancer, load-balancer, db-system, mount-target, file-system, node-pool, boot-volume) before the last-word fallback. Order most-specific first (`*network-load-balancer` before `*load-balancer`). Fenced by `tests/common_helpers_smoke.sh`.
 **See:** [Networking](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm)
 **Status:** resolved.
+
+## KB-105 — MCP gateway readiness reports 0 backends though proxied tools work (cli)
+
+**Symptom:** The OKE-deployed `oci-mcp-gateway` serves proxied `backendname_toolname` tools correctly, but its readiness probe / `gateway_health` reports `0 backends` (and `BackendRegistry` looks empty), making the gateway appear unhealthy.
+**Root cause:** FastMCP's `lifespan=gateway_lifespan` async context manager — which discovers the backend MCP servers and populates `BackendRegistry` on startup — was not passed into `create_gateway()`'s `FastMCP(...)` kwargs. Without the wired lifespan the registry is never populated, so health reflects 0 backends even though request-time proxying still falls through to the backends.
+**Fix:** Pass the lifespan into the FastMCP constructor — `FastMCP(name=..., lifespan=gateway_lifespan, ...)` inside `create_gateway()` — so the registry is populated on startup and `gateway_health` counts the real backends. See [references/mcp-gateway.md](mcp-gateway.md).
+**See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.

@@ -10,7 +10,7 @@
     {
       "name": "oci-administrator",
       "description": "Safety-first OCI administration: IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost (FinOps), Log Analytics, Resource Manager, Data Safe, and Events & Functions. Slash commands work by named context (friendly name -> profile + compartment + region) instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
-      "version": "1.6.0",
+      "version": "1.7.0",
       "author": {
         "name": "adibirzu"
       },
