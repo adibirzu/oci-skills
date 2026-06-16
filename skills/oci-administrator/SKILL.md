@@ -23,7 +23,8 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of nine domain skills, all sharing one tenancy-safety core.
+of nine domain skills (plus the **oci-project** lifecycle orchestrator for
+project-wide work), all sharing one tenancy-safety core.
 
 **Scope:** this pack covers OCI *infrastructure and control-plane* administration.
 For tasks *inside* an Oracle Database — SQL/PL/SQL authoring, RMAN backup/recovery,
@@ -91,8 +92,11 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | Resource Manager, ORM, RMS, Terraform stack, plan/apply/destroy job, tfstate, drift, schema.yaml, "deploy to Oracle Cloud" | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
 | Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, SCH, serverless, event-driven | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
+| new project, bootstrap, scaffold, set up a project, project status, project health, deploy a project, tear down, decommission, project guardrails, project lifecycle | **oci-project** | [references/project-workflow.md](../../references/project-workflow.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
+**oci-project** sits above the nine domains: it sequences them for whole-project
+work (bootstrap → status → deploy → teardown), scoped to one project compartment.
 
 ## Common multi-step flows (cross-domain)
 

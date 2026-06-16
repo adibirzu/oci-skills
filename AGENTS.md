@@ -7,7 +7,8 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration skill pack. Route any OCI request to one
-of nine domain skills under `skills/`, all sharing the safety core in
+of nine domain skills (plus the `oci-project` lifecycle orchestrator) under
+`skills/`, all sharing the safety core in
 `scripts/` and `references/`.
 
 ## Always, before acting
@@ -34,6 +35,7 @@ sequence a request instead of re-deriving the steps.
 | Resource Manager, ORM, Terraform stack, plan/apply/destroy job, tfstate, drift | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
 | Functions, fn deploy, Events rule, ONS, Service Connector Hub (SCH), serverless | `skills/oci-events-functions/` · `references/events-functions.md` |
+| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the nine domains; helper `scripts/oci_project.sh`) |
 
 ## Hard rules
 

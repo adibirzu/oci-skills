@@ -80,6 +80,7 @@ Route by intent — each domain is a focused skill + reference:
 | Terraform stacks, plan/apply/destroy jobs | `oci-resource-manager` |
 | Data Safe targets, assessments, masking | `oci-data-safe` |
 | Functions, Events rules, Notifications, Streaming | `oci-events-functions` |
+| **a whole project**: bootstrap, status/health, deploy, teardown | `oci-project` (orchestrator) |
 
 Each domain's `SKILL.md` and `references/*.md` link the **canonical Oracle docs**
 for the services it covers; start at the

@@ -193,6 +193,27 @@
       "expect_behavior": "Destructive guard blocks until preflight + explicit confirmation; suggests OCI_SKILLS_DRY_RUN first; never deletes before confirming the bucket and tenancy by name."
     },
     {
+      "id": "trigger-project-bootstrap",
+      "prompt": "Bootstrap and scaffold a new OCI project with guardrails.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-project",
+      "expect_behavior": "Binds/preflights a project context, then oci_project.sh bootstrap (dry-run first): idempotent compartment + project tag + budget, and emits the gated scoped-IAM and VCN commands for the domains. Never manage all-resources in tenancy."
+    },
+    {
+      "id": "trigger-project-status",
+      "prompt": "Show me my OCI project status and project health across the compartment.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-project",
+      "expect_behavior": "Runs oci_project.sh status: read-only inventory + states + ACTIVE Cloud Guard problems + alarms + budget, by count and name, never OCIDs; flags empty sections as inconclusive."
+    },
+    {
+      "id": "trigger-project-teardown",
+      "prompt": "Tear down and decommission my old OCI project.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-project",
+      "expect_behavior": "Runs oci_project.sh teardown (read-only plan): inventories the compartment and prints the ordered, dependency-aware destroy plan; destroys nothing itself; each step runs via the owning domain through confirm/run_mutating; compartment last."
+    },
+    {
       "id": "negative-non-oci",
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,

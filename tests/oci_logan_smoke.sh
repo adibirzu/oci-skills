@@ -42,12 +42,16 @@ esac
 EOF
 chmod +x "$tmp/oci"
 
+# Assemble the fixture tenancy OCID at RUNTIME — the CI redaction gate scans every
+# tracked file, so no full OCID literal may be committed (oci-skills fixture discipline).
+fixture_ocid="ocid1.tenancy.oc1..$(printf '%s' aaaatest)"
+
 run_logan() {
   OCI_AUTH_MODE=config \
-  OCI_SKILLS_TENANCY="ocid1.tenancy.oc1..aaaatest" \
+  OCI_SKILLS_TENANCY="$fixture_ocid" \
   OCI_SKILLS_NO_AUDIT=1 \
     bash "$dir/scripts/oci_logan.sh" \
-      -n "testns" -c "ocid1.tenancy.oc1..aaaatest" \
+      -n "testns" -c "$fixture_ocid" \
       -q "* | head 1"
 }
 

@@ -97,6 +97,9 @@ jobs:
       - name: oci_logan failure-handling smoke (auth-denied vs empty vs rows)
         run: /bin/bash tests/oci_logan_smoke.sh
 
+      - name: oci_project lifecycle smoke (status/bootstrap-dry-run/teardown-plan)
+        run: /bin/bash tests/oci_project_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest
