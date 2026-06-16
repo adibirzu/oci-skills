@@ -200,6 +200,7 @@ hooks/                   # PreToolUse guard that blocks destructive oci commands
   hooks.json  guard_destructive.py
 references/              # domain + safety knowledge (progressive disclosure)
   tenancy-safety.md  agent-safety.md  oci-error-catalog.md
+  oracle-docs.md     # verified docs.oracle.com source-of-truth index
   helper-conventions.md  KB.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md

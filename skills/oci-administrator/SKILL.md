@@ -58,7 +58,9 @@ collection). This pack handles the OCI services *around* the database
    For *how to reason* before acting (disambiguation, idempotency, destructive
    classification) read [references/agent-safety.md](../../references/agent-safety.md);
    when a call fails, [references/oci-error-catalog.md](../../references/oci-error-catalog.md)
-   maps the error to cause + fix.
+   maps the error to cause + fix. For the authoritative OCI doc behind any
+   service or fix, use [references/oracle-docs.md](../../references/oracle-docs.md)
+   (the verified source-of-truth index).
 
 ## Slash commands (Claude Code plugin)
 

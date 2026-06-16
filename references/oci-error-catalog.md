@@ -9,6 +9,11 @@ or SDK call fails instead of guessing; it complements the freeform
 > Tenancy-agnostic. No OCIDs, IPs, or tenant values — only error shapes and the
 > generic remediation. Pipe any live error text through `redact` before sharing.
 
+> **Authoritative docs:** the OCI
+> [API error reference](https://docs.oracle.com/en-us/iaas/Content/API/References/apierrors.htm)
+> lists every status code and error key; service-specific pages are in
+> [oracle-docs.md](oracle-docs.md). Each section below links the page behind it.
+
 ## Triage table (start here)
 
 | You see… | It almost always means | First move | KB |
@@ -46,6 +51,8 @@ The `oci_cli` wrapper negotiates auth mode + profile + region so most of these
 never occur when you go through it. See
 [credential-management.md](credential-management.md).
 
+**Docs:** [SDK & CLI configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm).
+
 ## Authorization vs not-found — `404 NotAuthorizedOrNotFound`
 
 This is the single most misleading OCI error. OCI **deliberately** returns the
@@ -67,6 +74,9 @@ is ambiguous and must be disambiguated **in this order**:
 > *"not authorized **or** not found"* and state which of the three you ruled out.
 > Surfacing auth-denial distinctly (in `oci_logan.sh` / `iam_audit.py`) is why
 > step 1 comes first.
+
+**Docs:** [IAM policies](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) ·
+[API errors](https://docs.oracle.com/en-us/iaas/Content/API/References/apierrors.htm).
 
 ## Existence & state conflicts — `409`
 
@@ -115,6 +125,9 @@ oci_cli limits resource-availability get \
 Per-AD `database` limits block DB-system creates (KB-058); Autonomous DB create
 can also `409` on a quota/feature-not-enabled condition (KB-023).
 
+**Docs:** [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm) ·
+[Compartment Quotas](https://docs.oracle.com/en-us/iaas/Content/Quotas/Concepts/resourcequotas.htm).
+
 ## Optimistic concurrency — `412 PreconditionFailed`
 
 Log Analytics (and other etag-guarded resources) reject an update whose `etag`
@@ -132,6 +145,8 @@ Two distinct failure modes that look like hangs or empty results:
    `CANCELED`, that state is not `SUCCEEDED`, so the CLI polls until
    `--max-wait-seconds` elapses. Poll `lifecycle-state` yourself and **break on
    every terminal state**, dumping logs on failure (KB-007 for ORM, KB-083).
+
+**Docs:** [Work requests](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/workrequestoverview.htm).
 
 ## Database-surfaced Oracle errors (via OCI services)
 
