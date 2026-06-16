@@ -7,14 +7,20 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration skill pack. Route any OCI request to one
-of nine domain skills under `skills/`, all sharing the safety core in
+of nine domain skills (plus the `oci-project` lifecycle orchestrator) under
+`skills/`, all sharing the safety core in
 `scripts/` and `references/`.
 
 ## Always, before acting
 
 1. `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>` — confirm the tenancy.
 2. `python3 ./scripts/kb_lookup.py "symptom words"` — check known fixes.
-3. Read `references/tenancy-safety.md` once per session.
+3. Read `references/tenancy-safety.md` once per session. For *how to reason*
+   before acting, read `references/agent-safety.md`; when a call fails, map the
+   error in `references/oci-error-catalog.md`.
+
+Each domain skill carries a **Common multi-step flows** table — use it to
+sequence a request instead of re-deriving the steps.
 
 ## Routing
 
@@ -29,6 +35,15 @@ of nine domain skills under `skills/`, all sharing the safety core in
 | Resource Manager, ORM, Terraform stack, plan/apply/destroy job, tfstate, drift | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
 | Functions, fn deploy, Events rule, ONS, Service Connector Hub (SCH), serverless | `skills/oci-events-functions/` · `references/events-functions.md` |
+| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the nine domains; helper `scripts/oci_project.sh`) |
+
+**Related: MCP gateway.** This pack is the safety-gated CLI/SDK path. When the
+runtime already speaks MCP, read/aggregated tool access can instead come from the
+`oci-mcp-gateway` (an OKE-deployed aggregator of the logan / oci / security /
+finops / db-observatory backends behind one authenticated `/mcp` endpoint, tools
+namespaced `backendname_toolname`). Route mutations, preflight, and redaction
+through these skills; route read/aggregated queries through the gateway — see
+`references/mcp-gateway.md`.
 
 ## Hard rules
 
@@ -38,3 +53,9 @@ of nine domain skills under `skills/`, all sharing the safety core in
 - Never print or commit OCIDs, IPs, fingerprints, datakeys, or secrets. Redact
   with `scripts/redact.py`; use `<PLACEHOLDER>` tokens in docs.
 - Add a `KB-<n>` entry after fixing any new operational error.
+
+## Scope
+
+OCI *infrastructure / control-plane* administration. For tasks *inside* an
+Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH tuning, schema migrations, Data Guard
+internals), see the `db/` domain of <https://github.com/oracle/skills>.

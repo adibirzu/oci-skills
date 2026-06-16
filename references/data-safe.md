@@ -104,3 +104,9 @@ production target without confirmation and a verified non-prod copy first.
 - **Never print or commit credentials** — `file://` payloads, `0600`/`0700`
   temp files, delete in `finally`, `redact` any output.
 - **Mask only verified non-prod** — irreversible on the masked copy.
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Data Safe](https://docs.oracle.com/en-us/iaas/data-safe/doc/oracle-data-safe-overview.html)

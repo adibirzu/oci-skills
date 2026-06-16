@@ -50,6 +50,15 @@ for the safety rules.
 | quota policy, service limit, capacity, LimitExceeded | Quotas & limits |
 | tag namespace, defined/freeform tag, cost-tracking | Tags |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Onboard a team compartment | `compartment create` → idempotent `group create` (search by name, 409 = exists) → scoped `policy create` (verb + resource-family in *this* compartment) → `budget create` + 80% forecast alert |
+| Least-privilege review | `policy list` → grep `manage all-resources in tenancy` → `iam_audit.py` for effective grants → propose a compartment-scoped rewrite |
+| Grant a resource principal | `dynamic-group create` with a matching rule (`instance.id`/`resource.id`) → `policy` allowing the dynamic-group → verify with `dynamic-group get` (KB-021) |
+| Pre-flight a provision | `limits resource-availability get` for the shape/limit → if blocked, request an increase before creating, not mid-create (KB-003, KB-015) |
+
 ## Common tasks
 
 ```bash
@@ -108,3 +117,7 @@ identity-domains.
 **Verification** — re-list/get showing the desired state.
 **KB** — KB entry used (e.g. KB-002, KB-003), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm) · [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm). Full list in the [iam-tenancy reference](../../references/iam-tenancy.md).

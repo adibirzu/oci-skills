@@ -23,7 +23,15 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of nine domain skills, all sharing one tenancy-safety core.
+of nine domain skills (plus the **oci-project** lifecycle orchestrator for
+project-wide work), all sharing one tenancy-safety core.
+
+**Scope:** this pack covers OCI *infrastructure and control-plane* administration.
+For tasks *inside* an Oracle Database — SQL/PL/SQL authoring, RMAN backup/recovery,
+AWR/ASH tuning, schema migrations, Data Guard internals — see the `db/` domain of
+[oracle/skills](https://github.com/oracle/skills) (the upstream Oracle-wide skill
+collection). This pack handles the OCI services *around* the database
+(Database Management, Operations Insights, Data Safe, Autonomous DB provisioning).
 
 ## First move (always)
 
@@ -48,6 +56,12 @@ of nine domain skills, all sharing one tenancy-safety core.
    [references/helper-conventions.md](../../references/helper-conventions.md) once per
    session, then load only the domain reference you need. For auth/secret questions
    read [references/credential-management.md](../../references/credential-management.md).
+   For *how to reason* before acting (disambiguation, idempotency, destructive
+   classification) read [references/agent-safety.md](../../references/agent-safety.md);
+   when a call fails, [references/oci-error-catalog.md](../../references/oci-error-catalog.md)
+   maps the error to cause + fix. For the authoritative OCI doc behind any
+   service or fix, use [references/oracle-docs.md](../../references/oracle-docs.md)
+   (the verified source-of-truth index).
 
 ## Slash commands (Claude Code plugin)
 
@@ -78,8 +92,33 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | Resource Manager, ORM, RMS, Terraform stack, plan/apply/destroy job, tfstate, drift, schema.yaml, "deploy to Oracle Cloud" | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
 | Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, SCH, serverless, event-driven | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
+| new project, bootstrap, scaffold, set up a project, project status, project health, deploy a project, tear down, decommission, project guardrails, project lifecycle | **oci-project** | [references/project-workflow.md](../../references/project-workflow.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
+**oci-project** sits above the nine domains: it sequences them for whole-project
+work (bootstrap → status → deploy → teardown), scoped to one project compartment.
+
+**Related: MCP gateway.** This pack is the safety-gated CLI/SDK path. When an
+agent runtime already speaks MCP, read/aggregated tool access can instead come
+from the `oci-mcp-gateway` (an OKE-deployed aggregator of the logan / oci /
+security / finops / db-observatory backends behind one authenticated `/mcp`
+endpoint, tools namespaced `backendname_toolname`). Rule of thumb: route
+mutations, preflight, and redaction through these skills; route read/aggregated
+queries through the gateway — see
+[references/mcp-gateway.md](../../references/mcp-gateway.md).
+
+## Common multi-step flows (cross-domain)
+
+Many requests span domains. Sequence them; each domain skill has its own
+intra-domain flow table.
+
+| Task | Sequence |
+|------|----------|
+| "What's going on in this tenancy?" | `oci_preflight.sh` → `iam_audit.py` (posture) → `oci_cost.sh` (spend) → **oci-security-compliance** `cloud-guard problem list` (open risks) |
+| Investigate a cost spike | **oci-cost** spend-by-service → localize by compartment → **oci-log-analytics** Audit query for *who created it* → **oci-iam-admin** budget + alert |
+| Triage a security finding | **oci-security-compliance** Cloud Guard problem → **oci-log-analytics** audit trail around the event → remediate in the owning domain → re-scan |
+| Stand up a guardrailed workload | **oci-iam-admin** (compartment + scoped policy + budget) → **oci-networking-compute** (VCN/subnet/NSG) → **oci-resource-manager** (reviewed stack apply) |
+| Onboard a database for observability | **oci-observability-db** (enable DBM/OPSI) → **oci-data-safe** (register + Security Assessment) → **oci-observability-db** (alarms on the DB) |
 
 ## Operating rules
 
@@ -115,3 +154,7 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 **Verification** — checks run and result.
 **KB** — KB entry used, or new KB-<n> added.
 ```
+
+## Official documentation
+
+[OCI Documentation (home)](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [OCI CLI / SDK configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm).

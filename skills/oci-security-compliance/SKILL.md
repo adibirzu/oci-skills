@@ -43,6 +43,15 @@ If the resolved tenancy/compartment name is not the one you expect, stop.
 | Tighten over-broad grants | `scripts/iam_audit.py` |
 | Stop secrets reaching git | `scripts/redact.py --check` |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Triage & fix a finding | `cloud-guard problem list` (ACTIVE, subtree) → identify the resource + compartment → remediate in the owning domain → re-list to confirm the problem clears |
+| Block web attacks | `web-app-firewall-policy get` (confirm action is `BLOCK`, not `OBSERVE` — KB-004) → `web-app-firewall create` attaching the policy to the LB → replay a test request → expect `403` |
+| Score against a framework | run the compliance scan (env carries auth) → `redact.py` the findings → prioritize CRITICAL/HIGH → remediate → re-scan |
+| Rotate a leaked secret | `secret-bundle get` to confirm current value (KB-005, base64) → `secret update-base64` (new *version*, never in place) → update consumers → `redact.py --check` before commit |
+
 ## Common tasks
 
 **Read a Vault secret** (KB-005 — decode base64):
@@ -107,3 +116,7 @@ Action:       Set protection action to BLOCK; confirm LB references this policy.
 Verification: Re-run policy get → action "BLOCK"; replay test request → 403.
 KB:           KB-004 (WAF policy not blocking after attach).
 ```
+
+## Official documentation
+
+[Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm) · [Vault / KMS](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm) · [WAF](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm). Full list in the [security-compliance reference](../../references/security-compliance.md).

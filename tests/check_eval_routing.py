@@ -46,13 +46,28 @@ def _variants(term: str) -> set[str]:
     return v
 
 
-def score(prompt: str, keywords: list[str]) -> int:
+def keyword_frequency(domains: dict[str, list[str]]) -> dict[str, int]:
+    """How many domains list each keyword. A keyword in one row is distinctive;
+    one shared across rows (e.g. 'budget' in both iam and cost) is not."""
+    freq: dict[str, int] = {}
+    for kws in domains.values():
+        for kw in set(kws):
+            freq[kw] = freq.get(kw, 0) + 1
+    return freq
+
+
+def score(prompt: str, keywords: list[str], freq: dict[str, int] | None = None) -> float:
+    """Weight each keyword hit by inverse domain-frequency: a distinctive keyword
+    (in one row) scores 1.0; a keyword shared by N rows scores 1/N. This stops a
+    keyword that several domains legitimately mention from creating a spurious tie,
+    while genuinely cross-domain prompts (distinct keywords from two domains) still
+    tie — that ambiguity is real and worth surfacing."""
     p = prompt.lower()
-    hits = 0
+    s = 0.0
     for kw in keywords:
         if kw and any(v in p for v in _variants(kw)):
-            hits += 1
-    return hits
+            s += 1.0 / (freq.get(kw, 1) if freq else 1)
+    return round(s, 4)
 
 
 def main() -> int:
@@ -61,13 +76,14 @@ def main() -> int:
         print("ERROR: no domain rows parsed from the router table")
         return 1
     cases = json.loads(EVALS.read_text())["cases"]
+    freq = keyword_frequency(domains)
 
-    failures, warnings = [], []
+    failures, warnings, infos = [], [], []
     routed = 0
     for c in cases:
         expect = c.get("expect_route")
         prompt = c["prompt"]
-        scores = {d: score(prompt, kw) for d, kw in domains.items()}
+        scores = {d: score(prompt, kw, freq) for d, kw in domains.items()}
         top = max(scores.values())
 
         if expect is None:
@@ -86,26 +102,35 @@ def main() -> int:
         if expect not in domains:
             failures.append(f"[{c['id']}] expect_route '{expect}' is not a router domain")
             continue
-        winners = [d for d, s in scores.items() if s == top and top > 0]
-        bucket = failures if strict else warnings
-        if scores[expect] == 0:
-            bucket.append(f"[{c['id']}] '{expect}' scores 0 — no router keyword matches the prompt")
+        winners = [d for d, s in scores.items() if abs(s - top) < 1e-9 and top > 1e-9]
+        if scores[expect] < 1e-9:
+            # No router keyword matched. For strict cases this is a real coverage
+            # gap (fail); cross-cutting/safety prompts route via router-core
+            # pointers, not the keyword table, so it's an expected note.
+            (failures if strict else infos).append(
+                f"[{c['id']}] '{expect}' scores 0 — routes via router-core, not the keyword table")
         elif expect not in winners:
-            bucket.append(f"[{c['id']}] MISROUTE → top={winners} (score {top}), "
-                          f"expected '{expect}' (score {scores[expect]})")
+            # The expected domain is NOT top — a genuine misroute. Always actionable.
+            failures.append(f"[{c['id']}] MISROUTE → top={winners} (score {top}), "
+                            f"expected '{expect}' (score {scores[expect]})")
         elif len(winners) > 1:
-            warnings.append(f"[{c['id']}] AMBIGUOUS → tie {winners} (score {top}); "
-                            f"expected '{expect}'")
+            # Tie, but the expected domain IS among the winners: the prompt
+            # legitimately spans domains (e.g. WAF + load balancer); the LLM router
+            # disambiguates semantically. Benign — a note, not a warning.
+            others = [d for d in winners if d != expect]
+            infos.append(f"[{c['id']}] cross-domain tie with {others}; expected '{expect}' present")
 
     print(f"domains parsed: {len(domains)} | routed cases: {routed}")
     for w in warnings:
         print("WARN ", w)
+    for i in infos:
+        print("note ", i)
     for f in failures:
         print("FAIL ", f)
     if failures:
         print(f"\n{len(failures)} routing failure(s)")
         return 1
-    print(f"\nrouting OK ({len(warnings)} warning(s))")
+    print(f"\nrouting OK ({len(warnings)} warning(s), {len(infos)} benign cross-domain note(s))")
     return 0
 
 

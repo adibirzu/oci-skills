@@ -251,3 +251,9 @@ can become operator runbooks instead of anonymous OCL snippets.
   proof of absence — widen the window or simplify the filter before concluding.
 - Never put real entity names, IPs, or principal names in committed queries —
   parameterize them.
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)

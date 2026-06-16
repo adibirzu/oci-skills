@@ -110,6 +110,33 @@ def render_text(summary: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _print_self_lockout_guidance(exc: Any, profile: str) -> None:
+    """Explain an IAM authorization denial as a likely self-lockout, with next steps.
+
+    A 401/403/404 (NotAuthorized) while enumerating users/groups/policies means
+    the principal running this audit has no IAM read. If it used to be an admin,
+    it was probably removed from a privileged group. We surface that explicitly
+    instead of a bare "service error", and hand off the two follow-up actions:
+    confirm your own group membership, then have an admin query Audit for the
+    actor who changed it.
+    """
+    msg = [
+        f"iam_audit: authorization denied enumerating IAM ({exc.status} {exc.code}).",
+        "  The principal running this audit lacks IAM read (inspect users/groups/",
+        "  policies in the tenancy). If you previously had admin here, you may have",
+        "  been removed from a privileged group (e.g. Administrators).",
+        "",
+        "  1) Confirm your own membership (empty output = you were removed):",
+        "       oci iam user list-groups --user-id <your-user-ocid> \\",
+        f"         --compartment-id <tenancy-ocid> --profile {profile}",
+        "",
+        "  2) Find WHO changed it — an admin who still has access queries OCI Audit",
+        "     for identity events (see the /audit and /logan skill commands):",
+        "       event-type com.oraclecloud.identityControlPlane.RemoveUserFromGroup",
+    ]
+    print("\n".join(msg), file=sys.stderr)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Read-only OCI IAM posture snapshot.")
     parser.add_argument("--profile", default="DEFAULT", help="OCI config profile (default: DEFAULT)")
@@ -123,6 +150,9 @@ def main(argv: list[str] | None = None) -> int:
         client, tenancy_id = build_identity_client(args.profile, args.auth)
         summary = audit(client, tenancy_id)
     except oci.exceptions.ServiceError as exc:
+        if exc.status in (401, 403, 404) or "NotAuthorized" in str(getattr(exc, "code", "")):
+            _print_self_lockout_guidance(exc, args.profile)
+            return 1
         print(f"iam_audit: OCI service error: {exc.status} {exc.code}", file=sys.stderr)
         return 1
     except (oci.exceptions.ConfigFileNotFound, oci.exceptions.InvalidConfig) as exc:
