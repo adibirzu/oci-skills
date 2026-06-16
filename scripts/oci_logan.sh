@@ -94,7 +94,12 @@ info "window    : $START -> $END ($WINDOW, tz=$TZ_NAME)"
 info "subtree   : $SUBTREE   max rows: $MAX_ROWS"
 echo >&2
 
-result="$(oci_cli log-analytics query search \
+# Capture the query's stderr and exit code separately. The previous
+# `2>/dev/null || true` discarded both, so an authorization denial (404/401)
+# was indistinguishable from a genuinely empty result — a silent failure that
+# hid permission problems behind a benign "nothing found" message.
+errf="$(mktemp "${TMPDIR:-/tmp}/oci-logan-err.XXXXXX")"
+if result="$(oci_cli log-analytics query search \
   --namespace-name "$NAMESPACE" \
   --compartment-id "$COMPARTMENT_OCID" \
   --compartment-id-in-subtree "$SUBTREE" \
@@ -103,16 +108,39 @@ result="$(oci_cli log-analytics query search \
   --time-start "$START" \
   --time-end "$END" \
   --timezone "$TZ_NAME" \
-  --max-total-count "$MAX_ROWS" 2>/dev/null || true)"
+  --max-total-count "$MAX_ROWS" 2>"$errf")"; then
+  query_rc=0
+else
+  query_rc=$?
+fi
+errtext="$(cat "$errf" 2>/dev/null || true)"; rm -f "$errf"
 
-if [[ -z "$result" ]]; then
-  warn "query returned nothing. Check: field typing (string vs numeric), the time"
-  warn "window, the compartment scope (-c / subtree), and 'read loganalytics-* in"
-  warn "tenancy' grants. An empty result is inconclusive, not proof of absence."
+# A non-zero exit is a real error, never an "empty result". Surface it — and
+# call out the common authorization case explicitly so the user does not chase
+# field typing or time windows when the service actually refused the request.
+if [[ "$query_rc" -ne 0 ]]; then
+  if printf '%s' "$errtext" | grep -qiE 'NotAuthorizedOrNotFound|not authoriz|forbidden|\b40[13]\b'; then
+    err "authorization denied (or resource not found) — the service refused the query."
+    err "Your principal likely lacks 'read loganalytics-* in tenancy' (or in the"
+    err "queried compartment), or the namespace/compartment OCID is wrong."
+    err "This is NOT an empty result; do not read it as 'nothing happened'."
+  else
+    err "query failed (rc=$query_rc) — the service returned an error:"
+    printf '%s\n' "$errtext" | sed 's/^/    /' >&2
+  fi
+  exit "$query_rc"
+fi
+
+# The call succeeded. Zero rows now genuinely means "no matching data" — still
+# inconclusive (the source may not be ingested here), but not an error.
+rows="$(printf '%s' "$result" | jq -r '.data.items | length' 2>/dev/null || echo 0)"
+if [[ -z "$result" || "$rows" == "0" ]]; then
+  warn "query succeeded but returned no rows. Check: field typing (string vs"
+  warn "numeric), the time window, the compartment scope (-c / subtree), and that"
+  warn "the log source is actually ingested here. Inconclusive, not proof of absence."
   exit 0
 fi
 
-rows="$(printf '%s' "$result" | jq -r '.data.items | length' 2>/dev/null || echo 0)"
 ok "rows: ${rows}"
 # Print the result rows as compact JSON lines (pipe through redact at the call site
 # if sharing). We never print the namespace or OCIDs here.

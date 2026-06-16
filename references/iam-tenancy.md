@@ -276,3 +276,14 @@ oci_cli iam group list --compartment-id <TENANCY_OCID> --all \
 - **Provision without a `resource-availability` check** — `LimitExceeded` (KB-003).
 - **Cost-tracking tag created without `--is-cost-tracking true`** — no cost rollup.
 - **Region subscription** — adding a region is effectively permanent; confirm.
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [IAM (Identity & Access Management)](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm)
+- [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm)
+- [Compartment Quotas](https://docs.oracle.com/en-us/iaas/Content/Quotas/Concepts/resourcequotas.htm)
+- [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm)
+- [Budgets](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm)
+- [Tagging](https://docs.oracle.com/en-us/iaas/Content/Tagging/home.htm)

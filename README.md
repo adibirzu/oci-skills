@@ -32,6 +32,66 @@ sensitive is ever printed or committed.
 | **oci-resource-manager** | Resource Manager (managed Terraform): stacks, plan/apply/destroy jobs, job logs/state, drift detection, state import, variables, and schema.yaml stack packaging. |
 | **oci-data-safe** | Data Safe: target-database registration (ADB + cloud DB), private endpoints, Security/User Assessment, Activity Auditing, Data Discovery, Data Masking. |
 | **oci-events-functions** | Event-driven & serverless: OCI Functions (deploy/invoke/config), Events rules (eventType → FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out, Streaming transport. |
+| **oci-project** | **Project lifecycle orchestrator** (above the nine domains): bootstrap/scaffold a project (compartment + scoped IAM + network + budget + tags), project status/health, deploy/release (ORM/OKE), and gated teardown — scoped to one project compartment via a named context. |
+
+> **Scope & related.** This pack covers OCI *infrastructure and control-plane*
+> administration. For tasks *inside* an Oracle Database (SQL/PL/SQL, RMAN,
+> AWR/ASH tuning, schema migrations, Data Guard internals), see the `db/` domain
+> of [oracle/skills](https://github.com/oracle/skills) — the upstream
+> Oracle-wide skill collection. The two are complementary: this pack manages the
+> OCI services *around* the database (DBM, Operations Insights, Data Safe,
+> Autonomous DB provisioning); `db/` handles what runs *in* it.
+
+## Architecture
+
+A request enters through the **router** (`oci-administrator`), is routed by intent
+to one of nine **domain skills**, and every CLI call funnels through one shared
+**safety core** (`scripts/common.sh`) before it ever reaches the tenancy. The same
+core is installed, unchanged, into each agent harness.
+
+```mermaid
+flowchart TD
+    U([User / agent request]) --> R{{"oci-administrator<br/>router skill"}}
+    R -->|route by intent| D
+
+    subgraph D[Nine domain skills]
+      direction LR
+      IAM[oci-iam-admin]
+      SEC[oci-security-compliance]
+      OBS[oci-observability-db]
+      NET[oci-networking-compute]
+      COST[oci-cost]
+      LOG[oci-log-analytics]
+      ORM[oci-resource-manager]
+      DS[oci-data-safe]
+      EF[oci-events-functions]
+    end
+
+    D --> CORE
+    subgraph CORE["Shared safety core — scripts/common.sh"]
+      direction LR
+      CLI["oci_cli<br/>one auth path"]
+      MUT["run_mutating / confirm<br/>gate mutations"]
+      RED["redact.py<br/>mask OCIDs / IPs / secrets"]
+      CTX["oci_context.py<br/>named contexts"]
+    end
+
+    HOOK[["PreToolUse guard hook<br/>blocks delete / terminate / destroy"]] -. guards .-> CLI
+    CORE --> OCI[("OCI tenancy<br/>via OCI CLI / SDK")]
+
+    R -. installed into .-> H
+    subgraph H[Harness adapters]
+      direction LR
+      C[Claude Code]
+      CX[Codex]
+      G[Gemini CLI]
+      AG[Antigravity]
+    end
+```
+
+**Progressive disclosure keeps it simple:** an agent reads the router, then *one*
+domain `SKILL.md`, then that domain's `references/*.md` only if it needs depth — it
+never loads all nine domains at once. Each layer is one short file.
 
 ## Safety model
 
@@ -136,20 +196,25 @@ Install targets (override with env vars — see `install.sh` header):
   plugin.json  marketplace.json
 SKILL.md                 # Claude Code entrypoint (router)
 AGENTS.md                # Codex / Antigravity entrypoint (mirror)
-commands/                # Claude Code slash commands (context/preflight/audit/cost/logan/orm/datasafe/kb/troubleshoot)
+commands/                # Claude Code slash commands (context/preflight/audit/cost/logan/orm/datasafe/project/kb/troubleshoot)
 hooks/                   # PreToolUse guard that blocks destructive oci commands
   hooks.json  guard_destructive.py
 references/              # domain + safety knowledge (progressive disclosure)
-  tenancy-safety.md  helper-conventions.md  KB.md  named-contexts.md
+  tenancy-safety.md  agent-safety.md  oci-error-catalog.md
+  oracle-docs.md     # verified docs.oracle.com source-of-truth index
+  project-workflow.md  # oci-project lifecycle reference
+  mcp-gateway.md       # how this pack relates to the oci-mcp-gateway (read surface)
+  helper-conventions.md  KB.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md
 scripts/                # shared core
-  common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh  redact.py  iam_audit.py  kb_lookup.py
-skills/                  # ten auto-discoverable skills (router + nine domains)
+  common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh
+  oci_project.sh  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
+skills/                  # eleven auto-discoverable skills (router + nine domains + project orchestrator)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
   oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/
-  oci-resource-manager/  oci-data-safe/  oci-events-functions/
+  oci-resource-manager/  oci-data-safe/  oci-events-functions/  oci-project/
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
 bootstrap.sh            # one-line remote installer (curl | bash)

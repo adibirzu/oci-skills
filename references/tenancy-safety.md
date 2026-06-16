@@ -3,6 +3,12 @@
 These rules apply to **every** OCI Administrator plugin in this pack. Read this
 before any operation that changes tenancy state.
 
+> **Two companion references:** [agent-safety.md](agent-safety.md) is the
+> *decision* layer (disambiguate intent, idempotency, destructive
+> classification, stop conditions); [oci-error-catalog.md](oci-error-catalog.md)
+> maps the errors you will hit to cause + fix. This file is the
+> tenancy-targeting and redaction core they both build on.
+
 ## The one rule that prevents disasters
 
 **Know which tenancy and compartment you are about to act on — every time.**
@@ -129,7 +135,19 @@ oci_cli limits resource-availability get \
   --service-name <service> --limit-name <limit> --compartment-id <COMPARTMENT_OCID>
 ```
 
+## When a call fails
+
+Don't guess. [oci-error-catalog.md](oci-error-catalog.md) maps the common
+failures — `401` (auth, not policy), `404 NotAuthorizedOrNotFound` (authz **or**
+wrong compartment/region **or** absent — disambiguate in that order), `409`
+(already exists / wrong state), `429`/`5xx` (retryable), `412` (stale etag),
+service limits, and async/work-request hangs — to cause, first move, and the
+`KB-<n>` with the worked fix. `scripts/kb_lookup.py "<symptom>"` searches the
+freeform KB.
+
 ## After fixing a new operational error
 
 Add a `KB-<n>` entry to `references/KB.md` with component, error, root cause,
 fix, and status, so the next run starts from the known fix instead of re-debugging.
+If it is a recurring *class*, add a row to the
+[oci-error-catalog.md](oci-error-catalog.md) triage table too.

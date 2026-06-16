@@ -147,3 +147,13 @@ in `observability-db.md`.)
 | SCH ACTIVE but empty | missing `serviceconnector` policy | add principal grants per source/target |
 | ONS email never arrives | subscription `PENDING` | confirm + check `ACTIVE` |
 | rule never fires | source not emitting events | enable emit-events on the resource |
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm)
+- [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm)
+- [Notifications (ONS)](https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm)
+- [Service Connector Hub](https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm)
+- [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm)

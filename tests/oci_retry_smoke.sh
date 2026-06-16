@@ -64,4 +64,20 @@ make_oci 99 "TooManyRequests"
 OCI_AUTH_MODE=config OCI_SKILLS_MAX_RETRIES=2 oci_cli iam region list >/dev/null 2>&1 || true
 [ "$(count)" = "3" ] || { echo "FAIL: budget expected 3 calls (1+2), got $(count)"; exit 1; }
 
+# 7. RETURN CODE FIDELITY (regression: a no-else `if` made oci_cli return 0 on
+#    failures, masking errors as success). oci_cli MUST propagate the real rc.
+make_oci 5 "ServiceError: NotAuthorizedOrNotFound (404)"
+set +e; OCI_AUTH_MODE=config OCI_SKILLS_MAX_RETRIES=5 oci_cli iam user list >/dev/null 2>&1; rc=$?; set -e
+[ "$rc" -ne 0 ] || { echo "FAIL: non-transient failure must return non-zero, got rc=0"; exit 1; }
+
+# 8. Exhausted retries (throttle forever) must ALSO return non-zero, not 0.
+make_oci 99 "TooManyRequests"
+set +e; OCI_AUTH_MODE=config OCI_SKILLS_MAX_RETRIES=2 oci_cli iam region list >/dev/null 2>&1; rc=$?; set -e
+[ "$rc" -ne 0 ] || { echo "FAIL: exhausted retries must return non-zero, got rc=0"; exit 1; }
+
+# 9. A successful call returns 0.
+make_oci 0 "unused"
+set +e; OCI_AUTH_MODE=config oci_cli iam region list >/dev/null 2>&1; rc=$?; set -e
+[ "$rc" -eq 0 ] || { echo "FAIL: success must return 0, got rc=$rc"; exit 1; }
+
 echo "oci retry smoke OK"

@@ -380,3 +380,16 @@ done
 | ADB create without precheck | `LimitExceeded` half-failure | `limits value list --service-name database` first |
 | RUM with private key | Exposes ingest secret client-side | Use the **public** data key for RUM only |
 | Cross-region blind spots | Resources missed in inventory | Iterate `region-subscription list` + subtree |
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Monitoring (metrics & alarms)](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm)
+- [Logging](https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm)
+- [Application Performance Monitoring (APM)](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm)
+- [Notifications (ONS)](https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm)
+- [Service Connector Hub](https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm)
+- [Database Management](https://docs.oracle.com/en-us/iaas/database-management/home.htm)
+- [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
+- [Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html)

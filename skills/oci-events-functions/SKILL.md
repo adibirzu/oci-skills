@@ -50,6 +50,15 @@ safety rules.
 | put_messages, stream vs stream pool, TRIM_HORIZON | Streaming (transport) |
 | "rule never fires" / "SCH ACTIVE but empty" / "email never arrives" | Gotchas |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Deploy & wire a function | `fn deploy` an **amd64** image (KB-084) → verify the app/function exists → `events rule create` with a FAAS action → trigger a test event |
+| Rule never fires | enable emit-events on the source resource (KB-087) → check the rule's `eventType` condition matches → verify the FAAS/ONS target → trigger and watch |
+| Fan-out logs/metrics | `service-connector create` (source → target) → grant the `serviceconnector` principal per-source/target verbs (KB-085) → confirm data actually moves, not just `ACTIVE` |
+| Notifications never arrive | `ons topic create` → `subscription create` → confirm it leaves `PENDING` → `ACTIVE` (KB-086) → publish a test message |
+
 ## Key gotchas (the ones that waste hours)
 
 - **Function image must be amd64** — an arm64 (Apple Silicon) image deploys but
@@ -83,3 +92,7 @@ safety rules.
 **Verification** — trigger an event / publish a test message / re-check SCH data flow.
 **KB** — KB entry used (events-functions), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) · [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm) · [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm). Full list in the [events-functions reference](../../references/events-functions.md).

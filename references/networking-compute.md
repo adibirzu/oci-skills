@@ -333,3 +333,13 @@ cluster has no implicit cross-tenancy trust.
 | `create-kubeconfig` | Mint succeeds but RBAC denies | `kubectl auth can-i --list` (KB-001) |
 | Cross-tenancy OCIR pull | `ImagePullBackOff` | Replicate pull-secret (KB-006) |
 | Printing CLI output | Leaks OCIDs / public IPs | Pipe through `redact`; never echo raw |
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Networking (VCN)](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm)
+- [Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/home.htm)
+- [Container Engine for Kubernetes (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+- [Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm)
+- [Container Registry (OCIR)](https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm)

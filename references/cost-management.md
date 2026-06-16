@@ -101,3 +101,11 @@ The aggregated views (by service / compartment / region / tag) are names +
 amounts and contain no OCIDs. If you drop to raw `data.items[]`, pipe through
 `redact` before printing or committing. Never echo a `<BUDGET_OCID>` or
 `<TENANCY_OCID>` in reports — use display names.
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Cost Analysis](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costanalysisoverview.htm)
+- [Budgets](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm)
+- [Cost-tracking tags (Tagging)](https://docs.oracle.com/en-us/iaas/Content/Tagging/home.htm)
