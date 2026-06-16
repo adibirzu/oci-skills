@@ -34,13 +34,26 @@ NAME=""
 BUDGET=""
 
 if [ "$CMD" != "help" ]; then
+  # Accept long flags as aliases for the short ones (agent-friendly). Bash 3.2:
+  # guard the empty-array expansion under `set -u` (KB-013).
+  _args=()
+  for _a in ${@+"$@"}; do
+    case "$_a" in
+      --budget)      _a="-b" ;;
+      --name)        _a="-n" ;;
+      --compartment) _a="-c" ;;
+    esac
+    _args+=("$_a")
+  done
+  set -- ${_args[@]+"${_args[@]}"}
+
   while getopts ":c:n:b:h" opt; do
     case "$opt" in
       c) COMPARTMENT_OCID="$OPTARG" ;;
       n) NAME="$OPTARG" ;;
       b) BUDGET="$OPTARG" ;;
       h) CMD="help" ;;
-      *) die "usage: $0 {status|bootstrap|teardown} [-c COMPARTMENT] [-n NAME] [-b BUDGET]" ;;
+      *) die "usage: $0 {status|bootstrap|teardown} [-c COMPARTMENT] [-n NAME] [-b|--budget BUDGET]" ;;
     esac
   done
 fi

@@ -79,7 +79,7 @@ Stand up the project skeleton — each step searches first and treats `409` as
 
 ```bash
 # Idempotent scaffold; honors OCI_SKILLS_DRY_RUN=true to print without creating.
-./scripts/oci_project.sh bootstrap -n demo -c <PARENT_COMPARTMENT_OCID> --budget 500
+./scripts/oci_project.sh bootstrap -n demo -c <PARENT_COMPARTMENT_OCID> -b 500   # --budget also accepted
 ```
 
 The helper does the low-risk idempotent creates (compartment, tag, budget) and
@@ -97,10 +97,10 @@ compartment, printing **names and counts, never OCIDs**:
 ./scripts/oci_project.sh status -c <COMPARTMENT_OCID>
 ```
 
-It reports: compute/VCN/OKE/LB inventory + states, ACTIVE Cloud Guard problems,
-alarms defined vs firing, budget forecast-vs-limit, and untagged resources.
-Empty sections are inconclusive (perms/region), not proof of absence — see the
-gotchas in the reference.
+It reports: compute / VCN / OKE / LB inventory + lifecycle states, the count of
+ACTIVE Cloud Guard problems, alarm definitions, and each budget's
+limit / spent / forecast. Empty sections are inconclusive (perms/region), not
+proof of absence — see the gotchas in the reference.
 
 ### 3. Deploy / release
 

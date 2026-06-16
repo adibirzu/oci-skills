@@ -88,4 +88,15 @@ printf '%s' "$out_d" | grep -qi "compartment" \
   || { echo "FAIL D: error should mention the missing compartment"; echo "$out_d"; exit 1; }
 echo "D ok: status fails fast without a compartment (rc=$rc_d)"
 
+# ── E) the --budget long flag is accepted as an alias for -b (regression: getopts
+#       is short-only, so an undocumented long flag would error out)
+: > "$calls"
+set +e
+out_e="$(OCI_SKILLS_DRY_RUN=true run bootstrap -n demo -c "$CMPT" --budget 500 2>&1)"; rc_e=$?
+set -e
+[ "$rc_e" -eq 0 ] || { echo "FAIL E: --budget should be accepted, got rc=$rc_e"; echo "$out_e"; exit 1; }
+printf '%s' "$out_e" | grep -qi "budget (500)" \
+  || { echo "FAIL E: --budget 500 should reach the budget create"; echo "$out_e"; exit 1; }
+echo "E ok: --budget long flag accepted (rc=$rc_e)"
+
 echo "oci project smoke OK"
