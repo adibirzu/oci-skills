@@ -148,6 +148,7 @@ resolve_auth_mode() {
 # profile's `tenancy=` in ~/.oci/config / $OCI_CLI_CONFIG_FILE. Principal-based
 # auth has no config to read, so the caller must supply it. Echoes nothing (not
 # an error) when it cannot be resolved — the caller decides whether to die.
+# shellcheck disable=SC2120  # [explicit] arg is optional; callers in other files pass it
 resolve_tenancy_ocid() {
   local tenant="${1:-${OCI_SKILLS_TENANCY:-}}"
   if [[ -n "$tenant" ]]; then printf '%s' "$tenant"; return 0; fi
