@@ -81,6 +81,15 @@ _states() {
   ' 2>/dev/null || echo ""
 }
 
+# _untagged JSON -> count of items carrying neither freeform nor defined tags
+_untagged() {
+  printf '%s' "${1:-}" | jq -r '
+    [ (.data // [])[]
+      | select( ((."freeform-tags" // {}) | length) == 0
+                and ((."defined-tags" // {}) | length) == 0 ) ] | length
+  ' 2>/dev/null || echo 0
+}
+
 require_cmd oci jq
 
 # --------------------------------------------------------------------------- #
@@ -96,9 +105,12 @@ cmd_status() {
   info "scope     : compartment $(redact "$COMPARTMENT_OCID")"
   echo >&2
 
-  local j
-  j="$(oci_cli compute instance list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
-  ok  "compute   : $(_len "$j") instance(s)   [$(_states "$j")]"
+  local j inst untag
+  inst="$(oci_cli compute instance list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  ok  "compute   : $(_len "$inst") instance(s)   [$(_states "$inst")]"
+  untag="$(_untagged "$inst")"
+  [ "${untag:-0}" -gt 0 ] 2>/dev/null \
+    && warn "tags      : $untag instance(s) untagged — spend/inventory won't roll up by project"
 
   j="$(oci_cli network vcn list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
   ok  "network   : $(_len "$j") VCN(s)"
@@ -116,13 +128,26 @@ cmd_status() {
   else ok "security  : 0 ACTIVE Cloud Guard problems"; fi
 
   j="$(oci_cli monitoring alarm list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
-  ok  "alarms    : $(_len "$j") alarm definition(s)"
+  local fj firing
+  fj="$(oci_cli monitoring alarm-status list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  firing="$(printf '%s' "$fj" | jq -r '[(.data // [])[] | select(.status=="FIRING")] | length' 2>/dev/null || echo 0)"
+  if [ "${firing:-0}" -gt 0 ] 2>/dev/null; then
+    warn "alarms    : $(_len "$j") definition(s), $firing FIRING — investigate"
+  else
+    ok "alarms    : $(_len "$j") alarm definition(s), 0 firing"
+  fi
 
   j="$(oci_cli budgets budget budget list --compartment-id "$COMPARTMENT_OCID" \
         --query 'data[].{name:"display-name",limit:amount,spent:"actual-spend",forecast:"forecasted-spend"}' 2>/dev/null || true)"
   local nb; nb="$(printf '%s' "$j" | jq -r 'length' 2>/dev/null || echo 0)"
   if [ "${nb:-0}" -gt 0 ] 2>/dev/null; then
-    ok "budgets   : $nb budget(s)"
+    local over
+    over="$(printf '%s' "$j" | jq -r '[.[] | select((.forecast // 0) > .limit or (.spent // 0) > .limit)] | length' 2>/dev/null || echo 0)"
+    if [ "${over:-0}" -gt 0 ] 2>/dev/null; then
+      warn "budgets   : $nb budget(s), $over trending over limit (forecast/spent > limit)"
+    else
+      ok "budgets   : $nb budget(s), none over limit"
+    fi
     printf '%s' "$j" | jq -r '.[] | "            \(.name): limit=\(.limit) spent=\(.spent // 0) forecast=\(.forecast // 0)"' 2>/dev/null >&2 || true
   else
     warn "budgets   : none in this compartment — add a guardrail (oci-iam-admin / oci-cost)"

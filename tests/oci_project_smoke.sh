@@ -99,4 +99,27 @@ printf '%s' "$out_e" | grep -qi "budget (500)" \
   || { echo "FAIL E: --budget 500 should reach the budget create"; echo "$out_e"; exit 1; }
 echo "E ok: --budget long flag accepted (rc=$rc_e)"
 
+# ── F) enriched status surfaces untagged instances, FIRING alarms, and budgets
+#       trending over limit (regression: these were claimed in docs but unimplemented)
+cat > "$tmp/oci" <<'EOF'
+#!/bin/sh
+case "$*" in
+  *"compute instance list"*) echo '{"data":[{"lifecycle-state":"RUNNING","freeform-tags":{},"defined-tags":{}}]}' ;;
+  *"monitoring alarm-status list"*) echo '{"data":[{"status":"FIRING"}]}' ;;
+  *"monitoring alarm list"*) echo '{"data":[{"id":"a"}]}' ;;
+  *"budget budget list"*) echo '[{"name":"demo","limit":500,"spent":120,"forecast":640}]' ;;
+  *) echo '{"data":[]}' ;;
+esac
+EOF
+chmod +x "$tmp/oci"
+set +e; out_f="$(run status -c "$CMPT" 2>&1)"; rc_f=$?; set -e
+[ "$rc_f" -eq 0 ] || { echo "FAIL F: status should exit 0, got $rc_f"; echo "$out_f"; exit 1; }
+printf '%s' "$out_f" | grep -qi "untagged" \
+  || { echo "FAIL F: should flag untagged instances"; echo "$out_f"; exit 1; }
+printf '%s' "$out_f" | grep -q "FIRING" \
+  || { echo "FAIL F: should report FIRING alarms"; echo "$out_f"; exit 1; }
+printf '%s' "$out_f" | grep -qi "over limit" \
+  || { echo "FAIL F: should flag budget trending over limit"; echo "$out_f"; exit 1; }
+echo "F ok: enriched status surfaces untagged/FIRING/over-budget (rc=$rc_f)"
+
 echo "oci project smoke OK"

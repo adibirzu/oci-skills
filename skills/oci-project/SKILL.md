@@ -97,10 +97,11 @@ compartment, printing **names and counts, never OCIDs**:
 ./scripts/oci_project.sh status -c <COMPARTMENT_OCID>
 ```
 
-It reports: compute / VCN / OKE / LB inventory + lifecycle states, the count of
-ACTIVE Cloud Guard problems, alarm definitions, and each budget's
-limit / spent / forecast. Empty sections are inconclusive (perms/region), not
-proof of absence — see the gotchas in the reference.
+It reports: compute / VCN / OKE / LB inventory + lifecycle states, untagged
+instances (governance gap), ACTIVE Cloud Guard problem count, alarm definitions
+plus how many are **FIRING**, and each budget's limit / spent / forecast with a
+flag when any is trending **over limit**. Empty sections are inconclusive
+(perms/region), not proof of absence — see the gotchas in the reference.
 
 ### 3. Deploy / release
 
