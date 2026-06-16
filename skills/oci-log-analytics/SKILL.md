@@ -54,6 +54,15 @@ safety rules.
 | detection, saved/scheduled search, Sigma→OCI | Detections |
 | dashboard import/export, migrate content, KQL→OCL | Migration / dashboards |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Write a query that returns rows | apply the field-typing rules (quote multi-word/string-int fields, KB-060/062) → run via `oci_logan.sh -t` → if empty, widen the window and add `--compartment-id-in-subtree` before concluding (KB-063, KB-070) |
+| Audit "who did what" | query `'Log Source' = 'OCI Audit Logs'` → `stats count by 'Principal Name'` → set the window with `-t` (time is out-of-band, KB-063) |
+| Build a detection | author OCL (or convert Sigma→OCL) → validate live (watch bulk-validation timeout, KB-071) → save with the current `etag` (KB-065) → schedule |
+| Migrate content in | export the source dashboard → convert KQL→OCL → import → validate against live data |
+
 ## Common tasks
 
 ```bash
@@ -108,3 +117,7 @@ oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
 **Verification** — re-run the query / re-list the resource showing the result.
 **KB** — KB entry used (log-analytics), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm). Full list in the [log-analytics reference](../../references/log-analytics.md).

@@ -122,3 +122,9 @@ variables:
 | `--wait-for-state SUCCEEDED` hang | FAILED job never equals SUCCEEDED | poll + break on all terminal states (KB-007) |
 | AUTO_APPROVED on prod | applies an unreviewed plan | bind to a reviewed `--execution-plan-job-id` |
 | State with secrets in logs | credential leak | `redact` before sharing tfstate |
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [Resource Manager (managed Terraform)](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm)

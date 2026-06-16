@@ -47,6 +47,15 @@ for the safety rules.
 | set up alerts, guardrails, no budget exists | Guardrail setup → oci-iam-admin |
 | cost-tracking tag, chargeback, showback | Cost-tracking tags |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Answer "what are we paying for" | `oci_cost.sh -d 30` → read top spend drivers → drill down with `--group-by compartmentName` / cost-tracking tag |
+| Investigate a cost spike | `oci_cost.sh` by service → group-by compartment to localize → audit *who created* the resource (→ **oci-log-analytics** Audit query) → recommend a budget alert (→ **oci-iam-admin**) |
+| Set up chargeback / showback | define a cost-tracking tag (→ **oci-iam-admin**) → `--group-by-tag` usage query → recurring monthly report |
+| No budget exists yet | `oci_cost.sh` for current spend + forecast → recommend a budget + 80% alert → defer creation to **oci-iam-admin** (it gates the mutation) |
+
 ## Common tasks
 
 ```bash
@@ -108,3 +117,7 @@ gated, deferred to oci-iam-admin to execute.
 **Verification** — re-run oci_cost.sh showing the budget/alert now present.
 **KB** — KB entry used, or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Cost Analysis](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/costanalysisoverview.htm) · [Budgets](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm). Full list in the [cost-management reference](../../references/cost-management.md).

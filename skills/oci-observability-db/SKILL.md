@@ -52,6 +52,15 @@ Full sanitized command/SDK shapes: `../../references/observability-db.md`.
 Safety rules (auth modes, read-before-write, redaction):
 `../../references/tenancy-safety.md`.
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Add a missing alarm | `alarm list` (confirm the gap) → ensure a destination topic is `ACTIVE` → `alarm create` (threshold in MQL `--query-text`) → verify `is-enabled` |
+| Stand up DB monitoring | `managed-database list` → `enable-database-management` (async work request) → wait for completion → verify it is collecting, not just enabled (KB-049) |
+| APM shows no traces | `apm-domain list` → `list-data-keys` (use the **private** key) → check the OTLP endpoint URL is the private `/v1/traces` path (KB-025) → re-send and re-query |
+| Gate agentic AI traces | query `trace.integrity.score`/`state` → find `non_gateable`/`non_exportable` spans → supply missing span/attribute evidence → re-score (KB-097) |
+
 ## Common tasks
 
 **Create an alarm** (search first → wire a topic → create):
@@ -124,3 +133,7 @@ Action:       <oci_cli ... via run_mutating, dry-run shown first>
 Verification: <re-list / get showing the resource now exists & ENABLED>
 KB:           <KB-<n> if a new error was resolved, else n/a>
 ```
+
+## Official documentation
+
+[Monitoring](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm) · [Database Management](https://docs.oracle.com/en-us/iaas/database-management/home.htm) · [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm). Full list in the [observability-db reference](../../references/observability-db.md).

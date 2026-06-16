@@ -45,6 +45,15 @@ the safety rules.
 | outputs, OCIDs from the stack, tfstate, drift | State, outputs & drift |
 | list/lists/maps variable won't pass | Variables (flat map) |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Safe apply | `create-plan-job` → `get-job-logs-content` (review the plan) → `create-apply-job --execution-plan-strategy FROM_PLAN_JOB_ID` → verify stack outputs |
+| Drift check | `create-plan-job` → read the plan: "no changes" = no drift; otherwise reconcile the source or the live resource |
+| Package & deploy a bundle | assemble the Terraform + `schema.yaml` → `stack create` from the zip → plan → reviewed apply |
+| Debug a stuck job | poll `job get … 'lifecycle-state'` and break on **every** terminal state (never `--wait-for-state SUCCEEDED` alone) → dump `get-job-logs-content` on `FAILED` (KB-007, KB-083) |
+
 ## Common tasks
 
 ```bash
@@ -89,3 +98,7 @@ every terminal state**, dumping `get-job-logs-content` on failure.
 **Verification** — a follow-up plan job showing no drift, or the stack outputs.
 **KB** — KB entry used (e.g. KB-007), or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm). Full list in the [resource-manager reference](../../references/resource-manager.md).

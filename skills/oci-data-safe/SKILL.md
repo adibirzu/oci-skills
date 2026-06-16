@@ -49,6 +49,15 @@ the safety rules.
 | mask/redact data for non-prod | Data Masking |
 | NEEDS_ATTENTION / ORA-01017 | Gotchas |
 
+## Common multi-step flows
+
+| Task | Sequence |
+|------|----------|
+| Register a target | ensure a Data Safe private endpoint (for cloud/Exadata DB) → run the DB-side privilege script → `target-database create` (creds via `file://`) → wait the work request → read the Security Assessment |
+| Fix `NEEDS_ATTENTION` / `ORA-01017` | rotate the DB service-account password `CONTAINER=ALL` → update the target credential → wait the work request → re-check lifecycle-state (KB-057) |
+| Mask a non-prod copy | run Data Discovery (sensitive data model) → **verify the target is a non-prod copy** → run masking (irreversible) → confirm masked columns |
+| Audit a time window | `audit-event list --scim-query` with `auditEventTime` bounds (NOT `time_started`/`time_ended`, KB-032) → check retention covers the window |
+
 ## Common tasks
 
 ```bash
@@ -95,3 +104,7 @@ oci_cli data-safe audit-event list --compartment-id <COMPARTMENT_OCID> \
 **Verification** — re-read the assessment / target lifecycle-state showing the result.
 **KB** — KB entry used, or new KB-<n> added.
 ```
+
+## Official documentation
+
+[Data Safe](https://docs.oracle.com/en-us/iaas/data-safe/doc/oracle-data-safe-overview.html). Full list in the [data-safe reference](../../references/data-safe.md).

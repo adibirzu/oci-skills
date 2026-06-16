@@ -124,3 +124,10 @@ Auth modes are free. The credential *plumbing* has small costs to budget:
 **Verification** — re-auth or re-call succeeds with the new credential.
 **KB** — KB entry used (e.g. KB-005), or new KB-<n> added.
 ```
+
+## Official documentation
+
+Canonical Oracle docs for the services covered above (verified live):
+
+- [SDK & CLI configuration (auth, config file, principals)](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
+- [IAM (Identity & Access Management)](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm)
