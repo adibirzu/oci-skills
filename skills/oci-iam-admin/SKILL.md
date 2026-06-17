@@ -121,3 +121,5 @@ identity-domains.
 ## Official documentation
 
 [IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm) · [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm). Full list in the [iam-tenancy reference](../../references/iam-tenancy.md).
+
+**Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

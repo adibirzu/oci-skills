@@ -102,3 +102,5 @@ safety rules.
 ## Official documentation
 
 [Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) · [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm) · [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm). Full list in the [events-functions reference](../../references/events-functions.md).
+
+**Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

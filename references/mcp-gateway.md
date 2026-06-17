@@ -1,11 +1,22 @@
 # OCI MCP Gateway Reference
 
+> **Not an Oracle product.** The `oci-mcp-gateway` and the OCI MCP servers it
+> proxies are **community / self-hosted deployment glue**, not an
+> Oracle-supported service. There is no `docs.oracle.com` page for the gateway,
+> no SLA, and no Oracle support path. **The authoritative data path for this
+> pack is the OCI CLI/SDK against the live service, grounded in the official
+> docs** registered in [oracle-docs.md](oracle-docs.md) (the Open Knowledge
+> Format index). Treat the gateway as an *optional convenience read-surface* you
+> run yourself — never as a source of truth, and never as something a customer
+> solution should depend on for correctness.
+
 How this CLI/SDK-direct skill pack relates to the **`oci-mcp-gateway`** — an
 OKE-deployed aggregator that exposes several OCI MCP servers behind one
 authenticated `/mcp` endpoint. This pack remains the **safety-gated CLI/SDK
-path**; the gateway is a complementary **read/aggregated tool surface** for agent
-runtimes that already speak MCP. The two are not mutually exclusive — an agent
-can read through the gateway and mutate through this pack.
+path** and the authoritative surface; the gateway is an *optional, non-official*
+**read/aggregated tool surface** for agent runtimes that already speak MCP. The
+two are not mutually exclusive — an agent can read through the gateway and mutate
+(authoritatively) through this pack.
 
 All endpoints, OCIDs, tokens, and IPs below are `<PLACEHOLDER>` tokens. Never
 inline a real gateway URL, JWT, or static token.
@@ -79,8 +90,9 @@ safety core; it sits in front of read traffic only.
 
 ## Official documentation
 
-The gateway is deployment glue around existing OCI services; its building blocks
-are documented here (verified live, registered in
+The gateway itself has **no Oracle documentation** — it is non-official
+deployment glue. Only its underlying OCI building blocks are documented (verified
+live, registered in the Open Knowledge Format index
 [oracle-docs.md](oracle-docs.md)):
 
 - [Identity Domains (IDCS JWT issuance/validation)](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm)

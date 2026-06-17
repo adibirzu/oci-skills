@@ -98,13 +98,15 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 **oci-project** sits above the nine domains: it sequences them for whole-project
 work (bootstrap → status → deploy → teardown), scoped to one project compartment.
 
-**Related: MCP gateway.** This pack is the safety-gated CLI/SDK path. When an
-agent runtime already speaks MCP, read/aggregated tool access can instead come
-from the `oci-mcp-gateway` (an OKE-deployed aggregator of the logan / oci /
-security / finops / db-observatory backends behind one authenticated `/mcp`
-endpoint, tools namespaced `backendname_toolname`). Rule of thumb: route
-mutations, preflight, and redaction through these skills; route read/aggregated
-queries through the gateway — see
+**Related: MCP gateway (non-official).** This pack is the authoritative,
+safety-gated CLI/SDK path. The `oci-mcp-gateway` is **community / self-hosted
+glue, not an Oracle product** — no `docs.oracle.com` page, no support path. When
+an agent runtime already speaks MCP it can use the gateway (an OKE-deployed
+aggregator of the logan / oci / security / finops / db-observatory backends
+behind one authenticated `/mcp` endpoint, tools namespaced `backendname_toolname`)
+as an *optional read-surface only*. Rule of thumb: route mutations, preflight,
+and redaction through these skills, and ground all claims in official docs;
+never treat the gateway as a source of truth — see
 [references/mcp-gateway.md](../../references/mcp-gateway.md).
 
 ## Common multi-step flows (cross-domain)
@@ -159,3 +161,5 @@ intra-domain flow table.
 ## Official documentation
 
 [OCI Documentation (home)](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [OCI CLI / SDK configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm).
+
+**Open Knowledge Format grounding** — every doc link across this pack is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the single source of truth, patterned on the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog)). It routes to nine domain skills, each of which carries the same grounding contract. When building a new OCI customer solution on this pack, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
