@@ -213,3 +213,5 @@ Manager `destroy` job when the project was stack-deployed.
 ## Official documentation
 
 [Compartments](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm) · [Budgets](https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm) · [Tagging](https://docs.oracle.com/en-us/iaas/Content/Tagging/home.htm). Full index in [oracle-docs.md](../../references/oracle-docs.md).
+
+**Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
