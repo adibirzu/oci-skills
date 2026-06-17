@@ -107,6 +107,8 @@ oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
   `redact` before sharing.
 - **An empty result is inconclusive,** not proof of absence — check field typing
   and widen the window before concluding.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 

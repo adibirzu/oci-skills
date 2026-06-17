@@ -40,6 +40,13 @@ If the resolved tenancy is not the one you expect, **stop**. See
 | Run containers | OKE | two-layer authz (KB-001); verify context/profile before rollout |
 | Pull images | OCIR | cross-tenancy = replicate secret (KB-006) |
 
+**Deep OKE day-2 routes out.** This skill owns OKE *provisioning, IAM, and
+network basics* (cluster create, kubeconfig, two-layer authz KB-001). For cluster
+design questionnaires, GVA secondary-VNIC GPU node pools, Multus multi-interface
+pods, or live incident troubleshooting, hand off to the official `oracle/skills`
+`oci/oke` collection — see
+[references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
+
 ## Common multi-step flows
 
 | Task | Sequence |
@@ -98,6 +105,8 @@ Full command shapes: `../../references/networking-compute.md`.
 - **OKE rollout context** — context names are labels, not proof of tenancy.
   Verify the OCI exec profile and cluster identity before deploy/rollout, and
   use explicit break-glass variables for protected profiles.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 

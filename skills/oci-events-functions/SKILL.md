@@ -88,6 +88,8 @@ safety rules.
   webhook endpoints; `redact` output.
 - **Least-privilege the `serviceconnector` principal** — scope grants to the
   specific compartment + the exact source/target verbs, not broad `manage`.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 
