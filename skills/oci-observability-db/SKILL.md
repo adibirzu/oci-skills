@@ -40,7 +40,8 @@ namespaces — use `<PLACEHOLDER>` tokens.
 | Service log / custom log / agent | Logging section |
 | LQL query / saved search | Log Analytics section |
 | Traces / RUM / data keys | APM section |
-| GenAI / agent traces / trace integrity | Agentic AI observability profile |
+| Observe GenAI **agent traces** / trace integrity (observability only) | Agentic AI observability profile |
+| **Build** GenAI agents, tools, RAG, model endpoints, governance | → `oracle/skills` `oci/enterprise-ai` (not here) |
 | Topic / subscription | Notifications |
 | Archive logs / forward metrics | Service Connector Hub |
 | Monitor a DB / Performance Hub / fleet | Database Management (DBM) |
@@ -51,6 +52,13 @@ namespaces — use `<PLACEHOLDER>` tokens.
 Full sanitized command/SDK shapes: `../../references/observability-db.md`.
 Safety rules (auth modes, read-before-write, redaction):
 `../../references/tenancy-safety.md`.
+
+**Scope.** This skill *observes* GenAI/agentic workloads (traces, integrity,
+gating) and provisions the surrounding IAM/network/budget. To *build* GenAI
+solutions — model endpoints, Responses-API agents, RAG, GenAI governance — route
+to `oracle/skills` `oci/enterprise-ai`; for work *inside* an Oracle Database
+(SQL/PL-SQL, RMAN, AWR/ASH, Data Guard) route to `oracle/skills` `db/`. See
+[references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
 
 ## Common multi-step flows
 
@@ -123,6 +131,8 @@ release.
   `redact` or `python3 ../../scripts/redact.py --check <file>`.
 - Precheck capacity before provisioning (`limits value list --service-name database`).
 - After fixing a new error, add a `KB-<n>` entry to `../../references/KB.md`.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 ../../scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 

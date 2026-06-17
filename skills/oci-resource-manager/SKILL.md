@@ -88,6 +88,8 @@ every terminal state**, dumping `get-job-logs-content` on failure.
 - **tfstate may hold secrets** — pipe `get-job-tf-state` through `redact`; never
   commit or log raw state.
 - **Serialize jobs** — concurrent apply/destroy on one stack corrupts state.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 
