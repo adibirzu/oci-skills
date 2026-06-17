@@ -10,7 +10,8 @@ description: >-
   whenever a request mentions OCI Functions, fn deploy, FDK, oci fn invoke, Events
   rule, eventType, FAAS action, Notifications, ONS topic/subscription, Service
   Connector Hub, SCH, connector hub, serviceconnector principal, put_messages,
-  TRIM_HORIZON, or event-driven/serverless OCI automation. Reads are safe;
+  TRIM_HORIZON, OCI Streaming Kafka compatibility, Kafka SASL, Kafka Connect,
+  SOC4Kafka, or event-driven/serverless OCI automation. Reads are safe;
   create/update/invoke go through the shared safety core.
 license: MIT
 ---
@@ -48,6 +49,7 @@ safety rules.
 | topic, subscription, email/HTTPS/PagerDuty/Slack alert | Notifications (ONS) |
 | service connector, SCH, fan-out logs/metrics, serviceconnector | Service Connector Hub |
 | put_messages, stream vs stream pool, TRIM_HORIZON | Streaming (transport) |
+| Kafka client, Kafka Connect, SOC4Kafka, SASL auth, OCI Streaming compatibility | Streaming Kafka API |
 | "rule never fires" / "SCH ACTIVE but empty" / "email never arrives" | Gotchas |
 
 ## Common multi-step flows
@@ -58,6 +60,7 @@ safety rules.
 | Rule never fires | enable emit-events on the source resource (KB-087) → check the rule's `eventType` condition matches → verify the FAAS/ONS target → trigger and watch |
 | Fan-out logs/metrics | `service-connector create` (source → target) → grant the `serviceconnector` principal per-source/target verbs (KB-085) → confirm data actually moves, not just `ACTIVE` |
 | Notifications never arrive | `ons topic create` → `subscription create` → confirm it leaves `PENDING` → `ACTIVE` (KB-086) → publish a test message |
+| Kafka-compatible consumer on Streaming | verify stream/pool/region → build SASL username from the same IAM user that owns the auth token → include identity-domain prefix in the username → inspect consumer logs for SASL/metadata errors (KB-106) |
 
 ## Key gotchas (the ones that waste hours)
 
@@ -72,6 +75,9 @@ safety rules.
   emit-events on the bucket/resource first).
 - **Producers push to a Stream, not a Stream Pool** — wrong OCID type fails;
   `put_messages` can return 200 with per-entry `.error`.
+- **Kafka API auth is user-bound** — an auth token from one OCI user cannot be
+  reused with another profile/user in the Kafka SASL username; domain users need
+  their full OCI username, not just an email or local alias (KB-106).
 
 ## Safety notes
 
