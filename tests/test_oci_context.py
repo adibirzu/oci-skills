@@ -84,6 +84,31 @@ def test_non_ocid_compartment_rejected(ctx_store) -> None:
     assert oci_context.main(["add", "dev", "--compartment", "not-an-ocid"]) == 1
 
 
+def test_project_metadata_persists_and_exports(ctx_store, capsys) -> None:
+    # a context doubles as a project descriptor: --prefix + --budget persist and
+    # are exported by `use` so oci_project.sh can default to them.
+    assert oci_context.main(
+        ["add", "demo", "--compartment", _cmpt(), "--budget", "500", "--prefix", "demoapp"]) == 0
+    capsys.readouterr()
+    assert oci_context.main(["get", "demo", "--field", "budget"]) == 0
+    assert capsys.readouterr().out.strip() == "500"
+    assert oci_context.main(["use", "demo"]) == 0
+    out = capsys.readouterr().out
+    assert "export OCI_SKILLS_PROJECT_PREFIX=demoapp" in out
+    assert "export OCI_SKILLS_BUDGET=500" in out
+
+
+def test_prefix_defaults_to_context_name(ctx_store, capsys) -> None:
+    oci_context.main(["add", "demo", "--compartment", _cmpt()])
+    capsys.readouterr()
+    assert oci_context.main(["get", "demo", "--field", "prefix"]) == 0
+    assert capsys.readouterr().out.strip() == "demo"
+
+
+def test_non_numeric_budget_rejected(ctx_store) -> None:
+    assert oci_context.main(["add", "demo", "--compartment", _cmpt(), "--budget", "5oo"]) == 1
+
+
 def test_first_context_becomes_current(ctx_store, capsys) -> None:
     oci_context.main(["add", "dev", "--compartment", _cmpt()])
     capsys.readouterr()

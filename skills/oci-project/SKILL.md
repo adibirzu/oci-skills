@@ -24,9 +24,11 @@ This is the **orchestration layer**: it does not replace the nine domain skills 
 it sequences them in the right order, scoped to one project, every mutation
 through `run_mutating` / `confirm`.
 
-A **project** is a [named context](../../references/named-contexts.md) plus a
-naming prefix and a budget: `name → { profile, region, compartment, prefix,
-budget }`. Bind it once, then every stage scopes to that compartment.
+A **project** is a [named context](../../references/named-contexts.md) that
+persists `name → { profile, region, compartment, prefix, budget }`. Bind it once
+(`oci_context.py use <project>`) and every stage scopes to that compartment with
+the prefix/budget as defaults — `bootstrap` then needs no `-n`/`-b` (explicit
+flags still override).
 
 ## First move (always)
 
