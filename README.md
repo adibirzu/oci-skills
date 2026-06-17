@@ -202,7 +202,9 @@ hooks/                   # PreToolUse guard that blocks destructive oci commands
 references/              # domain + safety knowledge (progressive disclosure)
   tenancy-safety.md  agent-safety.md  oci-error-catalog.md
   oracle-docs.md     # verified docs.oracle.com source-of-truth index
-  project-workflow.md  # oci-project lifecycle reference
+  project-workflow.md  # oci-project lifecycle index → project-phase{1-4}-*.md
+  project-phase1-bootstrap.md  project-phase2-status.md
+  project-phase3-deploy.md  project-phase4-teardown.md
   mcp-gateway.md       # how this pack relates to the oci-mcp-gateway (read surface)
   helper-conventions.md  KB.md  named-contexts.md
   credential-management.md
@@ -210,7 +212,7 @@ references/              # domain + safety knowledge (progressive disclosure)
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md
 scripts/                # shared core
   common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh
-  oci_project.sh  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
+  oci_project.sh  oci_cli_help.py  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
 skills/                  # eleven auto-discoverable skills (router + nine domains + project orchestrator)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
   oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/

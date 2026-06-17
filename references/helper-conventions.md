@@ -39,6 +39,25 @@ run_mutating "tag the compartment" \
 | `redact "str"` | Mask OCIDs/IPs/hex in a string (fast, partial). |
 | `banner` / `info` / `ok` / `warn` / `err` / `die` | Structured stderr logging. |
 
+## Never invent CLI flags — fetch the command shape first
+
+The `oci` CLI has thousands of nested verbs and non-obvious flags (the budget
+path is genuinely `budgets budget budget list`). Constructing a command from
+memory is the most common way a task breaks. **Before writing a mutating
+`oci_cli ...` command, fetch its exact shape and use only the flags it lists:**
+
+```bash
+python3 scripts/oci_cli_help.py budgets budget create     # required vs optional flags
+python3 scripts/oci_cli_help.py budgets budget            # a group -> its real subcommands
+python3 scripts/oci_cli_help.py network nsg rules add --json
+# equivalently, the raw CLI: oci budgets budget create --help   (no auth, no network)
+```
+
+`oci_cli_help.py` runs `oci ... --help` (which neither authenticates nor calls
+the network), classifies options into `[required]` vs optional, lists
+subcommands for non-leaf groups, and caches the output so repeat lookups work
+offline. If a flag is not in its output, it does not exist — do not guess.
+
 ## Python SDK skeleton
 
 ```python

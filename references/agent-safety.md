@@ -43,6 +43,21 @@ before concluding "no alarm exists" / "no rows", verify the compartment subtree
 flag, lifecycle-state filter, region, and (for Log Analytics) field typing and
 time window.
 
+## 2b. Don't fabricate the command — fetch its shape
+
+The `oci` CLI is vast and deeply nested; inventing a flag or guessing a verb path
+is a top cause of broken tasks. Before constructing a mutating command, fetch its
+real shape and use only what it declares:
+
+```bash
+python3 scripts/oci_cli_help.py <service> <op>     # required vs optional flags / subcommands
+```
+
+If a flag is not in the output, it does not exist — do not guess it. See
+[helper-conventions.md](helper-conventions.md). This is the command-shape analog
+of citing [oracle-docs.md](oracle-docs.md) for facts: authoritative source over
+memory.
+
 ## 3. Idempotency — every operation safe to repeat
 
 The agent loop may retry, resume, or re-run. Make each step convergent, not

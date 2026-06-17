@@ -871,3 +871,28 @@ not replicated into the consuming cluster/namespace.
 **Fix:** Pass the lifespan into the FastMCP constructor — `FastMCP(name=..., lifespan=gateway_lifespan, ...)` inside `create_gateway()` — so the registry is populated on startup and `gateway_health` counts the real backends. See [references/mcp-gateway.md](mcp-gateway.md).
 **See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
 **Status:** resolved.
+
+## KB-106 — OCI Streaming Kafka consumer fails SASL auth after deploy (events-functions)
+
+**Symptom:** A Kafka-compatible consumer such as Kafka Connect or SOC4Kafka/Splunk
+OTel Collector starts against OCI Streaming, but the service log repeatedly shows
+`SASL_AUTHENTICATION_FAILED`, `UNKNOWN_TOPIC_OR_PARTITION`, or metadata refresh
+timeouts. The OCI Service Connector may still be `ACTIVE`, and Splunk/HTTP HEC
+health checks may still pass.
+**Root cause:** OCI Streaming's Kafka API binds the SASL username to a specific
+tenancy, OCI user, and stream pool. Identity Domains users often require the full
+domain-qualified OCI user name (for example `oracleidentitycloudservice/<USER>`),
+not a bare email/local profile alias. The SASL password must be an auth token
+created for that same user. Mixing Terraform/CLI profiles, or reusing an auth
+token from another user, causes Kafka auth failure even when the network and HEC
+side are healthy. A separate pitfall: service logs cannot be test-injected with
+`logging-ingestion put-logs`; that API targets custom logs, not service logs.
+**Fix:** Resolve the active OCI user with `oci_cli iam user get --user-id
+<USER_OCID> --query 'data.name' --raw-output`; build the Kafka username as
+`<TENANCY_NAME>/<FULL_OCI_USER_NAME>/<STREAM_POOL_OCID>`; create/store an auth
+token for that same user; wait for propagation; restart the consumer; then inspect
+consumer logs for fresh SASL and metadata errors. Test service-log pipelines by
+triggering the source service, or use a custom log when you need
+`logging-ingestion put-logs`.
+**See:** [Streaming Kafka compatibility](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm)
+**Status:** resolved.

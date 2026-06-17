@@ -115,6 +115,8 @@ Safe), the upstream `db/` domain of
 | Notifications (ONS) | <https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm> |
 | Service Connector Hub | <https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm> |
 | Streaming | <https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm> |
+| Streaming Kafka compatibility | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm> |
+| Streaming Kafka API configuration | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm> |
 
 ## Cross-cutting — CLI, SDK, API errors
 
@@ -144,3 +146,4 @@ rather than the service home (all verified live):
 | Register Data Safe target databases | <https://docs.oracle.com/en-us/iaas/data-safe/doc/register-target-databases.html> | KB-057 |
 | Creating/deploying Functions | <https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm> | KB-084 |
 | Managing streams (stream vs stream pool) | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/managingstreams.htm> | KB-091 |
+| Streaming Kafka API configuration | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm> | KB-106 |
