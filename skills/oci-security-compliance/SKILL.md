@@ -106,6 +106,8 @@ python3 scripts/redact.py --check <file>   # exit 1 if OCID/IP/fingerprint/key/s
 - Scope to a compartment, not `manage all-resources`. Test Security Zone
   recipes in non-prod first.
 - After fixing a new error, add a `KB-<n>` entry to `references/KB.md`.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 
