@@ -202,6 +202,7 @@ hooks/                   # PreToolUse guard that blocks destructive oci commands
 references/              # domain + safety knowledge (progressive disclosure)
   tenancy-safety.md  agent-safety.md  oci-error-catalog.md
   oracle-docs.md     # verified docs.oracle.com source-of-truth index
+  solution-authoring.md  # Stage 0 design: requirement → guardrailed architecture → blueprint
   project-workflow.md  # oci-project lifecycle index → project-phase{1-4}-*.md
   project-phase1-bootstrap.md  project-phase2-status.md
   project-phase3-deploy.md  project-phase4-teardown.md

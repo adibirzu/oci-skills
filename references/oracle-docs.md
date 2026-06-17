@@ -118,6 +118,19 @@ Safe), the upstream `db/` domain of
 | Streaming Kafka compatibility | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm> |
 | Streaming Kafka API configuration | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm> |
 
+## Solution authoring — `oci-administrator` / `oci-project`
+
+The official Oracle guidance behind [solution-authoring.md](solution-authoring.md)
+— designing a new OCI solution for a customer before it is bootstrapped:
+
+| Topic | Canonical doc |
+|---|---|
+| Architecture Center (reference architectures & solution playbooks) | <https://docs.oracle.com/en/solutions/> |
+| Cloud Adoption Framework (Well-Architected pillars) | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm> |
+| Cloud Adoption Framework — Security pillar (landing-zone guardrails) | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm> |
+| Security guide (best practices) | <https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm> |
+| CIS OCI Benchmark | <https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html> |
+
 ## Cross-cutting — CLI, SDK, API errors
 
 | Topic | Canonical doc |
