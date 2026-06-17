@@ -29,9 +29,11 @@ source "$(dirname "$0")/common.sh"
 CMD="${1:-status}"
 case "$CMD" in status|bootstrap|teardown) shift ;; -h|--help) CMD="help" ;; esac
 
+# Defaults come from the bound named context (oci_context.py use <project> exports
+# these); explicit -n/-b/-c flags below override them.
 COMPARTMENT_OCID="${OCI_SKILLS_COMPARTMENT:-}"
-NAME=""
-BUDGET=""
+NAME="${OCI_SKILLS_PROJECT_PREFIX:-}"
+BUDGET="${OCI_SKILLS_BUDGET:-}"
 
 if [ "$CMD" != "help" ]; then
   # Accept long flags as aliases for the short ones (agent-friendly). Bash 3.2:

@@ -114,19 +114,27 @@ def cmd_add(args: argparse.Namespace, data: dict) -> int:
         _eprint("[error] --compartment must be a compartment or tenancy OCID "
                 "(an ocid1.compartment.* or ocid1.tenancy.* value)")
         return 1
+    if args.budget and not re.match(r"^[0-9]+(\.[0-9]+)?$", args.budget):
+        _eprint(f"[error] --budget must be a positive number (got '{args.budget}')")
+        return 1
     existed = args.name in data["contexts"]
+    # A context doubles as a *project* descriptor: profile/region/compartment plus
+    # an optional naming prefix and monthly budget that oci_project.sh reads.
     data["contexts"][args.name] = {
         "profile": args.profile,
         "compartment": args.compartment,
         "region": args.region,
         "description": args.description or "",
+        "prefix": args.prefix or args.name,   # default the project prefix to the name
+        "budget": args.budget or "",
         "prod": bool(args.prod),
     }
     if data.get("current") is None and not existed:
         data["current"] = args.name
     _save(data)
     _eprint(f"[ok] {'updated' if existed else 'added'} context '{args.name}' "
-            f"(profile={args.profile}, region={args.region}, compartment={_mask(args.compartment)})")
+            f"(profile={args.profile}, region={args.region}, compartment={_mask(args.compartment)}"
+            f"{', budget=' + args.budget if args.budget else ''})")
     return 0
 
 
@@ -143,6 +151,10 @@ def cmd_get(args: argparse.Namespace, data: dict) -> int:
     _eprint(f"profile     : {ctx.get('profile', 'DEFAULT')}")
     _eprint(f"region      : {ctx.get('region', '<profile default>')}")
     _eprint(f"compartment : {_mask(ctx.get('compartment', ''))}  (full value via --field compartment)")
+    if ctx.get("prefix"):
+        _eprint(f"prefix      : {ctx['prefix']}")
+    if ctx.get("budget"):
+        _eprint(f"budget      : {ctx['budget']}")
     if ctx.get("description"):
         _eprint(f"description : {ctx['description']}")
     return 0
@@ -158,6 +170,11 @@ def cmd_use(args: argparse.Namespace, data: dict) -> int:
     if ctx.get("region"):
         print(f"export OCI_REGION={ctx['region']}")
     print(f"export OCI_SKILLS_COMPARTMENT={ctx.get('compartment', '')}")
+    # Project metadata — oci_project.sh uses these as defaults (prefix→-n, budget→-b).
+    if ctx.get("prefix"):
+        print(f"export OCI_SKILLS_PROJECT_PREFIX={ctx['prefix']}")
+    if ctx.get("budget"):
+        print(f"export OCI_SKILLS_BUDGET={ctx['budget']}")
     _eprint(f"[ok] active context -> {args.name}")
     return 0
 
@@ -192,12 +209,15 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--compartment", required=True, help="compartment or tenancy OCID")
     a.add_argument("--region", default="", help="region identifier, e.g. eu-frankfurt-1")
     a.add_argument("--description", default="", help="free-text note")
+    a.add_argument("--prefix", default="", help="project naming prefix (default: the context name)")
+    a.add_argument("--budget", default="", help="monthly budget amount for oci_project.sh (number)")
     a.add_argument("--prod", action="store_true", help="mark as production (extra-careful prompts)")
     a.set_defaults(func=cmd_add)
 
     g = sub.add_parser("get", help="show a context (or one --field for scripting)")
     g.add_argument("name")
-    g.add_argument("--field", choices=["profile", "compartment", "region", "description"],
+    g.add_argument("--field",
+                   choices=["profile", "compartment", "region", "description", "prefix", "budget"],
                    help="print a single raw field value to stdout")
     g.set_defaults(func=cmd_get)
 
