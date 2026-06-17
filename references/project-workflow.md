@@ -17,19 +17,24 @@ budget:
 <name> → { profile, region, compartment, prefix=<name>, budget }
 ```
 
-The named context (managed by `scripts/oci_context.py`) already supplies
-`profile + region + compartment`. The project adds a **prefix** (every resource
-is named `<name>-*`) and a **budget**. Bind once, then every stage targets that
-compartment — no OCIDs to paste:
+The named context (managed by `scripts/oci_context.py`) supplies
+`profile + region + compartment` **and persists the project's prefix + budget** —
+so a project is one durable object, not a context plus ad-hoc flags. Bind once,
+then every stage targets that compartment with the right defaults — no OCIDs and
+no repeated `-n`/`-b` to paste:
 
 ```bash
 scripts/oci_context.py add demo --profile DEFAULT --region eu-frankfurt-1 \
-  --compartment <PROJECT_COMPARTMENT_OCID> --description "demo project"
-eval "$(scripts/oci_context.py use demo)"      # exports OCI_SKILLS_COMPARTMENT etc.
+  --compartment <PROJECT_COMPARTMENT_OCID> --prefix demoapp --budget 500
+eval "$(scripts/oci_context.py use demo)"
+#   exports OCI_SKILLS_COMPARTMENT + OCI_SKILLS_PROJECT_PREFIX + OCI_SKILLS_BUDGET
+./scripts/oci_project.sh bootstrap                # -n/-b default from the context
 ```
 
-Contexts live in `~/.oci-skills/contexts.json` (mode 0600, outside the repo), so
-real OCIDs never touch git.
+`--prefix` defaults to the context name; `--budget` must be a number. Explicit
+`-n`/`-b`/`-c` flags still override the context defaults. Contexts live in
+`~/.oci-skills/contexts.json` (mode 0600, outside the repo), so real OCIDs never
+touch git.
 
 ## Workflow map
 

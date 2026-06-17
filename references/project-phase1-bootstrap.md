@@ -14,6 +14,8 @@ must exist before anything can be scoped to it.
 # Preview everything first, change nothing:
 OCI_SKILLS_DRY_RUN=true ./scripts/oci_project.sh bootstrap -n demo \
   -c <PARENT_COMPARTMENT_OCID> -b 500     # --budget also accepted
+# If a context is bound (oci_context.py use <project>), -n and -b default from its
+# persisted prefix/budget, so `oci_project.sh bootstrap` alone suffices.
 ```
 
 What `oci_project.sh bootstrap` does itself (low blast radius, idempotent):
