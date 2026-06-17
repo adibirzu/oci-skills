@@ -131,6 +131,20 @@ The official Oracle guidance behind [solution-authoring.md](solution-authoring.m
 | Security guide (best practices) | <https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm> |
 | CIS OCI Benchmark | <https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html> |
 
+## Alignment with `oracle/skills` — deep OKE & Generative AI
+
+Behind [oracle-skills-alignment.md](oracle-skills-alignment.md): the official
+Oracle pages for the domains this pack **routes to** the upstream
+[oracle/skills](https://github.com/oracle/skills) collection rather than
+duplicating (deep OKE day-2, OCI Generative AI / Enterprise AI):
+
+| Topic | Canonical doc |
+|---|---|
+| OCI Generative AI (overview) | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/overview.htm> |
+| OCI Generative AI (home) | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/home.htm> |
+| OKE access control (IAM + RBAC, incl. Workload Identity) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm> |
+| OKE multiple VNICs (GVA / Multus prerequisite) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengAttaching_Multiple_VNICs.htm> |
+
 ## Cross-cutting — CLI, SDK, API errors
 
 | Topic | Canonical doc |

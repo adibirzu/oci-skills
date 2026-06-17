@@ -58,6 +58,14 @@ source of truth — see `references/mcp-gateway.md`.
 
 ## Scope
 
-OCI *infrastructure / control-plane* administration. For tasks *inside* an
-Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH tuning, schema migrations, Data Guard
-internals), see the `db/` domain of <https://github.com/oracle/skills>.
+Default entry point for OCI *infrastructure / control-plane* administration —
+broad tenancy work across the domains above, gated by the safety core.
+Complementary to the official `oracle/skills` collection, which goes deep on a
+few capabilities. Catch the request here, then hand off the deep work:
+
+- Deep OKE day-2 (GVA, Multus, cluster troubleshooting) → `oracle/skills` `oci/oke`.
+- OCI Generative AI / Enterprise AI (models, agents, RAG, governance) → `oracle/skills` `oci/enterprise-ai`.
+- Inside an Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH, migrations, Data Guard) → `oracle/skills` `db/`.
+
+Full routing contract — coverage matrix, hand-off rules, shared conventions — in
+`references/oracle-skills-alignment.md`. Upstream: <https://github.com/oracle/skills>.
