@@ -34,13 +34,18 @@ sensitive is ever printed or committed.
 | **oci-events-functions** | Event-driven & serverless: OCI Functions (deploy/invoke/config), Events rules (eventType → FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out, Streaming transport. |
 | **oci-project** | **Project lifecycle orchestrator** (above the nine domains): bootstrap/scaffold a project (compartment + scoped IAM + network + budget + tags), project status/health, deploy/release (ORM/OKE), and gated teardown — scoped to one project compartment via a named context. |
 
-> **Scope & related.** This pack covers OCI *infrastructure and control-plane*
-> administration. For tasks *inside* an Oracle Database (SQL/PL/SQL, RMAN,
-> AWR/ASH tuning, schema migrations, Data Guard internals), see the `db/` domain
-> of [oracle/skills](https://github.com/oracle/skills) — the upstream
-> Oracle-wide skill collection. The two are complementary: this pack manages the
-> OCI services *around* the database (DBM, Operations Insights, Data Safe,
-> Autonomous DB provisioning); `db/` handles what runs *in* it.
+> **Scope & related.** This pack is the **default entry point for OCI tenancy
+> administration** — broad infrastructure and control-plane work across nine
+> domains, gated by the safety core. It is complementary to the official
+> [oracle/skills](https://github.com/oracle/skills) collection, which goes *deep*
+> on a few capabilities. Catch the request here (tenancy preflight + redaction +
+> destructive-op guard), then hand off: **deep OKE day-2** (GVA, Multus,
+> troubleshooting) → `oci/oke`; **OCI Generative AI / Enterprise AI** →
+> `oci/enterprise-ai`; **inside an Oracle Database** (SQL/PL/SQL, RMAN, AWR/ASH,
+> migrations, Data Guard) → `db/`. We own the OCI services *around* the database
+> (DBM, OPSI, Data Safe, ADB provisioning). Full routing contract — coverage
+> matrix, hand-off rules, shared conventions — in
+> [references/oracle-skills-alignment.md](references/oracle-skills-alignment.md).
 
 ## Architecture
 
@@ -202,6 +207,7 @@ hooks/                   # PreToolUse guard that blocks destructive oci commands
 references/              # domain + safety knowledge (progressive disclosure)
   tenancy-safety.md  agent-safety.md  oci-error-catalog.md
   oracle-docs.md     # verified docs.oracle.com source-of-truth index
+  oracle-skills-alignment.md  # routing contract vs the official oracle/skills repo (deep OKE / GenAI / in-DB)
   solution-authoring.md  # Stage 0 design: requirement → guardrailed architecture → blueprint
   project-workflow.md  # oci-project lifecycle index → project-phase{1-4}-*.md
   project-phase1-bootstrap.md  project-phase2-status.md

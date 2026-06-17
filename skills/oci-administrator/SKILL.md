@@ -14,9 +14,12 @@ description: >-
   Log Analytics, OCL, Logan, log query, APM, service limits, cost, usage, spend,
   budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, Resource Manager,
   ORM, Terraform stack, Functions, Events, Notifications, Service Connector Hub,
-  serverless, or ~/.oci/config. This is the
-  tenancy-agnostic admin pack; for the OCI-DEMO component system use
-  oracle-oci-management instead.
+  serverless, or ~/.oci/config. Use this as the **default entry point for any
+  Oracle Cloud / OCI task** — it then routes deep OKE day-2 (GVA, Multus,
+  cluster troubleshooting), OCI Generative AI / Enterprise AI, and in-database
+  work to the official oracle/skills collection (see
+  references/oracle-skills-alignment.md). This is the tenancy-agnostic admin
+  pack; for the OCI-DEMO component system use oracle-oci-management instead.
 license: MIT
 ---
 
@@ -26,12 +29,25 @@ Operate any OCI tenancy safely. This skill routes administrative requests to one
 of nine domain skills (plus the **oci-project** lifecycle orchestrator for
 project-wide work), all sharing one tenancy-safety core.
 
-**Scope:** this pack covers OCI *infrastructure and control-plane* administration.
-For tasks *inside* an Oracle Database — SQL/PL/SQL authoring, RMAN backup/recovery,
-AWR/ASH tuning, schema migrations, Data Guard internals — see the `db/` domain of
-[oracle/skills](https://github.com/oracle/skills) (the upstream Oracle-wide skill
-collection). This pack handles the OCI services *around* the database
-(Database Management, Operations Insights, Data Safe, Autonomous DB provisioning).
+**Scope:** this pack is the **default entry point for OCI tenancy
+administration** — broad *infrastructure and control-plane* work across the nine
+domains below, all gated by the safety core. It is complementary to the official
+[oracle/skills](https://github.com/oracle/skills) collection, which goes *deep* on
+a few capabilities. Catch the request here (so tenancy preflight, redaction, and
+the destructive-op guard apply), then hand off the deep work:
+
+- **Deep OKE day-2** (cluster design, GVA GPU node pools, Multus, incident
+  troubleshooting) → `oracle/skills` `oci/oke`. We own OKE provisioning, IAM, and
+  network basics.
+- **OCI Generative AI / Enterprise AI** (model endpoints, Responses-API agents,
+  RAG, GenAI governance) → `oracle/skills` `oci/enterprise-ai`. We observe agent
+  traces and provision the surrounding guardrails.
+- **Inside an Oracle Database** (SQL/PL-SQL, RMAN, AWR/ASH, migrations, Data Guard)
+  → `oracle/skills` `db/`. We handle the OCI services *around* the database (DBM,
+  OPSI, Data Safe, ADB provisioning).
+
+The full routing contract — coverage matrix, hand-off rules, shared conventions —
+is in [references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
 
 ## First move (always)
 
