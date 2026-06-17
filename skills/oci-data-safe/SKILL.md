@@ -49,6 +49,13 @@ the safety rules.
 | mask/redact data for non-prod | Data Masking |
 | NEEDS_ATTENTION / ORA-01017 | Gotchas |
 
+**Scope.** This skill drives the **OCI Data Safe service** (registration,
+assessments, activity auditing, masking) — the security layer *around* the
+database. For security work *inside* the database that Data Safe doesn't own —
+SQL-level `GRANT`/`REVOKE`, Unified Auditing policy authoring, schema hardening —
+route to `oracle/skills` `db/`. See
+[references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
+
 ## Common multi-step flows
 
 | Task | Sequence |
@@ -94,6 +101,8 @@ oci_cli data-safe audit-event list --compartment-id <COMPARTMENT_OCID> \
 - **Never print or commit credentials.** `file://` payloads in `0600` files under a
   `0700` dir, deleted in `finally`; `redact` any output.
 - **Mask only a verified non-prod copy** — it is irreversible on the masked data.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 

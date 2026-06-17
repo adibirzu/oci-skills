@@ -107,6 +107,8 @@ identity-domains.
   token is shown once at creation — never log or commit it.
 - **Flag `manage all-resources in tenancy`** — effective admin; recommend scoping
   to a compartment with a verb and resource-family.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 

@@ -106,6 +106,8 @@ oci_cli budgets budget budget list --compartment-id <TENANCY_OCID> \
   a mutation — route to **oci-iam-admin**, which gates it via `run_mutating`.
 - **Never print OCIDs.** The aggregated views are service/compartment names +
   amounts by construction; if you query raw items, pipe through `redact`.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>`.
 
 ## Expected output
 
