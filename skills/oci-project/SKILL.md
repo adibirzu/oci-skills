@@ -51,6 +51,40 @@ for the full lifecycle recipes and
 safety rules. For *how to reason* before acting, read
 [../../references/agent-safety.md](../../references/agent-safety.md).
 
+## Interactive execution rules (bootstrap & teardown)
+
+**Bootstrap** and **teardown** are multi-step and (for teardown) irreversible, so
+run them as a *guided, one-step-at-a-time* flow — never a single "magical" pass.
+These rules apply to those two stages (`status` is a read-only one-shot and is
+exempt):
+
+- **Show a progress block on every message.** So the human always sees where they
+  are and can catch a skipped step. Prepend:
+  ```text
+  Project <name> · <bootstrap|teardown> progress:
+    1. Context bound + preflighted   [done|active|—]
+    2. <stage step 2>                [done|active|—]
+    3. <stage step 3>                [done|active|—]
+    …
+  ```
+  Update the markers as steps complete; never omit or shorten it.
+- **One question at a time.** Ask exactly one thing, then stop. Do not bundle.
+- **Respect turn boundaries.** When you need input or a confirmation, output the
+  question and **stop calling tools** — you cannot receive the answer this turn.
+  Never simulate or assume the user's reply.
+- **Don't skip steps or infer completion.** Run every step in order even if
+  detected state (existing compartment, active creds) suggests one is done —
+  *verify* it with a read, report it, and move on; don't silently skip.
+- **Confirm each mutation.** Show the exact gated command (dry-run first), then
+  `confirm` before executing. Teardown destroys nothing without explicit
+  per-resource confirmation.
+- **Resume mid-flow.** If resuming, run `oci_project.sh status` to read current
+  state, ask which step the user left off at, then continue from there — do not
+  restart from scratch.
+- **Never invent `oci` flags.** Fetch the exact command shape first:
+  `python3 scripts/oci_cli_help.py <service> <op>` (see
+  [agent-safety.md](../../references/agent-safety.md)).
+
 ## Routing — pick the stage
 
 | Request mentions… | Stage | Helper |
@@ -63,6 +97,8 @@ safety rules. For *how to reason* before acting, read
 ## The four stages
 
 ### 1. Bootstrap (idempotent, gated)
+
+*Phase reference (read first): [project-phase1-bootstrap.md](../../references/project-phase1-bootstrap.md).*
 
 Stand up the project skeleton — each step searches first and treats `409` as
 "exists", so re-running converges instead of duplicating:
@@ -88,6 +124,8 @@ skills — those carry tenancy-wide blast radius and belong to their owners.
 
 ### 2. Status / health (read-only)
 
+*Phase reference: [project-phase2-status.md](../../references/project-phase2-status.md).*
+
 The "what is the state of my project?" loop. One command aggregates posture +
 spend + open security problems + observability gaps across the project
 compartment, printing **names and counts, never OCIDs**:
@@ -105,6 +143,8 @@ flag when any is trending **over limit**. Empty sections are inconclusive
 
 ### 3. Deploy / release
 
+*Phase reference: [project-phase3-deploy.md](../../references/project-phase3-deploy.md).*
+
 Bind the deployment to the project context, then drive it through the owning
 domain — never hand-mutate what Terraform manages:
 
@@ -117,6 +157,8 @@ domain — never hand-mutate what Terraform manages:
   resources.
 
 ### 4. Teardown (planned, heavily gated)
+
+*Phase reference (read first): [project-phase4-teardown.md](../../references/project-phase4-teardown.md).*
 
 Decommission in **dependency order** — destroying out of order blocks on
 attached resources (KB-043). Teardown is irreversible: plan first, confirm each

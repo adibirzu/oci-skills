@@ -142,6 +142,7 @@ intra-domain flow table.
 | `scripts/oci_logan.sh` | Read-only Log Analytics (OCL) query with a friendly time window. |
 | `scripts/oci_orm.sh` | Read-only Resource Manager overview (stacks + latest job state). |
 | `scripts/oci_datasafe.sh` | Read-only Data Safe overview (targets + assessment state). |
+| `scripts/oci_cli_help.py` | Fetch the EXACT flags/subcommands of an `oci` command (never invent them). |
 | `scripts/redact.py` | Mask OCIDs/IPs/secrets in text or JSON (CI gate). |
 | `scripts/kb_lookup.py` | Search `references/KB.md` for a known fix. |
 

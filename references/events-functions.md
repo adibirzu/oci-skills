@@ -124,6 +124,37 @@ size-aware. `put_messages` can return 200 with **per-entry errors** — iterate
 `resp.data.entries` and count `entry.error` as failures. (Stream-pool basics live
 in `observability-db.md`.)
 
+### Streaming Kafka API consumers
+
+OCI Streaming exposes Kafka-compatible producer/consumer and consumer-group APIs,
+but the Kafka SASL credential is bound to one OCI user and one stream pool:
+
+```text
+<TENANCY_NAME>/<FULL_OCI_USER_NAME>/<STREAM_POOL_OCID>
+```
+
+For Identity Domains users, `<FULL_OCI_USER_NAME>` is often domain-qualified
+(for example `oracleidentitycloudservice/<USER_NAME>`). Resolve it from IAM with
+`oci_cli iam user get --user-id <USER_OCID> --query 'data.name' --raw-output`
+instead of guessing from an email address or local profile name. The SASL password
+must be an auth token created for that **same** user; using a token from another
+profile produces `SASL_AUTHENTICATION_FAILED` even when the stream, pool, and
+network are correct.
+
+When operating external consumers such as Kafka Connect or SOC4Kafka/Splunk OTel
+Collector, verify all four layers before declaring the path healthy:
+
+1. stream and stream pool are `ACTIVE` in the target region;
+2. the Kafka username uses the full IAM user name and target stream-pool OCID;
+3. the auth token belongs to that same IAM user and has propagated;
+4. consumer logs are clean for both SASL failures and metadata/topic errors.
+
+`oci streaming stream message put` and Kafka clients use different authz paths.
+A REST publish denial does not prove Kafka SASL is broken; it may be a missing
+`stream-push` policy. Similarly, service logs cannot be injected with
+`logging-ingestion put-logs`; use a custom log for ingestion tests, or trigger
+the real service that owns the service log. See KB-106.
+
 ## End-to-end patterns
 
 1. **Object Storage event → Function.** Enable bucket events → Events rule on
@@ -135,7 +166,11 @@ in `observability-db.md`.)
    `stream-pull`/`stream-consume` + `loganalytics-log-group`. The LA custom
    source/parser is **not** Terraform-manageable — create it post-apply with
    `oci log-analytics source upsert-source`.
-3. **Log/Monitoring → SCH → Function task → target.** In-pipeline transform: SCH
+3. **OCI Logging → SCH → Streaming → Kafka-compatible consumer.** Logging source
+   fan-out to Streaming via SCH, then a Kafka API consumer such as Kafka Connect
+   or SOC4Kafka reads the stream. Keep the SCH principal policy separate from
+   the Kafka consumer user's auth token/policies; debug them independently.
+4. **Log/Monitoring → SCH → Function task → target.** In-pipeline transform: SCH
    `logging`/`monitoring` source → `function` task → `objectStorage`/
    `notifications`/`streaming` target.
 
@@ -145,6 +180,7 @@ in `observability-db.md`.)
 |---|---|---|
 | arm64 function image | invoke fails on x86 OCIR | build `--platform linux/amd64` |
 | SCH ACTIVE but empty | missing `serviceconnector` policy | add principal grants per source/target |
+| Kafka consumer SASL failure | username/token from different OCI users, or missing domain prefix | resolve full IAM user name and recreate token for that user |
 | ONS email never arrives | subscription `PENDING` | confirm + check `ACTIVE` |
 | rule never fires | source not emitting events | enable emit-events on the resource |
 
@@ -157,3 +193,5 @@ Canonical Oracle docs for the services covered above (verified live):
 - [Notifications (ONS)](https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm)
 - [Service Connector Hub](https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm)
 - [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm)
+- [Streaming Kafka compatibility](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm)
+- [Streaming Kafka API configuration](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm)
