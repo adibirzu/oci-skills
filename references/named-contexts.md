@@ -5,10 +5,12 @@ a **region**, a **compartment OCID**, and the right **auth mode**. Memorizing an
 re-pasting compartment OCIDs is the single biggest source of friction — and of
 "oops, wrong tenancy" mistakes.
 
-A **named context** binds the first three to a short name:
+A **named context** binds the first three to a short name — and doubles as a
+**project descriptor**, optionally carrying a naming prefix and a monthly budget
+that [oci-project](../skills/oci-project/SKILL.md) reads:
 
 ```
-name  ->  { profile, compartment (OCID), region [, prod] }
+name  ->  { profile, compartment (OCID), region [, prefix, budget, prod] }
 ```
 
 So you say `dev` or `prod` and the pack resolves the rest. Managed by
@@ -25,12 +27,19 @@ oci_context.py add dev  --profile DEFAULT    --region eu-frankfurt-1 \
 oci_context.py add prod --profile prod-admin --region us-phoenix-1 \
   --compartment <PROD_COMPARTMENT_OCID> --prod        # --prod = extra-careful prompts
 
+# A context can also carry project metadata (used by oci_project.sh):
+oci_context.py add demo --profile DEFAULT --region eu-frankfurt-1 \
+  --compartment <DEMO_COMPARTMENT_OCID> --budget 500 --prefix demoapp
+#   --prefix defaults to the context name; --budget must be a number
+
 oci_context.py list                 # OCIDs shown masked, active context starred
 oci_context.py get dev              # human summary (masked)
 
 # Activate for the current shell (a subprocess can't export into its parent):
-eval "$(oci_context.py use dev)"
+eval "$(oci_context.py use demo)"
 #   sets OCI_CLI_PROFILE, OCI_REGION, OCI_SKILLS_COMPARTMENT, OCI_SKILLS_CONTEXT
+#   + (if set) OCI_SKILLS_PROJECT_PREFIX, OCI_SKILLS_BUDGET — oci_project.sh
+#     defaults to these, so `oci_project.sh bootstrap` needs no -n/-b once bound.
 ```
 
 After `use`, the pack's scripts pick up `OCI_CLI_PROFILE` / `OCI_REGION`
