@@ -121,3 +121,5 @@ oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
 ## Official documentation
 
 [Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm). Full list in the [log-analytics reference](../../references/log-analytics.md).
+
+**Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

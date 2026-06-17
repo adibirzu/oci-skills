@@ -112,3 +112,5 @@ KB:           <KB-### if a known fix applied, else "new entry added">
 ## Official documentation
 
 [Networking (VCN)](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm) · [OKE](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm) · [Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm). Full list in the [networking-compute reference](../../references/networking-compute.md).
+
+**Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
