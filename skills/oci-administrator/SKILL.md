@@ -98,6 +98,15 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 **oci-project** sits above the nine domains: it sequences them for whole-project
 work (bootstrap → status → deploy → teardown), scoped to one project compartment.
 
+**Designing a *new* solution for a customer?** When the request is a *requirement*
+("the customer needs a PCI-scoped 3-tier web app", "a landing zone for three
+teams") rather than a service operation, start at **Stage 0 — Design**:
+[references/solution-authoring.md](../../references/solution-authoring.md) walks
+discovery → Well-Architected requirements → reference architecture → guardrail
+design → cost → build → validate, producing a Solution Blueprint that feeds
+`oci-project` bootstrap. It is read-only (writes a blueprint, not resources) and
+grounded in Oracle's Architecture Center / Cloud Adoption Framework.
+
 **Related: MCP gateway (non-official).** This pack is the authoritative,
 safety-gated CLI/SDK path. The `oci-mcp-gateway` is **community / self-hosted
 glue, not an Oracle product** — no `docs.oracle.com` page, no support path. When

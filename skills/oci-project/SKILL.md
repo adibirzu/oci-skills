@@ -30,6 +30,14 @@ persists `name → { profile, region, compartment, prefix, budget }`. Bind it on
 the prefix/budget as defaults — `bootstrap` then needs no `-n`/`-b` (explicit
 flags still override).
 
+**Stage 0 — Design (precedes bootstrap).** When you are starting from a customer
+*requirement* rather than an existing project, design the solution first:
+[references/solution-authoring.md](../../references/solution-authoring.md) takes
+discovery → Well-Architected requirements → reference architecture → guardrail
+design → cost → build → validate and produces a **Solution Blueprint** that fills
+this context's prefix + budget. Design is read-only; bootstrap (below) is where
+the blueprint becomes resources, each mutation gated.
+
 ## First move (always)
 
 1. Bind / confirm the project context (so every op targets the right compartment):
