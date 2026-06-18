@@ -14,6 +14,12 @@ fix (an Open Knowledge Format *citation*) — prefer a URL already in
 Entry shape: `## KB-<n> — <title> (<domain-tag>)`, then `**Symptom:**`,
 `**Root cause:**`, `**Fix:**`, `**See:**`, `**Status:**`.
 
+**Adding KB mined from a real project or tenancy?** Follow
+[kb-ingestion.md](kb-ingestion.md) first — the sanitize-by-construction contract:
+distill the pattern, replace every tenant specific (OCIDs, IPs, namespaces, keys,
+**and** the compartment/cluster/MQL names the gate can't catch) with
+`<PLACEHOLDER>` tokens, then run `scripts/redact.py --check`.
+
 ---
 
 ## KB-001 — OKE kubectl Unauthorized right after create-kubeconfig (iam-oke)

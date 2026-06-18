@@ -61,6 +61,23 @@ RULES: tuple[Rule, ...] = (
         re.compile(r"\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b"),
         "<IP-REDACTED>",
     ),
+    # Tenancy / Object-Storage namespace in an OCIR registry path. The first
+    # segment after `<region>.ocir.io/` is always the tenancy's namespace, which
+    # fingerprints the account. Lookbehind so only the bare namespace token is
+    # masked; placeholders (`<ns>`, `<namespace>`, `${OCIR_TENANCY}`) start with
+    # `<`/`$` and never match `[a-z0-9]`, so the documented examples stay intact.
+    Rule(
+        "ocir_namespace",
+        re.compile(r"(?<=\.ocir\.io/)[a-z0-9]{4,}"),
+        "<TENANCY-NAMESPACE-REDACTED>",
+    ),
+    # Email addresses (PII). Documentation/example domains are kept verbatim by
+    # `_email_is_safe`; a real personal/work address is masked.
+    Rule(
+        "email",
+        re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
+        "<EMAIL-REDACTED>",
+    ),
     # Long hex/base64-ish blobs (datakeys, auth tokens). Kept last so it does not
     # eat OCIDs or fingerprints, which are masked above. The char class excludes
     # "/" so slash-separated API paths (e.g. versioned endpoint paths) are not
@@ -110,6 +127,19 @@ def _b64_slash_is_secret(token: str) -> bool:
     return has_upper and has_lower and has_digit
 
 
+def _email_is_safe(addr: str) -> bool:
+    """True for documentation/example addresses that may stay verbatim.
+
+    Real personal or work addresses are PII and must be masked; the reserved
+    example domains (RFC 2606) and `noreply@` placeholders used in docs are not.
+    """
+    local, _, domain = addr.partition("@")
+    domain = domain.lower()
+    if local.lower() in ("noreply", "no-reply", "you", "user", "name", "email"):
+        return True
+    return domain in ("example.com", "example.org", "example.net", "localhost")
+
+
 def _ip_is_safe(ip: str, strict: bool = False) -> bool:
     """True for IPv4 values that are never sensitive and may stay verbatim.
 
@@ -155,6 +185,8 @@ def redact(text: str, strict: bool = False) -> tuple[str, dict[str, int]]:
             token = match.group(0)
             if _name == "ipv4" and _ip_is_safe(token, strict):
                 return token  # well-known non-sensitive address
+            if _name == "email" and _email_is_safe(token):
+                return token  # documentation/example address, not PII
             if _name == "secret_blob_slash" and not _b64_slash_is_secret(token):
                 return token  # URL/endpoint path, not a secret
             counts[_name] = counts.get(_name, 0) + 1
