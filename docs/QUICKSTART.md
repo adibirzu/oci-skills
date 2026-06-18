@@ -97,6 +97,11 @@ with **Stage 0, Design**. [`references/solution-authoring.md`](../references/sol
 walks a requirement → Well-Architected requirements → reference architecture →
 guardrail design → cost → build → validate, and produces a **Solution Blueprint**
 (read-only — it writes a plan, not resources) that feeds `oci-project` bootstrap.
+Adopt an official Oracle **Landing Zone** as the guardrail baseline rather than
+hand-rolling it — the CIS-aligned
+[oci-cis-landingzone-quickstart](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart)
+or the modular [Oracle Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones),
+both deployable through `oci-resource-manager`.
 
 **Need something this pack doesn't own?** It routes out to the official
 [oracle/skills](https://github.com/oracle/skills) collection:

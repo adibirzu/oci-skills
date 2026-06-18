@@ -298,8 +298,12 @@ in four moves:
 
 **Building something new for a customer?** Start at **Stage 0 — Design**:
 [references/solution-authoring.md](references/solution-authoring.md) turns a
-requirement into a guardrailed Solution Blueprint (read-only), then feeds
-`oci-project` bootstrap. Full hands-on walkthrough: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
+requirement into a guardrailed Solution Blueprint (read-only) — adopting an
+official Oracle **Landing Zone** (the CIS-aligned
+[oci-cis-landingzone-quickstart](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart)
+or [Oracle Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones))
+as the guardrail baseline — then feeds `oci-project` bootstrap. Full hands-on
+walkthrough: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
 
 ## Security & contributing
 
