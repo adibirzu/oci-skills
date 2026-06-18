@@ -117,10 +117,25 @@ Every plugin inherits the same contract (see
 
 ### As a Claude Code plugin (slash commands + safety hook)
 
+Interactively, from inside Claude Code:
+
 ```text
 /plugin marketplace add adibirzu/oci-skills      # or: /plugin marketplace add ~/dev/oci-skills
 /plugin install oci-administrator@oci-skills
 ```
+
+Or non-interactively from your shell — this **persists** to `~/.claude/settings.json`
+so it survives restarts (the interactive form may only enable for the session):
+
+```bash
+claude plugin marketplace add adibirzu/oci-skills
+claude plugin install oci-administrator@oci-skills --scope user
+claude plugin list | grep oci-administrator        # verify
+```
+
+> Also published in the **`adibirzu-plugins`** marketplace, if you already have it
+> registered: `claude plugin install oci-administrator@adibirzu-plugins`. Both
+> point at this repo, so the content is identical.
 
 This gives you the slash commands below plus a PreToolUse hook that blocks
 destructive `oci` commands until they are preflighted and confirmed:
@@ -249,11 +264,51 @@ python3 ./scripts/iam_audit.py --profile "${OCI_CLI_PROFILE:-DEFAULT}"
 python3 ./scripts/kb_lookup.py "kubectl unauthorized oke"
 ```
 
+## Using the pack — how it works
+
+Once installed, you don't call the skill explicitly — it **triggers on intent**.
+Mention anything OCI (a service, `oci` CLI, OCID, compartment, Cloud Guard, OKE,
+Logan, cost, …) and the agent loads `oci-administrator` (the router), which works
+in four moves:
+
+1. **Trigger & route.** The router reads your intent and routes to one of the
+   nine domain skills (IAM, security, observability/DB, networking/compute, cost,
+   Log Analytics, Resource Manager, Data Safe, events/functions) — or to
+   **oci-project** for whole-project lifecycle work.
+2. **Preflight by name.** Before anything touches the tenancy, it confirms *which*
+   tenancy/compartment you mean — by friendly **named context** (`dev`, `prod`),
+   never raw OCIDs. Bind one once with `/oci-administrator:context`.
+3. **Read, then gate writes.** Reads run freely. Every mutation is preflighted,
+   run through `redact.py`, and **confirmation-gated**; a PreToolUse hook blocks
+   `delete|terminate|destroy` until you approve. `OCI_SKILLS_DRY_RUN=true` previews.
+4. **Ground & hand off.** Claims cite official Oracle docs (the verified
+   [oracle-docs.md](references/oracle-docs.md) index). For work this pack doesn't
+   own, it routes out: **deep OKE day-2 / OCI GenAI / in-database** →
+   [oracle/skills](https://github.com/oracle/skills) (see
+   [references/oracle-skills-alignment.md](references/oracle-skills-alignment.md)).
+
+**Two ways to drive it:**
+
+| | Conversational (any harness) | Slash commands (Claude Code plugin) |
+|---|---|---|
+| Confirm tenancy | "preflight the dev compartment" | `/oci-administrator:preflight dev` |
+| IAM posture | "audit IAM in prod" | `/oci-administrator:audit` |
+| Cost | "what did we spend last 30 days?" | `/oci-administrator:cost` |
+| Known fix | "kubectl unauthorized on OKE" | `/oci-administrator:kb` / `:troubleshoot` |
+
+**Building something new for a customer?** Start at **Stage 0 — Design**:
+[references/solution-authoring.md](references/solution-authoring.md) turns a
+requirement into a guardrailed Solution Blueprint (read-only), then feeds
+`oci-project` bootstrap. Full hands-on walkthrough: **[docs/QUICKSTART.md](docs/QUICKSTART.md)**.
+
 ## Security & contributing
 
 This is a **public** repository. Never add real OCIDs, IPs, fingerprints,
 tenancy namespaces, datakeys, or secrets — CI runs `gitleaks` and
-`redact.py --check`. See [CONTRIBUTING.md](CONTRIBUTING.md).
+`redact.py --check`. Mining KB/workflows from a real project or tenancy? Follow
+the sanitize-by-construction contract in
+[references/kb-ingestion.md](references/kb-ingestion.md). See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
