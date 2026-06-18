@@ -62,18 +62,28 @@ Oracle doc that grounds the decision. Work top-to-bottom; do not skip discovery.
 3. **Reference architecture** — adopt a published pattern and note your
    deviations; an adapted reference architecture beats a hand-rolled topology for
    both correctness and customer trust (same "reuse a proven approach" discipline
-   the pack applies to code).
+   the pack applies to code). For a *deployable, guardrailed* scaffold rather than
+   a diagram, start from an official Oracle **Landing Zone** (see Reference
+   implementations below) and layer the workload on top.
 4. **Guardrail design** — design the guardrails *with* the architecture, never
    after. Compartment per blast-radius boundary, a least-privilege policy scoped
    to that compartment (never `manage all-resources in tenancy`), network
    isolation by tier, encryption keys in Vault, and a budget. Baseline it against
-   the CIS benchmark / CAF security pillar.
+   the CIS benchmark / CAF security pillar — or, better, **adopt an official
+   Landing Zone as the guardrail baseline-as-code** so the compartments, IAM,
+   network, and logging come pre-aligned: the CIS-aligned
+   [oci-cis-landingzone-quickstart](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart)
+   or the modular [Oracle Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones).
 5. **Cost shape** — size the resources, estimate spend, and set the budget +
    forecast alert and `project = <name>` cost-tracking tag *before* the first
    resource exists, so overruns are caught on day one.
 6. **Build** — bind a named context for the project (carrying its prefix +
    budget), then `oci-project bootstrap` and drive infra through a reviewed
-   Resource Manager `plan → apply FROM_PLAN_JOB_ID`.
+   Resource Manager `plan → apply FROM_PLAN_JOB_ID`. Landing Zones ship *as*
+   Terraform, so an adopted one deploys directly as a Resource Manager stack
+   (→ `oci-resource-manager`); the OKE workload layer can reuse the
+   [terraform-oci-oke](https://github.com/oracle-terraform-modules/terraform-oci-oke)
+   module.
 7. **Validate & hand over** — `oci-project status` proves guardrails cover the
    new resources; the completed blueprint becomes the operational run-book.
 
@@ -122,6 +132,23 @@ and build, and the hand-over artifact for the customer.
 - Acceptance criteria:       <per-pillar, measurable>
 ```
 
+## Reference implementations (adopt, don't hand-roll)
+
+Official, Oracle-maintained starting points. Prefer adopting and adapting one of
+these over building topology or guardrails from scratch — record your deviations
+in the blueprint.
+
+| Implementation | Use for | Source |
+|---|---|---|
+| **OCI CIS Landing Zone** | A CIS-aligned tenancy baseline as Terraform — compartments, IAM, VCNs, NSGs, logging, Cloud Guard, Vault. The default guardrail scaffold. | <https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart> |
+| **Oracle Enterprise Landing Zone** | A modular, larger-scale landing zone (operating-model / multi-team tenancies). | <https://github.com/oracle-quickstart/oci-landing-zones> |
+| **Terraform OKE module** | The Kubernetes workload layer on top of a landing zone. | <https://github.com/oracle-terraform-modules/terraform-oci-oke> |
+| **Architecture Center** | Reference architectures & solution playbooks (topology patterns by workload). | <https://docs.oracle.com/en/solutions/> |
+
+These deploy through `oci-resource-manager` (they are Terraform/RM stacks). For
+deep OKE day-2 operation of the resulting cluster, hand off to `oracle/skills`
+`oci/oke` — see [oracle-skills-alignment.md](oracle-skills-alignment.md).
+
 ## Worked examples (compact)
 
 **3-tier web app (internet-facing, CIS-baselined).**
@@ -147,8 +174,9 @@ on key metrics, Data Safe Security Assessment run.
 - **Design is read-only.** Stage 0 writes a blueprint, not resources. Nothing is
   created until `oci-project bootstrap` runs each mutation through the guards.
 - **Adopt, don't invent.** Start from an Architecture Center reference
-  architecture and record deviations; baseline guardrails against the CIS
-  benchmark / CAF security pillar rather than improvising.
+  architecture *or* an official Landing Zone (see Reference implementations) and
+  record deviations; baseline guardrails against the CIS benchmark / CAF security
+  pillar rather than improvising.
 - **Guardrails are part of the design, not a follow-up.** Compartment, scoped
   IAM, network isolation, encryption, and budget are decided *with* the topology.
 - **Every claim cites official Oracle docs.** Pull architecture and guardrail
@@ -157,6 +185,6 @@ on key metrics, Data Safe Security Assessment run.
 
 ## Official documentation
 
-[Architecture Center](https://docs.oracle.com/en/solutions/) · [Cloud Adoption Framework](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) · [CAF — Security pillar](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm) · [Security guide](https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm) · [CIS Benchmark](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html). Full index in [oracle-docs.md](oracle-docs.md).
+[Architecture Center](https://docs.oracle.com/en/solutions/) · [Cloud Adoption Framework](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) · [CAF — Security pillar](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm) · [Security guide](https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm) · [CIS Benchmark](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html). Full index in [oracle-docs.md](oracle-docs.md). Reference implementations (GitHub): [CIS Landing Zone](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart) · [Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](oracle-docs.md) (the pack's single source of truth). When extending this workflow to design a new OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
