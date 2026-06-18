@@ -9,8 +9,8 @@
   "plugins": [
     {
       "name": "oci-administrator",
-      "description": "Safety-first OCI administration: IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost (FinOps), Log Analytics, Resource Manager, Data Safe, and Events & Functions. Slash commands work by named context (friendly name -> profile + compartment + region) instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
-      "version": "1.9.0",
+      "description": "Safety-first OCI administration: IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost (FinOps), Log Analytics, Resource Manager, Data Safe, and Events & Functions — plus a project lifecycle orchestrator and a Stage 0 solution-design front-end. Grounded in official Oracle docs (Open Knowledge Format) and routed against the upstream oracle/skills collection. Slash commands work by named context (friendly name -> profile + compartment + region) instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
+      "version": "1.10.0",
       "author": {
         "name": "adibirzu"
       },
