@@ -213,7 +213,7 @@ references/              # domain + safety knowledge (progressive disclosure)
   project-phase1-bootstrap.md  project-phase2-status.md
   project-phase3-deploy.md  project-phase4-teardown.md
   mcp-gateway.md       # the non-official oci-mcp-gateway (optional read surface; not an Oracle product)
-  helper-conventions.md  KB.md  named-contexts.md
+  helper-conventions.md  KB.md  kb-ingestion.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md

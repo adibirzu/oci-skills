@@ -17,6 +17,13 @@ Forbidden in any committed file:
 Use `<PLACEHOLDER>` tokens instead (e.g. `<COMPARTMENT_OCID>`, `<VAULT_OCID>`,
 `<APM_PRIVATE_DATAKEY>`) and resolve them at runtime from the environment.
 
+Adding KB entries or workflows distilled from a real project or tenancy? Follow
+the sanitize-by-construction contract in
+[references/kb-ingestion.md](references/kb-ingestion.md) — it covers the classes
+the redaction gate **can't** catch (compartment/cluster/bucket names, regions as
+identity, MQL/LQL dimension values, profile names), which are the easiest way to
+leak a tenancy fingerprint through ordinary-looking text.
+
 ## Before you push
 
 ```bash
