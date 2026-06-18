@@ -11,12 +11,16 @@ minutes. Everything here is **read-only** until you explicitly choose to mutate.
 
 ## 2. Install
 
-**As a Claude Code plugin** (recommended):
+**As a Claude Code plugin** (recommended). From your shell (persists across
+restarts):
 
-```text
-/plugin marketplace add adibirzu/oci-skills      # or your marketplace
-/plugin install oci-administrator@oci-skills
+```bash
+claude plugin marketplace add adibirzu/oci-skills
+claude plugin install oci-administrator@oci-skills --scope user
 ```
+
+…or interactively inside Claude Code: `/plugin marketplace add adibirzu/oci-skills`
+then `/plugin install oci-administrator@oci-skills`.
 
 **As a copy-install** (any harness — Codex, Gemini, Antigravity, or plain CLI):
 
@@ -86,7 +90,28 @@ Each domain's `SKILL.md` and `references/*.md` link the **canonical Oracle docs*
 for the services it covers; start at the
 [OCI Documentation home](https://docs.oracle.com/en-us/iaas/Content/home.htm).
 
-## 7. The safety contract (always on)
+## 7. Beyond day-to-day admin
+
+**Designing a new solution for a customer?** Don't start with `bootstrap` — start
+with **Stage 0, Design**. [`references/solution-authoring.md`](../references/solution-authoring.md)
+walks a requirement → Well-Architected requirements → reference architecture →
+guardrail design → cost → build → validate, and produces a **Solution Blueprint**
+(read-only — it writes a plan, not resources) that feeds `oci-project` bootstrap.
+
+**Need something this pack doesn't own?** It routes out to the official
+[oracle/skills](https://github.com/oracle/skills) collection:
+
+| Task | Goes to |
+|---|---|
+| Deep OKE day-2 — cluster design, GVA GPU node pools, Multus, incident triage | `oracle/skills` `oci/oke` |
+| OCI Generative AI / Enterprise AI — model endpoints, agents, RAG, governance | `oracle/skills` `oci/enterprise-ai` |
+| Inside an Oracle Database — SQL/PL-SQL, RMAN, AWR/ASH, Data Guard | `oracle/skills` `db/` |
+
+This pack owns OKE provisioning/IAM/network basics, GenAI *observability*, and the
+OCI services *around* the database. Full routing contract:
+[`references/oracle-skills-alignment.md`](../references/oracle-skills-alignment.md).
+
+## 8. The safety contract (always on)
 
 - **Read before write**; treat `409 Conflict` as "already exists".
 - **Mutations are gated** — `confirm` / `run_mutating`; honor
@@ -97,7 +122,7 @@ for the services it covers; start at the
 - **Nothing sensitive is ever printed or committed** — OCIDs, IPs, namespaces, and
   secrets are masked by `redact.py` (also a CI gate).
 
-## 8. When something breaks
+## 9. When something breaks
 
 Search the KB first — it has 80+ real operational fixes:
 
