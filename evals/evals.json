@@ -235,6 +235,20 @@
       "expect_behavior": "Uses oracle+oracledb:// (not cx_oracle, KB-120) with wallet via connect_args + TNS_ADMIN, pool_pre_ping/pool_recycle; runs Alembic against the ADB, warns on Oracle-vs-SQLite migration differences."
     },
     {
+      "id": "trigger-adb-blocking",
+      "prompt": "Find the blocking session and lock contention on my Autonomous Database \u2014 the app is hung.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Read-only Working SQL: walks the blocking chain to the ROOT BLOCKER (v$session), inspects its SQL/program/machine; killing a session is gated via confirm; routes deep tuning to oracle/skills db/."
+    },
+    {
+      "id": "trigger-adb-topsql",
+      "prompt": "What are the top SQL and wait events on my ADB right now? It feels slow.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Read-only diagnostics: health snapshot -> wait events (dominant class) -> top SQL; SELECT/WITH only, no mutations; uses gv$ on RAC."
+    },
+    {
       "id": "negative-non-oci",
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,

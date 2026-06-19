@@ -7,15 +7,19 @@ description: >-
   wallet (generate-wallet, rotate wallet, mTLS vs TLS, TNS_ADMIN), tunes the
   access-control IP allowlist, clones or restores it, or connects an application
   (DSN service levels _high/_medium/_low/_tp, connection pooling, SQLAlchemy
-  `oracle+oracledb://`, Alembic migrations, private-endpoint DSNs). Triggers:
-  generate ADB wallet, rotate wallet, start/stop/scale Autonomous Database,
-  whitelisted-ips / ACL, connect to ADB, TNS_ADMIN, oracledb thin/thick,
-  SQLAlchemy Oracle URL, Alembic upgrade on Oracle, ORDS. Mentions Autonomous
+  `oracle+oracledb://`, Alembic migrations, private-endpoint DSNs), or runs
+  read-only diagnostic SQL against it (blocking sessions, lock contention, wait
+  events, slow/top SQL, long-running ops, full-table scans, health snapshot, via
+  SQLcl or python-oracledb). Triggers: generate ADB wallet, rotate wallet,
+  start/stop/scale Autonomous Database, whitelisted-ips / ACL, connect to ADB,
+  TNS_ADMIN, oracledb thin/thick, SQLAlchemy Oracle URL, Alembic upgrade on
+  Oracle, ORDS, SQLcl, blocking session, lock contention, wait events, slow
+  query, top SQL, long-running query, kill a session. Mentions Autonomous
   Database, ADB, ADW, ATP, wallet, cwallet.sso, ewallet, DSN, oracledb, cx_Oracle.
 license: MIT
 ---
 
-# OCI Autonomous Database — lifecycle & connectivity
+# OCI Autonomous Database — lifecycle, connectivity & read-only SQL
 
 Tenancy-agnostic helpers for **operating** an Autonomous Database (lifecycle,
 wallet, scaling, ACL) and **connecting** applications to it (wallet/DSN,
@@ -50,10 +54,11 @@ inline real OCIDs, DSNs, IPs, or wallet contents — use `<PLACEHOLDER>` tokens.
 | Wallet: generate, rotate, mTLS vs TLS, `TNS_ADMIN`, regional vs instance | Wallet & connectivity (this skill) |
 | Access control list / `whitelisted-ips` / private endpoint | Network access (this skill) |
 | Connect an app: DSN service levels, pooling, `oracledb`, SQLAlchemy, Alembic | Application integration (this skill) |
+| **Read-only diagnostics**: blocking sessions, lock contention, wait events, slow/top SQL, long-running ops, full table scans, "is the DB healthy now?" | Working SQL library (this skill) |
 | **Monitor** the DB (Performance Hub, DBM, Ops Insights, metrics/alarms) | → `oci-observability-db` |
 | **Provision/enable** DBM/OPSI on the DB | → `oci-observability-db` |
 | Register the DB as a Data Safe target, assessments, masking | → `oci-data-safe` |
-| Work *inside* the DB (SQL/PL-SQL, AWR/ASH, RMAN, Data Guard) | → `oracle/skills` `db/` |
+| **Write/build** in the DB: PL/SQL dev, DDL, RMAN, Data Guard, migrations, AWR/ADDM tuning | → `oracle/skills` `db/` |
 
 Full sanitized command/SDK shapes: `../../references/autonomous-db.md`.
 Safety rules (auth modes, read-before-write, redaction):
@@ -141,6 +146,20 @@ python cli/db.py upgrade      # apply to head
 python cli/db.py downgrade -1 # roll back one
 ```
 
+**Read-only diagnostics** (SQLcl prints JSON; `SELECT`/`WITH` only — full library
+in reference §5: blocking chains, wait events, top SQL, long-running ops, health):
+```bash
+"$SQLCL_PATH" -S /nolog <<'SQL' | redact          # secrets via env, never literals
+  set sqlformat json
+  connect ${DB_USER}/${DB_PASSWORD}@${ADB_DSN}
+  -- root blocker → waiters
+  select s.sid, s.serial#, s.username, s.event, s.seconds_in_wait, s.sql_id
+  from v$session s where s.blocking_session is not null;
+SQL
+```
+On RAC/Exadata use `gv$` + `inst_id`. Anything beyond a read (kill a session, DDL)
+goes through `confirm` / `run_mutating`.
+
 ## Safety notes
 
 - **Never commit wallet/key files** (`*.pem *.p12 *.jks *.sso`, `**/wallet/`).
@@ -155,6 +174,9 @@ python cli/db.py downgrade -1 # roll back one
   `python-oracledb` (thin mode, no Instant Client) supersedes `cx_Oracle`.
 - **mTLS vs TLS.** mTLS needs both the wallet **and** DB credentials; TLS-only
   (if enabled) drops the wallet but still needs the ACL to allow the client IP.
+- **Default to read-only diagnostics.** The Working SQL library is `SELECT`/`WITH`
+  only — never an `UPDATE`/`DELETE`/DDL probe. Killing a session or any write goes
+  through `confirm`. Deep tuning / PL-SQL dev / RMAN / Data Guard → `oracle/skills` `db/`.
 - Read before write; treat `409 Conflict` as "already exists" and re-`get`.
 - Mutations go through `run_mutating` (honors `OCI_SKILLS_DRY_RUN=true`);
   destructive ops (stop, restore, terminate) also through `confirm`.

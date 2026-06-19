@@ -132,7 +132,146 @@ failed ADB write **propagates** (strict, ADB is system-of-record) or is **swallo
 (lenient, so a transient ADB outage never breaks ingestion). Default lenient until
 ADB is trusted, then flip to strict.
 
-## 5. Startup resilience (hard-won)
+## 5. Working SQL library (read-only diagnostics)
+
+Once connected (SQLcl or python-oracledb), these `SELECT`/`WITH`-only queries
+diagnose live performance without changing anything — safe to run as `ADMIN` on
+ATP/ADW. Deep tuning, PL/SQL development, RMAN, Data Guard, and migrations route
+to `oracle/skills` `db/`; this library is the read-only **first look**.
+
+> Default to read-only. Keep prompts/sessions to diagnostics; any mutation
+> (`kill session`, DDL) goes through `confirm` / `run_mutating`.
+
+### 5.1 Blocking-session chain (root blocker → waiters)
+
+```sql
+SELECT LPAD(' ', 2*(LEVEL-1)) || s.sid || ',' || s.serial# AS session_chain,
+       CASE WHEN s.blocking_session IS NOT NULL THEN 'BLOCKED' ELSE 'ROOT BLOCKER' END AS role,
+       s.username, s.status, s.event, s.seconds_in_wait, s.sql_id,
+       s.program, s.machine,
+       NVL(l.type,'-') AS lock_type,
+       DECODE(l.lmode,0,'none',1,'null',2,'row-S',3,'row-X',
+                      4,'share',5,'S/Row-X',6,'exclusive',TO_CHAR(l.lmode)) AS lock_mode
+FROM   v$session s
+LEFT   JOIN v$lock l ON l.sid = s.sid AND l.block = 1
+START WITH s.blocking_session IS NULL
+       AND s.sid IN (SELECT blocking_session FROM v$session WHERE blocking_session IS NOT NULL)
+CONNECT BY PRIOR s.sid = s.blocking_session;
+```
+
+### 5.2 Wait events
+
+```sql
+-- System-wide, non-idle, by time waited
+SELECT event, wait_class, total_waits, time_waited_micro/1e6 AS time_waited_s,
+       ROUND(average_wait/100,3) AS avg_wait_s
+FROM   v$system_event
+WHERE  wait_class <> 'Idle'
+ORDER  BY time_waited_micro DESC FETCH FIRST 20 ROWS ONLY;
+
+-- Right now: what are active sessions waiting on?
+SELECT event, wait_class, COUNT(*) AS sessions
+FROM   v$session
+WHERE  status = 'ACTIVE' AND wait_class <> 'Idle'
+GROUP  BY event, wait_class ORDER BY sessions DESC;
+```
+
+### 5.3 Long-running operations
+
+```sql
+SELECT sid, serial#, opname, target, sofar, totalwork,
+       ROUND(sofar/NULLIF(totalwork,0)*100,1) AS pct_done,
+       ROUND(elapsed_seconds/60,2) AS elapsed_min,
+       ROUND(time_remaining/60,2)  AS remaining_min, sql_id
+FROM   v$session_longops
+WHERE  time_remaining > 0
+ORDER  BY elapsed_seconds DESC;
+```
+
+### 5.4 Top SQL
+
+```sql
+-- By elapsed time (cumulative, from v$sqlstats)
+SELECT sql_id, ROUND(elapsed_time/1e6,2) AS elapsed_s, executions,
+       ROUND(cpu_time/1e6,2) AS cpu_s, buffer_gets, disk_reads,
+       ROUND(elapsed_time/1e6/NULLIF(executions,0),4) AS s_per_exec,
+       SUBSTR(sql_text,1,100) AS sql_text
+FROM   v$sqlstats
+ORDER  BY elapsed_time DESC FETCH FIRST 20 ROWS ONLY;
+```
+
+### 5.5 Active SQL Monitor (in-flight statements)
+
+```sql
+SELECT sql_id, status, username, sid, session_serial# AS serial#,
+       ROUND(elapsed_time/1e6,2) AS elapsed_s,
+       ROUND(cpu_time/1e6,2) AS cpu_s, buffer_gets, px_servers_requested,
+       SUBSTR(sql_text,1,100) AS sql_text
+FROM   v$sql_monitor
+WHERE  status = 'EXECUTING'
+ORDER  BY elapsed_time DESC FETCH FIRST 20 ROWS ONLY;
+```
+
+### 5.6 Full-table-scan hunt (in-flight, large)
+
+```sql
+SELECT m.sql_id, m.sid, p.object_name, p.object_owner,
+       ROUND(m.elapsed_time/1e6,2) AS elapsed_s, m.buffer_gets,
+       SUBSTR(m.sql_text,1,100) AS sql_text
+FROM   v$sql_monitor m
+JOIN   v$sql_plan_monitor p
+       ON p.sql_id = m.sql_id AND p.sql_exec_id = m.sql_exec_id
+WHERE  p.plan_operation = 'TABLE ACCESS' AND p.plan_options = 'FULL'
+       AND m.status = 'EXECUTING'
+ORDER  BY m.buffer_gets DESC FETCH FIRST 20 ROWS ONLY;
+```
+
+### 5.7 Parallel execution stats
+
+```sql
+SELECT sql_id, status, px_servers_requested, px_servers_allocated,
+       ROUND(elapsed_time/1e6,2) AS elapsed_s,
+       SUBSTR(sql_text,1,80) AS sql_text
+FROM   v$sql_monitor
+WHERE  px_servers_requested > 0
+ORDER  BY elapsed_time DESC FETCH FIRST 20 ROWS ONLY;
+```
+
+### 5.8 Health snapshot
+
+```sql
+-- Sessions by status / type
+SELECT status, type, COUNT(*) AS n FROM v$session GROUP BY status, type ORDER BY n DESC;
+
+-- Key system metrics (last sample)
+SELECT metric_name, ROUND(value,2) AS value, metric_unit
+FROM   v$sysmetric
+WHERE  metric_name IN ('Database CPU Time Ratio','Host CPU Utilization (%)',
+       'Average Active Sessions','Current OS Load','Executions Per Sec',
+       'Hard Parse Count Per Sec')
+       AND group_id = 2
+ORDER  BY metric_name;
+
+-- Resource limits approaching the cap
+SELECT resource_name, current_utilization, max_utilization, limit_value
+FROM   v$resource_limit
+WHERE  limit_value NOT IN ('UNLIMITED')
+       AND current_utilization > 0
+ORDER  BY current_utilization DESC;
+```
+
+### 5.9 Execution plan for a known SQL_ID
+
+```sql
+-- Live cursor plan
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR('<SQL_ID>', NULL, 'ALLSTATS LAST'));
+-- Historical (needs AWR licensing / Diagnostics Pack)
+SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY_AWR('<SQL_ID>'));
+```
+
+---
+
+## 6. Startup resilience (hard-won)
 
 - A **stopped or unreachable** ADB whose DSN carries `retry_count=20` can stall
   application startup ~60s as the driver retries. **Bound every startup connection
@@ -143,7 +282,7 @@ ADB is trusted, then flip to strict.
 - Memory-DB tests: SQLite `:memory:` is per-connection, so a pooled app needs a
   `StaticPool` to keep one connection alive across the test.
 
-## 6. Safety checklist
+## 7. Safety checklist
 
 - [ ] Preflighted tenancy/compartment (`oci_preflight.sh`) — correct account.
 - [ ] `get` shows expected `lifecycle-state` before any mutation.
@@ -152,7 +291,7 @@ ADB is trusted, then flip to strict.
 - [ ] Mutation ran via `run_mutating` (dry-run shown); destructive op via `confirm`.
 - [ ] Output redacted (`python3 scripts/redact.py --check <file>`).
 
-## 7. ORDS, Database Actions & Data Pump
+## 8. ORDS, Database Actions & Data Pump
 
 **ORDS / Database Actions** (the SQL web UI + REST front door). The launch URLs
 live on the ADB resource, not in a CLI flag — read them with `get`:
@@ -175,7 +314,7 @@ and Database Actions are gated by the same ACL/mTLS as SQL connections.
 Prefer **Data Pump over raw `INSERT`** for bulk loads; for ongoing replication
 consider GoldenGate (separate service), not a cron of dumps.
 
-## 8. Make-it-bulletproof status
+## 9. Make-it-bulletproof status
 
 - [x] `scripts/oci_adb.sh` read-only ADB lister (state/workload/ECPU/ACL posture).
 - [x] ADB doc URLs registered + liveness-verified in `references/oracle-docs.md`
@@ -183,7 +322,7 @@ consider GoldenGate (separate service), not a cron of dumps.
 - [x] KB entries: KB-118 (stopped-DB startup stall), KB-119 (ACL replace footgun),
       KB-120 (`cx_oracle` → `oracledb` dialect).
 - [x] Eval cases route ADB wallet/ACL/connect intents to this skill (`evals/`).
-- [x] ORDS / Database Actions URL retrieval + Data Pump via Object Storage (§7).
+- [x] ORDS / Database Actions URL retrieval + Data Pump via Object Storage (§8).
 - [ ] Next: a named-context `oci_adb.sh resolve <name>` mode (friendly name → OCID),
       GoldenGate replication notes, and refreshable-clone / Data Guard standby flows.
 
