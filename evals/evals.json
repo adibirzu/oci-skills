@@ -11,7 +11,7 @@
     },
     {
       "id": "trigger-service-limit",
-      "prompt": "Why can't I launch another instance in OCI — is it a service limit?",
+      "prompt": "Why can't I launch another instance in OCI \u2014 is it a service limit?",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-iam-admin",
       "expect_behavior": "Checks limits resource-availability before assuming; suggests limit increase or alternate AD."
@@ -89,7 +89,7 @@
     },
     {
       "id": "trigger-budget-status",
-      "prompt": "Am I about to blow past any of my OCI budgets — show actual vs forecast.",
+      "prompt": "Am I about to blow past any of my OCI budgets \u2014 show actual vs forecast.",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-cost",
       "expect_behavior": "Lists budgets via 'budgets budget budget list' (triple-nested path); compares actual-spend and forecasted-spend against amount; flags any trending over; read-only."
@@ -155,7 +155,7 @@
       "prompt": "Deploy an OCI Function with fn and invoke it; it deploys but every invocation fails.",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-events-functions",
-      "expect_behavior": "Diagnoses KB-084: arm64 image on x86 OCIR — rebuild --platform linux/amd64; covers app create, fn deploy to OCIR, fn function invoke; enable function logging; invoke gated."
+      "expect_behavior": "Diagnoses KB-084: arm64 image on x86 OCIR \u2014 rebuild --platform linux/amd64; covers app create, fn deploy to OCIR, fn function invoke; enable function logging; invoke gated."
     },
     {
       "id": "trigger-sch-no-data",
@@ -212,6 +212,27 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-project",
       "expect_behavior": "Runs oci_project.sh teardown (read-only plan): inventories the compartment and prints the ordered, dependency-aware destroy plan; destroys nothing itself; each step runs via the owning domain through confirm/run_mutating; compartment last."
+    },
+    {
+      "id": "trigger-adb-wallet",
+      "prompt": "Generate a fresh wallet for my Autonomous Database and rotate the old leaked wallet.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "generate-wallet writes the wallet OUTSIDE the repo (never committed); notes Console Rotate Wallet invalidates old wallets and to rotate the DB password too (KB references); preflights first."
+    },
+    {
+      "id": "trigger-adb-acl",
+      "prompt": "My app can't reach the ADB because the client IP isn't in the whitelisted-ips ACL.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Finds KB-119; GETs the current whitelisted-ips first, then updates with all keepers PLUS the new entry (replace-not-append), via run_mutating; never passes [] blindly."
+    },
+    {
+      "id": "trigger-adb-connect",
+      "prompt": "Wire my app to the Autonomous Database with SQLAlchemy oracle+oracledb and run Alembic migrations.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Uses oracle+oracledb:// (not cx_oracle, KB-120) with wallet via connect_args + TNS_ADMIN, pool_pre_ping/pool_recycle; runs Alembic against the ADB, warns on Oracle-vs-SQLite migration differences."
     },
     {
       "id": "negative-non-oci",
