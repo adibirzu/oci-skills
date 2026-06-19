@@ -7,9 +7,12 @@ Mutations run through `run_mutating` / `confirm` (`scripts/common.sh`).
 
 > **Scope boundary.** Monitoring (DBM, Ops Insights, Performance Hub, alarms) →
 > `oci-observability-db`. Security posture (Data Safe target, assessments,
-> masking) → `oci-data-safe`. Work *inside* the database (SQL/PL-SQL, AWR/ASH,
-> RMAN, Data Guard) → `oracle/skills` `db/`. This file owns ADB **lifecycle**,
-> **wallet/connectivity**, and **application integration**.
+> masking) → `oci-data-safe`. **Read-only in-DB diagnostics** over the connection
+> (blocking sessions, wait events, top SQL, plans via `DBMS_XPLAN`) →
+> [oracle-db-diagnostics.md](oracle-db-diagnostics.md). **Mutating** in-DB work
+> (DDL/DML, `KILL SESSION`, RMAN, Data Guard, deep tuning) → `oracle/skills` `db/`.
+> This file owns ADB **lifecycle**, **wallet/connectivity**, and **application
+> integration**.
 
 ---
 

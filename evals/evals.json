@@ -11,7 +11,7 @@
     },
     {
       "id": "trigger-service-limit",
-      "prompt": "Why can't I launch another instance in OCI \u2014 is it a service limit?",
+      "prompt": "Why can't I launch another instance in OCI — is it a service limit?",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-iam-admin",
       "expect_behavior": "Checks limits resource-availability before assuming; suggests limit increase or alternate AD."
@@ -89,7 +89,7 @@
     },
     {
       "id": "trigger-budget-status",
-      "prompt": "Am I about to blow past any of my OCI budgets \u2014 show actual vs forecast.",
+      "prompt": "Am I about to blow past any of my OCI budgets — show actual vs forecast.",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-cost",
       "expect_behavior": "Lists budgets via 'budgets budget budget list' (triple-nested path); compares actual-spend and forecasted-spend against amount; flags any trending over; read-only."
@@ -155,7 +155,7 @@
       "prompt": "Deploy an OCI Function with fn and invoke it; it deploys but every invocation fails.",
       "expect_skill": "oci-administrator",
       "expect_route": "oci-events-functions",
-      "expect_behavior": "Diagnoses KB-084: arm64 image on x86 OCIR \u2014 rebuild --platform linux/amd64; covers app create, fn deploy to OCIR, fn function invoke; enable function logging; invoke gated."
+      "expect_behavior": "Diagnoses KB-084: arm64 image on x86 OCIR — rebuild --platform linux/amd64; covers app create, fn deploy to OCIR, fn function invoke; enable function logging; invoke gated."
     },
     {
       "id": "trigger-sch-no-data",
@@ -239,6 +239,20 @@
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,
       "expect_behavior": "Does NOT trigger the OCI Administrator skill."
+    },
+    {
+      "id": "trigger-adb-blocking",
+      "prompt": "Show me the blocking sessions on my ADB over the wallet connection — which session is the root blocker?",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Smoke-tests the connection, runs the read-only v$session/v$lock blocking-chain query, identifies the root blocker; never issues KILL SESSION from the diagnostic path (KB-122)."
+    },
+    {
+      "id": "trigger-adb-top-sql-plan",
+      "prompt": "Run a top SQL query with SQLcl against the ADB and pull the execution plan via DBMS_XPLAN for the worst SQL_ID.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Prefers a managed tier (DBTools/OPSI/DBM) where it answers; for live truth uses guarded SQLcl read-only against v$sqlarea then DBMS_XPLAN.DISPLAY_CURSOR; bounds the call with a fast-fail wallet (KB-121)."
     }
   ]
 }

@@ -10,8 +10,10 @@ description: >-
   `oracle+oracledb://`, Alembic migrations, private-endpoint DSNs). Triggers:
   generate ADB wallet, rotate wallet, start/stop/scale Autonomous Database,
   whitelisted-ips / ACL, connect to ADB, TNS_ADMIN, oracledb thin/thick,
-  SQLAlchemy Oracle URL, Alembic upgrade on Oracle, ORDS. Mentions Autonomous
-  Database, ADB, ADW, ATP, wallet, cwallet.sso, ewallet, DSN, oracledb, cx_Oracle.
+  SQLAlchemy Oracle URL, Alembic upgrade on Oracle, ORDS, run/execute SQL on ADB,
+  SQLcl, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN. Mentions
+  Autonomous Database, ADB, ADW, ATP, wallet, cwallet.sso, ewallet, DSN, oracledb,
+  cx_Oracle, SQLcl, V$SESSION, in-DB diagnostics.
 license: MIT
 ---
 
@@ -50,10 +52,11 @@ inline real OCIDs, DSNs, IPs, or wallet contents — use `<PLACEHOLDER>` tokens.
 | Wallet: generate, rotate, mTLS vs TLS, `TNS_ADMIN`, regional vs instance | Wallet & connectivity (this skill) |
 | Access control list / `whitelisted-ips` / private endpoint | Network access (this skill) |
 | Connect an app: DSN service levels, pooling, `oracledb`, SQLAlchemy, Alembic | Application integration (this skill) |
+| **Read-only in-DB diagnostics** over the connection: blocking sessions, wait events, top SQL, long-running ops, full table scans, plans (`DBMS_XPLAN`) via SQLcl/oracledb | In-DB diagnostics (this skill) → `../../references/oracle-db-diagnostics.md` |
 | **Monitor** the DB (Performance Hub, DBM, Ops Insights, metrics/alarms) | → `oci-observability-db` |
 | **Provision/enable** DBM/OPSI on the DB | → `oci-observability-db` |
 | Register the DB as a Data Safe target, assessments, masking | → `oci-data-safe` |
-| Work *inside* the DB (SQL/PL-SQL, AWR/ASH, RMAN, Data Guard) | → `oracle/skills` `db/` |
+| **Mutate** inside the DB (DDL/DML, `KILL SESSION`, RMAN, Data Guard, deep tuning) | → `oracle/skills` `db/` (confirmation-gated) |
 
 Full sanitized command/SDK shapes: `../../references/autonomous-db.md`.
 Safety rules (auth modes, read-before-write, redaction):
@@ -67,6 +70,7 @@ Safety rules (auth modes, read-before-write, redaction):
 | Wallet leaked / rotated staff | **Console → DB → Database Connection → Rotate Wallet** (invalidates old wallets) → `generate-wallet` fresh → redeploy `TNS_ADMIN` → rotate the DB password too |
 | New client IP blocked | `get` ACL → `confirm` → `update --whitelisted-ips '[...existing + new]'` (the list is **replace, not append**) → verify |
 | Wire an app to a new ADB | `generate-wallet` (out of repo) → set `TNS_ADMIN` + DSN service level → `oracledb.connect`/pool smoke test → SQLAlchemy `oracle+oracledb://` → `alembic upgrade head` |
+| "DB is hung / sessions stuck" | smoke-test (`SELECT 1 FROM dual`) → run blocking-chain query (§ diagnostics) → find the **root** blocker → hand off any `KILL SESSION` to a confirmation-gated remediation (never from the diagnostic path) |
 
 ## Common tasks
 
@@ -141,6 +145,42 @@ python cli/db.py upgrade      # apply to head
 python cli/db.py downgrade -1 # roll back one
 ```
 
+## Working DB diagnostics (read-only, in-DB SQL)
+
+Once connected, you can answer "why is the DB slow/hung?" with read-only SQL over
+the **same** wallet/DSN connection. **Pick the cheapest tier first** — drop to raw
+SQL only when a managed path can't answer:
+
+**managed Database Tools MCP → OPSI → DBM → guarded SQLcl/oracledb**
+
+Tiers 1–2 (OPSI capacity/ADDM, DBM AWR/Performance Hub) need no wallet → route to
+`oci-observability-db`. Tier 3 (live `V$`/`GV$` truth) runs here. Always smoke-test
+first and keep every query **read-only** (`V$`/`GV$`/`DBA_*`/`DBMS_XPLAN` only —
+never DDL/DML/`KILL SESSION`).
+
+```sql
+SELECT 1 FROM dual;   -- smoke-test the connection before any real query
+```
+
+**Blocking chains** (highest-value during a hang — find the root blocker):
+```sql
+SELECT s.sid AS waiter_sid, s.username AS waiter_user, s.event AS wait_event,
+       s.seconds_in_wait, s.blocking_session AS blocker_sid,
+       bs.username AS blocker_user, l.type AS lock_type
+FROM v$session s
+LEFT JOIN v$session bs ON s.blocking_session = bs.sid
+LEFT JOIN v$lock    l  ON s.sid = l.sid AND l.request > 0
+WHERE s.blocking_session IS NOT NULL
+ORDER BY s.seconds_in_wait DESC;
+```
+**Top wait events** (`v$system_event`, non-idle), **top SQL** (`v$sqlarea` by
+`elapsed_time`), **long-running ops** (`v$session_longops`), and **plans**
+(`DBMS_XPLAN.DISPLAY_CURSOR` / `DISPLAY_AWR`) follow the same pattern.
+
+Full proven SQL library, the connection model, and the **container-safe runtime
+wallet** (rewrite `retry_count=20` → `1` so a stopped DB fails fast, KB-121):
+`../../references/oracle-db-diagnostics.md`.
+
 ## Safety notes
 
 - **Never commit wallet/key files** (`*.pem *.p12 *.jks *.sso`, `**/wallet/`).
@@ -155,6 +195,10 @@ python cli/db.py downgrade -1 # roll back one
   `python-oracledb` (thin mode, no Instant Client) supersedes `cx_Oracle`.
 - **mTLS vs TLS.** mTLS needs both the wallet **and** DB credentials; TLS-only
   (if enabled) drops the wallet but still needs the ACL to allow the client IP.
+- **In-DB diagnostics are read-only (KB-122).** Query `V$`/`GV$`/`DBA_*`/`DBMS_XPLAN`
+  only; never `KILL SESSION`/DDL/DML from a diagnostic path. Bound every Tier-3 call
+  with a hard timeout and use a fast-fail runtime wallet (KB-121). SQL text and bind
+  values can leak data — redact before sharing.
 - Read before write; treat `409 Conflict` as "already exists" and re-`get`.
 - Mutations go through `run_mutating` (honors `OCI_SKILLS_DRY_RUN=true`);
   destructive ops (stop, restore, terminate) also through `confirm`.
@@ -177,10 +221,14 @@ KB:           <KB-<n> if a new error was resolved, else n/a>
 [Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html) ·
 [Download wallet / connection info](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html) ·
 [Network access (ACLs & private endpoints)](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html) ·
-[`oci db autonomous-database` CLI](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html).
+[`oci db autonomous-database` CLI](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html) ·
+[`DBMS_XPLAN`](https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_XPLAN.html) ·
+[Database Reference (V$ views)](https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html).
 Driver/ORM references (not Oracle-doc-indexed): python-oracledb, SQLAlchemy, and
 Alembic project docs. Full registered list in the
-[autonomous-db reference](../../references/autonomous-db.md).
+[autonomous-db reference](../../references/autonomous-db.md); the read-only in-DB
+SQL library lives in the
+[oracle-db-diagnostics reference](../../references/oracle-db-diagnostics.md).
 
 **Open Knowledge Format grounding** — every `docs.oracle.com` link here is
 registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md)
