@@ -1146,3 +1146,52 @@ mutation to a **separate, confirmation-gated** remediation (`run_mutating`/`conf
 or route to `oracle/skills` `db/`). Redact SQL text and bind values before sharing.
 **See:** [Database Reference (V$ dynamic performance views)](https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html)
 **Status:** resolved.
+
+## KB-123 — `autonomous-database create` is async; a timeout doesn't mean it failed (autonomous-db)
+
+**Symptom:** `oci db autonomous-database create` times out or returns without a
+usable OCID, so a deploy script assumes failure and either errors out or creates a
+second duplicate database.
+**Root cause:** Create is an asynchronous control-plane op — the resource enters
+`PROVISIONING` and the CLI call can return (or hit its read timeout) before the DB
+reaches `AVAILABLE`. Treating "no clean OCID returned" as "not created" causes
+double-creation.
+**Fix:** Make create idempotent. Before creating, `list --display-name <NAME>
+--query "data[?\"lifecycle-state\"!='TERMINATED' && …].id | [0]"` and reuse a
+non-terminated match. After create, if the OCID is missing or the call timed out,
+**re-discover by display name** with the same list query before assuming failure,
+then poll `lifecycle-state` to `AVAILABLE`.
+**See:** [`oci db autonomous-database` CLI reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html)
+**Status:** resolved.
+
+## KB-124 — ADB `--db-name` is globally unique per region; collisions need a retry (autonomous-db)
+
+**Symptom:** `create` fails with `db-name ... already in use` (or `dbName ...
+already in use`), even though no database of that name is visible in the current
+compartment.
+**Root cause:** `--db-name` must be unique across the **whole region/tenancy**, not
+just the compartment, and is limited to ≤14 alphanumeric characters. A name used by
+any other ADB (including in another compartment) collides.
+**Fix:** Catch the collision and retry with a randomized name (e.g. `db$RANDOM` /
+`aaf$((RANDOM%9000+1000))`), preserving the friendly `--display-name`. Keep
+`--db-name` ≤14 chars, alphanumeric, starting with a letter. Distinguish this
+(retry) from `not currently enabled for this tenancy` (request quota, hard stop)
+and `InvalidParameter` (bad tier args, fix and retry).
+**See:** [`oci db autonomous-database` CLI reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html)
+**Status:** resolved.
+
+## KB-125 — Private-endpoint ADB needs a VCN DNS label and listens on TCP 1522 (autonomous-db)
+
+**Symptom:** Creating an ADB with `--subnet-id`/`--private-endpoint-label` fails or
+silently falls back to a public endpoint; or an app on the VCN can't reach a
+private-endpoint ADB even though the subnet route looks correct.
+**Root cause:** A private endpoint requires the VCN (and subnet) to carry a **DNS
+label**, which is set at VCN/subnet creation and is **immutable** — a VCN created
+without one can never host a private endpoint. Separately, the ADB private endpoint
+listens on **TCP 1522**, not the 1521 people reflexively open.
+**Fix:** Verify the VCN DNS label before provisioning; if absent, recreate the VCN
+with `--dns-label` (or fall back to a public endpoint + `--whitelisted-ips` ACL).
+Open `client-subnet → ADB-PE:1522` in the NSG/security list. Confirm reachability
+with the private DSN from a host that has a route into the VCN.
+**See:** [Network access: ACLs & private endpoints](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html)
+**Status:** resolved.

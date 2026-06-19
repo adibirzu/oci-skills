@@ -235,6 +235,13 @@
       "expect_behavior": "Uses oracle+oracledb:// (not cx_oracle, KB-120) with wallet via connect_args + TNS_ADMIN, pool_pre_ping/pool_recycle; runs Alembic against the ADB, warns on Oracle-vs-SQLite migration differences."
     },
     {
+      "id": "trigger-adb-provision",
+      "prompt": "Provision a new ATP Autonomous Database with a private endpoint in OCI.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Preflights tenancy/quota; lists by display-name to reuse before create (idempotent, KB-123); uses --compute-model ECPU + --data-storage-size-in-gbs + --is-free-tier false; for private endpoint passes --subnet-id/--nsg-ids/--private-endpoint-label and notes VCN DNS label immutability + TCP 1522 (KB-125); handles db-name collision retry (KB-124) and re-discovers by display-name on timeout; polls to AVAILABLE."
+    },
+    {
       "id": "negative-non-oci",
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,
