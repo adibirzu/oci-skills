@@ -16,7 +16,9 @@ source that backs its claim.
 > runs in PR CI — well-formed + every used URL registered here + KB citation
 > coverage) and a **live** checker (`scripts/check_doc_links.py --live`, run
 > weekly by `.github/workflows/doc-liveness.yml`) that HTTP-verifies each URL so
-> link rot is caught even when the format is fine.
+> link rot is caught even when the format is fine. On a dead link that workflow
+> opens (or comments on) a `doc-rot` issue and fails, so rot becomes a tracked
+> item instead of a silently-red cron run.
 
 ## How to cite
 
