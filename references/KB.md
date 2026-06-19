@@ -902,3 +902,72 @@ triggering the source service, or use a custom log when you need
 `logging-ingestion put-logs`.
 **See:** [Streaming Kafka compatibility](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm)
 **Status:** resolved.
+
+## KB-107 — Preset OCL queries return 0 rows: log source names vary per tenancy (log-analytics)
+
+**Symptom:** A canned Log Analytics query (`'Log Source' = '<name>' | ...`) returns
+0 rows in a new tenancy even though logs are clearly being ingested.
+**Root cause:** Which Oracle-defined sources are *active* — and the exact source
+**names** you must match — vary per tenancy and per what is onboarded. Some sources
+also lack fields you filter on, so a field predicate silently matches nothing.
+**Fix:** Discover the live sources first — `'*' | stats count by 'Log Source'`
+(or `oci_cli log-analytics source list ...`) — then write the query against names
+that actually exist. Known gotchas to encode in presets: Kubernetes container
+logs carry **no `Severity` field** (`Severity = 'ERROR'` returns 0 — filter on the
+message instead); SSH/auth events are in **`Linux Secure Logs`**, not
+`Linux Syslog Logs`; the WAF source is **`OCI WAF Logs`**, not `OCI WAF Access Logs`.
+Treat an empty result as inconclusive until the source name and fields are confirmed.
+**See:** [Oracle-defined log sources](https://docs.oracle.com/en-us/iaas/logging-analytics/doc/oracle-defined-sources.html)
+**Status:** resolved.
+
+## KB-108 — Alarm never fires / metric query empty: MQL dimension names are case-sensitive and differ from Console labels (observability-db)
+
+**Symptom:** An alarm stays `OK` (or a Metrics query returns nothing) while the
+resource is clearly unhealthy or stopped.
+**Root cause:** OCI Monitoring Query Language is **case-sensitive**, and alarm
+dimensions must use the **metric dimension keys**, not the friendly names shown in
+the Console. A query keyed on a display-style name (e.g. `monitorDisplayName`,
+`apmDomainId`) matches zero metrics; the real keys for APM synthetics are
+`MonitorName` and `ResourceId`.
+**Fix:** Confirm the exact dimension keys and casing from the metric definition
+(`oci_cli monitoring metric list ...`, or the service's metrics reference), match
+them exactly, and validate the MQL in Metrics Explorer **before** wiring it into an
+alarm. An alarm that never fires is worse than none — it reads as "healthy".
+**See:** [Monitoring Query Language (MQL)](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Reference/mql.htm)
+**Status:** resolved.
+
+## KB-109 — APM trace status filter on `OK` returns nothing — use `COMPLETE` (observability-db)
+
+**Symptom:** Filtering APM traces/spans by status `OK` returns 0 results.
+**Root cause:** OCI APM uses `COMPLETE` for a successfully finished trace and
+`ERROR` for a failed one. There is no `OK` status, so the filter excludes everything.
+**Fix:** Filter on `COMPLETE` (treat as success) and `ERROR` (failure); map any
+`OK`-style UI/code to `COMPLETE`.
+**See:** [Application Performance Monitoring](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm)
+**Status:** resolved.
+
+## KB-110 — APM Synthetic monitors go stale silently: target stable domain names, not bare IPs (observability-db)
+
+**Symptom:** A synthetic monitor keeps reporting "available" against an endpoint
+that no longer exists, or probes the wrong host after an infra change.
+**Root cause:** Monitors created against a bare instance IP keep probing that IP
+after the instance is replaced/rebuilt. Paired with a broken availability alarm
+(see KB-108), the staleness is invisible.
+**Fix:** Target a **stable HTTPS domain name**, never a bare VM IP, so the monitor
+follows the service across instance churn; pair it with a correctly-keyed
+availability alarm and confirm the alarm transitions when the target is down.
+**See:** [APM Synthetic Monitoring](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/use-synthetic-monitoring.html)
+**Status:** resolved.
+
+## KB-111 — Client-IP / geolocation view is empty: APM spans don't carry client IPs — use VCN Flow Logs (log-analytics)
+
+**Symptom:** A "where are connections coming from" / client-geo view built from APM
+spans shows nothing — the spans have no client-IP attribute.
+**Root cause:** OCI APM spans do not capture client/peer IPs in span attributes,
+so there is nothing to geolocate.
+**Fix:** Source client/peer IPs from **VCN Flow Logs** in Log Analytics
+(`'Log Source' = 'OCI VCN Flow Unified Schema Logs' | ...`), filtering RFC1918
+ranges out when you only want external peers. Enable VCN Flow Logs on the relevant
+subnets/VNICs first (an OCI Logging feature).
+**See:** [Logging](https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm)
+**Status:** resolved.
