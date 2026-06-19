@@ -114,6 +114,7 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | Resource Manager (managed Terraform) | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm> |
+| Terraform on OCI (provider, authoring stacks) | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm> |
 
 ## Data Safe — `oci-data-safe`
 
