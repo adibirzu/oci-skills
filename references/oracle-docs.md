@@ -64,8 +64,10 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | Monitoring (metrics & alarms) | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm> |
+| Monitoring Query Language (MQL) reference | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/Reference/mql.htm> |
 | Logging | <https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm> |
 | APM (Application Performance Monitoring) | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm> |
+| APM Synthetic Monitoring | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/use-synthetic-monitoring.html> |
 | Database Management (DBM) | <https://docs.oracle.com/en-us/iaas/database-management/home.htm> |
 | Operations Insights (OPSI) | <https://docs.oracle.com/en-us/iaas/operations-insights/home.htm> |
 | Autonomous Database | <https://docs.oracle.com/en-us/iaas/autonomous-database/index.html> |
@@ -75,6 +77,7 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | Log Analytics (Logan, OCL) | <https://docs.oracle.com/en-us/iaas/log-analytics/home.htm> |
+| Oracle-defined log sources | <https://docs.oracle.com/en-us/iaas/logging-analytics/doc/oracle-defined-sources.html> |
 
 ## Networking & compute — `oci-networking-compute`
 
