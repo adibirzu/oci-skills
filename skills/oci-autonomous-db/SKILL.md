@@ -72,6 +72,7 @@ Safety rules (auth modes, read-before-write, redaction):
 
 **Find & inspect** (read-only; ADB list has no subtree flag — iterate compartments):
 ```bash
+./scripts/oci_adb.sh -c <COMPARTMENT_OCID>      # quick posture: state/workload/ECPU/mTLS/ACL
 oci_cli db autonomous-database list --compartment-id <COMPARTMENT_OCID> --all \
   --query "data[].{name:\"db-name\",disp:\"display-name\",state:\"lifecycle-state\",ecpu:\"compute-count\",id:id}"
 oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> \
@@ -144,12 +145,14 @@ python cli/db.py downgrade -1 # roll back one
 
 - **Never commit wallet/key files** (`*.pem *.p12 *.jks *.sso`, `**/wallet/`).
   Gitignore them; if one ever lands in history, rotate the wallet + DB password.
-- **ACL is replace-not-append.** `--whitelisted-ips` overwrites the whole list —
-  always `get` the current list first and include every entry you keep.
-- **Stopped/unreachable ADB stalls startup.** A DSN with `retry_count=20` can hang
-  app boot ~60s. Bound the connect probe (hard wall-clock timeout) and, outside
-  production, fall back to local SQLite so the app still boots; in production
-  fail fast so an outage is never masked.
+- **ACL is replace-not-append (KB-119).** `--whitelisted-ips` overwrites the whole
+  list — always `get` the current list first and include every entry you keep.
+- **Stopped/unreachable ADB stalls startup (KB-118).** A DSN with `retry_count=20`
+  can hang app boot ~60s. Bound the connect probe (hard wall-clock timeout) and,
+  outside production, fall back to local SQLite so the app still boots; in
+  production fail fast so an outage is never masked.
+- **Use the `oracle+oracledb://` dialect, not `oracle+cx_oracle://` (KB-120).**
+  `python-oracledb` (thin mode, no Instant Client) supersedes `cx_Oracle`.
 - **mTLS vs TLS.** mTLS needs both the wallet **and** DB credentials; TLS-only
   (if enabled) drops the wallet but still needs the ACL to allow the client IP.
 - Read before write; treat `409 Conflict` as "already exists" and re-`get`.
@@ -171,7 +174,10 @@ KB:           <KB-<n> if a new error was resolved, else n/a>
 
 ## Official documentation
 
-[Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html).
+[Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html) ·
+[Download wallet / connection info](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html) ·
+[Network access (ACLs & private endpoints)](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html) ·
+[`oci db autonomous-database` CLI](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html).
 Driver/ORM references (not Oracle-doc-indexed): python-oracledb, SQLAlchemy, and
 Alembic project docs. Full registered list in the
 [autonomous-db reference](../../references/autonomous-db.md).

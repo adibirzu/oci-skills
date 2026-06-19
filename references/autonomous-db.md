@@ -152,20 +152,47 @@ ADB is trusted, then flip to strict.
 - [ ] Mutation ran via `run_mutating` (dry-run shown); destructive op via `confirm`.
 - [ ] Output redacted (`python3 scripts/redact.py --check <file>`).
 
-## 7. Make-it-bulletproof TODO (iterate)
+## 7. ORDS, Database Actions & Data Pump
 
-- [ ] Add a `scripts/oci_adb.sh` named-context helper (resolve ADB by friendly
-      name → OCID, like `oci_logan.sh` / `oci_datasafe.sh`).
-- [ ] Register ADB-specific official doc URLs (connect-with-wallets, scaling,
-      ACL, wallet rotation) in `references/oracle-docs.md` once liveness-verified.
-- [ ] Add KB entries for real failures (stopped-DB stall, ACL replace footgun,
-      `oracle+cx_oracle` vs `oracle+oracledb` dialect mismatch).
-- [ ] Add an eval scenario under `evals/` routing ADB intents to this skill.
-- [ ] Cover ORDS / Database Actions URL retrieval and Data Pump (`expdp`/`impdp`)
-      via Object Storage for migrations.
+**ORDS / Database Actions** (the SQL web UI + REST front door). The launch URLs
+live on the ADB resource, not in a CLI flag — read them with `get`:
+```bash
+oci db autonomous-database get --autonomous-database-id <ADB_OCID> \
+  --query 'data."connection-urls"'   # ords-url, database-transforms-url, sql-dev-web-url, etc.
+```
+Treat those URLs as sensitive (they front your DB); redact before sharing. APEX
+and Database Actions are gated by the same ACL/mTLS as SQL connections.
+
+**Data Pump (migration in/out via Object Storage)** — ADB has no host shell, so
+`expdp`/`impdp` run through `DBMS_CLOUD` against an Object Storage bucket:
+1. Create a `DBMS_CLOUD` credential (auth token or resource principal) in the DB.
+2. `expdp ... dumpfile=default_credential:https://<objectstorage>/.../dump_%U.dmp`
+   (or `impdp` to load), `directory=DATA_PUMP_DIR`.
+3. The OCI control plane doesn't drive this — it is in-DB. For deep Data Pump /
+   migration tuning route to `oracle/skills` `db/`; this skill only sets up the
+   surrounding bucket + credential + ACL.
+
+Prefer **Data Pump over raw `INSERT`** for bulk loads; for ongoing replication
+consider GoldenGate (separate service), not a cron of dumps.
+
+## 8. Make-it-bulletproof status
+
+- [x] `scripts/oci_adb.sh` read-only ADB lister (state/workload/ECPU/ACL posture).
+- [x] ADB doc URLs registered + liveness-verified in `references/oracle-docs.md`
+      (landing, wallet download, network ACLs, CLI cmdref).
+- [x] KB entries: KB-118 (stopped-DB startup stall), KB-119 (ACL replace footgun),
+      KB-120 (`cx_oracle` → `oracledb` dialect).
+- [x] Eval cases route ADB wallet/ACL/connect intents to this skill (`evals/`).
+- [x] ORDS / Database Actions URL retrieval + Data Pump via Object Storage (§7).
+- [ ] Next: a named-context `oci_adb.sh resolve <name>` mode (friendly name → OCID),
+      GoldenGate replication notes, and refreshable-clone / Data Guard standby flows.
 
 ## Official documentation
 
-[Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html)
-(registered in [oracle-docs.md](oracle-docs.md)). Driver/ORM docs live outside the
-Oracle-doc index: python-oracledb, SQLAlchemy, and Alembic project documentation.
+- [Autonomous Database (landing)](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html)
+- [Download connection info / wallet](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html)
+- [Network access: ACLs & private endpoints](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html)
+- [`oci db autonomous-database` CLI reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html)
+
+All registered in [oracle-docs.md](oracle-docs.md). Driver/ORM docs live outside
+the Oracle-doc index: python-oracledb, SQLAlchemy, and Alembic project docs.
