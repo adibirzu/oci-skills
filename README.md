@@ -1,7 +1,7 @@
 # oci-skills — OCI Administrator skill pack
 
 A tenancy-agnostic **Oracle Cloud Infrastructure (OCI) administration** skill
-pack for AI coding agents. One safety-first knowledge core, nine admin domain
+pack for AI coding agents. One safety-first knowledge core, ten admin domain
 skills, packaged for **Claude Code, Codex, Gemini CLI, and Antigravity**.
 
 > Built to be reused in *any* tenancy. It ships **no** OCIDs, IPs, keys, or
@@ -16,7 +16,7 @@ context, preflight, and run the read-only "what's going on?" loop in five minute
 OCI administration knowledge tends to get copy-pasted across scripts: the same
 `oci` CLI auth negotiation, the same "check the service limit first", the same
 "is the WAF rule in OBSERVE or BLOCK?" gotchas. This pack centralizes those into
-one reusable core plus nine domain skills, with a hard rule that nothing
+one reusable core plus ten domain skills, with a hard rule that nothing
 sensitive is ever printed or committed.
 
 ## Domains
@@ -26,16 +26,17 @@ sensitive is ever printed or committed.
 | **oci-iam-admin** | Users, groups, dynamic groups, policies (least-privilege review), compartments, budgets, quotas, **service limits**, tags, Identity Domains. |
 | **oci-security-compliance** | Cloud Guard, Vault/KMS, Security Zones, WAF, Audit, CIS / ISO-42001 / sovereignty scanning, IAM policy review, secret redaction. |
 | **oci-observability-db** | Monitoring & alarms, Logging, Log Analytics, APM (traces/RUM), Notifications, Service Connector Hub, Database Management, Operations Insights, Autonomous DB. |
+| **oci-autonomous-db** | Autonomous Database operations: list/get/start/stop/scale ADBs, wallet download, SQLcl / python-oracledb connection, and a read-only working-SQL library (blocking chains, wait events, long-running ops, top SQL, full-scan hunts, health snapshots). |
 | **oci-networking-compute** | VCN, subnets, NSGs, route tables, gateways, load balancers, OKE, compute instances, OCIR. |
 | **oci-cost** | Cost & usage reporting (Usage API: spend by service/compartment/region/tag), budgets (limit vs actual vs forecast), cost-tracking tags, guardrail recommendations. |
 | **oci-log-analytics** | OCI Log Analytics (Logan): the OCL query language, a read-only query helper, sources/parsers/fields/entities/log groups, detections (incl. Sigma→OCL), saved/scheduled searches, dashboards, content migration. |
 | **oci-resource-manager** | Resource Manager (managed Terraform): stacks, plan/apply/destroy jobs, job logs/state, drift detection, state import, variables, and schema.yaml stack packaging. |
 | **oci-data-safe** | Data Safe: target-database registration (ADB + cloud DB), private endpoints, Security/User Assessment, Activity Auditing, Data Discovery, Data Masking. |
 | **oci-events-functions** | Event-driven & serverless: OCI Functions (deploy/invoke/config), Events rules (eventType → FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out, Streaming transport. |
-| **oci-project** | **Project lifecycle orchestrator** (above the nine domains): bootstrap/scaffold a project (compartment + scoped IAM + network + budget + tags), project status/health, deploy/release (ORM/OKE), and gated teardown — scoped to one project compartment via a named context. |
+| **oci-project** | **Project lifecycle orchestrator** (above the ten domains): bootstrap/scaffold a project (compartment + scoped IAM + network + budget + tags), project status/health, deploy/release (ORM/OKE), and gated teardown — scoped to one project compartment via a named context. |
 
 > **Scope & related.** This pack is the **default entry point for OCI tenancy
-> administration** — broad infrastructure and control-plane work across nine
+> administration** — broad infrastructure and control-plane work across ten
 > domains, gated by the safety core. It is complementary to the official
 > [oracle/skills](https://github.com/oracle/skills) collection, which goes *deep*
 > on a few capabilities. Catch the request here (tenancy preflight + redaction +
@@ -50,7 +51,7 @@ sensitive is ever printed or committed.
 ## Architecture
 
 A request enters through the **router** (`oci-administrator`), is routed by intent
-to one of nine **domain skills**, and every CLI call funnels through one shared
+to one of ten **domain skills**, and every CLI call funnels through one shared
 **safety core** (`scripts/common.sh`) before it ever reaches the tenancy. The same
 core is installed, unchanged, into each agent harness.
 
@@ -59,11 +60,12 @@ flowchart TD
     U([User / agent request]) --> R{{"oci-administrator<br/>router skill"}}
     R -->|route by intent| D
 
-    subgraph D[Nine domain skills]
+    subgraph D[Ten domain skills]
       direction LR
       IAM[oci-iam-admin]
       SEC[oci-security-compliance]
       OBS[oci-observability-db]
+      ADB[oci-autonomous-db]
       NET[oci-networking-compute]
       COST[oci-cost]
       LOG[oci-log-analytics]
@@ -96,7 +98,7 @@ flowchart TD
 
 **Progressive disclosure keeps it simple:** an agent reads the router, then *one*
 domain `SKILL.md`, then that domain's `references/*.md` only if it needs depth — it
-never loads all nine domains at once. Each layer is one short file.
+never loads all ten domains at once. Each layer is one short file.
 
 ## Safety model
 
@@ -235,9 +237,9 @@ references/              # domain + safety knowledge (progressive disclosure)
 scripts/                # shared core
   common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh
   oci_project.sh  oci_cli_help.py  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
-skills/                  # eleven auto-discoverable skills (router + nine domains + project orchestrator)
+skills/                  # twelve auto-discoverable skills (router + ten domains + project orchestrator)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
-  oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/
+  oci-observability-db/  oci-autonomous-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/
   oci-resource-manager/  oci-data-safe/  oci-events-functions/  oci-project/
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
@@ -272,7 +274,7 @@ Logan, cost, …) and the agent loads `oci-administrator` (the router), which wo
 in four moves:
 
 1. **Trigger & route.** The router reads your intent and routes to one of the
-   nine domain skills (IAM, security, observability/DB, networking/compute, cost,
+   ten domain skills (IAM, security, observability/DB, networking/compute, cost,
    Log Analytics, Resource Manager, Data Safe, events/functions) — or to
    **oci-project** for whole-project lifecycle work.
 2. **Preflight by name.** Before anything touches the tenancy, it confirms *which*

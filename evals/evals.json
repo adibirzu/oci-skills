@@ -214,6 +214,27 @@
       "expect_behavior": "Runs oci_project.sh teardown (read-only plan): inventories the compartment and prints the ordered, dependency-aware destroy plan; destroys nothing itself; each step runs via the owning domain through confirm/run_mutating; compartment last."
     },
     {
+      "id": "trigger-adb-blocking",
+      "prompt": "My Autonomous Database app is hanging — find the blocking session.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Preflight, connect via SQLcl/wallet, run the read-only hierarchical blocking-session chain to find the ROOT BLOCKER; only kills via confirm + DB_ALLOW_MUTATIONS after proving a single root blocker."
+    },
+    {
+      "id": "trigger-adb-connect-sql",
+      "prompt": "Download the wallet and run a query against my ATP database to see top SQL.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "generate-wallet (password from env), set TNS_ADMIN, connect via SQLcl/oracledb, run read-only v$sqlstats top-SQL query; redacts connection string/OCIDs; rejects non-SELECT unless gated."
+    },
+    {
+      "id": "trigger-adb-lifecycle",
+      "prompt": "Stop my Autonomous Database tonight and scale it down to save cost.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "get to confirm name/state, then stop and update --compute-count through run_mutating + confirm (dry-run first); warns that stop drops all sessions and scaling can bounce connections."
+    },
+    {
       "id": "negative-non-oci",
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,

@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "oci-skills",
-  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration skill pack for Claude Code — one safety-first core, nine admin domains, ships no OCIDs/IPs/secrets.",
+  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration skill pack for Claude Code — one safety-first core, ten admin domains, ships no OCIDs/IPs/secrets.",
   "owner": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -10,7 +10,7 @@
     {
       "name": "oci-administrator",
       "description": "Safety-first OCI administration: IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost (FinOps), Log Analytics, Resource Manager, Data Safe, and Events & Functions — plus a project lifecycle orchestrator and a Stage 0 solution-design front-end. Grounded in official Oracle docs (Open Knowledge Format) and routed against the upstream oracle/skills collection. Slash commands work by named context (friendly name -> profile + compartment + region) instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
-      "version": "1.10.1",
+      "version": "1.11.0",
       "author": {
         "name": "adibirzu"
       },

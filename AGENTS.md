@@ -29,13 +29,14 @@ sequence a request instead of re-deriving the steps.
 | IAM, policies, compartments, budgets, quotas, tags | `skills/oci-iam-admin/` · `references/iam-tenancy.md` |
 | Cloud Guard, Vault, WAF, CIS/ISO-42001, audit | `skills/oci-security-compliance/` · `references/security-compliance.md` |
 | APM, Log Analytics, Monitoring, DBM, Ops Insights | `skills/oci-observability-db/` · `references/observability-db.md` |
+| connect/run SQL, SQLcl, wallet, blocking sessions, wait events, top/slow SQL, long-running query, kill session, start/stop/scale ADB (ATP/ADW) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` (read-only SQL by default; mutations via `confirm` + `DB_ALLOW_MUTATIONS`) |
 | VCN, NSG, LB, OKE, compute, OCIR | `skills/oci-networking-compute/` · `references/networking-compute.md` |
 | cost, usage, spend, budget, forecast, billing, FinOps | `skills/oci-cost/` · `references/cost-management.md` (read-only; `scripts/oci_cost.sh`) |
 | Log Analytics, Logan, OCL/LQL query, source, parser, entity, log group, detection, Sigma→OCI | `skills/oci-log-analytics/` · `references/log-analytics.md` (read-only query: `scripts/oci_logan.sh`) |
 | Resource Manager, ORM, Terraform stack, plan/apply/destroy job, tfstate, drift | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
 | Functions, fn deploy, Events rule, ONS, Service Connector Hub (SCH), serverless | `skills/oci-events-functions/` · `references/events-functions.md` |
-| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the nine domains; helper `scripts/oci_project.sh`) |
+| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the ten domains; helper `scripts/oci_project.sh`) |
 
 **Related: MCP gateway (non-official).** This pack is the authoritative,
 safety-gated CLI/SDK path. The `oci-mcp-gateway` is **community / self-hosted

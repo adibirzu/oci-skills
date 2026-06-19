@@ -1,7 +1,7 @@
 {
   "name": "oci-administrator",
-  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration for Claude Code — safety-first skills for IAM, Security & Compliance, Observability & Database, Networking & Compute, Cost & Usage (FinOps), Log Analytics (OCL queries), Resource Manager (Terraform stacks), Data Safe, and Events & Functions (serverless). Plus a project lifecycle orchestrator and a Stage 0 solution-design front-end, all grounded in official Oracle docs (Open Knowledge Format) and routed against the upstream oracle/skills collection. Work by friendly context name instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
-  "version": "1.10.1",
+  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration for Claude Code — safety-first skills for IAM, Security & Compliance, Observability & Database, Autonomous Database operations (lifecycle + wallet/SQLcl connect + read-only working SQL), Networking & Compute, Cost & Usage (FinOps), Log Analytics (OCL queries), Resource Manager (Terraform stacks), Data Safe, and Events & Functions (serverless). Plus a project lifecycle orchestrator and a Stage 0 solution-design front-end, all grounded in official Oracle docs (Open Knowledge Format) and routed against the upstream oracle/skills collection. Work by friendly context name instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
+  "version": "1.11.0",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -18,6 +18,11 @@
     "oke",
     "vcn",
     "observability",
+    "autonomous-database",
+    "adb",
+    "atp",
+    "adw",
+    "sqlcl",
     "cost-management",
     "finops",
     "log-analytics",

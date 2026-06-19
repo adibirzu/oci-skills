@@ -72,6 +72,17 @@ Safe), the upstream `db/` domain of
 | Operations Insights (OPSI) | <https://docs.oracle.com/en-us/iaas/operations-insights/home.htm> |
 | Autonomous Database | <https://docs.oracle.com/en-us/iaas/autonomous-database/index.html> |
 
+## Autonomous Database operations — `oci-autonomous-db`
+
+| Topic | Canonical doc |
+|---|---|
+| Autonomous Database (overview) | <https://docs.oracle.com/en-us/iaas/autonomous-database/index.html> |
+| Manage (start/stop/scale) | <https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-manage.html> |
+| Download client credentials (wallet, mTLS) | <https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html> |
+| `oci db autonomous-database` CLI | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html> |
+| SQLcl | <https://docs.oracle.com/en/database/oracle/sql-developer-command-line/> |
+| Dynamic performance (V$) views | <https://docs.oracle.com/en/database/oracle/oracle-database/23/refrn/dynamic-performance-views.html> |
+
 ## Log Analytics — `oci-log-analytics`
 
 | Topic | Canonical doc |
