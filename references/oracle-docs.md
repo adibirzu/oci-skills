@@ -80,6 +80,9 @@ Safe), the upstream `db/` domain of
 | Download connection info / wallet (mTLS & TLS) | <https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html> |
 | Network access: ACLs & private endpoints | <https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html> |
 | `oci db autonomous-database` CLI reference | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/db/autonomous-database.html> |
+| `DBMS_XPLAN` (execution plans) | <https://docs.oracle.com/en/database/oracle/oracle-database/19/arpls/DBMS_XPLAN.html> |
+| Database Reference (V$ dynamic performance views) | <https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html> |
+| SQL Tuning Guide | <https://docs.oracle.com/en/database/oracle/oracle-database/19/tgsql/index.html> |
 
 ## Log Analytics — `oci-log-analytics`
 
