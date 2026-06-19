@@ -1062,3 +1062,51 @@ insight by `--database-id` (or `get`), and re-list / retry before concluding it 
 missing — an empty list is inconclusive, not authoritative.
 **See:** [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
 **Status:** resolved.
+
+## KB-118 — A stopped/unreachable Autonomous DB stalls app startup ~60s (autonomous-db)
+
+**Symptom:** An application that connects to an ADB hangs ~60 seconds on startup
+(or every request) when the ADB is `STOPPED` or unreachable, instead of failing
+fast or degrading.
+**Root cause:** The wallet/DSN ships `retry_count=20` (and a retry delay), so the
+Oracle driver dutifully retries the dead endpoint for ~a minute before giving up.
+A startup connection probe with no time budget inherits that full retry window.
+**Fix:** Bound every startup connection probe to a hard wall-clock timeout (e.g.
+8s). On failure, make the behavior an explicit env-driven choice: dev/staging →
+fall back to local SQLite so the app still boots; production → fail fast so the
+outage is never silently masked. Confirm the ADB state first with
+`oci db autonomous-database get … --query 'data."lifecycle-state"'` (or
+`./scripts/oci_adb.sh`) and `start` it if it is `STOPPED`.
+**See:** [Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html)
+**Status:** resolved.
+
+## KB-119 — `--whitelisted-ips` replaces the whole ACL, not appends (autonomous-db)
+
+**Symptom:** Adding one client IP to an ADB with `update --whitelisted-ips` either
+locks out every previously-allowed client, or (with `[]`) silently opens the DB to
+all sources.
+**Root cause:** `--whitelisted-ips` is **set/replace** semantics — it overwrites
+the entire access-control list with exactly what you pass. It does not append, and
+an empty list removes ACL restriction entirely.
+**Fix:** Always `get` the current list first
+(`--query 'data."whitelisted-ips"'`), then pass the full set of keepers **plus**
+the new entry in one `run_mutating` update. Entries may be CIDRs or VCN/subnet
+OCIDs. Review carefully before ever passing `[]`.
+**See:** [Network access: ACLs & private endpoints](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html)
+**Status:** resolved.
+
+## KB-120 — SQLAlchemy `oracle+cx_oracle://` fails; use `oracle+oracledb://` (autonomous-db)
+
+**Symptom:** A SQLAlchemy engine for an ADB raises `ModuleNotFoundError: cx_Oracle`
+or `Can't load plugin: sqlalchemy.dialects:oracle.cx_oracle` on a modern install,
+even though the wallet and DSN are correct.
+**Root cause:** `cx_Oracle` has been superseded by `python-oracledb`. The legacy
+dialect prefix `oracle+cx_oracle://` requires the old driver (and Instant Client);
+`python-oracledb` registers the `oracle+oracledb://` dialect and runs in thin mode
+with no Instant Client.
+**Fix:** Use `oracle+oracledb://{user}:{password}@{dsn}` and pass the wallet via
+`connect_args={"config_dir": TNS_ADMIN, "wallet_location": TNS_ADMIN,
+"wallet_password": …}`. Keep `pool_pre_ping=True` + `pool_recycle=3600` so the ADB
+idle-session timeout never hands back a dead connection.
+**See:** [Download connection info / wallet (mTLS & TLS)](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html)
+**Status:** resolved.
