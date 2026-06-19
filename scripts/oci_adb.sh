@@ -42,7 +42,7 @@ echo >&2
 # compartment. To sweep a tenancy, iterate compartments and re-run.
 dbs="$(oci_cli db autonomous-database list --compartment-id "$COMPARTMENT_OCID" \
   --limit "$MAX" \
-  --query 'data[].{name:"display-name",state:"lifecycle-state",workload:"db-workload",ecpu:"compute-count",tb:"data-storage-size-in-tbs",autoscale:"is-auto-scaling-enabled",mtls:"is-mtls-connection-required",freeform:"private-endpoint"}' 2>/dev/null || true)"
+  --query 'data[].{name:"display-name",state:"lifecycle-state",workload:"db-workload",ecpu:"compute-count",tb:"data-storage-size-in-tbs",gb:"data-storage-size-in-gbs",autoscale:"is-auto-scaling-enabled",mtls:"is-mtls-connection-required",freeform:"private-endpoint"}' 2>/dev/null || true)"
 
 count="$(printf '%s' "$dbs" | jq 'length' 2>/dev/null || echo 0)"
 if [[ -z "$dbs" || "$count" == "0" ]]; then
@@ -56,12 +56,13 @@ printf '%s' "$dbs" | jq -c '.[]' | while read -r row; do
   state="$(printf '%s' "$row" | jq -r '.state // "-"')"
   workload="$(printf '%s' "$row" | jq -r '.workload // "-"')"
   ecpu="$(printf '%s' "$row" | jq -r '.ecpu // "-"')"
-  tb="$(printf '%s' "$row" | jq -r '.tb // "-"')"
+  # ECPU-model ADBs report storage in GB (tb is null); legacy OCPU report TB.
+  storage="$(printf '%s' "$row" | jq -r 'if (.gb // 0) > 0 then "\(.gb)GB" elif (.tb // 0) > 0 then "\(.tb)TB" else "-" end')"
   autoscale="$(printf '%s' "$row" | jq -r 'if .autoscale == true then "autoscale" else "fixed" end')"
   mtls="$(printf '%s' "$row" | jq -r 'if .mtls == false then "TLS-ok" else "mTLS" end')"
   pe="$(printf '%s' "$row" | jq -r 'if .freeform == null then "public" else "private-ep" end')"
-  printf '  %-32s %-12s %-4s ecpu:%-4s %sTB  %-9s %-7s %s\n' \
-    "$name" "$state" "$workload" "$ecpu" "$tb" "$autoscale" "$mtls" "$pe" >&2
+  printf '  %-32s %-12s %-4s ecpu:%-4s %-7s %-9s %-7s %s\n' \
+    "$name" "$state" "$workload" "$ecpu" "$storage" "$autoscale" "$mtls" "$pe" >&2
 done
 
 echo >&2

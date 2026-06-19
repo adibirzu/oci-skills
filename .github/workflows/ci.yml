@@ -100,6 +100,9 @@ jobs:
       - name: oci_project lifecycle smoke (status/bootstrap-dry-run/teardown-plan)
         run: /bin/bash tests/oci_project_smoke.sh
 
+      - name: oci_adb lister smoke (ECPU GB vs OCPU TB storage, no-OCID, empty)
+        run: /bin/bash tests/oci_adb_smoke.sh
+
   validate:
     name: validate skill manifests
     runs-on: ubuntu-latest
