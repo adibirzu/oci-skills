@@ -17,6 +17,20 @@
       "source": "./",
       "category": "devops",
       "homepage": "https://github.com/adibirzu/oci-skills"
+    },
+    {
+      "name": "multillm",
+      "description": "Route Claude Code to 18 LLM backends (local Ollama/LM Studio, cloud OpenAI/Anthropic/Gemini/Groq/DeepSeek/Mistral/etc., OCI Generative AI, and CLI agents Codex/Gemini/Antigravity) through one local Anthropic-compatible gateway. Cost prediction and budgets, quota-aware failover, thought-level model fusion (panel + judge synthesis), log-driven smart routing, council/2nd-opinion, shared cross-LLM memory, and a real-time dashboard. Tenancy-agnostic and bring-your-own-env: no keys, OCIDs, endpoints, or tenant data shipped — each user defines OCI profile, API keys, and (optional) Langfuse/OCI APM telemetry in their own environment.",
+      "version": "0.7.0",
+      "author": {
+        "name": "adibirzu"
+      },
+      "source": {
+        "source": "github",
+        "repo": "adibirzu/multillm"
+      },
+      "category": "ai",
+      "homepage": "https://github.com/adibirzu/multillm"
     }
   ]
 }
