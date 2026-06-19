@@ -48,6 +48,7 @@ inline real OCIDs, DSNs, IPs, or wallet contents — use `<PLACEHOLDER>` tokens.
 
 | User intent | Go to |
 |-------------|-------|
+| Provision/create a new ADB/ATP/ADW (ECPU, private endpoint, idempotent) | ADB provisioning (this skill) |
 | Start/stop/restart, scale ECPU/storage, auto-scaling, clone, restore, backup | ADB lifecycle (this skill) |
 | Wallet: generate, rotate, mTLS vs TLS, `TNS_ADMIN`, regional vs instance | Wallet & connectivity (this skill) |
 | Access control list / `whitelisted-ips` / private endpoint | Network access (this skill) |
@@ -66,6 +67,7 @@ Safety rules (auth modes, read-before-write, redaction):
 
 | Task | Sequence |
 |------|----------|
+| Provision a new ADB (idempotent) | `list --display-name` (reuse if non-TERMINATED) → preflight quota → `confirm` → `run_mutating ... create` → on `db-name already in use` retry alt name → on timeout re-discover by `--display-name` → poll `AVAILABLE` → `generate-wallet` |
 | App can't reach a stopped ADB | `get` (state `STOPPED`) → `confirm` → `run_mutating ... start` → poll state `AVAILABLE` → reconnect |
 | Wallet leaked / rotated staff | **Console → DB → Database Connection → Rotate Wallet** (invalidates old wallets) → `generate-wallet` fresh → redeploy `TNS_ADMIN` → rotate the DB password too |
 | New client IP blocked | `get` ACL → `confirm` → `update --whitelisted-ips '[...existing + new]'` (the list is **replace, not append**) → verify |
@@ -82,6 +84,33 @@ oci_cli db autonomous-database list --compartment-id <COMPARTMENT_OCID> --all \
 oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> \
   --query 'data.{state:"lifecycle-state",mtls:"is-mtls-connection-required",acl:"whitelisted-ips"}'
 ```
+
+**Provision a new ADB** (idempotent: reuse an existing one before creating). ECPU
+compute model — storage is in **GBs** (`--data-storage-size-in-gbs`); the legacy
+OCPU model used `--cpu-core-count` + `--data-storage-size-in-tbs`:
+```bash
+# 1. Reuse an existing non-terminated instance by display name (don't double-create).
+existing="$(oci_cli db autonomous-database list --compartment-id <COMPARTMENT_OCID> \
+  --display-name '<DISPLAY_NAME>' \
+  --query "data[?\"lifecycle-state\"!='TERMINATED' && \"lifecycle-state\"!='TERMINATING'].id | [0]" --raw-output)"
+# 2. Create only if none. Async op — the CLI may return before AVAILABLE or time out.
+run_mutating "create ADB" oci_cli db autonomous-database create \
+  --compartment-id <COMPARTMENT_OCID> --display-name '<DISPLAY_NAME>' \
+  --db-name '<DBNAME>' --db-workload OLTP --admin-password "$ADMIN_PASSWORD" \
+  --compute-model ECPU --compute-count 2 --data-storage-size-in-gbs 20 \
+  --is-auto-scaling-enabled true --is-free-tier false \
+  --query 'data.id' --raw-output
+#    Private endpoint (VCN must already carry a DNS label — set at VCN creation, immutable):
+#      --subnet-id <SUBNET_OCID> --nsg-ids '["<NSG_OCID>"]' --private-endpoint-label '<LABEL>'
+# 3. Poll to AVAILABLE; if create timed out, re-discover by display name before assuming failure.
+```
+Footguns (all real, KB-121/122/123): `--db-name` is alnum, ≤14 chars, **globally
+unique per region** — a collision returns `db-name ... already in use`; randomize
+and retry. `--admin-password` is 12–30 chars (upper+lower+digit, no `"` and not the
+literal `admin`). A private-endpoint ADB listens on **TCP 1522** (not 1521) — the
+NSG/security list must allow `client-subnet → ADB-PE:1522`. `create` can return
+`not currently enabled for this tenancy` even when service limits show capacity →
+request Autonomous Database quota in **Console → Limits** and retry.
 
 **Start / stop** (stop to save cost; confirm — it drops sessions):
 ```bash
@@ -145,6 +174,33 @@ python cli/db.py upgrade      # apply to head
 python cli/db.py downgrade -1 # roll back one
 ```
 
+**Enable ADB-native monitoring** (Database Management + Operations Insights are
+control-plane toggles on the ADB resource — idempotent, treat `409`/already-enabled
+as success). Deep monitoring/Performance-Hub work still routes to `oci-observability-db`:
+```bash
+run_mutating "enable DBM"  oci_cli db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
+run_mutating "enable OPSI" oci_cli db autonomous-database enable-operations-insights        --autonomous-database-id <ADB_OCID>
+oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> \
+  --query 'data.{dbm:"database-management-status",opsi:"operations-insights-status"}'
+```
+
+**Create a least-privilege monitoring user** *inside* the ADB (thin-mode wallet
+connect as ADMIN — no `sqlplus`/Instant Client needed). Grant only read on the
+catalog, not DBA:
+```python
+import oracledb  # thin mode; config_dir/wallet_location = $TNS_ADMIN
+conn = oracledb.connect(user="ADMIN", password=admin_pw, dsn=f"{svc}_tp",
+    config_dir=tns_admin, wallet_location=tns_admin, wallet_password=wallet_pw)
+cur = conn.cursor()
+cur.execute(f'CREATE USER {mon} IDENTIFIED BY "{mon_pw}"')        # quote → preserves case/specials
+cur.execute(f"GRANT CREATE SESSION TO {mon}")
+cur.execute(f"GRANT SELECT_CATALOG_ROLE TO {mon}")               # v$ / dba_ views (read-only)
+cur.execute(f"GRANT SELECT ANY DICTIONARY TO {mon}")
+cur.execute(f"GRANT READ ON awr_pdb_snapshot TO {mon}")          # AWR/ASH on ADB (PDB-scoped)
+```
+Wrap each `GRANT` in its own try/except — some views/packages vary by ADB version,
+and a missing one should warn, not abort the whole setup.
+
 ## Working DB diagnostics (read-only, in-DB SQL)
 
 Once connected, you can answer "why is the DB slow/hung?" with read-only SQL over
@@ -199,6 +255,14 @@ wallet** (rewrite `retry_count=20` → `1` so a stopped DB fails fast, KB-121):
   only; never `KILL SESSION`/DDL/DML from a diagnostic path. Bound every Tier-3 call
   with a hard timeout and use a fast-fail runtime wallet (KB-121). SQL text and bind
   values can leak data — redact before sharing.
+- **Create is async + idempotent (KB-123).** The CLI may return before `AVAILABLE`
+  or time out while the resource is still being created. Always `list --display-name`
+  first to reuse, and on timeout re-discover by display name before re-creating.
+- **`--db-name` is globally unique per region, ≤14 alnum chars (KB-124).** Collisions
+  return `db-name ... already in use`; randomize and retry, don't fail.
+- **Private-endpoint ADB needs the VCN's DNS label (immutable) and listens on TCP
+  1522 (KB-125).** No DNS label at VCN creation → no private endpoint (recreate the
+  VCN). Open `client-subnet → ADB-PE:1522` in the NSG/security list, not 1521.
 - Read before write; treat `409 Conflict` as "already exists" and re-`get`.
 - Mutations go through `run_mutating` (honors `OCI_SKILLS_DRY_RUN=true`);
   destructive ops (stop, restore, terminate) also through `confirm`.
