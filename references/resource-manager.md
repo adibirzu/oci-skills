@@ -128,3 +128,4 @@ variables:
 Canonical Oracle docs for the services covered above (verified live):
 
 - [Resource Manager (managed Terraform)](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm)
+- [Terraform on OCI (provider, authoring stacks)](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm)
