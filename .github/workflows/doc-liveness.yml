@@ -4,6 +4,10 @@ name: doc liveness
 # still resolves. Kept OUT of PR CI — it makes live HTTP calls that are slow and
 # can flake — and runs on a weekly schedule plus manual dispatch instead. The
 # offline format/coverage lint lives in tests/test_doc_links.py and DOES gate PRs.
+#
+# Enforcement: a red scheduled job is easy to ignore, so on dead links this
+# workflow opens (or comments on) a `doc-rot` issue with the report, THEN fails.
+# Link rot becomes a tracked work item, not a silently-red cron run.
 
 on:
   schedule:
@@ -12,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 jobs:
   liveness:
@@ -22,5 +27,34 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: HTTP-check every indexed Oracle doc URL
-        run: python3 scripts/check_doc_links.py --live --timeout 25 --retries 3
+        id: check
+        run: |
+          set +e
+          python3 scripts/check_doc_links.py --live --timeout 25 --retries 3 2>&1 | tee /tmp/doclinks.txt
+          echo "rc=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update a doc-rot issue on dead links
+        if: steps.check.outputs.rc != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh label create doc-rot --color B60205 \
+            --description "Dead documentation link detected by doc-liveness" 2>/dev/null || true
+          report="$(tail -50 /tmp/doclinks.txt)"
+          body="$(printf 'The weekly doc-liveness check failed — one or more `docs.oracle.com` URLs in `references/oracle-docs.md` no longer resolve.\n\nFix: update the moved/retired URL(s) in `references/oracle-docs.md` (and any KB `**See:**` / skill footer that cites them), verify with `python3 scripts/check_doc_links.py --live`, and close this issue.\n\nRun: %s/%s/actions/runs/%s\n\n```\n%s\n```\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$report")"
+          existing="$(gh issue list --label doc-rot --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "doc-liveness: dead Oracle doc link(s) detected" \
+              --label doc-rot --body "$body"
+          fi
+
+      - name: Fail the run if any link is dead
+        if: steps.check.outputs.rc != '0'
+        run: |
+          echo "Dead Oracle doc link(s) detected — see the doc-rot issue." >&2
+          exit 1
