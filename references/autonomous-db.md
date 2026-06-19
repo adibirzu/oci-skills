@@ -25,6 +25,9 @@ Mutations run through `run_mutating` / `confirm` (`scripts/common.sh`).
 |---|---|
 | List | `oci db autonomous-database list --compartment-id <CMPT> --all` |
 | Inspect | `oci db autonomous-database get --autonomous-database-id <ADB_OCID>` |
+| Create (ECPU) | `... create --compartment-id <CMPT> --display-name <NAME> --db-name <DBNAME> --db-workload OLTP --admin-password <PW> --compute-model ECPU --compute-count 2 --data-storage-size-in-gbs 20 --is-auto-scaling-enabled true --is-free-tier false` |
+| Enable DBM | `... enable-autonomous-database-management --autonomous-database-id <ADB_OCID>` |
+| Enable OPSI | `... enable-operations-insights --autonomous-database-id <ADB_OCID>` |
 | Start | `... start --autonomous-database-id <ADB_OCID>` |
 | Stop (save cost) | `... stop --autonomous-database-id <ADB_OCID>` |
 | Restart | `... restart --autonomous-database-id <ADB_OCID>` |
@@ -49,6 +52,59 @@ oci db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data
   private_ep:"private-endpoint", version:"db-version"}'
 ```
 
+### 1a. Provisioning (`create`) — idempotent, async, ECPU model
+
+The biggest real-world footgun cluster. Battle-tested shape:
+
+```bash
+# Reuse before create — list has no subtree flag; scope the target compartment.
+existing="$(oci db autonomous-database list --compartment-id <CMPT> \
+  --display-name '<DISPLAY_NAME>' \
+  --query "data[?\"lifecycle-state\"!='TERMINATED' && \"lifecycle-state\"!='TERMINATING'].id | [0]" --raw-output)"
+
+# Create only if none. Returns the OCID, but the op is ASYNC — may return before AVAILABLE.
+run_mutating "create ADB" oci db autonomous-database create \
+  --compartment-id <CMPT> --display-name '<DISPLAY_NAME>' \
+  --db-name '<DBNAME>' --db-workload OLTP --admin-password "$ADMIN_PASSWORD" \
+  --compute-model ECPU --compute-count 2 --data-storage-size-in-gbs 20 \
+  --is-auto-scaling-enabled true --is-free-tier false \
+  --query 'data.id' --raw-output
+#   Private endpoint (VCN must carry a DNS label, set at VCN-create, immutable):
+#     --subnet-id <SUBNET_OCID> --nsg-ids '["<NSG_OCID>"]' --private-endpoint-label '<LABEL>'
+```
+
+- **Compute model.** `--compute-model ECPU` (current) takes `--compute-count N` and
+  storage in **GBs** (`--data-storage-size-in-gbs`). The legacy OCPU model used
+  `--cpu-core-count N` and `--data-storage-size-in-tbs N`. Don't mix them.
+- **`--db-name`**: alphanumeric, **≤14 chars**, **globally unique per region**. A
+  collision returns `db-name ... already in use` — randomize (`db$RANDOM`) and retry.
+- **`--admin-password`**: 12–30 chars, ≥1 upper + lower + digit, **no `"`** and must
+  not contain the literal `admin`. Store in Vault, never echo.
+- **Async / timeout recovery.** If `create` times out or loses the OCID, **re-discover
+  by display name** (the `list --display-name` query above) before assuming failure —
+  the resource is often already creating. Then poll `lifecycle-state` to `AVAILABLE`.
+- **Tenancy/region availability.** `create` may return `not currently enabled for this
+  tenancy` / `not supported in this region` even when service limits show capacity →
+  request **Autonomous Database** quota in Console → Limits, then retry. Distinguish
+  this (hard stop) from `InvalidParameter` (bad tier args) and the db-name collision
+  (retry) — they need different handling.
+- **Private endpoint.** Needs a subnet + the VCN's **DNS label** (immutable; if absent
+  the VCN must be recreated). The PE listens on **TCP 1522** — the NSG / security list
+  must allow `client-subnet → ADB-PE:1522` (not 1521). Without a DNS label, fall back
+  to a public endpoint + ACL.
+
+### 1b. ADB-native monitoring enablement (control-plane toggles)
+
+```bash
+oci db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
+oci db autonomous-database enable-operations-insights        --autonomous-database-id <ADB_OCID>
+oci db autonomous-database get --autonomous-database-id <ADB_OCID> \
+  --query 'data.{dbm:"database-management-status",opsi:"operations-insights-status"}'
+```
+Idempotent — treat already-enabled / `409` as success. These are the ADB-resource
+toggles; Performance Hub, alarms, dashboards, and Base-DB (DBCS) DBM live in
+`oci-observability-db`.
+
 ## 2. Wallet & connectivity
 
 ```bash
@@ -59,6 +115,11 @@ unzip -o ~/secure/<db>_wallet.zip -d ~/secure/<db>_wallet && chmod 700 ~/secure/
 export TNS_ADMIN=~/secure/<db>_wallet
 ```
 
+- **Wallet password derivation (optional, avoids a second stored secret).** The
+  wallet password protects the `.p12`, not the DB. Instead of storing a separate
+  random value you can derive a stable one from the **immutable DB OCID**, e.g.
+  `Wlt_$(printf '%s' "$ADB_OCID" | shasum | cut -c1-12)!` — reproducible on any host
+  with the OCID, nothing extra to vault. Still treat the resulting wallet as a secret.
 - **Generate ≠ rotate.** `generate-wallet` downloads; it does **not** invalidate
   prior wallets. To invalidate a leaked wallet → **Console → Database details →
   Database Connection → Rotate Wallet**. There is no clean CLI rotate-and-invalidate.
@@ -107,6 +168,28 @@ with pool.acquire() as conn, conn.cursor() as cur:
   features (some advanced auth, OCI session pooling specifics).
 - `python-oracledb` supersedes `cx_Oracle`; the SQLAlchemy dialect is
   `oracle+oracledb://` (not `oracle+cx_oracle://`).
+
+### In-DB setup over thin mode (DDL without sqlplus)
+ADB has no host shell, but you can run DDL as `ADMIN` straight over python-oracledb
+thin mode (wallet only — no Instant Client). Pattern for a **least-privilege
+monitoring user** (read-only catalog access, never DBA):
+```python
+conn = oracledb.connect(user="ADMIN", password=admin_pw, dsn=f"{svc}_tp",
+    config_dir=tns_admin, wallet_location=tns_admin, wallet_password=wallet_pw)
+cur = conn.cursor()
+cur.execute(f'CREATE USER {mon} IDENTIFIED BY "{mon_pw}"')   # double-quote → keep case/specials
+for stmt in (f"GRANT CREATE SESSION TO {mon}",
+             f"GRANT SELECT_CATALOG_ROLE TO {mon}",          # v$ / dba_ views (read-only)
+             f"GRANT SELECT ANY DICTIONARY TO {mon}",
+             f"GRANT READ ON awr_pdb_snapshot TO {mon}"):    # AWR/ASH, PDB-scoped on ADB
+    try: cur.execute(stmt)
+    except oracledb.DatabaseError as e:
+        print(f"[warn] {stmt}: {e}")                         # version-vary → warn, don't abort
+```
+Bind/identifier note: you can't bind object/user names — they're concatenated, so
+**validate `mon` against `^[A-Za-z][A-Za-z0-9_]{0,29}$`** before interpolating to
+avoid SQL injection via the username. Passwords go through the `IDENTIFIED BY "..."`
+literal; generate them, never accept free-form input.
 
 ### SQLAlchemy engine (pooled, self-healing)
 ```python
@@ -184,8 +267,15 @@ consider GoldenGate (separate service), not a cron of dumps.
 - [x] ADB doc URLs registered + liveness-verified in `references/oracle-docs.md`
       (landing, wallet download, network ACLs, CLI cmdref).
 - [x] KB entries: KB-118 (stopped-DB startup stall), KB-119 (ACL replace footgun),
-      KB-120 (`cx_oracle` → `oracledb` dialect).
-- [x] Eval cases route ADB wallet/ACL/connect intents to this skill (`evals/`).
+      KB-120 (`cx_oracle` → `oracledb` dialect), KB-121 (SQLcl fast-fail wallet),
+      KB-122 (read-only diagnostics), KB-123 (async/idempotent create +
+      timeout re-discover), KB-124 (`db-name` global-unique collision retry),
+      KB-125 (private-endpoint DNS-label immutability + TCP 1522).
+- [x] Provisioning (`create`) — ECPU model, idempotent reuse, async-timeout recovery,
+      tenancy/limit vs invalid-param vs collision triage, private-endpoint args (§1a).
+- [x] ADB-native DBM/OPSI enablement toggles (§1b); in-DB monitoring-user DDL over
+      thin mode with injection-safe identifier validation (§4).
+- [x] Eval cases route ADB provisioning/wallet/ACL/connect intents to this skill (`evals/`).
 - [x] ORDS / Database Actions URL retrieval + Data Pump via Object Storage (§7).
 - [ ] Next: a named-context `oci_adb.sh resolve <name>` mode (friendly name → OCID),
       GoldenGate replication notes, and refreshable-clone / Data Guard standby flows.
