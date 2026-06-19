@@ -20,8 +20,8 @@
     },
     {
       "name": "multillm",
-      "description": "Route Claude Code to 18 LLM backends (local Ollama/LM Studio, cloud OpenAI/Anthropic/Gemini/Groq/DeepSeek/Mistral/etc., OCI Generative AI, and CLI agents Codex/Gemini/Antigravity) through one local Anthropic-compatible gateway. Cost prediction and budgets, quota-aware failover, thought-level model fusion (panel + judge synthesis), log-driven smart routing, council/2nd-opinion, shared cross-LLM memory, and a real-time dashboard. Tenancy-agnostic and bring-your-own-env: no keys, OCIDs, endpoints, or tenant data shipped — each user defines OCI profile, API keys, and (optional) Langfuse/OCI APM telemetry in their own environment.",
-      "version": "0.7.0",
+      "description": "Route Claude Code to 18 LLM backends (local Ollama/LM Studio, cloud OpenAI/Anthropic/Gemini/Groq/DeepSeek/Mistral/etc., OCI Generative AI, and CLI agents Codex [gpt-5-5]/Gemini/Antigravity [Gemini 3.x]) through one local Anthropic-compatible gateway. Beats-frontier model fusion via the `fusion` / `auto` slugs (panel + judge synthesis with a generous token budget for the best answer), log-driven smart routing, cost prediction and budgets with alerts, quota-aware failover, council/2nd-opinion, shared cross-LLM memory, a result cache, and a real-time dashboard with cost/forecast/budget/routing panels. Self-bootstrapping (installs an isolated venv on first run). Tenancy-agnostic and bring-your-own-env: no keys, OCIDs, endpoints, or tenant data shipped — each user defines OCI profile, API keys, and (optional) Langfuse/OCI APM telemetry in their own environment.",
+      "version": "0.8.0",
       "author": {
         "name": "adibirzu"
       },
