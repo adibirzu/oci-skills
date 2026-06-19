@@ -971,3 +971,94 @@ ranges out when you only want external peers. Enable VCN Flow Logs on the releva
 subnets/VNICs first (an OCI Logging feature).
 **See:** [Logging](https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm)
 **Status:** resolved.
+
+## KB-112 — DBM enabled does not mean OPSI enabled — they are separate steps (observability-db)
+
+**Symptom:** An enablement run skips a target's Operations Insights step, leaving
+Database Insights uncreated, because Database Management was already enabled on it.
+**Root cause:** DBM and OPSI are **independent** enablements. Treating "DBM already
+enabled" as full success skips the OPSI create entirely.
+**Fix:** Enable them as separate, independently-idempotent steps: if DBM is already
+enabled but the OPSI credential/payload is ready, continue to the OPSI
+create/enable step rather than marking the target done.
+**See:** [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
+**Status:** resolved.
+
+## KB-113 — OPSI create rejects the database resource type — use OCI resource-type strings (observability-db)
+
+**Symptom:** `opsi database-insights create-*` fails validation, rejecting a value
+like `ORACLE_DATABASE` as an unsupported database resource type.
+**Root cause:** OPSI expects the **OCI resource-type strings**, not friendly or
+guessed labels.
+**Fix:** Use `database` for Base Database Service CDB / non-CDB targets and
+`pluggabledatabase` for PDB targets. Confirm the exact accepted values with
+`python3 scripts/oci_cli_help.py opsi database-insights create-pe-comanaged-database`
+before running.
+**See:** [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
+**Status:** resolved.
+
+## KB-114 — DBSNMP password rotation fails with `ORA-00972: identifier is too long` (observability-db)
+
+**Symptom:** Rotating the `DBSNMP` monitoring password with a long generated value
+fails with `ORA-00972: identifier is too long`.
+**Root cause:** The generated password (often quoted) exceeds the length the
+database accepts in the `ALTER USER` statement for that release/profile (seen on a
+19c baseline).
+**Fix:** Generate a **shorter** password that still satisfies the profile's
+complexity rules; store it only in OCI Vault and ignored local files, never inline.
+Re-verify `DBSNMP` is `OPEN` and the required grants are present in the CDB root
+and each PDB afterward.
+**See:** [Database Management](https://docs.oracle.com/en-us/iaas/database-management/home.htm)
+**Status:** resolved.
+
+## KB-115 — Performance Hub greys out asking to grant DBSNMP privileges (observability-db)
+
+**Symptom:** Console **Performance Hub** for a DBM-managed database shows
+"Performance Hub requires granting of appropriate user privileges… reopen
+Performance Hub", and AWR / ADDM / ASH Analytics / SQL Tuning / Real-Time SQL
+Monitoring are unavailable.
+**Root cause:** The DBM monitoring user (`DBSNMP`) has only the basic + advanced
+*monitoring* grants, not the larger Performance Hub set (which runs advisors and
+the workload repository).
+**Fix:** As SYSDBA, grant the exact set the Console names. `DBSNMP` is a CDB common
+user, so issue the grants from the root with `CONTAINER=ALL` to cover the CDB and
+every PDB at once — e.g. `grant create procedure to DBSNMP container=all;`,
+`grant select any dictionary to DBSNMP container=all;`,
+`grant select_catalog_role to DBSNMP container=all;` plus the advisor grants the
+prompt lists. Reopen Performance Hub.
+**See:** [Database Management](https://docs.oracle.com/en-us/iaas/database-management/home.htm)
+**Status:** resolved.
+
+## KB-116 — DBSNMP re-locks after rotation: `ORA-28000` lock loop from the local Cloud Agent (observability-db)
+
+**Symptom:** After rotating the `DBSNMP` password, DBM monitoring goes green
+briefly then flips to **Stopped**, OPSI collection stalls "Needs attention", and
+the account status cycles `OPEN → LOCKED` within minutes (`ORA-28000 - account is
+locked`).
+**Root cause:** On Base Database Service the **local Oracle Cloud Agent** also
+authenticates as `DBSNMP` using the password set at provisioning. Rotating the
+password without updating that consumer leaves it retrying the old password,
+tripping the profile's `FAILED_LOGIN_ATTEMPTS` and locking the shared account —
+which takes DBM and OPSI down with it.
+**Fix:** Break the lock loop by aligning every `DBSNMP` consumer on the new
+password (or move DBM/OPSI to a dedicated monitoring user so the Cloud Agent and
+DBM don't share one account); then unlock once. Rotating a **shared** DB account
+without finding every consumer guarantees a re-lock.
+**See:** [Database Management](https://docs.oracle.com/en-us/iaas/database-management/home.htm)
+**Status:** resolved.
+
+## KB-117 — OPSI insight reported `NOT_FOUND` while it is actually ACTIVE — list is non-deterministic (observability-db)
+
+**Symptom:** A check reports an OPSI Database Insight `NOT_FOUND` for a CDB/PDB
+even though `opsi database-insights list … --lifecycle-state ACTIVE` shows it
+`ACTIVE` with `database-connection-status: SUCCESS`.
+**Root cause:** A single `database-insights list` call passing the **full**
+lifecycle-state set together with `--all` can return inconsistent results
+call-to-call (the full set, a partial set, or an exit-0 **empty** list) for the
+same compartment. Matching a target against one such flaky list yields false
+`NOT_FOUND`.
+**Fix:** Don't trust a single broad list as proof of absence. Resolve the specific
+insight by `--database-id` (or `get`), and re-list / retry before concluding it is
+missing — an empty list is inconclusive, not authoritative.
+**See:** [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
+**Status:** resolved.
