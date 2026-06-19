@@ -1110,3 +1110,39 @@ with no Instant Client.
 idle-session timeout never hands back a dead connection.
 **See:** [Download connection info / wallet (mTLS & TLS)](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html)
 **Status:** resolved.
+
+## KB-121 — SQLcl/oracledb diagnostics hang ~60s on a stopped ADB (wallet retry_count) (autonomous-db)
+
+**Symptom:** A read-only diagnostic query (SQLcl or python-oracledb) against an
+Autonomous Database hangs ~60s and then errors when the DB is `STOPPED` or
+unreachable, even though the SQL itself is trivial (`SELECT 1 FROM dual`).
+**Root cause:** ADB wallets ship a `sqlnet.ora` / `tnsnames.ora` with long retry
+settings (`retry_count=20`, generous connect timeouts) tuned for resilient app
+connections. A diagnostic tool inherits them and dutifully retries 20 times before
+giving up — turning a fast failure into a minute-long stall (related to KB-118 on
+the app-startup side).
+**Fix:** Copy the wallet to a runtime directory and rewrite the retry/timeout knobs
+so diagnostics **fail fast**: `retry_count=1`, `retry_delay=0`,
+`outbound_connect_timeout=10`, `tcp_connect_timeout=5`; point `TNS_ADMIN` at the
+copy for the run and wrap the call in a hard wall-clock timeout (20–30s). Drive it
+via env (`SQLCL_TNS_RETRY_COUNT`, `SQLCL_OUTBOUND_CONNECT_TIMEOUT`, etc.). Never
+edit the original wallet in place.
+**See:** [Download connection info / wallet (mTLS & TLS)](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html)
+**Status:** resolved.
+
+## KB-122 — In-DB diagnostics must stay read-only — no KILL/DDL/DML from a diagnostic path (autonomous-db)
+
+**Symptom:** An automated or assisted "troubleshoot the database" flow is tempted to
+resolve a blocker by issuing `ALTER SYSTEM KILL SESSION`, or to "fix" a plan by
+gathering stats / dropping an index inline — a state-changing action fired from what
+the user asked to be a diagnosis.
+**Root cause:** Diagnostics and remediation are different risk classes. Reading
+`V$`/`GV$`/`DBA_*`/`DBMS_XPLAN` is always safe; killing a session or running DDL/DML
+can lose work, roll back transactions, or change plans for every other session.
+Blending them removes the human checkpoint before an irreversible change.
+**Fix:** Keep the diagnostic path strictly read-only (dynamic performance views +
+`DBMS_XPLAN` only). Surface the finding (e.g. "root blocker SID 142") and hand any
+mutation to a **separate, confirmation-gated** remediation (`run_mutating`/`confirm`,
+or route to `oracle/skills` `db/`). Redact SQL text and bind values before sharing.
+**See:** [Database Reference (V$ dynamic performance views)](https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html)
+**Status:** resolved.
