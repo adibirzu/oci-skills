@@ -160,8 +160,8 @@ jobs:
       - name: no stale domain-count drift in docs/manifests
         run: |
           set -euo pipefail
-          if grep -REn 'six domain|four admin domain' README.md .claude-plugin/; then
-            echo "::error::stale domain count (expected 'nine') — update README/marketplace"
+          if grep -REn 'six domain|four admin domain|nine domain|nine domains|9 control-plane' README.md AGENTS.md commands docs evals references scripts skills harness .claude-plugin/; then
+            echo "::error::stale domain count (expected ten domain skills plus oci-project) — update docs/manifests"
             exit 1
           fi
           echo "domain-count references consistent"

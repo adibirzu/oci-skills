@@ -163,6 +163,12 @@ duplicating (deep OKE day-2, OCI Generative AI / Enterprise AI):
 | OKE access control (IAM + RBAC, incl. Workload Identity) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm> |
 | OKE multiple VNICs (GVA / Multus prerequisite) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengAttaching_Multiple_VNICs.htm> |
 
+## Adjacent Oracle SaaS — route out of this OCI control-plane pack
+
+| Topic | Canonical doc |
+|---|---|
+| Oracle Fusion Cloud Applications documentation hub | <https://docs.oracle.com/en/cloud/saas/index.html> |
+
 ## Cross-cutting — CLI, SDK, API errors
 
 | Topic | Canonical doc |

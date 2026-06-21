@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # oci_project.sh — OCI project lifecycle helper.
 #
-# Orchestrates the project lifecycle on top of the nine domain skills, scoped to
+# Orchestrates the project lifecycle on top of the ten domain skills, scoped to
 # ONE project compartment. Three subcommands:
 #
 #   status     (default) read-only health: inventory + states + open security
