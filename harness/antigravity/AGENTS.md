@@ -7,30 +7,34 @@ Antigravity skills directory and links this file as the active `AGENTS.md`.
 ## Capability
 
 Administer, audit, provision, secure, and troubleshoot Oracle Cloud
-Infrastructure across nine domains, each with a dedicated skill under
-`skills/` and a reference under `references/`:
+Infrastructure across ten domains, plus project lifecycle orchestration. Each
+route has a dedicated skill under `skills/` and a reference under `references/`:
 
-- **IAM & Tenancy** — users, groups, dynamic groups, policies, compartments,
+- **IAM & Tenancy** (`oci-iam-admin`) — users, groups, dynamic groups, policies, compartments,
   budgets, quotas, service limits, tags, Identity Domains.
-- **Security & Compliance** — Cloud Guard, Vault/KMS, Security Zones, WAF,
+- **Security & Compliance** (`oci-security-compliance`) — Cloud Guard, Vault/KMS, Security Zones, WAF,
   Audit, CIS / ISO-42001 / sovereignty scanning, IAM policy review.
-- **Observability & Database** — Monitoring/alarms, Logging, Log Analytics,
+- **Observability & Database** (`oci-observability-db`) — Monitoring/alarms, Logging, Log Analytics,
   APM, Notifications, Service Connector, Database Management, Operations Insights.
-- **Networking & Compute** — VCN, subnets, NSGs, route tables, gateways, load
+- **Autonomous Database** (`oci-autonomous-db`) — ADB/ADW/ATP lifecycle, wallet rotation, ACLs,
+  service levels, app connection patterns, and read-only SQL diagnostics.
+- **Networking & Compute** (`oci-networking-compute`) — VCN, subnets, NSGs, route tables, gateways, load
   balancers, OKE, compute instances, OCIR.
-- **Cost & Usage (FinOps)** — Usage API spend by service/compartment/region/tag,
+- **Cost & Usage (FinOps)** (`oci-cost`) — Usage API spend by service/compartment/region/tag,
   budgets (limit vs actual vs forecast), cost-tracking tags, guardrails.
   Read-only via `./scripts/oci_cost.sh`.
-- **Log Analytics (Logan)** — the OCL query language, sources/parsers/fields,
+- **Log Analytics (Logan)** (`oci-log-analytics`) — the OCL query language, sources/parsers/fields,
   entities/log groups, detections (Sigma→OCL), saved/scheduled searches,
   dashboards, migration. Read-only query via `./scripts/oci_logan.sh`.
-- **Resource Manager (ORM)** — managed Terraform: stacks, plan/apply/destroy
+- **Resource Manager (ORM)** (`oci-resource-manager`) — managed Terraform: stacks, plan/apply/destroy
   jobs, tfstate, drift, schema.yaml packaging.
-- **Data Safe** — target registration, security/user assessment, activity
+- **Data Safe** (`oci-data-safe`) — target registration, security/user assessment, activity
   auditing, data discovery, data masking.
-- **Events & Functions (serverless)** — OCI Functions, the Events service
+- **Events & Functions (serverless)** (`oci-events-functions`) — OCI Functions, the Events service
   (rules→FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out,
   Streaming transport.
+- **Project lifecycle** (`oci-project`) — bootstrap, status/health, deploy/release, and gated
+  teardown through `oci-project` above the ten domains.
 
 ## Operating contract (non-negotiable)
 

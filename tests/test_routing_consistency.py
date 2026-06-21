@@ -16,6 +16,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 ROUTER = ROOT / "skills" / "oci-administrator" / "SKILL.md"
 AGENTS = ROOT / "AGENTS.md"
 EVALS = ROOT / "evals" / "evals.json"
+ALIGNMENT = ROOT / "references" / "oracle-skills-alignment.md"
 
 
 def _domains() -> set[str]:
@@ -35,6 +36,46 @@ def test_every_domain_in_both_routing_tables() -> None:
     assert not missing, "routing drift:\n" + "\n".join(missing)
 
 
+def test_user_facing_domain_lists_include_all_domains() -> None:
+    docs = [
+        ROOT / "README.md",
+        ROOT / "docs" / "QUICKSTART.md",
+        ROOT / "harness" / "gemini" / "GEMINI.md",
+        ROOT / "harness" / "antigravity" / "AGENTS.md",
+    ]
+    missing = []
+    for doc in docs:
+        text = doc.read_text(encoding="utf-8")
+        for domain in sorted(_domains()):
+            if domain not in text:
+                missing.append(f"{doc.relative_to(ROOT)} missing {domain}")
+    assert not missing, "domain-list drift:\n" + "\n".join(missing)
+
+
+def test_no_stale_domain_count_language_in_shipped_surfaces() -> None:
+    stale = re.compile(r"\b(?:six domain|four admin domain|nine domain|nine domains|9 control-plane)\b", re.I)
+    scan_roots = ["README.md", "AGENTS.md", "commands", "docs", "evals", "references", "scripts", "skills", "harness", ".claude-plugin"]
+    hits = []
+    for root in scan_roots:
+        path = ROOT / root
+        files = [path] if path.is_file() else sorted(path.rglob("*"))
+        for f in files:
+            if f.is_file() and f.suffix in {"", ".md", ".py", ".sh", ".json", ".yaml", ".yml", ".toml"}:
+                for lineno, line in enumerate(f.read_text(encoding="utf-8").splitlines(), start=1):
+                    if stale.search(line):
+                        hits.append(f"{f.relative_to(ROOT)}:{lineno}: {line.strip()}")
+    assert not hits, "stale domain-count language:\n" + "\n".join(hits)
+
+
+def test_every_routable_skill_has_common_flow_table() -> None:
+    missing = []
+    for domain in sorted(_domains()):
+        text = (ROOT / "skills" / domain / "SKILL.md").read_text(encoding="utf-8")
+        if "## Common multi-step flows" not in text:
+            missing.append(domain)
+    assert not missing, "skills missing Common multi-step flows: " + ", ".join(missing)
+
+
 def test_referenced_docs_exist() -> None:
     skill_md = ROUTER.read_text(encoding="utf-8")
     refs = set(re.findall(r"references/([A-Za-z0-9._-]+\.md)", skill_md))
@@ -49,3 +90,22 @@ def test_eval_routes_are_real_domains() -> None:
     bad = [c["id"] for c in cases
            if c.get("expect_route") is not None and c["expect_route"] not in domains]
     assert not bad, f"evals route to unknown domains: {bad}"
+
+
+def test_route_out_contract_has_eval_coverage() -> None:
+    cases = json.loads(EVALS.read_text(encoding="utf-8"))["cases"]
+    route_out = {c.get("expect_route_out") for c in cases if c.get("expect_route_out")}
+    expected = {
+        "oracle/skills oci/oke",
+        "oracle/skills oci/enterprise-ai",
+        "oracle/skills db",
+        "oracle/fusion-cloud-docs",
+    }
+    assert expected <= route_out, f"route-out eval coverage missing: {sorted(expected - route_out)}"
+
+    alignment = ALIGNMENT.read_text(encoding="utf-8")
+    for target in expected - {"oracle/fusion-cloud-docs"}:
+        repo, domain = target.split(" ", 1)
+        assert repo in alignment and domain in alignment
+    assert "Oracle Fusion Cloud Applications documentation" in alignment
+    assert "fusion/` domain placeholder" in alignment

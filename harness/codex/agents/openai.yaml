@@ -3,10 +3,10 @@
 # which places SKILL.md + references/ + scripts/ where Codex discovers skills.
 interface:
   display_name: "OCI Administrator"
-  short_description: "Administer and troubleshoot any OCI tenancy (IAM, Security, Observability/DB, Networking/Compute)"
+  short_description: "Administer and troubleshoot OCI across IAM, security, observability/DB, ADB, networking/compute, cost, Logan, ORM, Data Safe, serverless, and projects."
   default_prompt: >-
     Use $oci-administrator to handle this OCI tenancy request. Run
     scripts/oci_preflight.sh to confirm the target tenancy/compartment, check
-    references/KB.md first, then route to the correct domain plugin and apply
-    the verified, least-privilege action. Never print or commit OCIDs, IPs, or
-    secrets — redact with scripts/redact.py.
+    references/KB.md first, then route to the correct skill under skills/ and
+    apply the verified, least-privilege action. Never print or commit OCIDs,
+    IPs, or secrets — redact with scripts/redact.py.
