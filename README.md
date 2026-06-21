@@ -43,8 +43,10 @@ sensitive is ever printed or committed.
 > destructive-op guard), then hand off: **deep OKE day-2** (GVA, Multus,
 > troubleshooting) → `oci/oke`; **OCI Generative AI / Enterprise AI** →
 > `oci/enterprise-ai`; **inside an Oracle Database** (SQL/PL/SQL, RMAN, AWR/ASH,
-> migrations, Data Guard) → `db/`. We own the OCI services *around* the database
-> (DBM, OPSI, Data Safe, ADB provisioning). Full routing contract — coverage
+> migrations, Data Guard) → `db/`; **Oracle Fusion Cloud Applications / SaaS app
+> work** → Oracle Fusion Cloud Applications docs today, upstream `fusion/` only
+> once concrete Fusion skills are published. We own the OCI
+> services *around* the database (DBM, OPSI, Data Safe, ADB provisioning). Full routing contract — coverage
 > matrix, hand-off rules, shared conventions — in
 > [references/oracle-skills-alignment.md](references/oracle-skills-alignment.md).
 
@@ -65,6 +67,7 @@ flowchart TD
       IAM[oci-iam-admin]
       SEC[oci-security-compliance]
       OBS[oci-observability-db]
+      ADB[oci-autonomous-db]
       NET[oci-networking-compute]
       COST[oci-cost]
       LOG[oci-log-analytics]
@@ -231,15 +234,17 @@ references/              # domain + safety knowledge (progressive disclosure)
   mcp-gateway.md       # the non-official oci-mcp-gateway (optional read surface; not an Oracle product)
   helper-conventions.md  KB.md  kb-ingestion.md  named-contexts.md
   credential-management.md
-  iam-tenancy.md  security-compliance.md  observability-db.md  networking-compute.md
+  iam-tenancy.md  security-compliance.md  observability-db.md  autonomous-db.md
+  networking-compute.md
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md
 scripts/                # shared core
   common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh
   oci_project.sh  oci_cli_help.py  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
 skills/                  # twelve auto-discoverable skills (router + ten domains + project orchestrator)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
-  oci-observability-db/  oci-networking-compute/  oci-cost/  oci-log-analytics/
-  oci-resource-manager/  oci-data-safe/  oci-events-functions/  oci-project/
+  oci-observability-db/  oci-autonomous-db/  oci-networking-compute/
+  oci-cost/  oci-log-analytics/  oci-resource-manager/  oci-data-safe/
+  oci-events-functions/  oci-project/
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
 bootstrap.sh            # one-line remote installer (curl | bash)
@@ -285,7 +290,7 @@ in four moves:
    `delete|terminate|destroy` until you approve. `OCI_SKILLS_DRY_RUN=true` previews.
 4. **Ground & hand off.** Claims cite official Oracle docs (the verified
    [oracle-docs.md](references/oracle-docs.md) index). For work this pack doesn't
-   own, it routes out: **deep OKE day-2 / OCI GenAI / in-database** →
+   own, it routes out: **deep OKE day-2 / OCI GenAI / in-database / Fusion app work** →
    [oracle/skills](https://github.com/oracle/skills) (see
    [references/oracle-skills-alignment.md](references/oracle-skills-alignment.md)).
 
