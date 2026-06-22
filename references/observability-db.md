@@ -60,6 +60,16 @@ Required flags the CLI will reject if omitted: `--display-name`,
 `--compartment-id`, `--metric-compartment-id`, `--namespace`, `--query-text`,
 `--severity`, `--destinations` (a list of ONS topic OCIDs).
 
+**Service metric namespace catalog** (for alarms & dashboard panels): `oci_computeagent`,
+`oci_blockstore`, `oci_vcn`, `oci_lbaas`, `oci_oke`, `oci_database_autonomous`,
+`oci_database_management`, `oci_logging`, `oracle_apm_monitoring`, `oci_apigateway`,
+`oci_waf`, `oci_streaming`, `oci_functions`. Custom namespaces must be lowercase
+(KB-132). Every MQL query needs an aggregation window (`[5m]`) — a bare metric name fails.
+
+> **Visualizing these in Grafana** (OCI Metrics datasource, MQL panel queries,
+> dashboards-as-code, Loki/Promtail, Prometheus, alerting-as-code):
+> [grafana-dashboards.md](grafana-dashboards.md).
+
 ## Logging (log groups, service logs, custom logs, agents)
 
 Service logs (VCN flow, LB access, object-storage) require a JSON **source config**

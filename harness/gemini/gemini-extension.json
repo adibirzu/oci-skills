@@ -1,6 +1,6 @@
 {
   "name": "oci-skills",
   "version": "0.1.0",
-  "description": "Tenancy-agnostic OCI Administrator skill pack (IAM, Security & Compliance, Observability & DB, Networking & Compute) for the Gemini CLI.",
+  "description": "Tenancy-agnostic OCI Administrator skill pack for Gemini CLI: IAM, security, observability/DB, ADB, networking/compute, cost, Logan, ORM, Data Safe, serverless, and project lifecycle.",
   "contextFileName": "GEMINI.md"
 }

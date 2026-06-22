@@ -67,6 +67,7 @@ Safe), the upstream `db/` domain of
 |---|---|
 | Monitoring (metrics & alarms) | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm> |
 | Monitoring Query Language (MQL) reference | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/Reference/mql.htm> |
+| Querying metric data (MQL panels) | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/query-metric-data.htm> |
 | Logging | <https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm> |
 | APM (Application Performance Monitoring) | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm> |
 | APM Synthetic Monitoring | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/use-synthetic-monitoring.html> |
@@ -163,6 +164,12 @@ duplicating (deep OKE day-2, OCI Generative AI / Enterprise AI):
 | OKE access control (IAM + RBAC, incl. Workload Identity) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm> |
 | OKE multiple VNICs (GVA / Multus prerequisite) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengAttaching_Multiple_VNICs.htm> |
 
+## Adjacent Oracle SaaS — route out of this OCI control-plane pack
+
+| Topic | Canonical doc |
+|---|---|
+| Oracle Fusion Cloud Applications documentation hub | <https://docs.oracle.com/en/cloud/saas/index.html> |
+
 ## Cross-cutting — CLI, SDK, API errors
 
 | Topic | Canonical doc |
@@ -192,3 +199,19 @@ rather than the service home (all verified live):
 | Creating/deploying Functions | <https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm> | KB-084 |
 | Managing streams (stream vs stream pool) | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/managingstreams.htm> | KB-091 |
 | Streaming Kafka API configuration | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm> | KB-106 |
+| Manage APM domains | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/manage-apm-domains.html> | KB-126 |
+| Managing load balancer backend sets | <https://docs.oracle.com/en-us/iaas/Content/Balance/Tasks/managingbackendsets.htm> | KB-127 |
+| Deleting a VCN | <https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/deletingVCN.htm> | KB-128 |
+| Managing dynamic groups (dynamicgroups path) | <https://docs.oracle.com/en-us/iaas/Content/Identity/dynamicgroups/managingdynamicgroups.htm> | KB-130 |
+| Pushing images using the Docker CLI | <https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrypushingimagesusingthedockercli.htm> | KB-131 |
+| Publishing custom metrics | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/publishingcustommetrics.htm> | KB-132 |
+| Creating streams and stream pools | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/creating-streams-and-stream-pools.htm> | KB-133 |
+| Configuring the Terraform provider | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/configuring.htm> | KB-134 |
+| Resource Manager concepts | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resourcemanager.htm> | KB-135 |
+| Manage the ADB ADMIN user | <https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-users-admin.html> | KB-137 |
+| Network security groups | <https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/networksecuritygroups.htm> | KB-138 |
+| Deleting VCNs (managing VCNs) | <https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/managingVCNs_topic-Deleting_VCNs.htm> | KB-139 |
+| Manage Log Analytics with the CLI | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/use-cli-manage-log-analytics.html> | KB-140 |
+| Data Safe audit reports | <https://docs.oracle.com/en-us/iaas/data-safe/doc/audit-reports.html> | KB-141 |
+| Enable DB Management for Autonomous Databases | <https://docs.oracle.com/en-us/iaas/database-management/doc/enable-database-management-autonomous-databases.html> | KB-142 |
+| Calling services from an instance (IMDS auth) | <https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm> | KB-143 |

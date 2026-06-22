@@ -4,8 +4,8 @@ How this pack relates to the official, Oracle-maintained
 [oracle/skills](https://github.com/oracle/skills) collection — the upstream
 source of truth for Oracle-wide skills (domains: `db`, `oci`, `fusion`, `apex`,
 `graal`). This doc is the **routing contract** an agent uses to pick the right
-skill set for any Oracle Cloud task, so the two packs compose instead of
-colliding.
+skill set for OCI control-plane tasks and adjacent Oracle work, so the two packs
+compose instead of colliding.
 
 > **Rule of thumb.** This pack is the **default entry point for OCI tenancy
 > administration** — broad control-plane work across services, gated by the
@@ -20,7 +20,7 @@ They were built for different jobs and are **complementary**, not competing:
 
 | | This pack (`oci-administrator`) | `oracle/skills` `oci/` |
 |---|---|---|
-| Shape | Broad — 9 control-plane domains + lifecycle + Stage 0 design | Narrow + deep — OKE day-2 + Enterprise AI |
+| Shape | Broad — 10 control-plane domains + lifecycle + Stage 0 design | Narrow + deep — OKE day-2 + Enterprise AI |
 | Strength | Safety core (preflight, redaction, named contexts, KB, destructive-op guard hook), tenancy-agnostic admin, project lifecycle, [solution authoring](solution-authoring.md) | Reference architectures, GVA GPU node pools, Multus, OKE troubleshooting, GenAI agents/RAG/governance |
 | Grounding | [Open Knowledge Format index](oracle-docs.md) + offline lint + weekly liveness CI | `## Sources` footers on `docs.oracle.com` |
 | Mutations | `run_mutating` / `confirm` + PreToolUse guard | "ask before mutating" convention |
@@ -46,6 +46,7 @@ deep OKE / GenAI there.
 | **OKE day-2 deep-dive** — cluster design, GVA GPU node pools, Multus multihoming, incident troubleshooting | **`oracle/skills`** | [`oci/oke/`](https://github.com/oracle/skills/tree/main/oci/oke) |
 | **OCI Generative AI / Enterprise AI** — models, Responses-API agents, RAG, GenAI governance, GenAI cost | **`oracle/skills`** | [`oci/enterprise-ai/`](https://github.com/oracle/skills/tree/main/oci/enterprise-ai) |
 | **In-database** — SQL/PLSQL, RMAN, AWR/ASH tuning, schema migration, Data Guard | **`oracle/skills`** | [`db/`](https://github.com/oracle/skills/tree/main/db) |
+| Oracle Fusion Cloud Applications / SaaS configuration or extension | **Out of scope for this pack** | Use [Fusion Cloud Applications docs](https://docs.oracle.com/en/cloud/saas/index.html) today; [`oracle/skills` `fusion/`](https://github.com/oracle/skills/tree/main/fusion) currently exists as a placeholder skeleton |
 | APEX app/artifact development | **`oracle/skills`** | [`apex/`](https://github.com/oracle/skills/tree/main/apex) |
 | GraalVM Native Image | **`oracle/skills`** | [`graal/`](https://github.com/oracle/skills/tree/main/graal) |
 
@@ -71,6 +72,13 @@ hand off the deep work:
 - **Inside the database.** Anything *within* an Oracle DB (SQL/PLSQL, RMAN,
   AWR/ASH, migrations, Data Guard internals) → `oracle/skills` `db/`. We handle
   the OCI services *around* the database (DBM, OPSI, Data Safe, ADB provisioning).
+- **Oracle Fusion Cloud Applications.** Fusion SaaS configuration, extension, or
+  application-level work is outside this OCI control-plane pack. Use the
+  [Oracle Fusion Cloud Applications documentation](https://docs.oracle.com/en/cloud/saas/index.html)
+  for ERP, SCM, HCM, CX, Industry, and Common Books tasks today. The upstream
+  `oracle/skills` repo has a `fusion/` domain placeholder; until it publishes
+  concrete Fusion skills, route only by stating the boundary and do not invent
+  Fusion-specific operational steps here.
 
 ## Conventions we share / adopt
 
@@ -106,6 +114,6 @@ Knowledge Format grounding** footer (liveness-checked) instead of a plain
 
 ## Official documentation
 
-[OCI Generative AI](https://docs.oracle.com/en-us/iaas/Content/generative-ai/overview.htm) · [OKE (Kubernetes Engine)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm) · [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm). Full index in [oracle-docs.md](oracle-docs.md); upstream skills at [oracle/skills](https://github.com/oracle/skills).
+[OCI Generative AI](https://docs.oracle.com/en-us/iaas/Content/generative-ai/overview.htm) · [OKE (Kubernetes Engine)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm) · [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm) · [Oracle Fusion Cloud Applications](https://docs.oracle.com/en/cloud/saas/index.html). Full index in [oracle-docs.md](oracle-docs.md); upstream skills at [oracle/skills](https://github.com/oracle/skills).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](oracle-docs.md) (the pack's single source of truth). When routing an Oracle Cloud task, cite the most specific official page through that index; defer deep OKE / GenAI / in-database specifics to the official `oracle/skills` collection rather than inventing them, and never treat the non-official MCP gateway as a source of truth.
