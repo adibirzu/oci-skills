@@ -48,6 +48,11 @@ problems = oci.pagination.list_call_get_all_results(
 ).data
 ```
 
+**Posture triage thresholds.** Band the Cloud Guard **security score**: below **70**
+→ CRITICAL, below **85** → WARNING, else OK. Pair the score with the standard
+posture-fail set: unresolved CRITICAL/HIGH Cloud Guard problems, any
+`manage all-resources in tenancy` policy, and admin users without MFA.
+
 ---
 
 ## Vault / KMS

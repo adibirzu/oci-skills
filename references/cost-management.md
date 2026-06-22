@@ -95,6 +95,27 @@ key (`--group-by-tag`). Set the flag at tag-key creation in oci-iam-admin (Tags)
 then chargeback/showback queries become possible. Only cost-tracking keys are
 valid in `--group-by-tag`.
 
+## FOCUS v1.3 normalization (multicloud cost comparison)
+
+To compare OCI spend apples-to-apples with AWS/Azure/GCP, map OCI Usage-API fields
+to FinOps **FOCUS** columns:
+
+| FOCUS column | OCI Usage-API field |
+|---|---|
+| `BilledCost` / `EffectiveCost` | `computed_amount` |
+| `ListCost` | `unit_price * computed_quantity` |
+| `ServiceName` | `service` |
+| `UsageQuantity` | `computed_quantity` |
+| `UsageUnit` | `unit` (e.g. `OCPU_HOUR`, `GB_MONTH`) |
+| `RegionId` | `region` |
+| `ResourceId` | `resource_id` |
+
+`ChargeType` map: `USAGE`→Usage; `MONTHLY_COMMITMENT`/`ANNUAL_COMMITMENT`→Purchase;
+`CREDIT`→Adjustment. `ServiceCategory` map: COMPUTE/CONTAINER_ENGINE→Compute;
+`*_STORAGE`→Storage; DATABASE/AUTONOMOUS_DATABASE/MYSQL/NOSQL→Database;
+NETWORKING/LOAD_BALANCER→Networking; GENERATIVE_AI/AI_SERVICES→"AI and Machine
+Learning"; FUNCTIONS/API_GATEWAY/EVENTS→Serverless.
+
 ## Output discipline
 
 The aggregated views (by service / compartment / region / tag) are names +

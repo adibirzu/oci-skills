@@ -48,8 +48,10 @@ namespaces — use `<PLACEHOLDER>` tokens.
 | Capacity / SQL insights | Operations Insights (OPSI) |
 | Provision / enable an ADB | Autonomous Database |
 | "What observability do we have?" | Resource discovery (inventory) |
+| Visualize metrics/logs/traces in **Grafana** (datasource, MQL panels, dashboards-as-code, Loki/Prometheus) | → `../../references/grafana-dashboards.md` |
 
 Full sanitized command/SDK shapes: `../../references/observability-db.md`.
+Grafana dashboards-as-code: `../../references/grafana-dashboards.md`.
 Safety rules (auth modes, read-before-write, redaction):
 `../../references/tenancy-safety.md`.
 
