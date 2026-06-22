@@ -243,6 +243,12 @@ can become operator runbooks instead of anonymous OCL snippets.
 'Log Source' = 'Windows Sysmon Operational Logs' and 'Event ID' = '22' and 'Query Name' matches '^[a-zA-Z0-9]{30,}\.' | stats count as Q by 'Host Name', 'Query Name' | sort -Q
 ```
 
+**Network top-talkers by volume** (VCN Flow Logs, byte aggregation — bandwidth,
+not event count):
+```
+'Log Source' = 'OCI VCN Flow Logs' | stats sum(Bytes) as total_bytes by 'Source IP' | sort -total_bytes | head 20
+```
+
 ## Risks to flag
 
 - Quoting mistakes on string-vs-numeric fields are the #1 cause of "valid query,
