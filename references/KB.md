@@ -1195,3 +1195,147 @@ Open `client-subnet → ADB-PE:1522` in the NSG/security list. Confirm reachabil
 with the private DSN from a host that has a route into the VCN.
 **See:** [Network access: ACLs & private endpoints](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html)
 **Status:** resolved.
+
+## KB-126 — OCI `list` returns terminated resources unless you filter `lifecycle-state` (observability-db)
+
+**Symptom:** An existence check finds a `DELETED`/terminated `<RESOURCE>` (e.g. an APM domain), skips creation, then verification fails because nothing usable exists.
+**Root cause:** OCI `list` APIs return resources in **all** lifecycle states by default, including `DELETED`/`TERMINATED`.
+**Fix:** Always pass `--lifecycle-state ACTIVE` (or filter client-side on `"lifecycle-state"`) when listing to test for existence — applies to APM domains, instances, VCNs, databases, buckets, etc.
+**See:** [Manage APM domains](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/manage-apm-domains.html)
+**Status:** resolved.
+
+## KB-127 — Intermittent 404s behind an OCI Load Balancer from a stale "zombie" backend (networking-compute)
+
+**Symptom:** Requests to an LB-fronted host flap between correct responses and HTTP 404 at a fixed ratio, with no per-client pattern; re-applying routing never converges.
+**Root cause:** The backend set still contains a stale backend (old endpoint `<IP>:<PORT>`) whose health check passes but which serves an old app that 404s newer routes; round-robin sends ~1/N requests to it.
+**Fix:** Inspect the backend set, find the backend whose `<IP>:<PORT>` matches no current node/pod, and remove it: `oci lb backend delete --load-balancer-id <LB_OCID> --backend-set-name <BACKEND_SET> --backend-name "<STALE_IP>:<PORT>" --force`. Prefer a stable backend model over pod-direct backends.
+**See:** [Managing backend sets](https://docs.oracle.com/en-us/iaas/Content/Balance/Tasks/managingbackendsets.htm)
+**Status:** resolved.
+
+## KB-128 — VCN/subnet deletion deadlocks until route-table rules referencing gateways/LPGs are cleared (networking-compute)
+
+**Symptom:** VCN teardown cascades into `409` failures — route tables, LPGs, NAT/Internet gateways, and subnets all refuse to delete.
+**Root cause:** Route rules reference gateways/LPGs/DRGs as `network-entity-id`; OCI blocks deleting any resource still referenced by a route rule, so deleting in the wrong order deadlocks.
+**Fix:** Clear **all** route-table rules first, then delete in order: DRG attachments → LPGs → mount targets/LBs → subnets → NSGs → gateways → route tables → security lists → VCN.
+**See:** [Deleting a VCN](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/deletingVCN.htm)
+**Status:** resolved.
+
+## KB-129 — Service limits must be queried against the tenancy root OCID, not a child compartment (cost)
+
+**Symptom:** `oci limits value list` returns empty/`404`/`400` when given a child `<COMPARTMENT_OCID>`.
+**Root cause:** Service limits are a tenancy-level resource; `limits value list` only resolves against the root `<TENANCY_OCID>`. Only `limits resource-availability get` is compartment-scoped.
+**Fix:** Query `limits value list` with the tenancy OCID; reserve compartment OCIDs for `resource-availability get`.
+**See:** [Service limits](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/servicelimits.htm)
+**Status:** resolved.
+
+## KB-130 — Dynamic-group `list` never returns `matching-rule` — use get-by-id to verify (iam-admin)
+
+**Symptom:** `oci iam dynamic-group list` shows `matching-rule: null` for every dynamic group even when valid rules exist.
+**Root cause:** The Identity `ListDynamicGroups` API omits `matchingRule`; it is only populated by `GetDynamicGroup` (single-resource GET by ID).
+**Fix:** Verify a dynamic group's rule with `oci iam dynamic-group get --dynamic-group-id <DG_OCID>`, never via `list`.
+**See:** [Managing dynamic groups](https://docs.oracle.com/en-us/iaas/Content/Identity/dynamicgroups/managingdynamicgroups.htm)
+**Status:** resolved.
+
+## KB-131 — Apple-Silicon Docker builds produce arm64 images that fail `exec` on amd64 OCI compute (networking-compute)
+
+**Symptom:** Container exits immediately with `exec format error`; `docker inspect` shows `Architecture: arm64` on an amd64 host.
+**Root cause:** M-series Macs default Docker builds to `linux/arm64`, while OCI Compute shapes run `linux/amd64`.
+**Fix:** Build with explicit platform targeting: `docker buildx build --platform linux/amd64 ...` (or multi-arch); verify with `docker manifest inspect` before deploy.
+**See:** [Pushing images using the Docker CLI](https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrypushingimagesusingthedockercli.htm)
+**Status:** resolved.
+
+## KB-132 — OCI Monitoring custom metric namespaces must be lowercase (observability-db)
+
+**Symptom:** Alarm/metric creation fails with a validation error when the namespace contains uppercase letters.
+**Root cause:** Custom metric namespaces must match `^[a-z][a-z0-9_]*[a-z0-9]$` — uppercase is rejected.
+**Fix:** Use an all-lowercase namespace (e.g. `my_app_metrics`); also supply required alarm params such as `--pending-duration`.
+**See:** [Publishing custom metrics](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/publishingcustommetrics.htm)
+**Status:** resolved.
+
+## KB-133 — OCI Streaming rejects stream-create payloads that set both `compartment_id` and `stream_pool_id` (events-functions)
+
+**Symptom:** `ServiceError: InvalidParameter: Cannot specify both compartment id and stream pool id`.
+**Root cause:** When creating a stream inside a specific stream pool, OCI Streaming forbids passing `compartment_id` alongside `stream_pool_id`.
+**Fix:** Pass only `stream_pool_id` when targeting a pool; supply `compartment_id` only on the default/no-pool create path.
+**See:** [Creating streams and stream pools](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/creating-streams-and-stream-pools.htm)
+**Status:** resolved.
+
+## KB-134 — OCI Terraform provider needs `auth = "SecurityToken"` for session-token profiles (resource-manager)
+
+**Symptom:** `terraform plan/apply` fails with `user: missing from config` when the profile uses session (`oci session authenticate`) auth.
+**Root cause:** The provider's `auth` defaults to `APIKey`, requiring `user`/`fingerprint`/`key_file`; session profiles need `auth = "SecurityToken"` (and `InstancePrincipal` for instance auth).
+**Fix:** Add an `auth_mode` variable, set `auth = var.auth_mode` in provider blocks, and map the CLI auth mode to the Terraform value at apply time.
+**See:** [Configuring the Terraform provider](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/configuring.htm)
+**Status:** resolved.
+
+## KB-135 — Parallel deploys sharing one Terraform state hit a state-lock conflict (resource-manager)
+
+**Symptom:** `Terraform acquires a state lock ...` error when two invocations touch a shared dependency at once.
+**Root cause:** Concurrent applies against the same state directory (e.g. dependent B triggers shared A while A is already applying) collide on the lock.
+**Fix:** Apply shared dependencies sequentially before dependents, or use a single dependency-ordered apply; never run concurrent applies on one state backend.
+**See:** [Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resourcemanager.htm)
+**Status:** resolved.
+
+## KB-136 — Autonomous DB DSN must be the `tnsnames.ora` alias, not the full `service_name` (autonomous-db)
+
+**Symptom:** App crashes with `DPY-4000: unable to find "<PREFIX>_<DBNAME>_low" in .../tnsnames.ora`, even though the DSN matches the Console "Connection Strings" value.
+**Root cause:** The Console shows the full connect descriptor whose `service_name` is `<tenancyprefix>_<dbname>_low`, but the wallet's `tnsnames.ora` alias is just `<dbname>_low` (lowercase, no prefix).
+**Fix:** Set the DSN to the short alias (e.g. `<dbname>_low`); `oracledb` resolves it against `tnsnames.ora` in the wallet dir. Derive it as `${db_name,,}_low` rather than copy-pasting the connection string.
+**See:** [Download connection info / wallet](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/connect-download-wallet.html)
+**Status:** resolved.
+
+## KB-137 — Autonomous DB password-history policy blocks reusing recent passwords (autonomous-db)
+
+**Symptom:** `ORA-28007: the password cannot be reused` (or API: "cannot be one of the last four passwords") on admin password reset or `ALTER USER`.
+**Root cause:** ADB enforces a password-history policy — the last 4 passwords cannot be reused within 24 hours, via both CLI `admin-password-reset` and SQL.
+**Fix:** Reset to a wholly new password, then update every dependent secret/connection string and restart consumers to pick up the change.
+**See:** [Manage the ADMIN user](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-users-admin.html)
+**Status:** resolved.
+
+## KB-138 — Default NSG/security-list rules left open to `0.0.0.0/0` expose management ports (security-compliance)
+
+**Symptom:** SSH and management ports are reachable from anywhere because ingress rules use `0.0.0.0/0`.
+**Root cause:** Deploy defaults open admin ports to the whole internet instead of a scoped CIDR.
+**Fix:** Replace `0.0.0.0/0` ingress with a specific operator CIDR (e.g. `<ALLOWED_INGRESS_CIDR>`, ideally a `/32`); parameterize the allowed CIDR and audit NSGs/security lists regularly.
+**See:** [Network security groups](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/networksecuritygroups.htm)
+**Status:** resolved.
+
+## KB-139 — Service-managed private-endpoint VNICs block subnet and VCN deletion (networking-compute)
+
+**Symptom:** `409 Conflict` deleting a subnet/VCN because private-endpoint VNICs (e.g. `PE-<SERVICE>-*`) are still attached.
+**Root cause:** A managed service (OpenSearch, ORM private endpoint, etc.) created private endpoints in the subnet; deleting only the reference leaves the underlying VNICs, which block teardown.
+**Fix:** Delete the owning managed resource first (poll to `DELETED`) so its private-endpoint VNICs detach before deleting the subnet/VCN; ensure every created resource has matching destroy logic.
+**See:** [Deleting VCNs](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/managingVCNs_topic-Deleting_VCNs.htm)
+**Status:** resolved.
+
+## KB-140 — Log Analytics CLI moved source-association commands, breaking older scripts (log-analytics)
+
+**Symptom:** `Current OCI CLI does not support '--items' for entity add-associations`, then source associations are silently skipped.
+**Root cause:** Newer OCI CLI moved associations to `oci log-analytics assoc upsert-assocs --items` and source discovery to `source list-sources`, deprecating the legacy `entity add-associations`/`source list`.
+**Fix:** Detect CLI capability and prefer `assoc upsert-assocs` with `[{"entityId":...,"sourceName":...}]`, falling back to the legacy command only when present.
+**See:** [Manage Log Analytics with the CLI](https://docs.oracle.com/en-us/iaas/log-analytics/doc/use-cli-manage-log-analytics.html)
+**Status:** resolved.
+
+## KB-141 — Data Safe `list_audit_events` filters time via `scim_query`, not `time_started`/`time_ended` (data-safe)
+
+**Symptom:** SDK error `list_audit_events got unknown kwargs: ['time_started', 'time_ended']`; audit activity stays empty.
+**Root cause:** `DataSafeClient.list_audit_events()` does not accept `time_started`/`time_ended`; time filtering is only supported through the `scim_query` parameter.
+**Fix:** Build an RFC3339 window and pass it via `scim_query`, e.g. `(auditEventTime ge "<START>") and (auditEventTime le "<END>")`, with `sort_by="auditEventTime"`; inspect the SDK's expected kwargs before adding optional filters.
+**See:** [Data Safe audit reports](https://docs.oracle.com/en-us/iaas/data-safe/doc/audit-reports.html)
+**Status:** resolved.
+
+## KB-142 — Database Management AWR on Autonomous DB needs full diagnostics or valid named credentials (observability-db)
+
+**Symptom:** DB Management pages show failed AWR views even though `database-management-status=ENABLED`.
+**Root cause:** Basic DB Management enablement on ADB does not grant AWR access; `list_awr_dbs` still fails without the full Diagnostics & Management feature or with an invalid named credential (`ORA-01017`/`InvalidDatabaseCredentials`).
+**Fix:** Enable full diagnostics and supply a valid named credential; classify responses (`requires_full_diagnostics`, `invalid_named_credential`, `not_authorized`) and refresh credentials after enablement.
+**See:** [Enable Database Management for Autonomous Databases](https://docs.oracle.com/en-us/iaas/database-management/doc/enable-database-management-autonomous-databases.html)
+**Status:** resolved.
+
+## KB-143 — IMDS reachability probe false-positive selects instance-principal auth off-instance (iam-admin)
+
+**Symptom:** Tooling on a laptop picks `instance_principal` then fails at `<IMDS_ENDPOINT>/opc/v2/identity/cert.pem` with a connect timeout.
+**Root cause:** A naive `curl` HTTP-200 probe of the IMDS link-local address passes because VM/Docker link-local routing answers, so auto-auth wrongly resolves to instance principal.
+**Fix:** Validate the probe body against an OCI region pattern (`^[a-z]{2,3}-[a-z]+-[0-9]+$`) from `/opc/v1/instance/region`; fall through to profile auth otherwise. Override with `export OCI_AUTH_MODE=profile` and clear any stale IMDS cache.
+**See:** [Calling services from an instance](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm)
+**Status:** resolved.

@@ -191,6 +191,21 @@ Bind/identifier note: you can't bind object/user names — they're concatenated,
 avoid SQL injection via the username. Passwords go through the `IDENTIFIED BY "..."`
 literal; generate them, never accept free-form input.
 
+### Select AI (NL2SQL) over thin mode
+When no MCP/tool path exists, run Select AI directly via `DBMS_CLOUD_AI.GENERATE`
+over the same wallet/thin-mode connection. The `action` verb selects behavior:
+```sql
+SELECT DBMS_CLOUD_AI.GENERATE(
+  prompt       => 'natural-language question',
+  profile_name => '<SELECTAI_PROFILE>',
+  action       => 'runsql'   -- showsql | runsql | explainsql | chat | narrate
+) FROM dual;
+```
+`showsql` returns the generated SQL; `runsql` executes and returns rows;
+`explainsql` annotates; `chat`/`narrate` return prose. The profile (`<SELECTAI_PROFILE>`)
+must already be created with `DBMS_CLOUD_AI.CREATE_PROFILE` (model + object list).
+Treat generated SQL as untrusted — review before `runsql` in any write context.
+
 ### SQLAlchemy engine (pooled, self-healing)
 ```python
 from sqlalchemy import create_engine
