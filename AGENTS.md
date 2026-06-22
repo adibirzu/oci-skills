@@ -67,6 +67,7 @@ few capabilities. Catch the request here, then hand off the deep work:
 - Deep OKE day-2 (GVA, Multus, cluster troubleshooting) → `oracle/skills` `oci/oke`.
 - OCI Generative AI / Enterprise AI (models, agents, RAG, governance) → `oracle/skills` `oci/enterprise-ai`.
 - Inside an Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH, migrations, Data Guard) → `oracle/skills` `db/`.
+- Oracle Fusion Cloud Applications / SaaS app work → use Oracle Fusion Cloud Applications documentation today; route to `oracle/skills` `fusion/` only after upstream publishes concrete Fusion skills.
 
 Full routing contract — coverage matrix, hand-off rules, shared conventions — in
 `references/oracle-skills-alignment.md`. Upstream: <https://github.com/oracle/skills>.

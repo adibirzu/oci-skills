@@ -5,7 +5,7 @@ allowed-tools: Bash, Read
 ---
 
 Drive an OCI **project** through its lifecycle, scoped to one project compartment.
-This orchestrates the nine domain skills; every mutation is gated. Default
+This orchestrates the ten domain skills; every mutation is gated. Default
 sub-command is `status` (read-only).
 
 Scripts live at `${CLAUDE_PLUGIN_ROOT}/scripts/` when installed as a plugin, else

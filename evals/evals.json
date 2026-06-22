@@ -242,6 +242,34 @@
       "expect_behavior": "Preflights tenancy/quota; lists by display-name to reuse before create (idempotent, KB-123); uses --compute-model ECPU + --data-storage-size-in-gbs + --is-free-tier false; for private endpoint passes --subnet-id/--nsg-ids/--private-endpoint-label and notes VCN DNS label immutability + TCP 1522 (KB-125); handles db-name collision retry (KB-124) and re-discovers by display-name on timeout; polls to AVAILABLE."
     },
     {
+      "id": "routeout-oke-day2",
+      "prompt": "Design an OKE GVA GPU node pool with Multus secondary VNICs and troubleshoot a failed NetworkAttachmentDefinition.",
+      "expect_skill": "oci-administrator",
+      "expect_route_out": "oracle/skills oci/oke",
+      "expect_behavior": "States this pack owns OKE provisioning/IAM/network basics, then hands deep OKE day-2 design/troubleshooting to oracle/skills oci/oke; keeps tenancy preflight/redaction guidance for any OCI control-plane action."
+    },
+    {
+      "id": "routeout-enterprise-ai",
+      "prompt": "Build an OCI Generative AI RAG agent with governance and model endpoint selection.",
+      "expect_skill": "oci-administrator",
+      "expect_route_out": "oracle/skills oci/enterprise-ai",
+      "expect_behavior": "States this pack owns surrounding IAM/network/budget/observability guardrails, then hands model endpoints, RAG, agent construction, and GenAI governance to oracle/skills oci/enterprise-ai."
+    },
+    {
+      "id": "routeout-database-internals",
+      "prompt": "Tune an Oracle Database SQL plan with AWR/ASH and Data Guard internals.",
+      "expect_skill": "oci-administrator",
+      "expect_route_out": "oracle/skills db",
+      "expect_behavior": "States in-database SQL/PLSQL, AWR/ASH, RMAN, migrations, and Data Guard internals are owned by oracle/skills db; this pack handles OCI services around the database such as DBM, OPSI, Data Safe, and ADB provisioning."
+    },
+    {
+      "id": "routeout-fusion-cloud",
+      "prompt": "Configure Oracle Fusion Cloud ERP approval workflows and HCM business process setup.",
+      "expect_skill": "oci-administrator",
+      "expect_route_out": "oracle/fusion-cloud-docs",
+      "expect_behavior": "States Fusion SaaS functional setup and app-level workflows are out of scope for this OCI control-plane pack; uses Oracle Fusion Cloud Applications documentation today and mentions oracle/skills fusion only as a future route while it remains a placeholder."
+    },
+    {
       "id": "negative-non-oci",
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,
