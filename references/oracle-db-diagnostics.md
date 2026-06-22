@@ -198,6 +198,58 @@ managed DBTools `sql_report`. These render the full report without a wallet and 
 the right tool for period-over-period analysis. Drop to in-DB `DBMS_WORKLOAD_REPOSITORY`
 only when DBM isn't enabled on the target.
 
+### 3.8 Root blockers ranked by impact
+§3.1 returns flat waiter→blocker pairs; this isolates the **root** blockers (block
+others, not blocked themselves) and ranks them by how many sessions each blocks —
+the single SID to act on first:
+```sql
+SELECT s.sid, s.serial#, s.username, s.program, s.machine,
+       s.sql_id, s.event, s.seconds_in_wait,
+       (SELECT COUNT(*) FROM v$session WHERE blocking_session = s.sid) AS blocked_count
+FROM   v$session s
+WHERE  s.sid IN (SELECT blocking_session FROM v$session WHERE blocking_session IS NOT NULL)
+AND    s.blocking_session IS NULL
+ORDER  BY blocked_count DESC;
+```
+
+### 3.9 Lock contention with object names + readable modes
+Turns §3.1's raw `lmode`/`request` integers into actionable object + mode rows (TX/TM
+enqueues) by joining `dba_objects` and decoding the lock modes:
+```sql
+SELECT s.sid, s.username, s.program, o.object_name, o.object_type,
+       l.type AS lock_type,
+       DECODE(l.lmode,0,'None',1,'Null',2,'Row-S',3,'Row-X',4,'Share',5,'S/Row-X',6,'Exclusive') AS lock_mode,
+       DECODE(l.request,0,'None',1,'Null',2,'Row-S',3,'Row-X',4,'Share',5,'S/Row-X',6,'Exclusive') AS request_mode,
+       l.ctime AS hold_seconds
+FROM   v$lock l
+JOIN   v$session s   ON s.sid = l.sid
+LEFT JOIN dba_objects o ON o.object_id = l.id1
+WHERE  l.type IN ('TX','TM')
+ORDER  BY l.ctime DESC;
+```
+
+### 3.10 Undo consumption by session
+Find the long-running transaction holding undo (often the real root blocker), sized:
+```sql
+SELECT s.sid, s.serial#, s.username, s.program,
+       t.used_ublk * 8192 / 1024 / 1024 AS undo_mb, t.start_time
+FROM   v$transaction t
+JOIN   v$session s ON s.saddr = t.ses_addr
+ORDER  BY t.used_ublk DESC
+FETCH FIRST 10 ROWS ONLY;
+```
+> `8192` assumes an 8 KB block size — adjust for your DB's `db_block_size`.
+
+### 3.11 Temp tablespace usage by session
+Diagnose spilling sorts/hashes driving I/O (complements §3.5):
+```sql
+SELECT s.sid, s.serial#, s.username, s.program,
+       su.tablespace, ROUND(su.blocks * 8192 / 1024 / 1024, 1) AS temp_mb, s.sql_id
+FROM   v$sort_usage su
+JOIN   v$session s ON s.saddr = su.session_addr
+ORDER  BY su.blocks DESC;
+```
+
 ## 4. Workflow → query map
 
 | Symptom / intent | Start with | Query |

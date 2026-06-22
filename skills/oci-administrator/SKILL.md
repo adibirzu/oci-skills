@@ -14,8 +14,8 @@ description: >-
   Log Analytics, OCL, Logan, log query, APM, service limits, cost, usage, spend,
   budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, Resource Manager,
   ORM, Terraform stack, Functions, Events, Notifications, Service Connector Hub,
-  serverless, or ~/.oci/config. Use this as the **default entry point for any
-  Oracle Cloud / OCI task** — it then routes deep OKE day-2 (GVA, Multus,
+  serverless, or ~/.oci/config. Use this as the **default entry point for OCI
+  infrastructure / control-plane tasks** — it then routes deep OKE day-2 (GVA, Multus,
   cluster troubleshooting), OCI Generative AI / Enterprise AI, and in-database
   work to the official oracle/skills collection (see
   references/oracle-skills-alignment.md). This is the tenancy-agnostic admin
@@ -26,11 +26,11 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of nine domain skills (plus the **oci-project** lifecycle orchestrator for
+of ten domain skills (plus the **oci-project** lifecycle orchestrator for
 project-wide work), all sharing one tenancy-safety core.
 
 **Scope:** this pack is the **default entry point for OCI tenancy
-administration** — broad *infrastructure and control-plane* work across the nine
+administration** — broad *infrastructure and control-plane* work across the ten
 domains below, all gated by the safety core. It is complementary to the official
 [oracle/skills](https://github.com/oracle/skills) collection, which goes *deep* on
 a few capabilities. Catch the request here (so tenancy preflight, redaction, and
@@ -45,6 +45,10 @@ the destructive-op guard apply), then hand off the deep work:
 - **Inside an Oracle Database** (SQL/PL-SQL, RMAN, AWR/ASH, migrations, Data Guard)
   → `oracle/skills` `db/`. We handle the OCI services *around* the database (DBM,
   OPSI, Data Safe, ADB provisioning).
+- **Oracle Fusion Cloud Applications / SaaS app work** is out of scope. Use the
+  Oracle Fusion Cloud Applications documentation today; route to upstream
+  `oracle/skills` `fusion/` only when that domain grows beyond its current
+  placeholder skeleton.
 
 The full routing contract — coverage matrix, hand-off rules, shared conventions —
 is in [references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
@@ -112,7 +116,7 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | new project, bootstrap, scaffold, set up a project, project status, project health, deploy a project, tear down, decommission, project guardrails, project lifecycle | **oci-project** | [references/project-workflow.md](../../references/project-workflow.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
-**oci-project** sits above the nine domains: it sequences them for whole-project
+**oci-project** sits above the ten domains: it sequences them for whole-project
 work (bootstrap → status → deploy → teardown), scoped to one project compartment.
 
 **Designing a *new* solution for a customer?** When the request is a *requirement*
@@ -188,4 +192,4 @@ intra-domain flow table.
 
 [OCI Documentation (home)](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [OCI CLI / SDK configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm).
 
-**Open Knowledge Format grounding** — every doc link across this pack is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the single source of truth, patterned on the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog)). It routes to nine domain skills, each of which carries the same grounding contract. When building a new OCI customer solution on this pack, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
+**Open Knowledge Format grounding** — every doc link across this pack is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the single source of truth, patterned on the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog)). It routes to ten domain skills, each of which carries the same grounding contract. When building a new OCI customer solution on this pack, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
