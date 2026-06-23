@@ -159,6 +159,28 @@ destructive `oci` commands until they are preflighted and confirmed:
 The copy-install paths below additionally deliver the auto-triggering knowledge
 skills and the multi-harness adapters (Codex, Gemini, Antigravity).
 
+### As a Codex / ChatGPT plugin (skills + app card)
+
+This repository includes a native Codex plugin manifest at
+`.codex-plugin/plugin.json`. In Codex or ChatGPT environments that support local
+plugin import, point the importer at this repository root; it discovers the
+manifest and loads the `skills/` surface.
+
+The Codex/ChatGPT import surface provides the router skill, all ten OCI domain
+skills, the `oci-project` lifecycle orchestrator, references, and helper scripts.
+Claude Code-only features remain Claude-only: slash commands live under
+`commands/`, and the destructive-command hook lives under `hooks/`. Codex and
+ChatGPT users still get the same safety workflow through the skill instructions:
+preflight first, use named contexts, redact sensitive output, and gate mutations.
+
+For CLI-only Codex installs, use the copy-install target:
+
+```bash
+make install-codex
+# or
+./install.sh codex
+```
+
 ### One line (recommended)
 
 Installs into every agent harness it detects (Claude Code, Codex, Gemini CLI,
@@ -218,7 +240,8 @@ Install targets (override with env vars — see `install.sh` header):
 ```
 .claude-plugin/          # Claude Code plugin manifest + marketplace entry
   plugin.json  marketplace.json
-SKILL.md                 # Claude Code entrypoint (router)
+.codex-plugin/           # Codex / ChatGPT plugin manifest
+  plugin.json
 AGENTS.md                # Codex / Antigravity entrypoint (mirror)
 commands/                # Claude Code slash commands (context/preflight/audit/cost/logan/orm/datasafe/project/kb/troubleshoot)
 hooks/                   # PreToolUse guard that blocks destructive oci commands
@@ -245,6 +268,7 @@ skills/                  # twelve auto-discoverable skills (router + ten domains
   oci-observability-db/  oci-autonomous-db/  oci-networking-compute/
   oci-cost/  oci-log-analytics/  oci-resource-manager/  oci-data-safe/
   oci-events-functions/  oci-project/
+  # install.sh synthesizes bundle-root SKILL.md from skills/oci-administrator/SKILL.md
 harness/                # per-harness adapters (codex / gemini / antigravity)
 evals/evals.json        # trigger + behavior evals
 bootstrap.sh            # one-line remote installer (curl | bash)
