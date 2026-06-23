@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "oci-skills",
-  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration skill pack for Claude Code — one safety-first core, ten admin domains, ships no OCIDs/IPs/secrets.",
+  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration skill pack for Claude Code \u2014 one safety-first core, ten admin domains, ships no OCIDs/IPs/secrets.",
   "owner": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "oci-administrator",
-      "description": "Safety-first OCI administration: IAM, Security & Compliance, Observability & Database, Autonomous Database, Networking & Compute, Cost (FinOps), Log Analytics, Resource Manager, Data Safe, and Events & Functions — plus a project lifecycle orchestrator and a Stage 0 solution-design front-end. Grounded in official Oracle docs (Open Knowledge Format) and routed against the upstream oracle/skills collection. Slash commands work by named context (friendly name -> profile + compartment + region) instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
+      "description": "Safety-first OCI administration: IAM, Security & Compliance, Observability & Database, Autonomous Database, Networking & Compute, Cost (FinOps), Log Analytics, Resource Manager, Data Safe, and Events & Functions \u2014 plus a project lifecycle orchestrator and a Stage 0 solution-design front-end. Grounded in official Oracle docs (Open Knowledge Format) and routed against the upstream oracle/skills collection. Slash commands work by named context (friendly name -> profile + compartment + region) instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated.",
       "version": "1.14.0",
       "author": {
         "name": "adibirzu"
@@ -20,8 +20,8 @@
     },
     {
       "name": "multillm",
-      "description": "Route Claude Code to 18 LLM backends (local Ollama/LM Studio, cloud OpenAI/Anthropic/Gemini/Groq/DeepSeek/Mistral/etc., OCI Generative AI, and CLI agents Codex [gpt-5-5]/Gemini/Antigravity [Gemini 3.x]) through one local Anthropic-compatible gateway. Beats-frontier model fusion via the `fusion` / `auto` slugs (panel + judge synthesis with a generous token budget for the best answer), log-driven smart routing, cost prediction and budgets with alerts, quota-aware failover, council/2nd-opinion, shared cross-LLM memory, a result cache, and a real-time dashboard with cost/forecast/budget/routing panels. Self-bootstrapping (installs an isolated venv on first run). Tenancy-agnostic and bring-your-own-env: no keys, OCIDs, endpoints, or tenant data shipped — each user defines OCI profile, API keys, and (optional) Langfuse/OCI APM telemetry in their own environment.",
-      "version": "0.8.0",
+      "description": "Route Claude Code to 19 LLM backends (local Ollama/LM Studio, cloud OpenAI/Anthropic/Gemini/Groq/DeepSeek/Mistral/etc., OCI Generative AI, and CLI agents Claude Code/Codex [gpt-5-5]/Gemini/Antigravity [Gemini 3.x]) through one local Anthropic-compatible gateway. Beats-frontier model fusion via the `fusion` / `auto` slugs (panel + judge synthesis with a generous token budget for the best answer), log-driven smart routing, cost prediction and budgets with alerts, quota-aware failover, council/2nd-opinion, shared cross-LLM memory, a result cache, and a real-time dashboard with cost/forecast/budget/routing panels. Self-bootstrapping (installs an isolated venv on first run). Tenancy-agnostic and bring-your-own-env: no keys, OCIDs, endpoints, or tenant data shipped \u2014 each user defines OCI profile, API keys, and (optional) Langfuse/OCI APM telemetry in their own environment.",
+      "version": "0.9.0",
       "author": {
         "name": "adibirzu"
       },
