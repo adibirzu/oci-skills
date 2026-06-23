@@ -17,9 +17,10 @@ adapters, or duplicating the router skill. Claude Code only auto-discovers skill
 ## Decision
 
 Ship as a **single-plugin repo**: `.claude-plugin/{plugin.json,marketplace.json}` at the
-repo root; relocate skills to plugin-native `skills/<name>/SKILL.md` (router + four
-domains) for auto-discovery; add `commands/` and `hooks/` as the plugin's user-facing
-surface. Keep copy-install working by **synthesizing** the bundle-root `SKILL.md` from the
+repo root for Claude Code and `.codex-plugin/plugin.json` at the repo root for
+Codex/ChatGPT import. Relocate skills to plugin-native `skills/<name>/SKILL.md`
+for auto-discovery; add `commands/` and `hooks/` as the Claude Code
+user-facing surface. Keep copy-install working by **synthesizing** the bundle-root `SKILL.md` from the
 canonical router at install time (`sed 's#\.\./\.\./#./#g'`), so a single-skill harness
 still finds a router whose links resolve at bundle-root depth.
 
@@ -51,6 +52,8 @@ still finds a router whose links resolve at bundle-root depth.
 - One source installs via both the plugin path and copy-install.
 - One canonical router; domain-skill `../../` links stay valid after the `plugins/ → skills/` move (same depth).
 - `git mv` preserved history (renames, not delete+add).
+- Codex/ChatGPT import is explicit through `.codex-plugin/plugin.json` and
+  advertises only real companion surfaces (`skills/` today, not hooks/apps/MCP).
 
 ### Negative
 - The router exists at two effective depths; reconciled by the `install.sh` sed-synthesis step.

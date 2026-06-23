@@ -54,7 +54,19 @@ def test_user_facing_domain_lists_include_all_domains() -> None:
 
 def test_no_stale_domain_count_language_in_shipped_surfaces() -> None:
     stale = re.compile(r"\b(?:six domain|four admin domain|nine domain|nine domains|9 control-plane)\b", re.I)
-    scan_roots = ["README.md", "AGENTS.md", "commands", "docs", "evals", "references", "scripts", "skills", "harness", ".claude-plugin"]
+    scan_roots = [
+        "README.md",
+        "AGENTS.md",
+        "commands",
+        "docs",
+        "evals",
+        "references",
+        "scripts",
+        "skills",
+        "harness",
+        ".claude-plugin",
+        ".codex-plugin",
+    ]
     hits = []
     for root in scan_roots:
         path = ROOT / root
