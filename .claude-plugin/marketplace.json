@@ -20,7 +20,7 @@
     },
     {
       "name": "multillm",
-      "description": "Route Claude Code to 19 LLM backends (local, cloud, OCI GenAI, CLI agents incl. Claude Code/Codex/Gemini/Antigravity) through one gateway. Cost prediction, budgets, quota-aware failover, model fusion (panel+judge), log-driven routing, council/2nd-opinion, shared memory, and a real-time dashboard \u2014 all local, tenancy-agnostic. Bring your own keys/env.",
+      "description": "Route Claude Code to 19 LLM backends (local Ollama/LM Studio, cloud OpenAI/Anthropic/Gemini/Groq/DeepSeek/Mistral/etc., OCI Generative AI, and CLI agents Claude Code/Codex [gpt-5-5]/Gemini/Antigravity [Gemini 3.x]) through one local Anthropic-compatible gateway. Beats-frontier model fusion via the `fusion` / `auto` slugs (panel + judge synthesis with a generous token budget for the best answer), log-driven smart routing, cost prediction and budgets with alerts, quota-aware failover, council/2nd-opinion, shared cross-LLM memory, a result cache, and a real-time dashboard with cost/forecast/budget/routing panels. Self-bootstrapping (installs an isolated venv on first run). Tenancy-agnostic and bring-your-own-env: no keys, OCIDs, endpoints, or tenant data shipped \u2014 each user defines OCI profile, API keys, and (optional) Langfuse/OCI APM telemetry in their own environment.",
       "version": "0.9.0",
       "author": {
         "name": "adibirzu"
