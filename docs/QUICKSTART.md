@@ -22,6 +22,15 @@ claude plugin install oci-administrator@oci-skills --scope user
 …or interactively inside Claude Code: `/plugin marketplace add adibirzu/oci-skills`
 then `/plugin install oci-administrator@oci-skills`.
 
+**As a Codex / ChatGPT plugin.** Point the local plugin importer at this
+repository root. The native manifest is `.codex-plugin/plugin.json`, and it
+loads the `skills/` directory as the app capability surface.
+
+Codex/ChatGPT plugin import gives you the same router, domain skills, references,
+and helper scripts. Claude Code slash commands and the destructive-command hook
+are Claude-only; in Codex/ChatGPT, follow the skill's first-move workflow:
+preflight, named context, KB lookup, redaction, then gated mutation.
+
 **As a copy-install** (any harness — Codex, Gemini, Antigravity, or plain CLI):
 
 ```bash
