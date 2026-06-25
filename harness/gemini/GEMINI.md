@@ -9,9 +9,10 @@ Activate for any request about administering, auditing, provisioning,
 securing, or troubleshooting OCI: IAM (users, groups, dynamic groups, policies,
 compartments, budgets, quotas, service limits, tags), Security & Compliance
 (Cloud Guard, Vault/KMS, Security Zones, WAF, CIS / ISO-42001 scanning, policy
-review), Observability & Database (APM, Log Analytics, Monitoring, alarms, DBM,
-Operations Insights), Autonomous Database lifecycle/connectivity, Networking &
-Compute (VCN, subnets, NSGs, load balancers, OKE, compute, OCIR), cost, Logan,
+review), ZPR visibility, Observability (APM, Log Analytics, Monitoring, alarms),
+DBM/OPSI, Autonomous Database lifecycle/connectivity, Networking & Compute
+(VCN, subnets, NSGs, load balancers, compute, OCIR), OKE operations
+(kubectl, ingress, LoadBalancer services, TLS, OCIR pulls, rollouts), cost, Logan,
 Resource Manager, Data Safe, serverless, and project lifecycle work.
 
 ## First move (always)
@@ -25,9 +26,12 @@ Resource Manager, Data Safe, serverless, and project lifecycle work.
 
 - IAM / tenancy → `./skills/oci-iam-admin/SKILL.md` + `./references/iam-tenancy.md`
 - Security / compliance → `./skills/oci-security-compliance/SKILL.md` + `./references/security-compliance.md`
-- Observability / DB → `./skills/oci-observability-db/SKILL.md` + `./references/observability-db.md`
+- Observability / dashboards / APM / metrics → `./skills/oci-observability-db/SKILL.md` + `./references/observability-db.md`
+- DBM / OPSI / Performance Hub → `./skills/oci-dbm-opsi/SKILL.md` + `./references/dbm-opsi.md`
 - Autonomous Database lifecycle / wallet / ACL / app connectivity / SQL diagnostics → `./skills/oci-autonomous-db/SKILL.md` + `./references/autonomous-db.md`
 - Networking / compute → `./skills/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
+- OKE deploy / kubectl / ingress / LB / TLS / OCIR pulls / rollout troubleshooting → `./skills/oci-oke-admin/SKILL.md` + `./references/oke-operations.md`
+- ZPR / security attributes / flow-log correlation → `./skills/oci-zpr-visibility/SKILL.md` + `./references/zpr-visibility.md`
 - Cost / usage / budgets (FinOps) → `./skills/oci-cost/SKILL.md` + `./references/cost-management.md` (read-only via `./scripts/oci_cost.sh`)
 - Log Analytics / Logan / OCL queries → `./skills/oci-log-analytics/SKILL.md` + `./references/log-analytics.md` (read-only query via `./scripts/oci_logan.sh`)
 - Resource Manager / ORM / Terraform stacks → `./skills/oci-resource-manager/SKILL.md` + `./references/resource-manager.md`

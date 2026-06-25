@@ -7,19 +7,27 @@ Antigravity skills directory and links this file as the active `AGENTS.md`.
 ## Capability
 
 Administer, audit, provision, secure, and troubleshoot Oracle Cloud
-Infrastructure across ten domains, plus project lifecycle orchestration. Each
+Infrastructure across thirteen domains, plus project lifecycle orchestration. Each
 route has a dedicated skill under `skills/` and a reference under `references/`:
 
 - **IAM & Tenancy** (`oci-iam-admin`) — users, groups, dynamic groups, policies, compartments,
   budgets, quotas, service limits, tags, Identity Domains.
 - **Security & Compliance** (`oci-security-compliance`) — Cloud Guard, Vault/KMS, Security Zones, WAF,
   Audit, CIS / ISO-42001 / sovereignty scanning, IAM policy review.
-- **Observability & Database** (`oci-observability-db`) — Monitoring/alarms, Logging, Log Analytics,
-  APM, Notifications, Service Connector, Database Management, Operations Insights.
+- **Observability** (`oci-observability-db`) — Monitoring/alarms, Logging, Log Analytics,
+  APM, Notifications, Service Connector, OpenTelemetry, dashboards.
+- **DBM / OPSI** (`oci-dbm-opsi`) — Database Management, Operations Insights,
+  Performance Hub, AWR/ADDM/ASH, DBSNMP, DB log ingestion.
 - **Autonomous Database** (`oci-autonomous-db`) — ADB/ADW/ATP lifecycle, wallet rotation, ACLs,
   service levels, app connection patterns, and read-only SQL diagnostics.
 - **Networking & Compute** (`oci-networking-compute`) — VCN, subnets, NSGs, route tables, gateways, load
-  balancers, OKE, compute instances, OCIR.
+  balancers, compute instances, OCIR.
+- **OKE Admin** (`oci-oke-admin`) — OKE deploys, kubectl/kubeconfig, ingress-nginx,
+  OCI LoadBalancer services, TLS secrets/certificates, OCIR image pulls,
+  rollouts, virtual nodes, and deployment troubleshooting.
+- **ZPR Visibility** (`oci-zpr-visibility`) — Zero Trust Packet Routing inventory,
+  security attributes, protected resources, flow-log correlation, custom logs,
+  and Log Analytics dashboards.
 - **Cost & Usage (FinOps)** (`oci-cost`) — Usage API spend by service/compartment/region/tag,
   budgets (limit vs actual vs forecast), cost-tracking tags, guardrails.
   Read-only via `./scripts/oci_cost.sh`.
@@ -34,7 +42,7 @@ route has a dedicated skill under `skills/` and a reference under `references/`:
   (rules→FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out,
   Streaming transport.
 - **Project lifecycle** (`oci-project`) — bootstrap, status/health, deploy/release, and gated
-  teardown through `oci-project` above the ten domains.
+  teardown through `oci-project` above the thirteen domains.
 
 ## Operating contract (non-negotiable)
 

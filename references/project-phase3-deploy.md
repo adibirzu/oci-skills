@@ -21,7 +21,7 @@ no changes.
 Verify the kube context maps to **this** project's cluster before any
 `kubectl apply` (KB-001 two-layer authz; KB-094 context-name is not proof of
 tenancy), then roll out. →
-[oci-networking-compute](../skills/oci-networking-compute/SKILL.md).
+[oci-oke-admin](../skills/oci-oke-admin/SKILL.md).
 
 After any deploy: re-run [status](project-phase2-status.md) and confirm alarms +
 budget now cover the new resources (a new instance with no CPU alarm is a

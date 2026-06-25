@@ -86,9 +86,12 @@ Route by intent — each domain is a focused skill + reference:
 |---|---|
 | users, groups, policies, compartments, limits | `oci-iam-admin` |
 | Cloud Guard, Vault, WAF, CIS / ISO-42001 scanning | `oci-security-compliance` |
-| Monitoring, APM, Logging, DBM/OPSI | `oci-observability-db` |
+| Monitoring, APM, Logging, dashboards | `oci-observability-db` |
+| DBM/OPSI, Performance Hub, AWR/ADDM/ASH | `oci-dbm-opsi` |
 | Autonomous Database lifecycle, wallets, ACLs, app connectivity, SQL diagnostics | `oci-autonomous-db` |
-| VCN, NSG, OKE, compute, OCIR | `oci-networking-compute` |
+| VCN, NSG, compute, OCIR | `oci-networking-compute` |
+| OKE deploy, kubectl, ingress, LB, TLS, OCIR pulls, rollouts | `oci-oke-admin` |
+| ZPR, security attributes, protected resources, flow-log correlation | `oci-zpr-visibility` |
 | cost, spend, budgets (FinOps) | `oci-cost` |
 | Log Analytics / OCL queries, sources, detections | `oci-log-analytics` |
 | Terraform stacks, plan/apply/destroy jobs | `oci-resource-manager` |
@@ -123,7 +126,8 @@ both deployable through `oci-resource-manager`.
 | Inside an Oracle Database — SQL/PL-SQL, RMAN, AWR/ASH, Data Guard | `oracle/skills` `db/` |
 | Oracle Fusion Cloud Applications / Fusion SaaS setup or extension | Oracle Fusion Cloud Applications docs now; upstream `oracle/skills` `fusion/` only after concrete skills are published |
 
-This pack owns OKE provisioning/IAM/network basics, GenAI *observability*, and the
+This pack owns common OKE deploy/ingress/LB/TLS/OCIR troubleshooting,
+provisioning/IAM/network basics, GenAI *observability*, and the
 OCI services *around* the database. Full routing contract:
 [`references/oracle-skills-alignment.md`](../references/oracle-skills-alignment.md).
 
