@@ -7,7 +7,7 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration skill pack. Route any OCI request to one
-of ten domain skills (plus the `oci-project` lifecycle orchestrator) under
+of thirteen domain skills (plus the `oci-project` lifecycle orchestrator) under
 `skills/`, all sharing the safety core in
 `scripts/` and `references/`.
 
@@ -28,15 +28,18 @@ sequence a request instead of re-deriving the steps.
 |---|---|
 | IAM, policies, compartments, budgets, quotas, tags | `skills/oci-iam-admin/` · `references/iam-tenancy.md` |
 | Cloud Guard, Vault, WAF, CIS/ISO-42001, audit | `skills/oci-security-compliance/` · `references/security-compliance.md` |
-| APM, Log Analytics, Monitoring, DBM, Ops Insights | `skills/oci-observability-db/` · `references/observability-db.md` |
+| APM, Log Analytics, Monitoring, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |
+| Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP | `skills/oci-dbm-opsi/` · `references/dbm-opsi.md` |
 | Autonomous DB lifecycle, wallet, scale, ACL, connect (oracledb/SQLAlchemy/Alembic) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` |
-| VCN, NSG, LB, OKE, compute, OCIR | `skills/oci-networking-compute/` · `references/networking-compute.md` |
+| VCN, NSG, LB, compute, OCIR | `skills/oci-networking-compute/` · `references/networking-compute.md` |
+| OKE deploy, kubectl, ingress-nginx, LoadBalancer services, TLS certs, OCIR pulls, rollout troubleshooting | `skills/oci-oke-admin/` · `references/oke-operations.md` |
+| ZPR, Zero Trust Packet Routing, security attributes, protected resources, flow-log correlation | `skills/oci-zpr-visibility/` · `references/zpr-visibility.md` |
 | cost, usage, spend, budget, forecast, billing, FinOps | `skills/oci-cost/` · `references/cost-management.md` (read-only; `scripts/oci_cost.sh`) |
 | Log Analytics, Logan, OCL/LQL query, source, parser, entity, log group, detection, Sigma→OCI | `skills/oci-log-analytics/` · `references/log-analytics.md` (read-only query: `scripts/oci_logan.sh`) |
 | Resource Manager, ORM, Terraform stack, plan/apply/destroy job, tfstate, drift | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
 | Functions, fn deploy, Events rule, ONS, Service Connector Hub (SCH), serverless | `skills/oci-events-functions/` · `references/events-functions.md` |
-| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the ten domains; helper `scripts/oci_project.sh`) |
+| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the thirteen domains; helper `scripts/oci_project.sh`) |
 
 **Related: MCP gateway (non-official).** This pack is the authoritative,
 safety-gated CLI/SDK path. The `oci-mcp-gateway` is **community / self-hosted
@@ -64,7 +67,7 @@ broad tenancy work across the domains above, gated by the safety core.
 Complementary to the official `oracle/skills` collection, which goes deep on a
 few capabilities. Catch the request here, then hand off the deep work:
 
-- Deep OKE day-2 (GVA, Multus, cluster troubleshooting) → `oracle/skills` `oci/oke`.
+- Deep OKE day-2 (GVA, Multus, specialized cluster design) → `oracle/skills` `oci/oke`; common OKE deploy/ingress/LB/TLS/OCIR troubleshooting → `skills/oci-oke-admin/`.
 - OCI Generative AI / Enterprise AI (models, agents, RAG, governance) → `oracle/skills` `oci/enterprise-ai`.
 - Inside an Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH, migrations, Data Guard) → `oracle/skills` `db/`.
 - Oracle Fusion Cloud Applications / SaaS app work → use Oracle Fusion Cloud Applications documentation today; route to `oracle/skills` `fusion/` only after upstream publishes concrete Fusion skills.

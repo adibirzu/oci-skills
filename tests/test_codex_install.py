@@ -93,5 +93,5 @@ def test_antigravity_install_copies_every_skill_and_adapter(tmp_path: pathlib.Pa
     assert "Antigravity ->" in result.stdout
     _assert_common_payload(dest)
     adapter = (dest / "AGENTS.md").read_text(encoding="utf-8")
-    for expected in ("Autonomous Database", "Project lifecycle", "ten domains"):
+    for expected in ("Autonomous Database", "Project lifecycle", "thirteen domains"):
         assert expected in adapter

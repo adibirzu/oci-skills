@@ -1,7 +1,7 @@
 # OCI Project Workflow
 
 Index for the [oci-project](../skills/oci-project/SKILL.md) lifecycle
-orchestrator. The skill sequences the ten domain skills for one project; the
+orchestrator. The skill sequences the thirteen domain skills for one project; the
 detailed recipes are split into **phase references** — read the phase's file
 before running that stage. Safety rules live in
 [tenancy-safety.md](tenancy-safety.md); the decision layer in

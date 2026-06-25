@@ -1,7 +1,7 @@
 # oci-skills — OCI Administrator skill pack
 
 A tenancy-agnostic **Oracle Cloud Infrastructure (OCI) administration** skill
-pack for AI coding agents. One safety-first knowledge core, ten admin domain
+pack for AI coding agents. One safety-first knowledge core, thirteen admin domain
 skills, packaged for **Claude Code, Codex, Gemini CLI, and Antigravity**.
 
 > Built to be reused in *any* tenancy. It ships **no** OCIDs, IPs, keys, or
@@ -16,7 +16,7 @@ context, preflight, and run the read-only "what's going on?" loop in five minute
 OCI administration knowledge tends to get copy-pasted across scripts: the same
 `oci` CLI auth negotiation, the same "check the service limit first", the same
 "is the WAF rule in OBSERVE or BLOCK?" gotchas. This pack centralizes those into
-one reusable core plus ten domain skills, with a hard rule that nothing
+one reusable core plus thirteen domain skills, with a hard rule that nothing
 sensitive is ever printed or committed.
 
 ## Domains
@@ -25,23 +25,27 @@ sensitive is ever printed or committed.
 |--------|--------|
 | **oci-iam-admin** | Users, groups, dynamic groups, policies (least-privilege review), compartments, budgets, quotas, **service limits**, tags, Identity Domains. |
 | **oci-security-compliance** | Cloud Guard, Vault/KMS, Security Zones, WAF, Audit, CIS / ISO-42001 / sovereignty scanning, IAM policy review, secret redaction. |
-| **oci-observability-db** | Monitoring & alarms, Logging, Log Analytics, APM (traces/RUM), Notifications, Service Connector Hub, Database Management, Operations Insights, Autonomous DB provisioning/monitoring. |
+| **oci-observability-db** | Monitoring & alarms, Logging, Log Analytics, APM (traces/RUM), Notifications, Service Connector Hub, OpenTelemetry, dashboards, and Autonomous DB provisioning/monitoring. |
+| **oci-dbm-opsi** | Database Management and Operations Insights: DBM private endpoints, managed databases, OPSI Database Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP grants, DB log ingestion. |
 | **oci-autonomous-db** | Autonomous Database (ADB/ADW/ATP) **lifecycle & connectivity**: start/stop/restart, scale ECPU/storage + auto-scaling, wallet (generate/rotate, mTLS vs TLS, `TNS_ADMIN`), IP access-control list, clone/restore, app integration (DSN service levels, python-oracledb pooling, SQLAlchemy `oracle+oracledb://`, Alembic), and a **read-only working-SQL** diagnostics library (blocking chains, wait events, top SQL, long-running ops, full table scans, execution plans via `DBMS_XPLAN`) over SQLcl/oracledb. |
-| **oci-networking-compute** | VCN, subnets, NSGs, route tables, gateways, load balancers, OKE, compute instances, OCIR. |
+| **oci-networking-compute** | VCN, subnets, NSGs, route tables, gateways, load balancers, compute instances, OCIR. |
+| **oci-oke-admin** | OKE app and cluster operations: kubeconfig, kubectl, ingress-nginx, OCI LoadBalancer services, TLS secrets/certificates, OCIR image pulls, rollouts, virtual nodes, and deployment troubleshooting. |
+| **oci-zpr-visibility** | Zero Trust Packet Routing visibility: ZPR inventory, security attributes, protected resources, VCN Flow Logs correlation, custom logs, and Log Analytics dashboards. |
 | **oci-cost** | Cost & usage reporting (Usage API: spend by service/compartment/region/tag), budgets (limit vs actual vs forecast), cost-tracking tags, guardrail recommendations. |
 | **oci-log-analytics** | OCI Log Analytics (Logan): the OCL query language, a read-only query helper, sources/parsers/fields/entities/log groups, detections (incl. Sigma→OCL), saved/scheduled searches, dashboards, content migration. |
 | **oci-resource-manager** | Resource Manager (managed Terraform): stacks, plan/apply/destroy jobs, job logs/state, drift detection, state import, variables, and schema.yaml stack packaging. |
 | **oci-data-safe** | Data Safe: target-database registration (ADB + cloud DB), private endpoints, Security/User Assessment, Activity Auditing, Data Discovery, Data Masking. |
 | **oci-events-functions** | Event-driven & serverless: OCI Functions (deploy/invoke/config), Events rules (eventType → FAAS/ONS/STREAMING), Notifications/ONS, Service Connector Hub fan-out, Streaming transport. |
-| **oci-project** | **Project lifecycle orchestrator** (above the ten domains): bootstrap/scaffold a project (compartment + scoped IAM + network + budget + tags), project status/health, deploy/release (ORM/OKE), and gated teardown — scoped to one project compartment via a named context. |
+| **oci-project** | **Project lifecycle orchestrator** (above the thirteen domains): bootstrap/scaffold a project (compartment + scoped IAM + network + budget + tags), project status/health, deploy/release (ORM/OKE), and gated teardown — scoped to one project compartment via a named context. |
 
 > **Scope & related.** This pack is the **default entry point for OCI tenancy
-> administration** — broad infrastructure and control-plane work across ten
+> administration** — broad infrastructure and control-plane work across thirteen
 > domains, gated by the safety core. It is complementary to the official
 > [oracle/skills](https://github.com/oracle/skills) collection, which goes *deep*
 > on a few capabilities. Catch the request here (tenancy preflight + redaction +
-> destructive-op guard), then hand off: **deep OKE day-2** (GVA, Multus,
-> troubleshooting) → `oci/oke`; **OCI Generative AI / Enterprise AI** →
+> destructive-op guard), use this pack for common OKE deploy/ingress/LB/TLS
+> troubleshooting, then hand off: **deep OKE day-2** (GVA, Multus,
+> specialized cluster design) → `oci/oke`; **OCI Generative AI / Enterprise AI** →
 > `oci/enterprise-ai`; **inside an Oracle Database** (SQL/PL/SQL, RMAN, AWR/ASH,
 > migrations, Data Guard) → `db/`; **Oracle Fusion Cloud Applications / SaaS app
 > work** → Oracle Fusion Cloud Applications docs today, upstream `fusion/` only
@@ -100,7 +104,7 @@ flowchart TD
 
 **Progressive disclosure keeps it simple:** an agent reads the router, then *one*
 domain `SKILL.md`, then that domain's `references/*.md` only if it needs depth — it
-never loads all ten domains at once. Each layer is one short file.
+never loads all thirteen domains at once. Each layer is one short file.
 
 ## Safety model
 
@@ -258,14 +262,15 @@ references/              # domain + safety knowledge (progressive disclosure)
   helper-conventions.md  KB.md  kb-ingestion.md  named-contexts.md
   credential-management.md
   iam-tenancy.md  security-compliance.md  observability-db.md  autonomous-db.md
-  networking-compute.md
+  networking-compute.md  oke-operations.md
   cost-management.md  log-analytics.md  resource-manager.md  data-safe.md  events-functions.md
 scripts/                # shared core
   common.sh  oci_context.py  oci_preflight.sh  oci_cost.sh  oci_logan.sh  oci_orm.sh  oci_datasafe.sh
   oci_project.sh  oci_cli_help.py  redact.py  iam_audit.py  kb_lookup.py  check_doc_links.py
-skills/                  # twelve auto-discoverable skills (router + ten domains + project orchestrator)
+skills/                  # fifteen auto-discoverable skills (router + thirteen domains + project orchestrator)
   oci-administrator/  oci-iam-admin/  oci-security-compliance/
-  oci-observability-db/  oci-autonomous-db/  oci-networking-compute/
+  oci-observability-db/  oci-dbm-opsi/  oci-autonomous-db/
+  oci-networking-compute/  oci-oke-admin/  oci-zpr-visibility/
   oci-cost/  oci-log-analytics/  oci-resource-manager/  oci-data-safe/
   oci-events-functions/  oci-project/
   # install.sh synthesizes bundle-root SKILL.md from skills/oci-administrator/SKILL.md
@@ -302,9 +307,9 @@ Logan, cost, …) and the agent loads `oci-administrator` (the router), which wo
 in four moves:
 
 1. **Trigger & route.** The router reads your intent and routes to one of the
-   ten domain skills (IAM, security, observability/DB, autonomous-db,
-   networking/compute, cost, Log Analytics, Resource Manager, Data Safe,
-   events/functions) — or to
+   thirteen domain skills (IAM, security, observability, DBM/OPSI,
+   autonomous-db, networking/compute, OKE admin, ZPR visibility, cost, Log Analytics, Resource Manager,
+   Data Safe, events/functions) — or to
    **oci-project** for whole-project lifecycle work.
 2. **Preflight by name.** Before anything touches the tenancy, it confirms *which*
    tenancy/compartment you mean — by friendly **named context** (`dev`, `prod`),

@@ -6,17 +6,19 @@ description: >-
   inspect, secure, or troubleshoot an OCI tenancy — IAM (users, groups, dynamic
   groups, policies, compartments, budgets, quotas, service limits, tags),
   Security & Compliance (Cloud Guard, Vault/KMS, Security Zones, WAF, CIS /
-  ISO-42001 scanning, policy review), Observability & Database (APM, Log
-  Analytics, Monitoring, alarms, Database Management, Operations Insights), or
-  Networking & Compute (VCN, subnets, NSGs, route tables, load balancers, OKE,
-  compute instances, OCIR). Triggers on mentions of OCI, oci-cli, OCID,
+  ISO-42001 scanning, policy review), ZPR visibility, Observability (APM, Log
+  Analytics, Monitoring, alarms, OpenTelemetry), DBM/OPSI, or Networking &
+  Compute (VCN, subnets, NSGs, route tables, load balancers, compute instances,
+  OCIR) and OKE operations (kubectl, ingress-nginx,
+  Kubernetes LoadBalancer services, TLS, OCIR image pulls, rollouts). Triggers on mentions of OCI, oci-cli, OCID,
   compartment, tenancy, IAM policy, Cloud Guard, Vault, WAF, OKE, VCN, NSG,
   Log Analytics, OCL, Logan, log query, APM, service limits, cost, usage, spend,
   budget, billing, Usage API, FinOps, DBM, OPSI, Data Safe, Resource Manager,
   ORM, Terraform stack, Functions, Events, Notifications, Service Connector Hub,
   serverless, or ~/.oci/config. Use this as the **default entry point for OCI
-  infrastructure / control-plane tasks** — it then routes deep OKE day-2 (GVA, Multus,
-  cluster troubleshooting), OCI Generative AI / Enterprise AI, and in-database
+  infrastructure / control-plane tasks** — it handles common OKE deploy and
+  troubleshooting locally, then routes deep OKE day-2 (GVA, Multus,
+  specialized cluster design), OCI Generative AI / Enterprise AI, and in-database
   work to the official oracle/skills collection (see
   references/oracle-skills-alignment.md). This is the tenancy-agnostic admin
   pack; for the OCI-DEMO component system use oracle-oci-management instead.
@@ -26,7 +28,7 @@ license: MIT
 # OCI Administrator
 
 Operate any OCI tenancy safely. This skill routes administrative requests to one
-of ten domain skills (plus the **oci-project** lifecycle orchestrator for
+of thirteen domain skills (plus the **oci-project** lifecycle orchestrator for
 project-wide work), all sharing one tenancy-safety core.
 
 **Scope:** this pack is the **default entry point for OCI tenancy
@@ -36,9 +38,10 @@ domains below, all gated by the safety core. It is complementary to the official
 a few capabilities. Catch the request here (so tenancy preflight, redaction, and
 the destructive-op guard apply), then hand off the deep work:
 
-- **Deep OKE day-2** (cluster design, GVA GPU node pools, Multus, incident
-  troubleshooting) → `oracle/skills` `oci/oke`. We own OKE provisioning, IAM, and
-  network basics.
+- **Common OKE operations** (kubectl, kubeconfig, ingress-nginx, LoadBalancer
+  Services, TLS, OCIR pulls, rollouts, virtual-node gotchas) → `oci-oke-admin`.
+  For deep OKE day-2 (cluster design, GVA GPU node pools, Multus, specialized
+  incident troubleshooting) hand off to `oracle/skills` `oci/oke`.
 - **OCI Generative AI / Enterprise AI** (model endpoints, Responses-API agents,
   RAG, GenAI governance) → `oracle/skills` `oci/enterprise-ai`. We observe agent
   traces and provision the surrounding guardrails.
@@ -105,9 +108,12 @@ When installed as a plugin, these wrap the safety core so the user works by name
 |---|---|---|
 | users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
 | Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
-| APM, Monitoring, alarm, dashboard, Database Management, Operations Insights, metric, autonomous database, GenAI, agent trace, trace integrity, OpenTelemetry, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
+| APM, Monitoring, alarm, dashboard, metric, autonomous database, GenAI, agent trace, trace integrity, OpenTelemetry, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
+| Database Management, DBM, Operations Insights, OPSI, managed database, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight, Base DB observability, DB log ingestion | **oci-dbm-opsi** | [references/dbm-opsi.md](../../references/dbm-opsi.md) |
 | ADB/ADW/ATP lifecycle, provision, create autonomous database, start/stop/scale, wallet, generate-wallet, rotate wallet, TNS_ADMIN, whitelisted-ips/ACL, DSN service level, oracledb, SQLAlchemy oracle+oracledb, Alembic on Oracle, clone, restore, SQLcl, execute SQL, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN | **oci-autonomous-db** | [references/autonomous-db.md](../../references/autonomous-db.md) |
-| VCN, subnet, NSG, network security group, route table, gateway, load balancer, OKE, kubectl, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
+| VCN, subnet, NSG, network security group, route table, gateway, load balancer, compute, instance, image, OCIR | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
+| OKE, kubectl, kubeconfig, Kubernetes, deployment, service, ingress-nginx, nginx ingress, OCI Native Ingress, LoadBalancer pending, TLS secret, certificate, OCIR image pull, ImagePullBackOff, CrashLoopBackOff, rollout status, virtual nodes, Workload Identity | **oci-oke-admin** | [references/oke-operations.md](../../references/oke-operations.md) |
+| ZPR, Zero Trust Packet Routing, security attributes, protected resources, ZPR policy, VCN Flow Logs correlation, unexpected accepted/rejected flows, ZPR dashboards | **oci-zpr-visibility** | [references/zpr-visibility.md](../../references/zpr-visibility.md) |
 | cost, spend, usage, billing, invoice, forecast, FinOps, cost-tracking tag, Usage API | **oci-cost** | [references/cost-management.md](../../references/cost-management.md) |
 | Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
 | Resource Manager, ORM, RMS, Terraform stack, plan/apply/destroy job, tfstate, drift, schema.yaml, "deploy to Oracle Cloud" | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
@@ -116,7 +122,7 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | new project, bootstrap, scaffold, set up a project, project status, project health, deploy a project, tear down, decommission, project guardrails, project lifecycle | **oci-project** | [references/project-workflow.md](../../references/project-workflow.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
-**oci-project** sits above the ten domains: it sequences them for whole-project
+**oci-project** sits above the thirteen domains: it sequences them for whole-project
 work (bootstrap → status → deploy → teardown), scoped to one project compartment.
 
 **Designing a *new* solution for a customer?** When the request is a *requirement*
@@ -150,7 +156,7 @@ intra-domain flow table.
 | Investigate a cost spike | **oci-cost** spend-by-service → localize by compartment → **oci-log-analytics** Audit query for *who created it* → **oci-iam-admin** budget + alert |
 | Triage a security finding | **oci-security-compliance** Cloud Guard problem → **oci-log-analytics** audit trail around the event → remediate in the owning domain → re-scan |
 | Stand up a guardrailed workload | **oci-iam-admin** (compartment + scoped policy + budget) → **oci-networking-compute** (VCN/subnet/NSG) → **oci-resource-manager** (reviewed stack apply) |
-| Onboard a database for observability | **oci-observability-db** (enable DBM/OPSI) → **oci-data-safe** (register + Security Assessment) → **oci-observability-db** (alarms on the DB) |
+| Onboard a database for observability | **oci-dbm-opsi** (enable DBM/OPSI) → **oci-data-safe** (register + Security Assessment) → **oci-observability-db** (alarms/APM/logs) |
 
 ## Operating rules
 
@@ -192,4 +198,4 @@ intra-domain flow table.
 
 [OCI Documentation (home)](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [OCI CLI / SDK configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm).
 
-**Open Knowledge Format grounding** — every doc link across this pack is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the single source of truth, patterned on the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog)). It routes to ten domain skills, each of which carries the same grounding contract. When building a new OCI customer solution on this pack, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
+**Open Knowledge Format grounding** — every doc link across this pack is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the single source of truth, patterned on the [Open Knowledge Format](https://github.com/GoogleCloudPlatform/knowledge-catalog)). It routes to thirteen domain skills, each of which carries the same grounding contract. When building a new OCI customer solution on this pack, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

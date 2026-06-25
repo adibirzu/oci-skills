@@ -155,6 +155,27 @@ A REST publish denial does not prove Kafka SASL is broken; it may be a missing
 `logging-ingestion put-logs`; use a custom log for ingestion tests, or trigger
 the real service that owns the service log. See KB-106.
 
+If a Kafka receiver authenticates but loops on metadata and never joins the
+consumer group, pin the protocol to Kafka `1.0.0` and use the stream pool's cell
+endpoint, not the generic regional endpoint:
+
+```bash
+oci_cli streaming admin stream-pool get --stream-pool-id "<STREAM_POOL_OCID>" \
+  --query 'data."endpoint-fqdn"' --raw-output
+```
+
+```yaml
+receivers:
+  kafka:
+    brokers:
+      - "<STREAM_POOL_ENDPOINT_FQDN>:9092"
+    protocol_version: "1.0.0"
+```
+
+For Splunk HEC / OTel exporters, low-volume tests can look empty when the
+exporter waits for a large batch. Set a flush timeout and publish test messages
+after the consumer group has joined.
+
 ## End-to-end patterns
 
 1. **Object Storage event → Function.** Enable bucket events → Events rule on
