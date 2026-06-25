@@ -1339,3 +1339,131 @@ with the private DSN from a host that has a route into the VCN.
 **Fix:** Validate the probe body against an OCI region pattern (`^[a-z]{2,3}-[a-z]+-[0-9]+$`) from `/opc/v1/instance/region`; fall through to profile auth otherwise. Override with `export OCI_AUTH_MODE=profile` and clear any stale IMDS cache.
 **See:** [Calling services from an instance](https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm)
 **Status:** resolved.
+
+## KB-144 — OKE app service stays `EXTERNAL-IP <pending>` behind shared ingress (iam-oke)
+
+**Symptom:** An OKE workload already reachable through nginx ingress has a
+`Service type=LoadBalancer` stuck at `EXTERNAL-IP <pending>`, or OCI keeps trying
+to create/delete a per-app load balancer.
+**Root cause:** The app should be exposed as `ClusterIP` behind the shared
+ingress; a direct LB service consumes quota, can bypass ingress auth, and may
+retain stale cloud-controller finalizers from an older exposure model.
+**Fix:** Convert the service manifest to `type: ClusterIP`, keep the public route
+on Ingress, remove obsolete LB annotations/finalizers only after confirming the
+old LB is not the active edge, and verify DNS points to the shared ingress LB.
+**See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.
+
+## KB-145 — OKE LoadBalancer returns 502 / backend `CRITICAL` from wrong LB subnet rules (iam-oke)
+
+**Symptom:** Pods are ready and in-cluster service traffic works, but a new OCI
+LoadBalancer-backed service returns 502 or backend health stays `CRITICAL`.
+**Root cause:** The LB subnet or service annotation points at a subnet/security
+list that cannot reach worker nodes on kube-proxy health (`10256`) and NodePort
+range (`30000-32767`), or the subnet annotation is missing and the controller
+chooses an unsuitable subnet.
+**Fix:** Set `service.beta.kubernetes.io/oci-load-balancer-subnet1` to the
+intended LB subnet; allow LB subnet egress to node CIDR on `10256` and
+`30000-32767`; allow node subnet ingress from LB CIDR on the same ports; then
+recheck backend health.
+**See:** [Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/home.htm)
+**Status:** resolved.
+
+## KB-146 — OKE HTTPS listener stays plain TCP when only a certificate OCID is set (iam-oke)
+
+**Symptom:** `https://<APP_HOST>` fails or the OCI LB listener is `TCP-443` with
+no SSL configuration even though the service has a certificate OCID annotation.
+**Root cause:** For the OKE service-controller path, frontend TLS should be
+driven by a namespace-local Kubernetes TLS secret and the OCI LB TLS-secret
+annotations. Importing a cert into OCI Certificates Service alone does not
+guarantee the Kubernetes-created listener becomes HTTPS.
+**Fix:** Create a Kubernetes TLS secret in the service namespace and annotate
+the service with backend protocol `HTTP`, SSL ports `443`, and
+`service.beta.kubernetes.io/oci-load-balancer-tls-secret: <TLS_SECRET>`.
+**See:** [Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/home.htm)
+**Status:** resolved.
+
+## KB-147 — OKE rollout fails from OCIR auth, stale Docker creds, or token propagation (iam-oke)
+
+**Symptom:** Pods show `ImagePullBackOff`, `pull access denied`, or
+`unauthorized: authentication required`; remote builders may fail `docker push`
+or pull even after a token was created.
+**Root cause:** OCIR repositories are private by default; image-pull secrets are
+namespace-local; cross-tenancy pulls need registry-tenancy credentials; auth
+tokens take 30-60 seconds to propagate; remote builders may keep stale Docker
+credential helpers or cached credentials.
+**Fix:** Verify the exact image tag and architecture, recreate the namespace's
+`docker-registry` pull secret with registry-tenancy credentials, wait after new
+auth-token creation, clear stale builder Docker config when needed, and test a
+pull from the target environment before rolling.
+**See:** [Container Registry](https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm)
+**Status:** resolved.
+
+## KB-148 — ZPR visibility dashboard empty while custom logs have records (zpr)
+
+**Symptom:** ZPR collector records appear in OCI Logging, but Log Analytics
+dashboards show no rows or parse errors.
+**Root cause:** Logging ingestion and Log Analytics content are separate legs.
+The custom JSON source/parser/fields, Log Analytics log group upload policy, or
+Service Connector Hub target can be missing even when custom log writes work.
+**Fix:** Validate OCI Logging first; then parse every Log Analytics dashboard
+query, create fields before parser/source, verify the Connector Hub target has
+`LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS`, and only then import dashboards.
+**See:** [Log Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+**Status:** resolved.
+
+## KB-149 — OPSI list flaps cause false Database Insight `NOT_FOUND` (dbm-opsi)
+
+**Symptom:** Validation reports OPSI Database Insight `NOT_FOUND` while the OCI
+Console or a previous run shows the insight ACTIVE.
+**Root cause:** Aggregated `database-insights list` calls can return incomplete
+or empty windows. Treating a single empty list as authoritative produces false
+absence.
+**Fix:** Prefer `oci opsi database-insights get --database-insight-id
+<DATABASE_INSIGHT_OCID>` when the ID is known. Otherwise query one lifecycle
+state per call, union by insight OCID, and return UNKNOWN rather than NOT_FOUND
+when reads are empty, inconsistent, or incomplete.
+**See:** [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
+**Status:** resolved.
+
+## KB-150 — DBCS/Base DB Log Analytics ingestion needs a Management Agent-backed entity (dbm-opsi)
+
+**Symptom:** Log Analytics source association for database alert/audit/host logs
+fails with entity-not-ready errors, or created entities never ingest rows.
+**Root cause:** For DBCS/Base DB log ingestion, DBM/OPSI enablement alone is not
+an ingestion path. Source associations require a Management Agent-backed entity
+or an existing valid ingestion entity.
+**Fix:** Install/configure Management Agent with the required plugins or supply
+existing Management Agent-backed entity OCIDs. Use canonical built-in source
+names and current `oci log-analytics assoc upsert-assocs --items file://...`
+payloads; do not auto-create detached entities as a workaround.
+**See:** [Log Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+**Status:** resolved.
+
+## KB-151 — OCI Streaming Kafka consumers loop on metadata with modern protocol versions (events-functions)
+
+**Symptom:** A Kafka receiver authenticates to OCI Streaming but repeatedly logs
+metadata updates and never joins the consumer group or fetches records.
+**Root cause:** OCI Streaming's Kafka-compatible endpoint implements the Kafka
+1.0 protocol surface. Some clients default to newer Metadata/Fetch API minimums
+and reject the broker's lower max versions.
+**Fix:** Pin the receiver/client protocol to Kafka `1.0.0`, and use the stream
+pool's `endpoint-fqdn` cell endpoint as bootstrap rather than the generic
+regional Streaming endpoint.
+**See:** [Streaming Kafka API configuration](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm)
+**Status:** resolved.
+
+## KB-152 — OKE monitoring UI says latest telemetry unknown despite live metrics (iam-oke)
+
+**Symptom:** OCI Kubernetes Monitoring shows `Invalid Date`, blank CPU/memory, or
+`Latest telemetry Unknown`, while collector pods/jobs appear healthy.
+**Root cause:** Metrics can be flowing under `mgmtagent_kubernetes_metrics` while
+the Log Analytics Kubernetes Cluster entity metadata is malformed or stale
+(`cluster`, `name`, `cluster_name`, `cluster_date`, `metrics_namespace`,
+`timeLastDiscovered`).
+**Fix:** Verify discovery upload logs and current MQL datapoints first. Then
+repair the Kubernetes Cluster entity metadata with a real RFC3339 `cluster_date`,
+matching cluster key/name, correct metrics namespace, and updated
+`time-last-discovered`; force a discovery job and recheck.
+**See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.

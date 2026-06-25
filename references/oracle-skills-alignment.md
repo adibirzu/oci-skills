@@ -34,8 +34,11 @@ deep OKE / GenAI there.
 |---|---|---|
 | IAM, compartments, policies, quotas, budgets, tags | **this pack** | `skills/oci-iam-admin` |
 | Cloud Guard, Vault/KMS, WAF, Security Zones, CIS scan | **this pack** | `skills/oci-security-compliance` |
-| Monitoring, alarms, APM, DBM, OPSI, Autonomous DB (provisioning/observability) | **this pack** | `skills/oci-observability-db` |
-| VCN, subnets, NSGs, LB, compute, OCIR, **OKE provisioning/IAM/network basics** | **this pack** | `skills/oci-networking-compute` |
+| Monitoring, alarms, APM, OpenTelemetry, dashboards, Autonomous DB observability | **this pack** | `skills/oci-observability-db` |
+| DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP, Database Insights | **this pack** | `skills/oci-dbm-opsi` |
+| VCN, subnets, NSGs, LB, compute, OCIR | **this pack** | `skills/oci-networking-compute` |
+| OKE deploys, kubeconfig/kubectl, ingress-nginx, OCI LoadBalancer Services, TLS secrets, OCIR pulls, rollouts, virtual-node gotchas | **this pack** | `skills/oci-oke-admin` |
+| ZPR visibility, security attributes, protected resources, flow-log correlation | **this pack** | `skills/oci-zpr-visibility` |
 | Cost, usage, budgets, FinOps | **this pack** | `skills/oci-cost` |
 | Log Analytics (OCL/LQL), detections | **this pack** | `skills/oci-log-analytics` |
 | Resource Manager (managed Terraform) | **this pack** | `skills/oci-resource-manager` |
@@ -55,10 +58,12 @@ deep OKE / GenAI there.
 Catch the request here (so the safety core and tenancy preflight apply), then
 hand off the deep work:
 
-- **Deep OKE day-2.** We own OKE *provisioning, IAM policy, and network basics*
-  (→ `oci-networking-compute`, KB-001/KB-094). For cluster-design questionnaires,
-  GVA secondary-VNIC GPU node pools, Multus `NetworkAttachmentDefinition`
-  validation, or live incident troubleshooting, route to
+- **Deep OKE day-2.** We own common OKE deploy, ingress/LB/TLS, kubeconfig,
+  OCIR pull, rollout, virtual-node, provisioning, IAM policy, and network basics
+  (→ `oci-oke-admin`, `oci-networking-compute`, KB-001/KB-094). For
+  cluster-design questionnaires, GVA secondary-VNIC GPU node pools, Multus
+  `NetworkAttachmentDefinition` validation, or specialized cluster incidents,
+  route to
   [`oracle/skills` `oci/oke`](https://github.com/oracle/skills/tree/main/oci/oke).
   See [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm)
   and [multiple VNICs](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengAttaching_Multiple_VNICs.htm).

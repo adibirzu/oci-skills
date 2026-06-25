@@ -7,7 +7,7 @@ description: >-
   budget guardrail + project tags), get a project's overall status / health /
   posture, deploy or release a project (Resource Manager stack or OKE rollout),
   or tear down / decommission / clean up a project. It binds a project to a
-  named context (compartment + region + profile) and sequences the ten domain
+  named context (compartment + region + profile) and sequences the thirteen domain
   skills in the right order, each call gated by the shared safety core. Triggers
   on: new OCI project, bootstrap, scaffold, set up a project, project status,
   project health, "is my project healthy", deploy the project, release,
@@ -20,7 +20,7 @@ license: MIT
 # OCI Project Lifecycle
 
 Take an OCI project from an empty compartment to running-and-guarded, and back.
-This is the **orchestration layer**: it does not replace the ten domain skills —
+This is the **orchestration layer**: it does not replace the thirteen domain skills —
 it sequences them in the right order, scoped to one project, every mutation
 through `run_mutating` / `confirm`.
 
