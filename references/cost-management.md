@@ -6,7 +6,7 @@ tags. Read [tenancy-safety.md](tenancy-safety.md) and
 [helper-conventions.md](helper-conventions.md) first.
 
 Reporting is **read-only**. Creating budgets or alert rules is a mutation — those
-go through the **oci-iam-admin** skill, which gates them via `run_mutating` /
+go through the **oci-iam-admin** skill, which gates them via `run_action` /
 `confirm`. Every command goes through the `oci_cli` wrapper.
 
 For a one-shot snapshot run `./scripts/oci_cost.sh` — it returns spend grouped by
@@ -25,11 +25,11 @@ oci_cli usage-api usage-summary request-summarized-usages \
   --time-usage-started 2026-05-01T00:00:00Z \
   --time-usage-ended   2026-06-01T00:00:00Z \
   --granularity MONTHLY --query-type COST \
-  --group-by '["service"]'
+  --group-by file://<TMP_0600_GROUP_BY_SERVICE_JSON>
 
 # By compartment, then by region.
-  --group-by '["compartmentName"]'
-  --group-by '["region"]'
+  --group-by file://<TMP_0600_GROUP_BY_COMPARTMENT_JSON>
+  --group-by file://<TMP_0600_GROUP_BY_REGION_JSON>
 
 # By a cost-tracking tag (chargeback / showback).
   --group-by-tag '[{"namespace":"CostCenter","key":"team"}]'
@@ -73,17 +73,20 @@ recomputed periodically — compare both against `amount` to catch trend-over.
 ### Creating guardrails (mutation → oci-iam-admin)
 
 ```bash
-# Budget with a MONTHLY reset (gated by run_mutating in oci-iam-admin).
-oci_cli budgets budget budget create \
+# Budget with a MONTHLY reset (gated by run_action in oci-iam-admin).
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create budget" -- \
+  oci_cli budgets budget budget create \
   --compartment-id <TENANCY_OCID> --target-type COMPARTMENT \
-  --targets '["<COMPARTMENT_OCID>"]' --amount 500 --reset-period MONTHLY \
+  --targets file://<TMP_0600_TARGETS_JSON> --amount 500 --reset-period MONTHLY \
   --display-name prod-budget
 
 # Alert at 80% of actual and 100% of forecast.
-oci_cli budgets alert-rule create --budget-id <BUDGET_OCID> \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create actual-spend alert" -- \
+  oci_cli budgets alert-rule create --budget-id <BUDGET_OCID> \
   --type ACTUAL    --threshold 80  --threshold-type PERCENTAGE \
   --display-name actual-80
-oci_cli budgets alert-rule create --budget-id <BUDGET_OCID> \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create forecast alert" -- \
+  oci_cli budgets alert-rule create --budget-id <BUDGET_OCID> \
   --type FORECAST  --threshold 100 --threshold-type PERCENTAGE \
   --display-name forecast-100
 ```

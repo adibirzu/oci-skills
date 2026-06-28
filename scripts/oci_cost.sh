@@ -82,13 +82,18 @@ EOF
 info "window    : $START -> $END ($GRAN)"
 echo >&2
 
+GROUP_BY_FILE="$(mktemp "${TMPDIR:-/tmp}/oci-cost-group-by.XXXXXX")"
+chmod 600 "$GROUP_BY_FILE"
+trap 'rm -f -- "$GROUP_BY_FILE"' EXIT
+printf '%s\n' '["service"]' > "$GROUP_BY_FILE"
+
 usage_json="$(oci_cli usage-api usage-summary request-summarized-usages \
   --tenant-id "$TENANT_OCID" \
   --time-usage-started "$START" \
   --time-usage-ended "$END" \
   --granularity "$GRAN" \
   --query-type COST \
-  --group-by '["service"]' 2>/dev/null || true)"
+  --group-by "file://$GROUP_BY_FILE" 2>/dev/null || true)"
 
 if [[ -z "$usage_json" ]]; then
   warn "usage-api returned nothing — the identity likely lacks 'usage-reports' read,"

@@ -6,6 +6,16 @@
 *.key
 *.p12
 *.wallet
+*wallet*
+*.tfstate
+*.tfstate.*
+*.tfstate*
+*.tfplan
+*.tfplan.review.json
+.terraform/
+terraform.tfvars
+*.auto.tfvars
+crash.log
 id_rsa*
 oci_api_key*
 ~/.oci/*

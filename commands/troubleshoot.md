@@ -24,7 +24,7 @@ Steps:
 4. **Investigate read-only** with `oci_cli ... list/get`, output through `redact`.
    Form a concrete hypothesis with evidence — do not guess.
 5. **Propose the fix** as exact commands, every mutation wrapped in
-   `run_mutating` / `confirm` and honoring `OCI_SKILLS_DRY_RUN`. WAIT for confirmation.
+   `run_action` and honoring `OCI_SKILLS_DRY_RUN`. WAIT for confirmation.
 6. After it works, append a new `KB-<n>` entry if this wasn't already in the KB.
 
 Report in Finding / Evidence / Action / Verification / KB format. Never print raw

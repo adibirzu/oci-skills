@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci dbm opsi"
+  short_description: "Safely handle oci-dbm-opsi workflows on OCI"
+  default_prompt: "Use $oci-dbm-opsi to handle this OCI request safely."

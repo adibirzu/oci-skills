@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci product development"
+  short_description: "Safely handle oci-product-development workflows on OCI"
+  default_prompt: "Use $oci-product-development to handle this OCI request safely."

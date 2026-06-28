@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci developer services"
+  short_description: "Safely handle oci-developer-services workflows on OCI"
+  default_prompt: "Use $oci-developer-services to handle this OCI request safely."

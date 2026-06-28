@@ -62,10 +62,15 @@ jobs:
           ruff check scripts/*.py
           python3 -m py_compile scripts/*.py hooks/*.py
 
-      - name: unit tests (safety core — redact + destructive guard)
+      - name: action-contract static gate
+        run: python3 scripts/check_action_contracts.py scripts/*.sh
+
+      - name: unit tests + source-scoped branch coverage
         run: |
-          pip install pytest
-          python3 -m pytest tests/ -q
+          pip install pytest coverage
+          coverage erase
+          coverage run -m pytest tests/ -q
+          coverage report
 
   bash32:
     name: bash 3.2 portability (macOS)
@@ -85,7 +90,7 @@ jobs:
       - name: empty-array / nounset smoke (the macOS default-bash trap)
         run: /bin/bash tests/bash32_smoke.sh
 
-      - name: action-ledger smoke (audit_log + run_mutating, redacted)
+      - name: action-ledger smoke (audit_log + run_action, redacted)
         run: /bin/bash tests/audit_ledger_smoke.sh
 
       - name: oci_cli retry/backoff smoke (throttle vs 5xx vs mutation)
@@ -115,7 +120,7 @@ jobs:
 
       - name: skill frontmatter + plugin/marketplace + evals JSON
         run: |
-          pip install pyyaml
+          pip install pyyaml pytest
           python3 - <<'PY'
           import json, pathlib, sys
           import yaml
@@ -138,6 +143,14 @@ jobs:
               errors.append("skills/: no skills/<name>/SKILL.md found")
           for p in skills:
               check_frontmatter(p)
+              data = yaml.safe_load(p.read_text(encoding="utf-8").split("---", 2)[1]) or {}
+              extras = sorted(set(data) - {"name", "description"})
+              if extras:
+                  errors.append(f"{p}: unsupported frontmatter fields {extras}")
+              if len(str(data.get("description", ""))) > 1024:
+                  errors.append(f"{p}: description exceeds 1024 characters")
+              if not (p.parent / "agents" / "openai.yaml").is_file():
+                  errors.append(f"{p.parent}: missing agents/openai.yaml")
 
           def check_json(path):
               try:
@@ -157,11 +170,40 @@ jobs:
       - name: eval routing validator
         run: python3 tests/check_eval_routing.py
 
-      - name: no stale domain-count drift in docs/manifests
+      - name: routing, inventory, and manifest parity
+        run: python3 -m pytest tests/test_routing_consistency.py tests/test_v2_contracts.py -q
+
+  terraform:
+    name: Terraform and platform-bundle fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.5"
+
+      - name: format fixtures
+        run: terraform fmt -check -recursive skills/oci-terraform-authoring/assets/starter skills/oci-developer-services/assets/terraform skills/oci-events-functions/assets/terraform tests/fixtures/platform-bundles
+
+      - name: initialize and validate starter without backend or credentials
         run: |
-          set -euo pipefail
-          if grep -REn 'six domain|four admin domain|nine domain|nine domains|9 control-plane' README.md AGENTS.md commands docs evals references scripts skills harness .claude-plugin/ .codex-plugin/; then
-            echo "::error::stale domain count (expected ten domain skills plus oci-project) — update docs/manifests"
-            exit 1
-          fi
-          echo "domain-count references consistent"
+          terraform -chdir=skills/oci-terraform-authoring/assets/starter init -backend=false -input=false
+          terraform -chdir=skills/oci-terraform-authoring/assets/starter validate
+          terraform -chdir=skills/oci-terraform-authoring/assets/starter test
+
+      - name: validate developer and Queue modules against the provider schema
+        run: |
+          for module in skills/oci-developer-services/assets/terraform/private-platform skills/oci-events-functions/assets/terraform/queue; do
+            terraform -chdir="$module" init -backend=false -input=false
+            terraform -chdir="$module" validate
+          done
+
+      - name: validate five bundles and CLI contracts offline
+        run: |
+          for bundle in tests/fixtures/platform-bundles/*; do
+            python3 scripts/platform_bundle.py validate "$bundle/platform-bundle.yaml"
+            python3 scripts/oci_cli_lint.py --no-help "$bundle/cli/command-plan.json"
+            terraform -chdir="$bundle/terraform" init -backend=false -input=false
+            terraform -chdir="$bundle/terraform" validate
+          done

@@ -8,6 +8,7 @@ the redaction CI gate) while the runtime value is a valid ocid1.compartment.*.
 from __future__ import annotations
 
 import pathlib
+import shlex
 import stat
 import sys
 
@@ -43,6 +44,21 @@ def test_add_creates_store_with_0600(ctx_store, capsys) -> None:
     assert stat.S_IMODE(ctx_store.stat().st_mode) == 0o600
 
 
+def test_load_rejects_symlink_or_permissive_store(ctx_store) -> None:
+    ctx_store.write_text('{"contexts": {}, "current": null}\n', encoding="utf-8")
+    ctx_store.chmod(0o644)
+    with pytest.raises(SystemExit):
+        oci_context._load()
+
+    ctx_store.unlink()
+    target = ctx_store.with_suffix(".target")
+    target.write_text('{"contexts": {}, "current": null}\n', encoding="utf-8")
+    target.chmod(0o600)
+    ctx_store.symlink_to(target)
+    with pytest.raises(SystemExit):
+        oci_context._load()
+
+
 def test_get_field_emits_raw_value(ctx_store, capsys) -> None:
     oci_context.main(["add", "dev", "--compartment", _cmpt()])
     capsys.readouterr()
@@ -58,6 +74,19 @@ def test_use_emits_shell_exports(ctx_store, capsys) -> None:
     assert "export OCI_CLI_PROFILE=DEFAULT" in out
     assert "export OCI_REGION=eu-frankfurt-1" in out
     assert f"export OCI_SKILLS_COMPARTMENT={_cmpt()}" in out
+
+
+def test_use_shell_quotes_manually_tampered_or_untrusted_values(ctx_store, capsys) -> None:
+    profile = "DEFAULT; touch /tmp/should-not-run"
+    prefix = "demo $(false)"
+    assert oci_context.main([
+        "add", "dev", "--compartment", _cmpt(), "--profile", profile, "--prefix", prefix,
+    ]) == 0
+    capsys.readouterr()
+    assert oci_context.main(["use", "dev"]) == 0
+    out = capsys.readouterr().out
+    assert f"export OCI_CLI_PROFILE={shlex.quote(profile)}" in out
+    assert f"export OCI_SKILLS_PROJECT_PREFIX={shlex.quote(prefix)}" in out
 
 
 def test_list_shows_added_context(ctx_store, capsys) -> None:

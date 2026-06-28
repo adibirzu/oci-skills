@@ -1090,7 +1090,7 @@ the entire access-control list with exactly what you pass. It does not append, a
 an empty list removes ACL restriction entirely.
 **Fix:** Always `get` the current list first
 (`--query 'data."whitelisted-ips"'`), then pass the full set of keepers **plus**
-the new entry in one `run_mutating` update. Entries may be CIDRs or VCN/subnet
+the new entry in one `run_action --risk in-place` update. Entries may be CIDRs or VCN/subnet
 OCIDs. Review carefully before ever passing `[]`.
 **See:** [Network access: ACLs & private endpoints](https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/autonomous-network-access.html)
 **Status:** resolved.
@@ -1142,7 +1142,7 @@ can lose work, roll back transactions, or change plans for every other session.
 Blending them removes the human checkpoint before an irreversible change.
 **Fix:** Keep the diagnostic path strictly read-only (dynamic performance views +
 `DBMS_XPLAN` only). Surface the finding (e.g. "root blocker SID 142") and hand any
-mutation to a **separate, confirmation-gated** remediation (`run_mutating`/`confirm`,
+mutation to a **separate, confirmation-gated** remediation (`run_action`,
 or route to `oracle/skills` `db/`). Redact SQL text and bind values before sharing.
 **See:** [Database Reference (V$ dynamic performance views)](https://docs.oracle.com/en/database/oracle/oracle-database/19/refrn/index.html)
 **Status:** resolved.

@@ -1,0 +1,16 @@
+version: 0.1
+component: build
+timeoutInSeconds: 1800
+shell: bash
+failImmediatelyOnError: true
+steps:
+  - type: Command
+    name: test
+    command: "<RUN_PROJECT_TESTS>"
+  - type: Command
+    name: build
+    command: "<BUILD_IMMUTABLE_ARTIFACT>"
+outputArtifacts:
+  - name: application
+    type: BINARY
+    location: "<BUILD_OUTPUT>"

@@ -1,0 +1,11 @@
+[run]
+branch = True
+source =
+    scripts
+    hooks
+
+[report]
+fail_under = 80
+show_missing = True
+skip_empty = True
+precision = 0

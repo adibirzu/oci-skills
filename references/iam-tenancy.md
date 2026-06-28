@@ -6,7 +6,7 @@ service limits, and tags. Read [tenancy-safety.md](tenancy-safety.md) and
 [helper-conventions.md](helper-conventions.md) first.
 
 Every command goes through the `oci_cli` wrapper. Mutations go through
-`run_mutating` / `confirm`. Read before write; treat `409 Conflict` as "exists".
+`run_action`. Read before write; treat `409 Conflict` as "exists".
 
 For a read-only posture snapshot run `python3 scripts/iam_audit.py` — it pages the
 compartment subtree, users, groups, dynamic groups, and policies without changing
@@ -29,19 +29,19 @@ name="platform-team"
 existing=$(oci_cli iam compartment list --compartment-id <PARENT_OCID> --all \
   --query "data[?name=='$name'].id | [0]" --raw-output)
 if [ -z "$existing" ] || [ "$existing" = "null" ]; then
-  run_mutating "create compartment $name" \
+  run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create compartment $name" -- \
     oci_cli iam compartment create --compartment-id <PARENT_OCID> \
       --name "$name" --description "Platform team workloads"
 fi
 
 # Move a compartment under a new parent (read its current parent first).
-run_mutating "move compartment" \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "move compartment" -- \
   oci_cli iam compartment move --compartment-id <COMPARTMENT_OCID> \
     --target-compartment-id <NEW_PARENT_OCID>
 
 # Delete — destructive, must be empty. Confirm by name, never echo the OCID.
 confirm "Delete compartment '$name'? Irreversible and must be empty." && \
-  run_mutating "delete compartment" \
+  run_action --risk destructive --compartment <COMPARTMENT_OCID> --description "delete compartment" -- \
     oci_cli iam compartment delete --compartment-id <COMPARTMENT_OCID> --force
 ```
 
@@ -60,14 +60,14 @@ oci_cli iam group list --compartment-id <TENANCY_OCID> --all
 # Idempotent group create.
 g=$(oci_cli iam group list --compartment-id <TENANCY_OCID> --all \
   --query "data[?name=='db-admins'].id | [0]" --raw-output)
-[ -z "$g" ] || [ "$g" = null ] && run_mutating "create group db-admins" \
+[ -z "$g" ] || [ "$g" = null ] && run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create group db-admins" -- \
   oci_cli iam group create --compartment-id <TENANCY_OCID> \
     --name db-admins --description "Database administrators"
 
 # Add a user to a group (read membership first to stay idempotent).
 oci_cli iam group list-users --group-id <GROUP_OCID> --all \
   --query "data[].name"
-run_mutating "add user to group" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "add user to group" -- \
   oci_cli iam group add-user --group-id <GROUP_OCID> --user-id <USER_OCID>
 ```
 
@@ -87,7 +87,7 @@ rule="any { instance.id = '<INSTANCE_OCID>' }"
 
 dg=$(oci_cli iam dynamic-group list --all \
   --query "data[?name=='fn-runners'].id | [0]" --raw-output)
-[ -z "$dg" ] || [ "$dg" = null ] && run_mutating "create dynamic group" \
+[ -z "$dg" ] || [ "$dg" = null ] && run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create dynamic group" -- \
   oci_cli iam dynamic-group create --name fn-runners \
     --description "Function runtime principals" --matching-rule "$rule"
 ```
@@ -104,7 +104,7 @@ oci_cli iam policy list --compartment-id <COMPARTMENT_OCID> --all \
 
 # Least-privilege write: scope to a compartment, a verb, a resource-type.
 stmts='["Allow group db-admins to manage database-family in compartment db-prod"]'
-run_mutating "create scoped policy" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create scoped policy" -- \
   oci_cli iam policy create --compartment-id <COMPARTMENT_OCID> \
     --name db-admins-policy --description "Least-privilege DB admin" \
     --statements "$stmts"
@@ -142,7 +142,7 @@ oci_cli identity-domains user list --endpoint <DOMAIN_URL> \
 **Auth tokens** are created via legacy IAM, **not** identity-domains:
 
 ```bash
-run_mutating "create auth token" \
+run_action --risk credential --compartment <COMPARTMENT_OCID> --description "create auth token" -- \
   oci_cli iam auth-token create --user-id <USER_OCID> \
     --description "OCIR push token" \
   | redact   # token printed once — never log or commit it
@@ -160,7 +160,7 @@ oci_cli iam region-subscription list \
 
 # Subscribe to a new region (rarely reversible — confirm).
 confirm "Subscribe tenancy to <REGION_KEY>?" && \
-  run_mutating "subscribe region" \
+  run_action --risk additive --compartment <COMPARTMENT_OCID> --description "subscribe region" -- \
     oci_cli iam region-subscription create \
       --tenancy-id <TENANCY_OCID> --region-key <REGION_KEY>
 ```
@@ -172,12 +172,13 @@ confirm "Subscribe tenancy to <REGION_KEY>?" && \
 oci_cli budgets budget list --compartment-id <TENANCY_OCID> --all
 
 # Create a compartment-scoped monthly budget + alert at 80% forecast.
-b=$(run_mutating "create budget" \
+# <TMP_0600_TARGETS_JSON> contains ["<COMPARTMENT_OCID>"].
+b=$(run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create budget" -- \
   oci_cli budgets budget create --compartment-id <TENANCY_OCID> \
-    --target-type COMPARTMENT --targets '["<COMPARTMENT_OCID>"]' \
+    --target-type COMPARTMENT --targets file://<TMP_0600_TARGETS_JSON> \
     --amount 500 --reset-period MONTHLY --display-name db-prod-budget \
     --query "data.id" --raw-output)
-run_mutating "create budget alert rule" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create budget alert rule" -- \
   oci_cli budgets alert-rule create --budget-id "$b" \
     --type FORECAST --threshold 80 --threshold-type PERCENTAGE \
     --recipients ops@<EXAMPLE_DOMAIN> --display-name forecast-80
@@ -191,7 +192,7 @@ oci_cli limits quota list --compartment-id <TENANCY_OCID> --all
 
 # A quota policy caps service usage in a compartment.
 stmts='["Set compute quota stande4-core-count to 40 in compartment db-prod"]'
-run_mutating "create quota policy" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create quota policy" -- \
   oci_cli limits quota create --compartment-id <TENANCY_OCID> \
     --name compute-cap --description "Cap E4 cores" --statements "$stmts"
 ```
@@ -228,19 +229,20 @@ an increase or choose another AD/region instead of half-provisioning.
 oci_cli iam tag-namespace list --compartment-id <TENANCY_OCID> --all
 
 # Create a namespace + a cost-tracking defined tag.
-ns=$(run_mutating "create tag namespace" \
+ns=$(run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create tag namespace" -- \
   oci_cli iam tag-namespace create --compartment-id <TENANCY_OCID> \
     --name operations --description "Ops metadata" \
     --query "data.id" --raw-output)
-run_mutating "create cost-tracking tag" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create cost-tracking tag" -- \
   oci_cli iam tag create --tag-namespace-id "$ns" --name cost-center \
     --description "Chargeback code" --is-cost-tracking true
 
 # Apply tags to a resource (defined + freeform).
-run_mutating "tag compartment" \
+# The two 0600 files contain the nested tag maps shown by their names.
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "tag compartment" -- \
   oci_cli iam compartment update --compartment-id <COMPARTMENT_OCID> \
-    --defined-tags '{"operations":{"cost-center":"CC-1001"}}' \
-    --freeform-tags '{"managed-by":"oci-skills"}'
+    --defined-tags file://<TMP_0600_DEFINED_TAGS_JSON> \
+    --freeform-tags file://<TMP_0600_FREEFORM_TAGS_JSON>
 ```
 
 **Why:** cost-tracking tags must be flagged `--is-cost-tracking true` at creation

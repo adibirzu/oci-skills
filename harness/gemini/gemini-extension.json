@@ -1,6 +1,6 @@
 {
   "name": "oci-skills",
-  "version": "0.1.0",
-  "description": "Tenancy-agnostic OCI Administrator skill pack for Gemini CLI: IAM, security, observability/DB, ADB, networking/compute, cost, Logan, ORM, Data Safe, serverless, and project lifecycle.",
+  "version": "2.0.0-rc.1",
+  "description": "Safe OCI engineering for Gemini CLI: administration, exact CLI plans, Terraform, Developer Services, platform bundles, and lifecycle work.",
   "contextFileName": "GEMINI.md"
 }

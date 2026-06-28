@@ -7,7 +7,7 @@ progress block (see the SKILL's *Interactive execution rules*).
 
 Goal: an empty compartment becomes a guard-railed home for the project. Every
 step is **idempotent** (search by name; `409` = exists) and **gated**
-(`run_mutating` honors `OCI_SKILLS_DRY_RUN=true`). Order matters: the compartment
+(`run_action` honors `OCI_SKILLS_DRY_RUN=true`). Order matters: the compartment
 must exist before anything can be scoped to it.
 
 ```bash
@@ -29,7 +29,7 @@ What `oci_project.sh bootstrap` does itself (low blast radius, idempotent):
    **80% forecast alert-rule** command.
 
 What it **emits for you to run via the domains** (tenancy blast radius — these
-belong to their owners, each gated by `confirm`/`run_mutating`):
+belong to their owners, each gated by `run_action`):
 
 4. **Scoped IAM** — a `<name>-admins` group + a policy that grants
    `manage all-resources in compartment <name>` — **never** `in tenancy`. Scoping

@@ -2,7 +2,7 @@
 
 Sanitized, tenancy-agnostic shapes for OCI security operations. Every CLI call
 goes through `oci_cli` (negotiates auth + region); every mutation goes through
-`run_mutating` / `confirm`. Read before write, idempotent by display name, treat
+`run_action`. Read before write, idempotent by display name, treat
 `409 Conflict` as "already exists". See `tenancy-safety.md` and
 `helper-conventions.md` for the helper contract.
 
@@ -66,20 +66,20 @@ existing=$(oci_cli kms management vault list \
   --query "data[?\"display-name\"=='app-vault' && contains(\"lifecycle-state\",'ACTIVE')].id | [0]" \
   --raw-output 2>/dev/null || true)
 if [ -z "$existing" ] || [ "$existing" = "null" ]; then
-  run_mutating "create vault app-vault" \
+  run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create vault app-vault" -- \
     oci_cli kms management vault create \
       --compartment-id "$COMPARTMENT_OCID" --display-name app-vault --vault-type DEFAULT
 fi
 
 # Create a key (management endpoint is per-vault).
-run_mutating "create key app-key" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create key app-key" -- \
   oci_cli kms management key create \
     --compartment-id "$COMPARTMENT_OCID" --display-name app-key \
     --endpoint "$VAULT_MGMT_ENDPOINT" \
-    --key-shape '{"algorithm":"AES","length":32}'
+    --key-shape file://<TMP_0600_AES_KEY_SHAPE_JSON>
 
 # Create a secret from a base64 payload.
-run_mutating "create secret db-password" \
+run_action --risk credential --compartment <COMPARTMENT_OCID> --description "create secret db-password" -- \
   oci_cli vault secret create-base64 \
     --compartment-id "$COMPARTMENT_OCID" --secret-name db-password \
     --vault-id "$VAULT_OCID" --key-id "$KEY_OCID" \
@@ -109,7 +109,7 @@ the real secret — silent auth failures (KB-005).
 Add a new secret **version**, then re-point consumers; never edit in place.
 
 ```bash
-run_mutating "rotate db-password" \
+run_action --risk credential --compartment <COMPARTMENT_OCID> --description "rotate db-password" -- \
   oci_cli vault secret update-base64 --secret-id "$SECRET_OCID" \
     --secret-content-content "$(printf %s "$NEW_VALUE" | base64)"
 ```
@@ -153,7 +153,7 @@ violate a policy are blocked at create time.
 oci_cli cloud-guard security-recipe list --compartment-id "$COMPARTMENT_OCID" --all
 oci_cli cloud-guard security-zone list   --compartment-id "$COMPARTMENT_OCID" --all
 # Create only after confirming the recipe id and target compartment.
-run_mutating "create security zone" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create security zone" -- \
   oci_cli cloud-guard security-zone create \
     --compartment-id "$COMPARTMENT_OCID" --display-name prod-zone \
     --security-zone-recipe-id "$RECIPE_OCID"
@@ -175,7 +175,7 @@ existing=$(oci_cli waf web-app-firewall-policy list \
   --query 'data.items[0].id' --raw-output 2>/dev/null || true)
 
 if [ -z "$existing" ] || [ "$existing" = "null" ]; then
-  run_mutating "create WAF policy edge-waf" \
+  run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create WAF policy edge-waf" -- \
     oci_cli waf web-app-firewall-policy create \
       --compartment-id "$COMPARTMENT_OCID" --display-name edge-waf \
       --actions      file://waf-actions.json \
@@ -190,7 +190,7 @@ for it to stop traffic.
 
 ```bash
 # Attach the policy to a load balancer (creates the WAF enforcement point).
-run_mutating "attach WAF to LB" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "attach WAF to LB" -- \
   oci_cli waf web-app-firewall create \
     --compartment-id "$COMPARTMENT_OCID" \
     --policy-id "$POLICY_OCID" --load-balancer-id "$LB_OCID" \

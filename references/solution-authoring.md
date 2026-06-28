@@ -31,7 +31,7 @@ OCID, IP, or tenancy namespace (see [tenancy-safety.md](tenancy-safety.md)).
 
 The design stage is **read-only and reversible** — it writes a blueprint, not
 cloud resources. Nothing is created until `oci-project bootstrap` runs each
-mutation through `run_mutating` / `confirm`.
+mutation through `run_action`.
 
 ## The workflow
 

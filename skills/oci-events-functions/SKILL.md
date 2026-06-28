@@ -1,26 +1,22 @@
 ---
 name: oci-events-functions
 description: >-
-  OCI event-driven and serverless administration via oci-cli, Fn, and the OCI
-  SDK: OCI Functions (applications, fn deploy to OCIR, invoke, config, memory/
-  timeout), the Events service (rules, CloudEvents eventType conditions, FAAS/ONS/
-  STREAMING actions), Notifications/ONS (topics, subscriptions, the PENDING
-  confirmation gotcha), Service Connector Hub (source→task→target fan-out and the
-  serviceconnector service-principal policy), and Streaming as transport. Use
-  whenever a request mentions OCI Functions, fn deploy, FDK, oci fn invoke, Events
-  rule, eventType, FAAS action, Notifications, ONS topic/subscription, Service
-  Connector Hub, SCH, connector hub, serviceconnector principal, put_messages,
-  TRIM_HORIZON, OCI Streaming Kafka compatibility, Kafka SASL, Kafka Connect,
-  SOC4Kafka, or event-driven/serverless OCI automation. Reads are safe;
-  create/update/invoke go through the shared safety core.
-license: MIT
+  Operate OCI Functions, Fn deployment/invocation, Events rules and CloudEvents
+  filters, Notifications/ONS, Service Connector Hub, Queue, and Streaming/Kafka
+  transports. Use for serverless applications, eventType and FAAS/ONS/Streaming
+  actions, serviceconnector fan-out/IAM, Queue producer-consumer policy,
+  visibility timeout, channels, retry/poison-message/DLQ behavior, stream
+  publishing, consumer offsets, Kafka SASL/Connect, or event-worker automation.
+  Delivery pipelines belong to oci-developer-services; Queue and event transport
+  ownership stays here. Live create/update/invoke operations use the shared
+  context-bound safety core.
 ---
 
 # OCI Events, Functions & Service Connector Hub
 
 Build and operate event-driven/serverless OCI safely. Listing/getting is safe;
 creating apps/functions/rules/topics/subscriptions/connectors and invoking
-functions are **mutations** gated by `run_mutating` / `confirm`. All CLI runs
+functions are **mutations** gated by `run_action`. All CLI runs
 through `oci_cli` (`../../scripts/common.sh`). Never inline real OCIDs, OCIR
 namespaces, emails, or endpoints — use `<PLACEHOLDER>` tokens.
 
@@ -39,6 +35,8 @@ Read [../../references/events-functions.md](../../references/events-functions.md
 for command shapes, the SCH service-principal policy, and end-to-end recipes, and
 [../../references/tenancy-safety.md](../../references/tenancy-safety.md) for the
 safety rules.
+Reuse `assets/terraform/queue/` for a bounded-retry, Terraform-owned Queue
+starter; add producer/consumer IAM through `oci-iam-admin`.
 
 ## Routing — pick the task
 
@@ -48,6 +46,7 @@ safety rules.
 | events rule, eventType, "react to", FAAS/ONS/STREAMING action | Events |
 | topic, subscription, email/HTTPS/PagerDuty/Slack alert | Notifications (ONS) |
 | service connector, SCH, fan-out logs/metrics, serviceconnector | Service Connector Hub |
+| queue, producer/consumer, visibility timeout, channel, retry, poison message, DLQ | Queue |
 | put_messages, stream vs stream pool, TRIM_HORIZON | Streaming (transport) |
 | Kafka client, Kafka Connect, SOC4Kafka, SASL auth, OCI Streaming compatibility | Streaming Kafka API |
 | "rule never fires" / "SCH ACTIVE but empty" / "email never arrives" | Gotchas |
@@ -61,6 +60,9 @@ safety rules.
 | Fan-out logs/metrics | `service-connector create` (source → target) → grant the `serviceconnector` principal per-source/target verbs (KB-085) → confirm data actually moves, not just `ACTIVE` |
 | Notifications never arrive | `ons topic create` → `subscription create` → confirm it leaves `PENDING` → `ACTIVE` (KB-086) → publish a test message |
 | Kafka-compatible consumer on Streaming | verify stream/pool/region → build SASL username from the same IAM user that owns the auth token → include identity-domain prefix in the username → inspect consumer logs for SASL/metadata errors (KB-106) |
+| Event worker with Queue | Events rule → Function producer (Events has no direct Queue action) → Queue → Function/worker poll → delete only after success → DLQ alarm/test |
+| Queue poison-message test | create/reuse queue with bounded delivery attempts → publish fixture → let processing fail past visibility timeout → verify DLQ → quarantine/replay explicitly |
+| Streaming event worker | producer `put_messages` → inspect every per-entry error → consumer checkpoint/group → lag/empty-result observability → retry |
 
 ## Key gotchas (the ones that waste hours)
 
@@ -78,16 +80,22 @@ safety rules.
 - **Kafka API auth is user-bound** — an auth token from one OCI user cannot be
   reused with another profile/user in the Kafka SASL username; domain users need
   their full OCI username, not just an email or local alias (KB-106).
+- **Queue is at-least-once.** Make consumers idempotent; extend visibility for
+  long work; delete only after success. Empty long-poll results are normal, not
+  proof that the queue is broken. Delivery attempts beyond the configured limit
+  move the message to the automatically provided DLQ.
 
 ## Safety notes
 
 - **Reads safe; gate the rest.** App/function/rule/topic/subscription/connector
-  creation and `fn invoke` are mutations — `confirm` / `run_mutating`, prefer
+  creation and `fn invoke` are mutations — `run_action`, prefer
   `OCI_SKILLS_DRY_RUN` first.
 - **Never print or commit secrets** — function config, PEM keys, auth tokens, and
   webhook endpoints; `redact` output.
 - **Least-privilege the `serviceconnector` principal** — scope grants to the
   specific compartment + the exact source/target verbs, not broad `manage`.
+- **Separate Queue roles.** Producers get `use queue-push`; consumers get
+  `use queue-pull`; queue administrators alone get queue management.
 - **Never invent `oci` flags.** Fetch the exact command shape first:
   `python3 scripts/oci_cli_help.py <service> <op>`.
 
@@ -103,6 +111,6 @@ safety rules.
 
 ## Official documentation
 
-[Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) · [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm) · [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm). Full list in the [events-functions reference](../../references/events-functions.md).
+[Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) · [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm) · [Queue](https://docs.oracle.com/en-us/iaas/Content/queue/overview.htm) · [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm). Full list in the [events-functions reference](../../references/events-functions.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

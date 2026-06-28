@@ -1,4 +1,4 @@
-# AGENTS.md — OCI Administrator skill pack
+# AGENTS.md — OCI engineering skill pack
 
 This file is read by Codex, Antigravity, and other `AGENTS.md`-aware agents at
 the repo root. It mirrors `SKILL.md` (the Claude entrypoint) so every harness
@@ -6,10 +6,9 @@ gets the same operating contract.
 
 ## What this is
 
-A tenancy-agnostic OCI administration skill pack. Route any OCI request to one
-of thirteen domain skills (plus the `oci-project` lifecycle orchestrator) under
-`skills/`, all sharing the safety core in
-`scripts/` and `references/`.
+A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
+skill pack. Route requests to one of fifteen primary domain skills or the
+`oci-project` / `oci-product-development` orchestrator under `skills/`.
 
 ## Always, before acting
 
@@ -28,18 +27,21 @@ sequence a request instead of re-deriving the steps.
 |---|---|
 | IAM, policies, compartments, budgets, quotas, tags | `skills/oci-iam-admin/` · `references/iam-tenancy.md` |
 | Cloud Guard, Vault, WAF, CIS/ISO-42001, audit | `skills/oci-security-compliance/` · `references/security-compliance.md` |
-| APM, Log Analytics, Monitoring, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |
+| APM, Monitoring, Logging, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |
 | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP | `skills/oci-dbm-opsi/` · `references/dbm-opsi.md` |
 | Autonomous DB lifecycle, wallet, scale, ACL, connect (oracledb/SQLAlchemy/Alembic) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` |
-| VCN, NSG, LB, compute, OCIR | `skills/oci-networking-compute/` · `references/networking-compute.md` |
+| VCN, NSG, LB, compute, VNIC, volume | `skills/oci-networking-compute/` · `references/networking-compute.md` |
 | OKE deploy, kubectl, ingress-nginx, LoadBalancer services, TLS certs, OCIR pulls, rollout troubleshooting | `skills/oci-oke-admin/` · `references/oke-operations.md` |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, flow-log correlation | `skills/oci-zpr-visibility/` · `references/zpr-visibility.md` |
 | cost, usage, spend, budget, forecast, billing, FinOps | `skills/oci-cost/` · `references/cost-management.md` (read-only; `scripts/oci_cost.sh`) |
 | Log Analytics, Logan, OCL/LQL query, source, parser, entity, log group, detection, Sigma→OCI | `skills/oci-log-analytics/` · `references/log-analytics.md` (read-only query: `scripts/oci_logan.sh`) |
-| Resource Manager, ORM, Terraform stack, plan/apply/destroy job, tfstate, drift | `skills/oci-resource-manager/` · `references/resource-manager.md` |
+| Resource Manager, ORM, managed Terraform stack/job/log/state operations | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
-| Functions, fn deploy, Events rule, ONS, Service Connector Hub (SCH), serverless | `skills/oci-events-functions/` · `references/events-functions.md` |
-| whole-project work: bootstrap/scaffold, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` (orchestrates the thirteen domains; helper `scripts/oci_project.sh`) |
+| Functions, Events, ONS, SCH, Queue, Streaming, retry/DLQ, event workers | `skills/oci-events-functions/` · `references/events-functions.md` |
+| Terraform/HCL authoring, discovery, local validate/plan/apply/destroy, provider schema | `skills/oci-terraform-authoring/` · `references/terraform-authoring.md` |
+| DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery | `skills/oci-developer-services/` · `references/developer-services.md` |
+| product golden paths, platform bundles, runtime/ingress/data selection | `skills/oci-product-development/` · `references/product-development.md` |
+| whole-project bootstrap, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` |
 
 **Related: MCP gateway (non-official).** This pack is the authoritative,
 safety-gated CLI/SDK path. The `oci-mcp-gateway` is **community / self-hosted
@@ -55,15 +57,19 @@ source of truth — see `references/mcp-gateway.md`.
 
 - All CLI through `oci_cli` (negotiates auth/profile/region).
 - Read before write; treat `409` as "exists"; keep operations idempotent.
-- Destructive ops require confirmation; honor `OCI_SKILLS_DRY_RUN`.
+- Live actions use `run_action` and require a current matching preflight receipt.
+  Destructive/credential automation requires an exact approval identifier;
+  production force additionally requires `OCI_SKILLS_BREAK_GLASS=true`.
+- Terraform owns durable resources by default. CLI mutation of a Terraform-owned
+  resource is break-glass followed by Terraform reconciliation.
 - Never print or commit OCIDs, IPs, fingerprints, datakeys, or secrets. Redact
   with `scripts/redact.py`; use `<PLACEHOLDER>` tokens in docs.
 - Add a `KB-<n>` entry after fixing any new operational error.
 
 ## Scope
 
-Default entry point for OCI *infrastructure / control-plane* administration —
-broad tenancy work across the domains above, gated by the safety core.
+Default entry point for OCI infrastructure/control-plane administration,
+infrastructure authoring, and platform-bundle composition, gated by the safety core.
 Complementary to the official `oracle/skills` collection, which goes deep on a
 few capabilities. Catch the request here, then hand off the deep work:
 

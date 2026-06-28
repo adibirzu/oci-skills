@@ -33,8 +33,10 @@ def _run_install(target: str, env: dict[str, str]) -> subprocess.CompletedProces
 def _assert_common_payload(dest: pathlib.Path) -> None:
     assert (dest / "SKILL.md").is_file()
     assert _skill_names(dest) == _skill_names(ROOT)
-    for directory in ("references", "scripts", "commands", "hooks", "evals"):
+    for directory in ("references", "scripts", "schemas", "docs", "commands", "hooks", "evals"):
         assert (dest / directory).is_dir()
+    for skill in _skill_names(ROOT):
+        assert (dest / "skills" / skill / "agents" / "openai.yaml").is_file()
 
     root_router = (dest / "SKILL.md").read_text(encoding="utf-8")
     assert "../../references/" not in root_router
@@ -55,7 +57,7 @@ def test_codex_install_copies_every_skill_and_adapter(tmp_path: pathlib.Path) ->
     assert (dest / "agents" / "openai.yaml").is_file()
 
     adapter = (dest / "agents" / "openai.yaml").read_text(encoding="utf-8")
-    for expected in ("ADB", "Logan", "ORM", "Data Safe", "serverless", "projects"):
+    for expected in ("CLI", "Terraform", "platform bundles"):
         assert expected in adapter
 
 
@@ -75,9 +77,9 @@ def test_gemini_install_copies_every_skill_and_manifest(tmp_path: pathlib.Path) 
 
     gemini_md = (dest / "GEMINI.md").read_text(encoding="utf-8")
     manifest = (dest / "gemini-extension.json").read_text(encoding="utf-8")
-    for expected in ("oci-autonomous-db", "oci-project"):
+    for expected in _skill_names(ROOT) - {"oci-administrator"}:
         assert expected in gemini_md
-    for expected in ("ADB", "Logan", "ORM", "Data Safe", "serverless", "project lifecycle"):
+    for expected in ("Terraform", "platform bundles", "lifecycle"):
         assert expected in manifest
 
 
@@ -93,5 +95,5 @@ def test_antigravity_install_copies_every_skill_and_adapter(tmp_path: pathlib.Pa
     assert "Antigravity ->" in result.stdout
     _assert_common_payload(dest)
     adapter = (dest / "AGENTS.md").read_text(encoding="utf-8")
-    for expected in ("Autonomous Database", "Project lifecycle", "thirteen domains"):
+    for expected in _skill_names(ROOT) - {"oci-administrator"}:
         assert expected in adapter

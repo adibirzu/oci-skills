@@ -3,7 +3,7 @@
 Sanitized command/SDK shapes for OCI Monitoring, Logging, Log Analytics, APM,
 Notifications, Service Connector Hub, Database Management (DBM), Operations
 Insights (OPSI), and Autonomous Database admin. Every CLI call goes through
-`oci_cli` from `scripts/common.sh`; mutations through `run_mutating` / `confirm`.
+`oci_cli` from `scripts/common.sh`; mutations through `run_action`.
 Read `tenancy-safety.md` and `helper-conventions.md` first. Use `<PLACEHOLDER>`
 tokens — never inline real OCIDs, IPs, datakeys, APM keys, or namespaces.
 
@@ -21,7 +21,7 @@ oci_cli monitoring metric-data summarize-metric-data \
   --start-time 2026-06-04T00:00:00Z --end-time 2026-06-04T01:00:00Z
 
 # Post custom metric data (agentless / app metrics)
-run_mutating "post custom metric" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "post custom metric" -- \
   oci_cli monitoring metric-data post-metric-data --metric-data file://metric_batch.json
 ```
 
@@ -43,7 +43,7 @@ be a topic OCID, not an email — wire the topic first (see Notifications).
 # Idempotent: search by name before create
 oci_cli monitoring alarm list --compartment-id <COMPARTMENT_OCID> \
   --display-name "<name>" --all
-run_mutating "create alarm" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create alarm" -- \
   oci_cli monitoring alarm create \
     --display-name "<name>" \
     --compartment-id <COMPARTMENT_OCID> \
@@ -51,7 +51,7 @@ run_mutating "create alarm" \
     --namespace <NAMESPACE> \
     --query-text 'CpuUtilization[1m].mean() > 80' \
     --severity CRITICAL --is-enabled true \
-    --destinations '["<TOPIC_OCID>"]' \
+    --destinations file://<TMP_0600_ALARM_DESTINATIONS_JSON> \
     --pending-duration PT5M --body "threshold breached"
 ```
 
@@ -85,7 +85,7 @@ cat > svc_log.json <<'JSON'
   "service": "<service_name>", "resource": "<resource_id>",
   "category": "<category>", "parameters": {} }
 JSON
-if ! run_mutating "create service log" \
+if ! run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create service log" -- \
      oci_cli logging log create --log-group-id <LOG_GROUP_OCID> \
        --display-name "<name>" --log-type SERVICE \
        --configuration "$(jq -c '{source: .}' svc_log.json)"; then
@@ -94,7 +94,7 @@ if ! run_mutating "create service log" \
 fi
 
 # Custom logs: application pushes via the Unified Monitoring agent
-run_mutating "create custom log" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create custom log" -- \
   oci_cli logging log create --log-group-id <LOG_GROUP_OCID> \
     --display-name "<app_log>" --log-type CUSTOM
 ```
@@ -128,7 +128,7 @@ oci_cli log-analytics query --namespace-name <NAMESPACE> \
 
 oci_cli log-analytics list-sources --namespace-name <NAMESPACE> \
   --compartment-id <COMPARTMENT_OCID> --all
-run_mutating "save search" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "save search" -- \
   oci_cli log-analytics create-saved-search --namespace-name <NAMESPACE> \
     --display-name "<name>" --query "<lql>" --compartment-id <COMPARTMENT_OCID>
 ```
@@ -206,9 +206,9 @@ the topic and confirm the subscription before pointing an alarm at it.
 
 ```bash
 oci_cli ons topic list --compartment-id <COMPARTMENT_OCID> --all
-run_mutating "create topic" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create topic" -- \
   oci_cli ons topic create --name "<topic>" --compartment-id <COMPARTMENT_OCID>
-run_mutating "subscribe email" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "subscribe email" -- \
   oci_cli ons subscription create --topic-id <TOPIC_OCID> \
     --compartment-id <COMPARTMENT_OCID> --protocol EMAIL --subscription-endpoint "<address>"
 ```
@@ -221,135 +221,14 @@ archive logs or forward metrics without custom pollers; define source/target as 
 
 ```bash
 oci_cli sch service-connector list --compartment-id <COMPARTMENT_OCID> --all
-run_mutating "create connector" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create connector" -- \
   oci_cli sch service-connector create --compartment-id <COMPARTMENT_OCID> \
     --display-name "<name>" --source file://source.json --target file://target.json
 ```
 
-## Database Management (DBM) + Operations Insights (OPSI) — enablement matrix
+## Database handoffs
 
-DBM feeds **Performance Hub** and fleet views; OPSI ingests AWR/SQL for capacity
-and SQL analysis. Both are work-request-backed, idempotent mutations — discover
-first, then enable. *Why the matrix:* **the enable path differs fundamentally by
-target type.** ADB uses **native `db autonomous-database` verbs** (managed
-credentials, no PE, no Vault secret); DBCS/Exadata use the **`database-management`
-/ `opsi` service APIs over private endpoints** with a monitoring user + Vault
-secret. For OCI-native DBCS/Exadata the **Managed Database OCID == the database
-(or pluggable-database) OCID**.
-
-| Target | DBM enable | OPSI enable | Prereqs |
-|---|---|---|---|
-| Base DB / DBCS (CDB) | `db database enable-database-management --management-type ADVANCED` | `opsi database-insights create-pe-comanged-database --database-resource-type database` | DBM PE, OPSI PE, Vault secret, monitoring user+grants, real service name |
-| DBCS PDB | `db pluggable-database enable-pluggable-database-management` | `... create-pe-comanged-database --database-resource-type pluggabledatabase` | **Parent CDB DBM enabled first** |
-| Exadata (ExaCS/ExaCC) | same DBCS verbs | same, `--deployment-type EXACS\|EXACC` | same as DBCS |
-| Autonomous DB (ADB) | `db autonomous-database enable-autonomous-database-management` | `opsi database-insights enable-autonomous-database --is-advanced-features-enabled false` | none — managed credentials, no PE/Vault |
-| External DB / Exadata | Management Agent + `dbmgmt` plugin | Management Agent + `opsi` plugin | agent registered, plugins `RUNNING` |
-
-> CLI spelling trap: the create verb is misspelled `create-pe-comanged-database`
-> ("comanged"); the enable-on-existing verb is `enable-pe-comanaged-database`.
-
-```bash
-# Base DB / DBCS (CDB). Service name MUST be the real listener service.
-run_mutating "enable DBM (CDB)" oci_cli db database enable-database-management \
-  --database-id <DB_OCID> --management-type ADVANCED \
-  --password-secret-id <VAULT_SECRET_OCID> --private-end-point-id <DBM_PE_OCID> \
-  --service-name <DB_UNIQUE_NAME>.<DB_DOMAIN> --user-name <MONITORING_USER>
-
-# Reconcile an already-enabled connection in place (fix stale service name /
-# rotated credential WITHOUT disable+re-enable). Note: --wait-for-state is the
-# DB lifecycle state AVAILABLE, not work-request SUCCEEDED.
-run_mutating "reconcile DBM" oci_cli db database modify-database-management \
-  --database-id <DB_OCID> --management-type ADVANCED \
-  --service-name <DB_UNIQUE_NAME>.<DB_DOMAIN> --password-secret-id <VAULT_SECRET_OCID> \
-  --private-end-point-id <DBM_PE_OCID> --user-name <MONITORING_USER> \
-  --wait-for-state AVAILABLE --max-wait-seconds 900
-
-# OPSI co-managed create (DBCS/Exadata). Pass ONLY the OPSI PE — never both PEs.
-run_mutating "create OPSI insight" oci_cli opsi database-insights create-pe-comanged-database \
-  --compartment-id <COMPARTMENT_OCID> --database-id <DB_OCID> \
-  --database-resource-type database \
-  --service-name <DB_UNIQUE_NAME>.<DB_DOMAIN> \
-  --credential-details file://credential-details.json \
-  --deployment-type VIRTUAL_MACHINE --opsi-private-endpoint-id <OPSI_PE_OCID> \
-  --connection-details file://connection-details.json \
-  --wait-for-state SUCCEEDED --max-wait-seconds 1200
-
-# Autonomous DB — native verbs, no PE/Vault/monitoring-user.
-run_mutating "enable ADB management" \
-  oci_cli db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
-run_mutating "enable ADB OPSI" oci_cli opsi database-insights enable-autonomous-database \
-  --database-insight-id <OPSI_INSIGHT_OCID> --is-advanced-features-enabled false
-```
-
-**DB-side prerequisites (DBCS/Exadata only).** A monitoring user (commonly the
-CDB common user `DBSNMP`, so grant `CONTAINER=ALL` from root) needs at minimum
-`create session`, `select any dictionary`, `select_catalog_role`; Performance Hub
-adds `advisor`, `execute on dbms_workload_repository`, `administer sql tuning set`
-(fixes `ORA-13750`). Put the user on a non-locking profile
-(`FAILED_LOGIN_ATTEMPTS UNLIMITED`) or the local Oracle Cloud Agent's stale
-password re-locks it (`ORA-28000` loop). PDB Performance Hub is empty unless
-`awr_pdb_autoflush_enabled=true` is set at root **and** in each PDB. Store the
-monitoring password as a base64 KMS Vault secret and reference it via
-`passwordSecretId`. See `KB.md` (observability-db) for the failure modes.
-
-**Private endpoints.** Create the **DBM PE** (`database-management
-private-endpoint create`) and a **separate OPSI PE** (`opsi opsi-private-endpoint
-create`); the OPSI create rejects passing both PE ids. The PE subnet needs a
-**Service Gateway + route rule** (`destination-type=SERVICE_CIDR_BLOCK`) and NSG
-ingress on `1521/1522`.
-
-**Discovery & validation (read).** DBM reports `ENABLED` even when its data path
-is broken (it connects by managed-DB OCID), so **OPSI is where auth/service-name
-defects first surface** — only OPSI's create runs an explicit connect-and-collect
-test. "Collecting" = DBM managed-database `database-status: UP` + OPSI insight
-`lifecycle-state: ACTIVE` with `database-connection-status-details: SUCCESS`.
-The `opsi database-insights list` control plane is **non-deterministic** when many
-`--lifecycle-state` values combine with `--all` — prefer a single-resource
-`database-insights get --database-insight-id <ID>`, or query one state per call and
-union by OCID. Never conclude "absent" from an empty/partial list.
-
-```bash
-# OCI-native: the managed-database id IS the database/PDB OCID.
-oci_cli database-management managed-database get --managed-database-id <DB_OCID>
-oci_cli opsi database-insights get --database-insight-id <OPSI_INSIGHT_OCID>
-# Find FAILED enablement work requests:
-oci_cli database-management work-request list --compartment-id <COMPARTMENT_OCID>
-oci_cli opsi work-requests list --compartment-id <COMPARTMENT_OCID> --sort-order DESC
-# A FAILED insight cannot be deleted directly — disable, then delete, then recreate.
-```
-
-**Data Safe** is a standalone `target-database` resource (not a DB status flag),
-connected through a Data Safe PE with a DB service account; register with
-`file://` JSON payloads (`databaseDetails` keyed off `dbSystemId`+`serviceName`
-for cloud DBs, or `autonomousDatabaseId` for ADB). `target-database update`
-returns a work request (`--wait-for-state SUCCEEDED`) and needs `--force`
-non-interactively. Audit queries use `scim_query` time filters, not
-`time_started`/`time_ended` (see `KB.md`).
-
-## Autonomous Database admin (idempotent provision)
-
-*Why:* ADB names are not unique by default, so an idempotent provision must
-search by display name first **and** precheck capacity, or you risk a duplicate or
-a `LimitExceeded` half-failure.
-
-```bash
-# 1. Capacity precheck
-oci_cli limits service list --compartment-id <TENANCY_OCID> --all
-oci_cli limits value list --compartment-id <TENANCY_OCID> --service-name database --all
-# 2. Idempotency: does it already exist?
-existing="$(oci_cli db autonomous-database list \
-  --compartment-id <COMPARTMENT_OCID> --display-name "<name>" --all \
-  --query 'data[0].id' --raw-output 2>/dev/null || true)"
-if [[ -n "$existing" && "$existing" != "null" ]]; then
-  ok "ADB '<name>' already exists; skipping create"
-else
-  run_mutating "create ADB" \
-    oci_cli db autonomous-database create --compartment-id <COMPARTMENT_OCID> \
-      --db-name "<name>" --display-name "<name>" \
-      --cpu-core-count 1 --data-storage-size-in-tbs 1 \
-      --admin-password "$ADB_ADMIN_PASSWORD" --db-workload OLTP
-fi
-```
+Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, and DBSNMP belong to `oci-dbm-opsi` and `references/dbm-opsi.md`. Autonomous Database lifecycle, wallet, ACL, scale, and connectivity belong to `oci-autonomous-db` and `references/autonomous-db.md`. This reference owns only their Monitoring/Logging/APM integration.
 
 ## Resource discovery (inventory across regions/compartments)
 

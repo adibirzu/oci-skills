@@ -1,0 +1,4 @@
+# Copy outside version control or inject as TF_VAR_* environment variables.
+compartment_id = "<COMPARTMENT_OCID>"
+region         = "<OCI_REGION>"
+oci_profile    = "<OCI_PROFILE>"

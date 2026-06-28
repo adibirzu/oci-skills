@@ -63,8 +63,11 @@ if [[ -n "$COMPARTMENT_OCID" ]]; then
     --query 'data.name' --raw-output 2>/dev/null || true)"
   if [[ -n "$cname" ]]; then
     ok "compartment: $cname"
+    record_preflight_receipt "$COMPARTMENT_OCID"
+    ok "context-bound preflight receipt recorded (valid ${OCI_SKILLS_PREFLIGHT_TTL:-900}s)."
   else
     warn "could not resolve compartment name (check OCID / permissions)"
+    die "no receipt recorded because the target compartment was not verified"
   fi
 fi
 

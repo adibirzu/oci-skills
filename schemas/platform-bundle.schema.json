@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/adibirzu/oci-skills/schemas/platform-bundle.schema.json",
+  "title": "OCI platform bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "name", "context", "runtime", "ingress", "data", "delivery", "iac", "verification"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "name": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"},
+    "context": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"},
+    "runtime": {"enum": ["functions", "container-instances", "oke"]},
+    "ingress": {"enum": ["api-gateway", "load-balancer", "event"]},
+    "data": {"enum": ["adb", "object-storage", "none"]},
+    "delivery": {"const": "oci-devops"},
+    "iac": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "path"],
+      "properties": {"owner": {"const": "terraform"}, "path": {"const": "terraform/"}}
+    },
+    "verification": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"}
+    }
+  },
+  "allOf": [
+    {
+      "not": {
+        "required": ["runtime", "ingress"],
+        "properties": {"runtime": {"const": "functions"}, "ingress": {"const": "load-balancer"}}
+      }
+    },
+    {
+      "not": {
+        "required": ["runtime", "ingress"],
+        "properties": {"runtime": {"const": "container-instances"}, "ingress": {"const": "event"}}
+      }
+    }
+  ]
+}

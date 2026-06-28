@@ -3,7 +3,7 @@
 Sanitized command/payload shapes for **OCI Data Safe** — target registration,
 private endpoints, Security & User Assessment, Activity Auditing, Data Discovery,
 and Data Masking. Every CLI call goes through `oci_cli` from `scripts/common.sh`;
-registration/assessment runs are **mutations** gated by `run_mutating` /
+registration/assessment runs are **mutations** gated by `run_action` /
 `confirm`. Read `tenancy-safety.md` and `helper-conventions.md` first. Use
 `<PLACEHOLDER>` tokens — never inline real OCIDs, IPs, service names, or
 credentials.
@@ -18,7 +18,7 @@ Pass payloads as `file://` JSON so credentials never hit `argv`. Write the
 credential file `0600` in a `0700` temp dir and delete it in a `finally`.
 
 ```bash
-run_mutating "register target" oci_cli data-safe target-database create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "register target" -- oci_cli data-safe target-database create \
   --compartment-id <COMPARTMENT_OCID> --display-name <NAME> \
   --database-details file://database-details.json \
   --connection-option file://connection-option.json \
@@ -59,7 +59,7 @@ re-list by display name to resolve the new PE OCID.
 
 ```bash
 # Refresh and read the latest security posture for a target.
-run_mutating "refresh security assessment" oci_cli data-safe security-assessment refresh \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "refresh security assessment" -- oci_cli data-safe security-assessment refresh \
   --security-assessment-id <SA_OCID>
 oci_cli data-safe security-assessment list --compartment-id <COMPARTMENT_OCID> \
   --target-id <TARGET_OCID> --query 'data[0]'

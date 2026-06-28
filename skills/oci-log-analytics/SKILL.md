@@ -12,14 +12,13 @@ description: >-
   scheduled search, Cloud Guard / WAF / Sysmon query, Sigma-to-OCI, Sentinel KQL
   migration, management dashboard, or upload_log_file. Read-only querying by
   default; content changes go through the shared safety core.
-license: MIT
 ---
 
 # OCI Log Analytics (Logan)
 
 Query and administer OCI Log Analytics safely. Querying is **read-first**; source,
 parser, entity, and dashboard changes are mutations and go through the shared
-tenancy-safety core (`oci_cli`, `run_mutating`/`confirm`). Never inline real
+tenancy-safety core (`oci_cli`, `run_action`). Never inline real
 OCIDs, IPs, the LA namespace, entity names, or tenant field values — use
 `<PLACEHOLDER>` tokens.
 
@@ -70,19 +69,20 @@ safety rules.
 ./scripts/oci_logan.sh -q "'Log Source' = 'OCI WAF Logs' and Action = 'BLOCK' | stats count by 'Client IP' | sort -count" -t 7d
 
 # Raw CLI query (the verb is `query search`; keep the query time-agnostic).
-oci log-analytics query search --namespace-name <LA_NAMESPACE> \
+oci_cli log-analytics query search --namespace-name <LA_NAMESPACE> \
   --compartment-id <COMPARTMENT_OCID> --compartment-id-in-subtree true \
   --query-string "'Log Source' = 'OCI Audit Logs' | timestats span = 1h count" \
   --sub-system LOG \
   --time-start <RFC3339> --time-end <RFC3339> --timezone UTC
 
 # List sources INCLUDING Oracle system sources (match internal name AND display name).
-oci log-analytics source list --namespace-name <LA_NAMESPACE> \
+oci_cli log-analytics source list --namespace-name <LA_NAMESPACE> \
   --compartment-id <COMPARTMENT_OCID> --is-system ALL --name <SUBSTRING>
 
 # Repair entity metadata (entity name is immutable after create).
-oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
-  --entity-id <ENTITY_OCID> --metadata file://metadata.json --force
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "repair entity metadata" -- \
+  oci_cli log-analytics entity update --namespace-name <LA_NAMESPACE> \
+  --entity-id <ENTITY_OCID> --metadata file://<TMP_0600_METADATA_JSON> --force
 ```
 
 ## Field-typing rules (the #1 query gotcha)
@@ -100,7 +100,7 @@ oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
 
 - **Read-only by default.** Querying changes nothing. Creating/updating sources,
   parsers, fields, entities, saved searches, or dashboards is a mutation —
-  gate it with `run_mutating` / `confirm`, and `get` for the `etag` first
+  gate it with `run_action`, and `get` for the `etag` first
   (optimistic concurrency → `412` otherwise).
 - **Never print or commit tenant data.** The LA namespace, entity names, IPs, and
   principal names are sensitive — parameterize queries and pipe output through

@@ -2,11 +2,12 @@
 # Install: copy the repo to ~/.codex/skills/oci-administrator/ (install.sh does this),
 # which places SKILL.md + references/ + scripts/ where Codex discovers skills.
 interface:
-  display_name: "OCI Administrator"
-  short_description: "Administer and troubleshoot OCI across IAM, security, observability/DB, ADB, networking/compute, cost, Logan, ORM, Data Safe, serverless, and projects."
+  display_name: "OCI Skills v2"
+  short_description: "Administer OCI and author safe CLI, Terraform, and platform bundles."
   default_prompt: >-
     Use $oci-administrator to handle this OCI tenancy request. Run
     scripts/oci_preflight.sh to confirm the target tenancy/compartment, check
     references/KB.md first, then route to the correct skill under skills/ and
-    apply the verified, least-privilege action. Never print or commit OCIDs,
-    IPs, or secrets — redact with scripts/redact.py.
+    apply only verified, least-privilege, risk-classified actions. Default durable
+    resources to one Terraform owner. Never print or commit OCIDs, IPs, or
+    secrets — redact with scripts/redact.py.

@@ -7,7 +7,7 @@ every destructive step (see the SKILL's *Interactive execution rules*).
 
 `oci_project.sh teardown` is **read-only**: it inventories the compartment and
 prints the ordered destroy plan. It destroys nothing — you run each step through
-the domain skills so it passes `confirm`/`run_mutating`. If the project was
+the domain skills so it passes `run_action`. If the project was
 stack-deployed, prefer a Resource Manager **destroy** job over manual deletes.
 
 ```bash
@@ -30,8 +30,9 @@ Before each destroy, fetch the exact command shape
 (`python3 scripts/oci_cli_help.py compute instance terminate`) — never guess the
 flags for an irreversible call.
 
-Teardown is irreversible. Plan first, `confirm` every step, and do it in a
-non-prod context before any production one. Verify with
+Teardown is irreversible. Plan first, route every step through
+`run_action --risk destructive` with its exact approval, and do it in a non-prod
+context before any production one. Verify with
 [status](project-phase2-status.md) (should read empty) before deleting the
 compartment.
 

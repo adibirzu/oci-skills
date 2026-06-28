@@ -4,7 +4,7 @@ Sanitized command/SDK/query shapes for **OCI Log Analytics** — the OCL query
 language, running queries via CLI/SDK, sources/parsers/fields/lookups, entities &
 log groups, detections (incl. Sigma→OCL), and content migration. Every CLI call
 goes through `oci_cli` from `scripts/common.sh`; mutations through
-`run_mutating` / `confirm`. Read `tenancy-safety.md` and `helper-conventions.md`
+`run_action`. Read `tenancy-safety.md` and `helper-conventions.md`
 first. Use `<PLACEHOLDER>` tokens — never inline real OCIDs, IPs, the LA
 namespace, entity names, or tenant field values.
 
@@ -82,7 +82,7 @@ CLI shape it wraps (note: `query` is a command **group** — the verb is
 `query search`, and the window is three scalar flags, not a `--time-filter` blob):
 
 ```bash
-oci log-analytics query search \
+oci_cli log-analytics query search \
   --namespace-name "<LA_NAMESPACE>" \
   --compartment-id "<COMPARTMENT_OCID>" \
   --compartment-id-in-subtree true \
@@ -110,10 +110,10 @@ compartments are silently excluded.
 
 ```bash
 # list (include Oracle system sources!)
-oci log-analytics source list --namespace-name <LA_NAMESPACE> \
+oci_cli log-analytics source list --namespace-name <LA_NAMESPACE> \
   --compartment-id <COMPARTMENT_OCID> --is-system ALL --name <SUBSTRING>
 # upsert a source (references parsers + entity types)
-oci log-analytics source upsert-source --namespace-name <LA_NAMESPACE> \
+oci_cli log-analytics source upsert-source --namespace-name <LA_NAMESPACE> \
   --items file://source.json
 ```
 
@@ -132,10 +132,11 @@ oci log-analytics source upsert-source --namespace-name <LA_NAMESPACE> \
 ## Entities & log groups
 
 ```bash
-oci log-analytics entity list --namespace-name <LA_NAMESPACE> \
+oci_cli log-analytics entity list --namespace-name <LA_NAMESPACE> \
   --compartment-id <COMPARTMENT_OCID> --name-contains <NAME>
-oci log-analytics entity update --namespace-name <LA_NAMESPACE> \
-  --entity-id <ENTITY_OCID> --metadata file://metadata.json \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "repair entity metadata" -- \
+  oci_cli log-analytics entity update --namespace-name <LA_NAMESPACE> \
+  --entity-id <ENTITY_OCID> --metadata file://<TMP_0600_METADATA_JSON> \
   --time-last-discovered "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --force
 ```
 

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "golden_path": "event-worker",
+  "state_owner": "terraform",
+  "event_transport": "queue",
+  "components": [
+    "queue-with-dlq",
+    "function-consumer",
+    "service-metrics",
+    "devops-delivery"
+  ]
+}

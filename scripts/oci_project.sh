@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # oci_project.sh — OCI project lifecycle helper.
 #
-# Orchestrates the project lifecycle on top of the ten domain skills, scoped to
+# Orchestrates the project lifecycle across the domain skills, scoped to
 # ONE project compartment. Three subcommands:
 #
 #   status     (default) read-only health: inventory + states + open security
@@ -11,20 +11,30 @@
 #              IAM-policy and VCN commands (those belong to their domain skills).
 #   teardown   READ-ONLY: inventory the compartment and print the ordered, gated
 #              destroy plan. It destroys NOTHING — you run the steps via the
-#              domain skills so each passes confirm / run_mutating.
+#              domain skills so each passes risk-specific run_action approval.
 #
 # Usage:
 #   ./oci_project.sh status               [-c COMPARTMENT_OCID]
 #   ./oci_project.sh bootstrap -n NAME    -c PARENT_COMPARTMENT_OCID [-b BUDGET]
 #   ./oci_project.sh teardown             -c COMPARTMENT_OCID
+# Add --bundle PATH to validate and inventory a schema-v1 platform bundle.
 #
 # Env: OCI_SKILLS_COMPARTMENT (default compartment), OCI_CLI_PROFILE, OCI_REGION,
 #      OCI_AUTH_MODE, OCI_SKILLS_DRY_RUN (bootstrap prints instead of creating).
-# Read calls only for status/teardown; bootstrap mutations go through run_mutating.
+# Read calls only for status/teardown; bootstrap mutations go through run_action.
 
 set -o errexit -o nounset -o pipefail
 # shellcheck source=scripts/common.sh
 source "$(dirname "$0")/common.sh"
+
+_PROJECT_TMP_DIR=""
+cleanup_project_temp() {
+  if [[ -n "$_PROJECT_TMP_DIR" && -d "$_PROJECT_TMP_DIR" && ! -L "$_PROJECT_TMP_DIR" ]]; then
+    rm -rf -- "$_PROJECT_TMP_DIR"
+  fi
+  _PROJECT_TMP_DIR=""
+}
+trap cleanup_project_temp EXIT
 
 CMD="${1:-status}"
 case "$CMD" in status|bootstrap|teardown) shift ;; -h|--help) CMD="help" ;; esac
@@ -34,6 +44,7 @@ case "$CMD" in status|bootstrap|teardown) shift ;; -h|--help) CMD="help" ;; esac
 COMPARTMENT_OCID="${OCI_SKILLS_COMPARTMENT:-}"
 NAME="${OCI_SKILLS_PROJECT_PREFIX:-}"
 BUDGET="${OCI_SKILLS_BUDGET:-}"
+BUNDLE_PATH="${OCI_SKILLS_PLATFORM_BUNDLE:-}"
 
 if [ "$CMD" != "help" ]; then
   # Accept long flags as aliases for the short ones (agent-friendly). Bash 3.2:
@@ -44,18 +55,20 @@ if [ "$CMD" != "help" ]; then
       --budget)      _a="-b" ;;
       --name)        _a="-n" ;;
       --compartment) _a="-c" ;;
+      --bundle)      _a="-f" ;;
     esac
     _args+=("$_a")
   done
   set -- ${_args[@]+"${_args[@]}"}
 
-  while getopts ":c:n:b:h" opt; do
+  while getopts ":c:n:b:f:h" opt; do
     case "$opt" in
       c) COMPARTMENT_OCID="$OPTARG" ;;
       n) NAME="$OPTARG" ;;
       b) BUDGET="$OPTARG" ;;
+      f) BUNDLE_PATH="$OPTARG" ;;
       h) CMD="help" ;;
-      *) die "usage: $0 {status|bootstrap|teardown} [-c COMPARTMENT] [-n NAME] [-b|--budget BUDGET]" ;;
+      *) die "usage: $0 {status|bootstrap|teardown} [-c COMPARTMENT] [-n NAME] [-b|--budget BUDGET] [-f|--bundle PATH]" ;;
     esac
   done
 fi
@@ -64,9 +77,9 @@ usage() {
   cat >&2 <<'EOF'
 oci_project.sh — OCI project lifecycle helper
 
-  status     [-c COMPARTMENT]              read-only health (default)
-  bootstrap  -n NAME -c PARENT [-b BUDGET] idempotent, gated scaffold
-  teardown   -c COMPARTMENT                read-only inventory + ordered destroy plan
+  status     [-c COMPARTMENT] [--bundle PATH]              read-only health (default)
+  bootstrap  -n NAME -c PARENT [-b BUDGET] [--bundle PATH] idempotent, gated scaffold
+  teardown   -c COMPARTMENT [--bundle PATH]                read-only inventory + ordered destroy plan
 
 Env: OCI_SKILLS_COMPARTMENT, OCI_CLI_PROFILE, OCI_REGION, OCI_AUTH_MODE,
      OCI_SKILLS_DRY_RUN=true (bootstrap prints mutations instead of running them).
@@ -92,7 +105,23 @@ _untagged() {
   ' 2>/dev/null || echo 0
 }
 
-require_cmd oci jq
+_names() {
+  printf '%s' "${1:-}" | jq -r '
+    [(.data // [])[] | (."display-name" // .name // empty)] | map(select(length > 0)) | join(", ")
+  ' 2>/dev/null || echo ""
+}
+
+validate_bundle() {
+  [[ -n "$BUNDLE_PATH" ]] || return 0
+  [[ -f "$BUNDLE_PATH" && ! -L "$BUNDLE_PATH" ]] || die "bundle must be a regular non-symlink file"
+  python3 "$_OCI_SKILLS_SCRIPT_DIR/platform_bundle.py" validate "$BUNDLE_PATH" >/dev/null \
+    || die "platform bundle failed schema-v1 validation"
+  BUNDLE_OWNER="$(awk '/^[[:space:]]*owner:[[:space:]]*/ {print $2; exit}' "$BUNDLE_PATH")"
+  [[ "$BUNDLE_OWNER" == "terraform" ]] || die "platform bundle must declare terraform as owner"
+}
+
+require_cmd oci jq python3
+validate_bundle
 
 # --------------------------------------------------------------------------- #
 cmd_help() { usage; }
@@ -105,6 +134,9 @@ cmd_status() {
   info "profile   : ${OCI_CLI_PROFILE:-DEFAULT}"
   info "region    : ${OCI_REGION:-<profile default>}"
   info "scope     : compartment $(redact "$COMPARTMENT_OCID")"
+  if [[ -n "$BUNDLE_PATH" ]]; then
+    info "bundle    : owner=$BUNDLE_OWNER   drift=not-evaluated (run a reviewed Terraform plan)"
+  fi
   echo >&2
 
   local j inst untag
@@ -122,6 +154,18 @@ cmd_status() {
 
   j="$(oci_cli lb load-balancer list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
   ok  "load-bal. : $(_len "$j") load balancer(s)"
+
+  j="$(oci_cli api-gateway gateway list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  ok  "API Gateway: $(_len "$j") gateway(s) [$(_states "$j")] names=[$(_names "$j")]"
+
+  j="$(oci_cli devops project list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  ok  "DevOps    : $(_len "$j") project(s) [$(_states "$j")] names=[$(_names "$j")]"
+
+  j="$(oci_cli container-instances container-instance list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  ok  "containers: $(_len "$j") instance(s) [$(_states "$j")] names=[$(_names "$j")]"
+
+  j="$(oci_cli queue queue-admin queue list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  ok  "Queue     : $(_len "$j") queue(s) [$(_states "$j")] names=[$(_names "$j")]"
 
   j="$(oci_cli cloud-guard problem list --compartment-id "$COMPARTMENT_OCID" \
         --lifecycle-state ACTIVE --all 2>/dev/null || true)"
@@ -164,7 +208,14 @@ cmd_status() {
 cmd_bootstrap() {
   [ -n "$NAME" ] || die "bootstrap needs a project name: -n NAME"
   [ -n "$COMPARTMENT_OCID" ] || die "bootstrap needs the PARENT compartment: -c PARENT_COMPARTMENT_OCID"
+  [[ "$NAME" =~ ^[A-Za-z][A-Za-z0-9_-]{0,99}$ ]] \
+    || die "project name must start with a letter and use only letters, digits, _ or -"
+  [[ -z "$BUDGET" || "$BUDGET" =~ ^[0-9]+([.][0-9]+)?$ ]] \
+    || die "budget must be a positive numeric amount"
   banner "OCI project bootstrap — '$NAME' (idempotent, gated)"
+  if [[ -n "$BUNDLE_PATH" ]]; then
+    ok "accepted schema-v1 platform bundle (owner=$BUNDLE_OWNER); service resources remain Terraform-owned."
+  fi
   [ "${OCI_SKILLS_DRY_RUN:-}" = "true" ] && info "DRY-RUN: mutations are printed, not executed."
 
   # 1. Ensure the project compartment (search by name first; 409 = exists).
@@ -173,49 +224,85 @@ cmd_bootstrap() {
             --query "data[?name=='$NAME'].id | [0]" --raw-output 2>/dev/null || true)"
   if [ -z "$proj" ] || [ "$proj" = "null" ]; then
     if [ "${OCI_SKILLS_DRY_RUN:-}" = "true" ]; then
-      run_mutating "create compartment $NAME" oci_cli iam compartment create \
+      run_action --risk additive --compartment "$COMPARTMENT_OCID" \
+        --description "create compartment $NAME" -- oci_cli iam compartment create \
         --compartment-id "$COMPARTMENT_OCID" --name "$NAME" --description "project $NAME"
       proj="<PROJECT_COMPARTMENT_OCID>"
     else
       local created
-      created="$(run_mutating "create compartment $NAME" oci_cli iam compartment create \
-        --compartment-id "$COMPARTMENT_OCID" --name "$NAME" --description "project $NAME" 2>/dev/null || true)"
-      proj="$(printf '%s' "$created" | jq -r '.data.id // empty' 2>/dev/null || true)"
-      [ -n "$proj" ] || proj="<PROJECT_COMPARTMENT_OCID>"
+      if created="$(run_action --risk additive --compartment "$COMPARTMENT_OCID" \
+        --description "create compartment $NAME" -- oci_cli iam compartment create \
+        --compartment-id "$COMPARTMENT_OCID" --name "$NAME" --description "project $NAME")"; then
+        proj="$(printf '%s' "$created" | jq -r '.data.id // empty')"
+      else
+        warn "compartment create did not return successfully; checking for a concurrent 409/create"
+        proj="$(oci_cli iam compartment list --compartment-id "$COMPARTMENT_OCID" --all \
+          --query "data[?name=='$NAME'].id | [0]" --raw-output 2>/dev/null || true)"
+      fi
+      [[ -n "$proj" && "$proj" != "null" ]] \
+        || die "compartment create failed and re-discovery found no matching project"
     fi
   else
     ok "compartment '$NAME' already exists — reusing."
   fi
 
+  if [[ "${OCI_SKILLS_DRY_RUN:-}" != "true" && "$proj" != "<PROJECT_COMPARTMENT_OCID>" ]]; then
+    "$_OCI_SKILLS_SCRIPT_DIR/oci_preflight.sh" -c "$proj"
+  fi
+
+  # Complex CLI values are generated as private files so JSON and topology do
+  # not appear on argv. The EXIT trap removes the directory on every path.
+  _PROJECT_TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/oci-project-payload.XXXXXX")"
+  chmod 700 "$_PROJECT_TMP_DIR"
+  local tags_file="$_PROJECT_TMP_DIR/tags.json"
+  local targets_file="$_PROJECT_TMP_DIR/targets.json"
+  python3 - "$tags_file" "$targets_file" "$NAME" "$proj" <<'PY'
+import json, os, sys
+tags_path, targets_path, name, compartment = sys.argv[1:]
+for path, payload in ((tags_path, {"project": name}), (targets_path, [compartment])):
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    os.fchmod(fd, 0o600)
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, separators=(",", ":"))
+        handle.write("\n")
+PY
+
   # 2. Tag the compartment so spend + inventory roll up by project.
-  run_mutating "tag project=$NAME" oci_cli iam compartment update \
-    --compartment-id "$proj" --freeform-tags "{\"project\":\"$NAME\"}"
+  run_action --risk in-place --compartment "$proj" --description "tag project=$NAME" -- \
+    oci_cli iam compartment update \
+    --compartment-id "$proj" --freeform-tags "file://$tags_file"
 
   # 3. Budget guardrail (+ emit the 80% forecast alert rule).
   if [ -n "$BUDGET" ]; then
-    run_mutating "create budget ($BUDGET)" oci_cli budgets budget create \
-      --compartment-id "$COMPARTMENT_OCID" --target-type COMPARTMENT --targets "[\"$proj\"]" \
+    run_action --risk additive --compartment "$proj" --description "create budget ($BUDGET)" -- \
+      oci_cli budgets budget create \
+      --compartment-id "$COMPARTMENT_OCID" --target-type COMPARTMENT --targets "file://$targets_file" \
       --amount "$BUDGET" --reset-period MONTHLY --display-name "${NAME}-budget"
     info "next: add an 80% forecast alert rule (oci-iam-admin):"
-    echo "  oci_cli budgets alert-rule create --budget-id <BUDGET_OCID> --type FORECAST \\" >&2
+    echo "  run_action --risk additive --compartment $proj --description create-budget-alert -- oci_cli budgets alert-rule create --budget-id <BUDGET_OCID> --type FORECAST \\" >&2
     echo "    --threshold 80 --threshold-type PERCENTAGE --display-name ${NAME}-80pct --recipients you@example.com" >&2
   else
     warn "no budget set (-b AMOUNT) — strongly recommended as a project guardrail."
   fi
+  cleanup_project_temp
 
   # 4. Emit the gated IAM + VCN steps (tenancy blast radius — run via the domains).
   echo >&2
-  info "next steps (run via the domain skills, each gated by confirm/run_mutating):"
+  info "next steps (run via the owning domain skills with explicit run_action risk):"
   cat >&2 <<EOF
 
   # scoped IAM (oci-iam-admin) — least privilege, NEVER manage all-resources in tenancy
-  oci_cli iam group create --compartment-id <TENANCY_OCID> --name ${NAME}-admins --description "project $NAME"
-  oci_cli iam policy create --compartment-id $proj --name ${NAME}-policy \\
-    --statements '["Allow group ${NAME}-admins to manage all-resources in compartment $NAME"]' \\
+  run_action --risk additive --compartment $proj --description create-project-group -- \\
+    oci_cli iam group create --compartment-id <TENANCY_OCID> --name ${NAME}-admins --description "project $NAME"
+  run_action --risk additive --compartment $proj --description create-project-policy -- \\
+    oci_cli iam policy create --compartment-id $proj --name ${NAME}-policy \\
+    --statements file://<TMP_0600_POLICY_JSON> \\
     --description "project $NAME, scoped to its compartment"
 
   # network skeleton (oci-networking-compute)
-  oci_cli network vcn create --compartment-id $proj --display-name ${NAME}-vcn --cidr-blocks '["10.0.0.0/16"]'
+  run_action --risk additive --compartment $proj --description create-project-vcn -- \\
+    oci_cli network vcn create --compartment-id $proj --display-name ${NAME}-vcn \\
+    --cidr-blocks file://<TMP_0600_CIDRS_JSON>
   #   then: subnets, a NAT gateway (private egress) or IGW (internet-facing), route tables, NSGs
 
 EOF
@@ -226,8 +313,11 @@ EOF
 cmd_teardown() {
   [ -n "$COMPARTMENT_OCID" ] || die "teardown needs the project compartment: -c COMPARTMENT_OCID"
   banner "OCI project teardown PLAN — read-only (destroys nothing)"
+  if [[ -n "$BUNDLE_PATH" ]]; then
+    warn "Bundle owner is Terraform: use a reviewed Terraform destroy plan; direct CLI delete is break-glass only and must be reconciled."
+  fi
   warn "Teardown is IRREVERSIBLE. This prints an ordered plan; run each step via the"
-  warn "domain skills so it passes confirm / run_mutating. Prefer a Resource Manager"
+  warn "domain skills so it passes run_action --risk destructive. Prefer a Resource Manager"
   warn "'destroy' job if the project was stack-deployed."
   echo >&2
 
@@ -240,23 +330,32 @@ cmd_teardown() {
   info "OKE       : $(_len "$j")"
   j="$(oci_cli network vcn list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
   info "network   : $(_len "$j") VCN(s)"
+  j="$(oci_cli api-gateway gateway list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  info "API Gateway: $(_len "$j")"
+  j="$(oci_cli devops project list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  info "DevOps    : $(_len "$j")"
+  j="$(oci_cli container-instances container-instance list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  info "containers: $(_len "$j")"
+  j="$(oci_cli queue queue-admin queue list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
+  info "Queue     : $(_len "$j")"
 
   echo >&2
   ok "ordered destroy plan (dependency order — attached resources block deletes, KB-043):"
   cat >&2 <<'EOF'
 
-  1. Workloads / apps        (helm uninstall / kubectl delete, or the app's own teardown)
-  2. Compute instances       compute instance terminate --instance-id <ID> --preserve-boot-volume false
-  3. Load balancers          lb load-balancer delete --load-balancer-id <ID>
-  4. OKE clusters            ce cluster delete --cluster-id <ID>   (node pools first)
-  5. Network: subnets        network subnet delete --subnet-id <ID>
+  1. DevOps triggers/pipelines and application workloads
+  2. API deployments/gateways, Functions, Container Instances, OKE workloads
+  3. Queue / Streaming consumers, then transports (after producers stop)
+  4. Databases and runtime compute (preserve/delete backups explicitly)
+  5. Load balancers and OKE clusters (node pools first)
+  6. Network: subnets        network subnet delete --subnet-id <ID>
               gateways        network nat-gateway/internet-gateway/service-gateway delete
               VCN             network vcn delete --vcn-id <ID>
-  6. Budgets / alarms        budgets budget delete ; monitoring alarm delete
-  7. Compartment (LAST)      iam compartment delete --compartment-id <ID>   (must be empty)
+  7. Budgets / alarms
+  8. Compartment (LAST; must be empty)
 
 EOF
-  warn "each delete must go through confirm / run_mutating; verify with 'status' after."
+  warn "each delete must go through run_action --risk destructive; verify with 'status' after."
 }
 
 case "$CMD" in
