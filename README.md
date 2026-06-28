@@ -148,9 +148,9 @@ Codex/ChatGPT can import `.codex-plugin/plugin.json`. Gemini uses `harness/gemin
 
 ## Quality and release
 
-CI runs Python tests with branch/statement coverage, Bash 3.2 smoke matrices, shell/Python lint, skill validation, routing collision checks, Terraform formatting/validation fixtures, documentation links, and secret/redaction gates. No CI test contacts or mutates a tenancy.
+CI runs Python tests with branch/statement coverage, Bash 3.2 smoke matrices, shell/Python lint, skill validation, routing collision checks, the blinded forward-eval contract, Terraform formatting/validation fixtures, documentation links, and secret/redaction gates. No CI test contacts or mutates a tenancy.
 
-The manifests are prepared as `v2.0.0-rc.1`. Final `v2.0.0` promotion is blocked on the independently recorded fresh-agent forward-eval gate in [docs/plans/oci-skills-v2.md](docs/plans/oci-skills-v2.md).
+The manifests are prepared as `v2.0.0-rc.1`. Final `v2.0.0` promotion is blocked on the independently recorded fresh-agent gate. Prepare and score a blinded run with `python3 scripts/forward_eval.py`; follow [the evidence workflow](evals/forward/README.md) and status ledger in [docs/plans/oci-skills-v2.md](docs/plans/oci-skills-v2.md).
 
 ## Repository map
 
@@ -160,6 +160,7 @@ references/      direct progressive-disclosure knowledge
 scripts/         safety, CLI, Terraform, bundle, and read-only helpers
 schemas/         platform-bundle schema
 tests/           unit, integration, shell smoke, and sanitized fixtures
+evals/           routing cases plus blinded fresh-agent prompts and rubric
 docs/            PRD, plan, architecture, ADRs, quickstart
 harness/         Codex, Gemini, and Antigravity adapters
 commands/        legacy Claude slash-entry compatibility

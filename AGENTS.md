@@ -65,6 +65,9 @@ source of truth — see `references/mcp-gateway.md`.
 - Never print or commit OCIDs, IPs, fingerprints, datakeys, or secrets. Redact
   with `scripts/redact.py`; use `<PLACEHOLDER>` tokens in docs.
 - Add a `KB-<n>` entry after fixing any new operational error.
+- Final-release agent evidence uses `scripts/forward_eval.py`; never expose
+  `evals/forward/rubric.json` to the fresh session or commit raw responses. Use
+  `OCI_SKILLS_BLINDED_EVAL=true` when installing the candidate under test.
 
 ## Scope
 
