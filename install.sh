@@ -29,7 +29,7 @@ AGY_SKILLS_DIR="${AGY_SKILLS_DIR:-$HOME/.antigravity/skills}"
 # Canonical skills live under skills/<name>/SKILL.md (plugin-native layout). For
 # copy-install we also synthesize a bundle-root SKILL.md so single-skill harnesses
 # still find the router at the top of the installed directory.
-PAYLOAD=(skills references scripts commands hooks AGENTS.md README.md LICENSE evals)
+PAYLOAD=(skills references scripts schemas docs commands hooks AGENTS.md README.md LICENSE evals)
 ROUTER_SRC="skills/oci-administrator/SKILL.md"
 
 say()  { printf '[install] %s\n' "$*"; }

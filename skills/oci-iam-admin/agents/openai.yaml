@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci iam admin"
+  short_description: "Safely handle oci-iam-admin workflows on OCI"
+  default_prompt: "Use $oci-iam-admin to handle this OCI request safely."

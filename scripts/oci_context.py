@@ -31,8 +31,10 @@ import argparse
 import json
 import os
 import re
+import shlex
 import stat
 import sys
+import tempfile
 from pathlib import Path
 
 STORE = Path(
@@ -50,12 +52,18 @@ def _eprint(*a: object) -> None:
 
 
 def _load() -> dict:
+    if STORE.is_symlink():
+        _eprint("[error] context store must be a regular non-symlink file")
+        sys.exit(1)
     if not STORE.exists():
         return {"contexts": {}, "current": None}
+    if not STORE.is_file() or stat.S_IMODE(STORE.stat().st_mode) != 0o600:
+        _eprint("[error] context store must be a regular file with mode 0600")
+        sys.exit(1)
     try:
         data = json.loads(STORE.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError) as exc:
-        _eprint(f"[error] cannot read {STORE}: {exc}")
+        _eprint(f"[error] cannot read context store: {exc}")
         sys.exit(1)
     data.setdefault("contexts", {})
     data.setdefault("current", None)
@@ -63,12 +71,21 @@ def _load() -> dict:
 
 
 def _save(data: dict) -> None:
+    if STORE.is_symlink():
+        _eprint("[error] refusing to replace a symlinked context store")
+        raise SystemExit(1)
     STORE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = STORE.with_suffix(".json.tmp")
-    tmp.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    os.chmod(tmp, stat.S_IRUSR | stat.S_IWUSR)  # 0600 — contains compartment OCIDs
-    tmp.replace(STORE)
-    os.chmod(STORE, stat.S_IRUSR | stat.S_IWUSR)
+    fd, temporary = tempfile.mkstemp(prefix=".contexts-", dir=STORE.parent)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            json.dump(data, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+        os.chmod(temporary, stat.S_IRUSR | stat.S_IWUSR)
+        os.replace(temporary, STORE)
+        os.chmod(STORE, stat.S_IRUSR | stat.S_IWUSR)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
 
 
 def _mask(ocid: str) -> str:
@@ -165,16 +182,20 @@ def cmd_use(args: argparse.Namespace, data: dict) -> int:
     data["current"] = args.name
     _save(data)
     # Emit shell exports for `eval "$(oci_context.py use NAME)"`.
-    print(f"export OCI_SKILLS_CONTEXT={args.name}")
-    print(f"export OCI_CLI_PROFILE={ctx.get('profile', 'DEFAULT')}")
+    def emit(name: str, value: object) -> None:
+        print(f"export {name}={shlex.quote(str(value))}")
+
+    emit("OCI_SKILLS_CONTEXT", args.name)
+    emit("OCI_CLI_PROFILE", ctx.get("profile", "DEFAULT"))
     if ctx.get("region"):
-        print(f"export OCI_REGION={ctx['region']}")
-    print(f"export OCI_SKILLS_COMPARTMENT={ctx.get('compartment', '')}")
+        emit("OCI_REGION", ctx["region"])
+    emit("OCI_SKILLS_COMPARTMENT", ctx.get("compartment", ""))
+    emit("OCI_SKILLS_CONTEXT_PROD", "true" if ctx.get("prod") else "false")
     # Project metadata — oci_project.sh uses these as defaults (prefix→-n, budget→-b).
     if ctx.get("prefix"):
-        print(f"export OCI_SKILLS_PROJECT_PREFIX={ctx['prefix']}")
+        emit("OCI_SKILLS_PROJECT_PREFIX", ctx["prefix"])
     if ctx.get("budget"):
-        print(f"export OCI_SKILLS_BUDGET={ctx['budget']}")
+        emit("OCI_SKILLS_BUDGET", ctx["budget"])
     _eprint(f"[ok] active context -> {args.name}")
     return 0
 

@@ -1,153 +1,132 @@
-# OCI Administrator — Quickstart
+# OCI Skills v2 quickstart
 
-Get from "I have an OCI tenancy" to "I'm operating it safely by name" in five
-minutes. Everything here is **read-only** until you explicitly choose to mutate.
+This guide distinguishes offline artifact generation, read-only inspection, and live mutation. Start offline; no OCI credential is needed until a preflighted read/plan/action.
 
-## 1. Prerequisites
+## Install and prerequisites
 
-- OCI CLI configured (`~/.oci/config` with at least a `DEFAULT` profile), or an
-  instance/resource principal if you run on OCI. Verify: `oci iam region list`.
-- `python3` and `jq` on PATH (used by the helper scripts).
-
-## 2. Install
-
-**As a Claude Code plugin** (recommended). From your shell (persists across
-restarts):
+Use Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI. Terraform 1.5+ supports HCL validation/execution; 1.7+ runs the native `.tftest.hcl` tests.
 
 ```bash
-claude plugin marketplace add adibirzu/oci-skills
-claude plugin install oci-administrator@oci-skills --scope user
+git clone https://github.com/adibirzu/oci-skills.git
+cd oci-skills
+./install.sh codex      # claude, gemini, or antigravity also supported
 ```
 
-…or interactively inside Claude Code: `/plugin marketplace add adibirzu/oci-skills`
-then `/plugin install oci-administrator@oci-skills`.
+Claude activates its slash commands and defense-in-depth hook through the plugin. Codex/ChatGPT, Gemini, and Antigravity use the same in-script safety guard without claiming that Claude-only hook.
 
-**As a Codex / ChatGPT plugin.** Point the local plugin importer at this
-repository root. The native manifest is `.codex-plugin/plugin.json`, and it
-loads the `skills/` directory as the app capability surface.
+## Work by named context
 
-Codex/ChatGPT plugin import gives you the same router, domain skills, references,
-and helper scripts. Claude Code slash commands and the destructive-command hook
-are Claude-only; in Codex/ChatGPT, follow the skill's first-move workflow:
-preflight, named context, KB lookup, redaction, then gated mutation.
-
-**As a copy-install** (any harness — Codex, Gemini, Antigravity, or plain CLI):
+Contexts live outside the repo in a `0600` file:
 
 ```bash
-git clone https://github.com/adibirzu/oci-skills && cd oci-skills
-./install.sh            # see README for targets
+./scripts/oci_context.py add dev --profile DEFAULT \
+  --compartment <COMPARTMENT_OCID> --region <OCI_REGION>
+eval "$(./scripts/oci_context.py use dev)"
 ```
 
-## 3. Work by name, not by OCID
-
-Stop pasting compartment OCIDs. Bind a friendly context once (stored `0600` in
-`~/.oci-skills/contexts.json`, never committed):
+Before any live mutation, preflight the exact compartment and verify the printed names:
 
 ```bash
-./scripts/oci_context.py add dev \
-  --profile DEFAULT --compartment <COMPARTMENT_OCID> --region <REGION>
-eval "$(./scripts/oci_context.py use dev)"      # exports profile/region/compartment
+./scripts/oci_preflight.sh -c "$OCI_SKILLS_COMPARTMENT"
 ```
 
-Plugin equivalent: `/oci-administrator:context`.
+The preflight writes a short-lived hash-only receipt. A different context or an expired receipt blocks live action.
 
-## 4. Always preflight before you touch anything
+## Offline artifact generation
 
-Confirm *which* tenancy/compartment you're pointed at — by **name**, never raw
-OCID:
+Terraform:
 
 ```bash
-./scripts/oci_preflight.sh -c "${OCI_SKILLS_COMPARTMENT:-<COMPARTMENT_OCID>}"
-# -> tenancy: <name>, home region: <region>  (no OCIDs printed)
+./scripts/oci_tf.sh scaffold ./terraform --name private-container
+./scripts/oci_tf.sh validate ./terraform
 ```
 
-Plugin equivalent: `/oci-administrator:preflight dev`.
-
-## 5. The read-only "what's going on?" loop
+CLI equivalent:
 
 ```bash
-# IAM posture snapshot (broad grants, users without MFA, …)
-python3 ./scripts/iam_audit.py --profile "${OCI_CLI_PROFILE:-DEFAULT}" | python3 ./scripts/redact.py
+python3 ./scripts/oci_cli_help.py --json container-instances container-instance create
+python3 ./scripts/oci_cli_lint.py ./cli/command-plan.json
+```
 
-# What is this tenancy costing me, by service + budgets?
+Golden-path bundle:
+
+```bash
+python3 ./scripts/platform_bundle.py scaffold container-instances ./bundle \
+  --name private-container --context dev
+python3 ./scripts/platform_bundle.py validate ./bundle/platform-bundle.yaml
+```
+
+The other golden paths are `api-functions`, `oke-application`, `event-worker`, and `adb-service`. Event workers default to Queue; add `--event-transport streaming` for the Streaming variant. Bundles contain platform artifacts only, never application business logic.
+
+## Read-only inspection
+
+```bash
+python3 ./scripts/iam_audit.py --profile "$OCI_CLI_PROFILE" | python3 ./scripts/redact.py
 ./scripts/oci_cost.sh -d 30
-
-# Ask Log Analytics anything (friendly time window; namespace auto-resolved):
-./scripts/oci_logan.sh -q "'Log Source' = 'OCI Audit Logs' | stats count by 'Principal Name'" -t 24h
+./scripts/oci_logan.sh -q "'Log Source' = 'OCI Audit Logs' | stats count" -t 24h
+./scripts/oci_project.sh status -c "$OCI_SKILLS_COMPARTMENT" \
+  --bundle ./bundle/platform-bundle.yaml
 ```
 
-Plugin equivalents: `/oci-administrator:audit`, `:cost`, `:logan`.
+Empty output is inconclusive until permissions, region, compartment subtree, filters, and time windows are checked.
 
-## 6. The domains
+## Reviewed Terraform deployment
 
-Route by intent — each domain is a focused skill + reference:
-
-| You want to… | Domain |
-|---|---|
-| users, groups, policies, compartments, limits | `oci-iam-admin` |
-| Cloud Guard, Vault, WAF, CIS / ISO-42001 scanning | `oci-security-compliance` |
-| Monitoring, APM, Logging, dashboards | `oci-observability-db` |
-| DBM/OPSI, Performance Hub, AWR/ADDM/ASH | `oci-dbm-opsi` |
-| Autonomous Database lifecycle, wallets, ACLs, app connectivity, SQL diagnostics | `oci-autonomous-db` |
-| VCN, NSG, compute, OCIR | `oci-networking-compute` |
-| OKE deploy, kubectl, ingress, LB, TLS, OCIR pulls, rollouts | `oci-oke-admin` |
-| ZPR, security attributes, protected resources, flow-log correlation | `oci-zpr-visibility` |
-| cost, spend, budgets (FinOps) | `oci-cost` |
-| Log Analytics / OCL queries, sources, detections | `oci-log-analytics` |
-| Terraform stacks, plan/apply/destroy jobs | `oci-resource-manager` |
-| Data Safe targets, assessments, masking | `oci-data-safe` |
-| Functions, Events rules, Notifications, Streaming | `oci-events-functions` |
-| **a whole project**: bootstrap, status/health, deploy, teardown | `oci-project` (orchestrator) |
-
-Each domain's `SKILL.md` and `references/*.md` link the **canonical Oracle docs**
-for the services it covers; start at the
-[OCI Documentation home](https://docs.oracle.com/en-us/iaas/Content/home.htm).
-
-## 7. Beyond day-to-day admin
-
-**Designing a new solution for a customer?** Don't start with `bootstrap` — start
-with **Stage 0, Design**. [`references/solution-authoring.md`](../references/solution-authoring.md)
-walks a requirement → Well-Architected requirements → reference architecture →
-guardrail design → cost → build → validate, and produces a **Solution Blueprint**
-(read-only — it writes a plan, not resources) that feeds `oci-project` bootstrap.
-Adopt an official Oracle **Landing Zone** as the guardrail baseline rather than
-hand-rolling it — the CIS-aligned
-[oci-cis-landingzone-quickstart](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart)
-or the modular [Oracle Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones),
-both deployable through `oci-resource-manager`.
-
-**Need something this pack doesn't own?** It routes out to the official
-[oracle/skills](https://github.com/oracle/skills) collection:
-
-| Task | Goes to |
-|---|---|
-| Deep OKE day-2 — cluster design, GVA GPU node pools, Multus, incident triage | `oracle/skills` `oci/oke` |
-| OCI Generative AI / Enterprise AI — model endpoints, agents, RAG, governance | `oracle/skills` `oci/enterprise-ai` |
-| Inside an Oracle Database — SQL/PL-SQL, RMAN, AWR/ASH, Data Guard | `oracle/skills` `db/` |
-| Oracle Fusion Cloud Applications / Fusion SaaS setup or extension | Oracle Fusion Cloud Applications docs now; upstream `oracle/skills` `fusion/` only after concrete skills are published |
-
-This pack owns common OKE deploy/ingress/LB/TLS/OCIR troubleshooting,
-provisioning/IAM/network basics, GenAI *observability*, and the
-OCI services *around* the database. Full routing contract:
-[`references/oracle-skills-alignment.md`](../references/oracle-skills-alignment.md).
-
-## 8. The safety contract (always on)
-
-- **Read before write**; treat `409 Conflict` as "already exists".
-- **Mutations are gated** — `confirm` / `run_mutating`; honor
-  `OCI_SKILLS_DRY_RUN=true` for a no-op preview and `OCI_SKILLS_FORCE=true` only
-  after you've confirmed.
-- **The destructive-command hook** blocks `delete|terminate|destroy` until you've
-  preflighted and confirmed.
-- **Nothing sensitive is ever printed or committed** — OCIDs, IPs, namespaces, and
-  secrets are masked by `redact.py` (also a CI gate).
-
-## 9. When something breaks
-
-Search the KB first — it has 80+ real operational fixes:
+After each owning skill has materialized provider-schema-grounded HCL:
 
 ```bash
-python3 ./scripts/kb_lookup.py "your error words" [domain-tag]
+./scripts/oci_preflight.sh -c "$OCI_SKILLS_COMPARTMENT"
+./scripts/oci_tf.sh plan ./terraform --compartment "$OCI_SKILLS_COMPARTMENT"
+# Inspect create/update/replace/delete, public exposure, and secret-bearing signals.
+./scripts/oci_tf.sh apply ./terraform --compartment "$OCI_SKILLS_COMPARTMENT" \
+  --plan reviewed.tfplan
 ```
 
-Plugin equivalents: `/oci-administrator:kb`, `/oci-administrator:troubleshoot`.
+Changed plan bytes or context fail closed. For destroy, first create and review a separate `plan --destroy`, then call `destroy`; non-interactive execution needs the exact approval ID from dry-run.
+
+## Risk-aware action example
+
+```bash
+source ./scripts/common.sh
+OCI_SKILLS_DRY_RUN=true run_action \
+  --risk destructive \
+  --compartment "$OCI_SKILLS_COMPARTMENT" \
+  --description "delete retired queue" -- \
+  oci_cli queue queue-admin queue delete --queue-id <QUEUE_OCID>
+```
+
+Dry-run prints a redacted preview and exact approval ID, and executes nothing. In non-interactive automation, set that ID as `OCI_SKILLS_APPROVAL` only after review. Production force also needs `OCI_SKILLS_BREAK_GLASS=true` and is audited.
+
+## Routing
+
+| Intent | Skill |
+|---|---|
+| IAM/tenancy | `oci-iam-admin` |
+| Cloud Guard/Vault/WAF/compliance | `oci-security-compliance` |
+| Monitoring/Logging/APM/alarms | `oci-observability-db` |
+| DBM/OPSI/Performance Hub | `oci-dbm-opsi` |
+| ADB lifecycle/connectivity | `oci-autonomous-db` |
+| VCN/NSG/LB/VM | `oci-networking-compute` |
+| OKE/Kubernetes/ingress/rollout | `oci-oke-admin` |
+| ZPR/flow correlation | `oci-zpr-visibility` |
+| cost/usage/budgets | `oci-cost` |
+| Log Analytics/OCL | `oci-log-analytics` |
+| Resource Manager stacks/jobs | `oci-resource-manager` |
+| Data Safe | `oci-data-safe` |
+| Functions/Events/Queue/Streaming | `oci-events-functions` |
+| HCL/local Terraform/discovery | `oci-terraform-authoring` |
+| DevOps/API Gateway/Container Instances/artifacts | `oci-developer-services` |
+| project lifecycle | `oci-project` |
+| golden-path platform bundle | `oci-product-development` |
+
+## External handoffs and troubleshooting
+
+Deep OKE day-2 routes to official `oracle/skills` `oci/oke`; GenAI/RAG/agents to `oci/enterprise-ai`; in-database work to `db/`; Fusion functional work to current Fusion documentation.
+
+Search operational fixes before debugging:
+
+```bash
+python3 ./scripts/kb_lookup.py "error or symptom words"
+```
+
+Never paste live output into an issue or commit. Sanitize with `python3 scripts/redact.py --strict` first.

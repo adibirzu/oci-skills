@@ -11,7 +11,6 @@ description: >-
   Insights, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight,
   create-pe-comanged-database, DbcsEntityChangeWorkflowFailed, managed-database,
   database-insights, and DB log ingestion.
-license: MIT
 ---
 
 # OCI DBM / OPSI

@@ -215,11 +215,11 @@ namespace-local `imagePullSecret` or Workload Identity-compatible pattern with
 least privilege.
 
 ```bash
-kubectl -n "<NAMESPACE>" create secret docker-registry ocir-pull \
-  --docker-server="<REGION>.ocir.io" \
-  --docker-username="<OCIR_NAMESPACE>/<USER_NAME>" \
-  --docker-password "$OCIR_AUTH_TOKEN" \
-  --docker-email="<USER_EMAIL>" \
+# Create <TMP_0600_DOCKER_CONFIG_JSON> in a 0700 temp directory from a
+# secret-manager value; never place the OCIR auth token on argv.
+kubectl -n "<NAMESPACE>" create secret generic ocir-pull \
+  --from-file=.dockerconfigjson="<TMP_0600_DOCKER_CONFIG_JSON>" \
+  --type=kubernetes.io/dockerconfigjson \
   --dry-run=client -o yaml | kubectl apply -f -
 ```
 
@@ -316,7 +316,7 @@ If the UI shows `Invalid Date`, blank CPU/memory, or `Latest telemetry Unknown`,
 do not assume the collector is down. First prove current metrics exist:
 
 ```bash
-oci monitoring metric-data summarize-metrics-data \
+oci_cli monitoring metric-data summarize-metrics-data \
   --compartment-id "<COMPARTMENT_OCID>" \
   --namespace "mgmtagent_kubernetes_metrics" \
   --query-text 'nodeCpuUsage[1m]{clusterName = "<CLUSTER_KEY>"}.mean()' \

@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "golden_path": "api-functions",
+  "state_owner": "terraform",
+  "components": [
+    "functions-application",
+    "private-api-gateway",
+    "devops-delivery"
+  ]
+}

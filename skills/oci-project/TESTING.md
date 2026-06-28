@@ -52,7 +52,7 @@ below are the manual/holistic checks on top.
 - Expect: read-only inventory + **ordered** destroy plan (workloads → compute →
   LB → OKE → subnets → gateways → VCN → budgets/alarms → compartment last);
   destroys **nothing** itself; each step run via the owning domain through
-  `confirm`/`run_mutating`. (Fenced by smoke case C.)
+  `run_action --risk destructive`. (Fenced by smoke case C.)
 
 ### S6 — Resume an interrupted bootstrap
 - User returns mid-bootstrap.

@@ -1,0 +1,14 @@
+schema_version: 1
+name: fixture-adb-service
+context: test
+runtime: functions
+ingress: api-gateway
+data: adb
+delivery: oci-devops
+iac:
+  owner: terraform
+  path: terraform/
+verification:
+  - private-database-endpoint
+  - application-health
+  - secret-rotation

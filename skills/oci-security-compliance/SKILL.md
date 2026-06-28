@@ -9,13 +9,12 @@ description: >-
   scanning; IAM least-privilege policy review; and secrets redaction. Trigger for
   oci-cli, Cloud Guard, Vault, KMS, WAF, Security Zones, Audit, CIS, compliance,
   or secret-handling tasks in an OCI tenancy.
-license: MIT
 ---
 
 # OCI Security & Compliance
 
 Administrator workflows for OCI security posture and compliance. All CLI goes
-through `oci_cli`; mutations through `run_mutating` / `confirm`; read before
+through `oci_cli`; mutations through `run_action`; read before
 write; idempotent by display name (treat `409` as exists).
 
 Deep reference: `../../references/security-compliance.md`
@@ -62,7 +61,7 @@ oci_cli secrets secret-bundle get --secret-id <SECRET_OCID> \
 
 **Rotate a secret** (add a version, never edit in place):
 ```bash
-run_mutating "rotate secret" \
+run_action --risk credential --compartment <COMPARTMENT_OCID> --description "rotate secret" -- \
   oci_cli vault secret update-base64 --secret-id <SECRET_OCID> \
     --secret-content-content "$(printf %s "$NEW_VALUE" | base64)"
 ```
@@ -71,7 +70,7 @@ run_mutating "rotate secret" \
 ```bash
 oci_cli waf web-app-firewall-policy list --compartment-id <COMPARTMENT_OCID> \
   --display-name edge-waf --query 'data.items[0].id' --raw-output   # reuse if present
-run_mutating "attach WAF to LB" \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "attach WAF to LB" -- \
   oci_cli waf web-app-firewall create --compartment-id <COMPARTMENT_OCID> \
     --policy-id <POLICY_OCID> --load-balancer-id <LB_OCID>
 # verify action is BLOCK

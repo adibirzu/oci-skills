@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci cost"
+  short_description: "Safely handle oci-cost workflows on OCI"
+  default_prompt: "Use $oci-cost to handle this OCI request safely."

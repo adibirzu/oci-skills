@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "golden_path": "adb-service",
+  "state_owner": "terraform",
+  "components": [
+    "private-adb",
+    "vault-secret",
+    "functions-application",
+    "private-api-gateway",
+    "devops-delivery"
+  ]
+}

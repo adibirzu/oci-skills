@@ -1,0 +1,14 @@
+schema_version: 1
+name: fixture-oke-application
+context: test
+runtime: oke
+ingress: load-balancer
+data: none
+delivery: oci-devops
+iac:
+  owner: terraform
+  path: terraform/
+verification:
+  - cluster-health
+  - rollout-status
+  - load-balancer-health

@@ -1,0 +1,17 @@
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate*
+*.tfplan
+*.tfplan.review.json
+*.zip
+*.pem
+*.key
+*wallet*
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.tfvars
+.auto.tfvars

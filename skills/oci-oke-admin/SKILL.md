@@ -12,7 +12,6 @@ description: >-
   or TLS listener issue, kubeconfig endpoint error, kubectl Unauthorized,
   backend health CRITICAL, NodePort, virtual node, OCIR Unauthorized, pod
   readiness/liveness, or public app exposure on Kubernetes.
-license: MIT
 ---
 
 # OCI OKE Admin

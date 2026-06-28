@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "context": "test",
+  "risk": "additive",
+  "reads": [
+    "oci_cli db autonomous-database list --compartment-id <COMPARTMENT_OCID>"
+  ],
+  "actions": [
+    "run_action --risk additive --compartment <COMPARTMENT_OCID> --description create-platform-component -- oci_cli db autonomous-database create --from-json file://<TMP_0600_CREATE_JSON>"
+  ],
+  "verification": [
+    "oci_cli db autonomous-database list --compartment-id <COMPARTMENT_OCID>"
+  ],
+  "rollback": [
+    "Prefer Terraform rollback/reconciliation; CLI deletion is destructive break-glass only."
+  ],
+  "sources": [
+    "https://docs.oracle.com/en-us/iaas/autonomous-database/index.html"
+  ]
+}

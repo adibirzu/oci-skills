@@ -84,7 +84,7 @@ path; read/aggregated access can come from the gateway.**
 | Local/offline work, named-context resolution, KB-first troubleshooting. | Fan-out reads across logan/oci/security/finops/db-observatory in one session. |
 
 When a gateway read surfaces something that needs changing, hand off to the
-matching domain skill here and run the change through `run_mutating` / `confirm`
+matching domain skill here and run the change through `run_action`
 (see [tenancy-safety.md](tenancy-safety.md)). The gateway does not replace the
 safety core; it sits in front of read traffic only.
 

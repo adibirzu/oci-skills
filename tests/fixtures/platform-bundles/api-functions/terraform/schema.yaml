@@ -1,0 +1,19 @@
+title: OCI Terraform starter
+description: Resource Manager-compatible variables for the generated starter.
+schemaVersion: 1.1.0
+version: "1.0"
+locale: en
+variableGroups:
+  - title: Target
+    variables:
+      - compartment_id
+      - region
+variables:
+  compartment_id:
+    type: oci:identity:compartment:id
+    title: Compartment
+    required: true
+  region:
+    type: oci:identity:region:name
+    title: Region
+    required: true

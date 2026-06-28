@@ -1,0 +1,11 @@
+openapi: 3.0.3
+info:
+  title: fixture-adb-service platform boundary
+  version: 1.0.0
+paths:
+  /health:
+    get:
+      operationId: platformHealth
+      responses:
+        "200":
+          description: Platform dependency health only; business logic is out of scope.

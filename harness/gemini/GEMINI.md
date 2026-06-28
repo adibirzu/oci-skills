@@ -1,52 +1,37 @@
-# OCI Administrator (Gemini CLI extension)
+# OCI Skills v2 for Gemini CLI
 
-You can administer and troubleshoot any Oracle Cloud Infrastructure (OCI)
-tenancy using this skill pack. The full knowledge core ships at the repo root.
+Use this extension for OCI administration, exact CLI plans, Terraform authoring, and product-platform bundles.
 
-## When to use
+## First move
 
-Activate for any request about administering, auditing, provisioning,
-securing, or troubleshooting OCI: IAM (users, groups, dynamic groups, policies,
-compartments, budgets, quotas, service limits, tags), Security & Compliance
-(Cloud Guard, Vault/KMS, Security Zones, WAF, CIS / ISO-42001 scanning, policy
-review), ZPR visibility, Observability (APM, Log Analytics, Monitoring, alarms),
-DBM/OPSI, Autonomous Database lifecycle/connectivity, Networking & Compute
-(VCN, subnets, NSGs, load balancers, compute, OCIR), OKE operations
-(kubectl, ingress, LoadBalancer services, TLS, OCIR pulls, rollouts), cost, Logan,
-Resource Manager, Data Safe, serverless, and project lifecycle work.
-
-## First move (always)
-
-1. Confirm the target tenancy/compartment before any change:
-   `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>`
-2. Search known fixes: `python3 ./scripts/kb_lookup.py "symptom words"`
-3. Read `./references/tenancy-safety.md` and `./references/helper-conventions.md`.
+For a live target, select a named context, run `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>`, verify names, and search `./scripts/kb_lookup.py`. Artifact-only scaffolding needs no credentials.
 
 ## Routing
 
-- IAM / tenancy → `./skills/oci-iam-admin/SKILL.md` + `./references/iam-tenancy.md`
-- Security / compliance → `./skills/oci-security-compliance/SKILL.md` + `./references/security-compliance.md`
-- Observability / dashboards / APM / metrics → `./skills/oci-observability-db/SKILL.md` + `./references/observability-db.md`
-- DBM / OPSI / Performance Hub → `./skills/oci-dbm-opsi/SKILL.md` + `./references/dbm-opsi.md`
-- Autonomous Database lifecycle / wallet / ACL / app connectivity / SQL diagnostics → `./skills/oci-autonomous-db/SKILL.md` + `./references/autonomous-db.md`
-- Networking / compute → `./skills/oci-networking-compute/SKILL.md` + `./references/networking-compute.md`
-- OKE deploy / kubectl / ingress / LB / TLS / OCIR pulls / rollout troubleshooting → `./skills/oci-oke-admin/SKILL.md` + `./references/oke-operations.md`
-- ZPR / security attributes / flow-log correlation → `./skills/oci-zpr-visibility/SKILL.md` + `./references/zpr-visibility.md`
-- Cost / usage / budgets (FinOps) → `./skills/oci-cost/SKILL.md` + `./references/cost-management.md` (read-only via `./scripts/oci_cost.sh`)
-- Log Analytics / Logan / OCL queries → `./skills/oci-log-analytics/SKILL.md` + `./references/log-analytics.md` (read-only query via `./scripts/oci_logan.sh`)
-- Resource Manager / ORM / Terraform stacks → `./skills/oci-resource-manager/SKILL.md` + `./references/resource-manager.md`
-- Data Safe / assessments / masking → `./skills/oci-data-safe/SKILL.md` + `./references/data-safe.md`
-- Functions / Events / Notifications / Service Connector Hub (serverless) → `./skills/oci-events-functions/SKILL.md` + `./references/events-functions.md`
-- Whole-project bootstrap / status / deploy / teardown → `./skills/oci-project/SKILL.md` + `./references/project-workflow.md`
+- `oci-iam-admin`: IAM, compartments, budgets, quotas, tags, limits.
+- `oci-security-compliance`: Cloud Guard, Vault, WAF, audit, compliance, credentials.
+- `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms, dashboards.
+- `oci-dbm-opsi`: DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP.
+- `oci-autonomous-db`: ADB lifecycle, wallet, ACL, private connectivity.
+- `oci-networking-compute`: VCN, NSG, routing, LB, VM/VNIC/volume.
+- `oci-oke-admin`: OKE/Kubernetes, ingress, TLS, OCIR pulls, rollouts.
+- `oci-zpr-visibility`: ZPR inventory and flow-log correlation.
+- `oci-cost`: usage, spend, budgets, FinOps.
+- `oci-log-analytics`: OCL/LQL, sources, parsers, detections.
+- `oci-resource-manager`: managed Terraform stacks and jobs.
+- `oci-data-safe`: target registration, assessment, audit, masking.
+- `oci-events-functions`: Functions, Events, ONS, SCH, Queue, Streaming.
+- `oci-terraform-authoring`: HCL, discovery, local validate/plan/apply/destroy.
+- `oci-developer-services`: DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery.
+- `oci-project`: project lifecycle orchestration.
+- `oci-product-development`: five platform-bundle golden paths.
 
 ## Rules
 
-- All CLI through the `oci_cli` wrapper in `./scripts/common.sh` (negotiates auth/profile/region).
-- Read before write; treat `409 Conflict` as "already exists"; keep operations idempotent.
-- Destructive operations require confirmation; honor `OCI_SKILLS_DRY_RUN=true`.
-- Never print or commit OCIDs, IPs, fingerprints, or secrets — pipe output through
-  `redact` / `python3 ./scripts/redact.py`. Use `<PLACEHOLDER>` tokens in docs.
+- Use `oci_cli`; query exact command shapes with `oci_cli_help.py` and lint plans with `oci_cli_lint.py`.
+- Use `run_action` for live mutation. Destructive/credential automation needs exact approval; production force needs break-glass.
+- Terraform owns durable resources by default. Reconcile any CLI break-glass change.
+- Never print or commit sensitive topology or credentials; redact and use placeholders.
+- Route specialist GenAI, in-database, deep OKE, and Fusion work to official Oracle sources.
 
-## Commands
-
-Custom slash commands live in `commands/` (`/oci:preflight`, `/oci:iam-audit`).
+Gemini uses the in-script safety core. Claude-only slash commands and hooks are not claimed here.

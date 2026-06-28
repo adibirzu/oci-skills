@@ -41,7 +41,7 @@ Allow any-user to {LOG_ANALYTICS_LOG_GROUP_UPLOAD_LOGS} in compartment <OBS_COMP
 4. Search OCI Logging first; only then debug Log Analytics.
 
 ```bash
-oci logging-search search-logs \
+oci_cli logging-search search-logs \
   --search-query "search \"<TENANCY_OCID>/<LOG_GROUP_OCID>/<CUSTOM_LOG_OCID>\"" \
   --time-start "<RFC3339_START>" \
   --time-end "<RFC3339_END>" \
@@ -78,7 +78,7 @@ Before importing dashboards, validate every query with parse. Zero rows are OK;
 HTTP 400 / parse errors are not.
 
 ```bash
-oci log-analytics query parse \
+oci_cli log-analytics query parse \
   --namespace-name "<LA_NAMESPACE>" \
   --sub-system LOG \
   --query-string "<dashboard_query>"

@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci observability db"
+  short_description: "Safely handle oci-observability-db workflows on OCI"
+  default_prompt: "Use $oci-observability-db to handle this OCI request safely."

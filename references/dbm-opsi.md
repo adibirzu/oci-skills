@@ -37,7 +37,7 @@ Prefer single-resource GET when you know an insight OCID. Aggregated list calls
 can flap or return incomplete windows.
 
 ```bash
-oci opsi database-insights get --database-insight-id "<DATABASE_INSIGHT_OCID>"
+oci_cli opsi database-insights get --database-insight-id "<DATABASE_INSIGHT_OCID>"
 ```
 
 If the insight OCID is unknown, query one lifecycle state at a time, union by
@@ -46,7 +46,7 @@ NOT_FOUND.
 
 ```bash
 for state in CREATING UPDATING ACTIVE FAILED NEEDS_ATTENTION; do
-  oci opsi database-insights list \
+  oci_cli opsi database-insights list \
     --compartment-id "<COMPARTMENT_OCID>" \
     --lifecycle-state "$state" \
     --all
@@ -103,7 +103,7 @@ Use canonical built-in source names, not friendly display names:
 Current OCI CLI association shape:
 
 ```bash
-oci log-analytics assoc upsert-assocs \
+oci_cli log-analytics assoc upsert-assocs \
   --namespace-name "<LA_NAMESPACE>" \
   --items file://associations.json
 ```

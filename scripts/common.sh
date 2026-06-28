@@ -16,7 +16,7 @@
 #   OCI_REGION            region override (default: profile/region setting)
 #   OCI_AUTH_MODE         security_token | instance_principal | resource_principal |
 #                         oke_workload | config (default: auto-detect)
-#   OCI_SKILLS_FORCE      set to "true" to skip confirmation prompts (use with care)
+#   OCI_SKILLS_FORCE      audited break-glass override for confirmation prompts
 #   OCI_SKILLS_DRY_RUN    set to "true" to print mutating commands instead of running
 #   OCI_SKILLS_MAX_RETRIES  transient-failure retry budget for oci_cli (default 3)
 
@@ -97,18 +97,39 @@ require_cmd() {
 # Environment loading
 # ---------------------------------------------------------------------------
 
-# load_env [FILE] — source a dotenv file (default .env.local) WITHOUT clobbering
-# PATH-like runtime variables. Lines are `KEY=value`; `#` comments allowed.
+# load_env [FILE] — parse a dotenv file (default .env.local) without evaluating
+# it as shell. Only KEY=value records and full-line comments are accepted.
 load_env() {
   local file="${1:-.env.local}"
   [[ -f "$file" ]] || { log "no env file at $file (skipping)"; return 0; }
-  # Preserve runtime path variables that a dotenv must never overwrite.
-  local _saved_path="$PATH" _saved_home="$HOME"
-  set -a
-  # shellcheck disable=SC1090
-  source "$file"
-  set +a
-  PATH="$_saved_path"; HOME="$_saved_home"
+  local line key value lineno=0
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    lineno=$((lineno + 1))
+    line="${line%$'\r'}"
+    [[ "$line" =~ ^[[:space:]]*$ || "$line" =~ ^[[:space:]]*# ]] && continue
+    if [[ ! "$line" =~ ^[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)=(.*)$ ]]; then
+      die "invalid dotenv record at $file:$lineno (expected KEY=value)"
+    fi
+    key="${BASH_REMATCH[1]}"; value="${BASH_REMATCH[2]}"
+    case "$key" in
+      PATH|HOME|IFS|SHELLOPTS|BASH_ENV|ENV|CDPATH|GLOBIGNORE|LD_PRELOAD|DYLD_*|\
+      OCI_SKILLS_FORCE|OCI_SKILLS_BREAK_GLASS|OCI_SKILLS_APPROVAL|\
+      OCI_SKILLS_PREFLIGHT_RECEIPT|OCI_SKILLS_CONTEXT_PROD)
+        die "unsafe dotenv key at $file:$lineno: $key" ;;
+    esac
+    # Quoting is data-only: remove one matching outer quote pair but never
+    # interpret escapes, substitutions, command separators, or redirects.
+    if [[ "$value" =~ ^\"(.*)\"$ || "$value" =~ ^\'(.*)\'$ ]]; then
+      value="${BASH_REMATCH[1]}"
+    fi
+    # shellcheck disable=SC2016 # The quoted tokens are intentionally literal.
+    if [[ "$value" == *'$('* || "$value" == *'`'* || "$value" == *'${'* \
+          || "$value" == *';'* || "$value" == *'&&'* || "$value" == *'||'* \
+          || "$value" == '<('* || "$value" == '>('* ]]; then
+      die "unsafe shell syntax in dotenv value at $file:$lineno"
+    fi
+    export "$key=$value"
+  done < "$file"
   log "loaded env from $file"
 }
 
@@ -256,35 +277,46 @@ oci_cli() {
 # ---------------------------------------------------------------------------
 
 # audit_log EVENT [KEY=VALUE ...] — append one redacted JSON line describing a
-# skill action to the local action ledger. Best-effort observability: it NEVER
-# fails the caller and NEVER persists secrets (the whole line is passed through
-# the same redactor as the CI gate before it is written).
+# skill action to the local action ledger. Normal observability is best-effort;
+# break-glass callers set OCI_SKILLS_AUDIT_REQUIRED=true and fail closed. The
+# whole line passes through the CI redactor before it is written.
 #
 # Path resolution (all out of the repo tree by design, so it never shows up in
 # `git status`):  $OCI_SKILLS_AUDIT_LOG  >  $XDG_STATE_HOME/oci-skills/audit.jsonl
 #                 >  ~/.local/state/oci-skills/audit.jsonl
 # Disable entirely with OCI_SKILLS_AUDIT_LOG=/dev/null or OCI_SKILLS_NO_AUDIT=1.
 audit_log() {
-  [[ "${OCI_SKILLS_NO_AUDIT:-}" == "1" ]] && return 0
+  local required="${OCI_SKILLS_AUDIT_REQUIRED:-false}"
+  if [[ "${OCI_SKILLS_NO_AUDIT:-}" == "1" ]]; then
+    [[ "$required" != "true" ]] || return 1
+    return 0
+  fi
   local event="${1:-unknown}"; shift 2>/dev/null || true
   local log_file="${OCI_SKILLS_AUDIT_LOG:-${XDG_STATE_HOME:-$HOME/.local/state}/oci-skills/audit.jsonl}"
-  [[ "$log_file" == "/dev/null" ]] && return 0
-  command -v python3 >/dev/null 2>&1 || return 0     # JSON build needs python; skip silently
+  if [[ "$log_file" == "/dev/null" ]] || ! command -v python3 >/dev/null 2>&1; then
+    [[ "$required" != "true" ]] || return 1
+    return 0
+  fi
   local dir; dir="$(dirname "$log_file")"
-  mkdir -p "$dir" 2>/dev/null || { log "audit_log: cannot create $dir (skipping)"; return 0; }
+  if ! mkdir -p "$dir" 2>/dev/null; then
+    log "audit_log: cannot create audit directory (skipping)"
+    [[ "$required" != "true" ]] || return 1
+    return 0
+  fi
 
   local ts mode
   ts="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo unknown)"
   mode="$(resolve_auth_mode 2>/dev/null || echo unknown)"
 
   # python builds the JSON object (safe escaping) from fixed context + caller
-  # KEY=VALUE extras, then applies redact.py's rules in-process before printing.
-  OCI_AUDIT_REDACT="$_OCI_SKILLS_SCRIPT_DIR/redact.py" \
-  python3 - "$ts" "$event" "$mode" "${OCI_CLI_PROFILE:-DEFAULT}" "${OCI_REGION:-}" \
+  # KEY=VALUE extras, applies redact.py's rules, then appends through O_NOFOLLOW
+  # to a 0600 ledger. Any redaction or filesystem failure persists nothing.
+  if ! OCI_AUDIT_REDACT="$_OCI_SKILLS_SCRIPT_DIR/redact.py" \
+  python3 - "$log_file" "$ts" "$event" "$mode" "${OCI_CLI_PROFILE:-DEFAULT}" "${OCI_REGION:-}" \
             "${OCI_SKILLS_DRY_RUN:-false}" "${OCI_SKILLS_FORCE:-false}" "$@" \
-            >> "$log_file" 2>/dev/null <<'PY' || true
+            2>/dev/null <<'PY'
 import importlib.util, json, os, sys
-ts, event, mode, profile, region, dry_run, forced, *extra = sys.argv[1:]
+log_path, ts, event, mode, profile, region, dry_run, forced, *extra = sys.argv[1:]
 obj = {"ts": ts, "event": event, "auth_mode": mode, "profile": profile,
        "region": region, "dry_run": dry_run == "true", "forced": forced == "true"}
 for kv in extra:
@@ -300,9 +332,22 @@ try:
     spec.loader.exec_module(mod)
     line = mod.redact(line)[0]           # mask any OCID/IP/secret before persisting
 except Exception:
-    sys.exit(0)                          # redactor unavailable -> persist nothing (fail closed)
-print(line)
+    sys.exit(1)                          # redactor unavailable -> persist nothing (fail closed)
+try:
+    flags = os.O_WRONLY | os.O_CREAT | os.O_APPEND | getattr(os, "O_NOFOLLOW", 0)
+    fd = os.open(log_path, flags, 0o600)
+    try:
+        os.fchmod(fd, 0o600)
+        os.write(fd, (line + "\n").encode("utf-8"))
+    finally:
+        os.close(fd)
+except OSError:
+    sys.exit(1)
 PY
+  then
+    [[ "$required" != "true" ]] || return 1
+  fi
+  return 0
 }
 
 # confirm "message" — return 0 if the user agrees (or OCI_SKILLS_FORCE=true).
@@ -310,7 +355,8 @@ confirm() {
   local msg="${1:-Proceed?}"
   if [[ "${OCI_SKILLS_FORCE:-}" == "true" ]]; then
     warn "OCI_SKILLS_FORCE=true — auto-confirming: $msg"
-    audit_log confirm_forced "msg=$msg"
+    OCI_SKILLS_AUDIT_REQUIRED=true audit_log confirm_forced "msg=$msg" \
+      || die "forced confirmation requires a writable, redacted audit ledger"
     return 0
   fi
   if ! _oci_is_tty; then
@@ -328,17 +374,270 @@ confirm() {
   return 1
 }
 
-# run_mutating "description" CMD... — run a mutating command, or print it under dry-run.
-run_mutating() {
-  local desc="$1"; shift
+# _action_context_hash COMPARTMENT — bind approvals/receipts to the selected
+# identity without persisting an OCID, profile, or other topology value.
+_action_context_hash() {
+  local compartment="$1" tenancy
+  tenancy="$(resolve_tenancy_ocid 2>/dev/null || true)"
+  require_cmd python3
+  python3 - "$compartment" "${OCI_SKILLS_CONTEXT:-}" "${OCI_CLI_PROFILE:-DEFAULT}" \
+    "${OCI_REGION:-}" "$(resolve_auth_mode)" "$tenancy" <<'PY'
+import hashlib, sys
+payload = "\0".join(sys.argv[1:]).encode()
+print(hashlib.sha256(payload).hexdigest())
+PY
+}
+
+_preflight_receipt_path() {
+  printf '%s' "${OCI_SKILLS_PREFLIGHT_RECEIPT:-${XDG_STATE_HOME:-$HOME/.local/state}/oci-skills/preflight.json}"
+}
+
+# record_preflight_receipt COMPARTMENT — called only after oci_preflight.sh has
+# resolved the target successfully. The local 0600 receipt contains hashes only.
+record_preflight_receipt() {
+  local compartment="${1:-}" receipt context_hash now dir
+  [[ -n "$compartment" ]] || die "record_preflight_receipt needs a compartment"
+  receipt="$(_preflight_receipt_path)"; dir="$(dirname "$receipt")"
+  context_hash="$(_action_context_hash "$compartment")"
+  now="$(date +%s)"
+  mkdir -p "$dir"
+  python3 - "$receipt" "$context_hash" "$now" <<'PY'
+import json, os, pathlib, stat, sys, tempfile
+target = pathlib.Path(sys.argv[1])
+target.parent.mkdir(parents=True, exist_ok=True)
+fd, temporary = tempfile.mkstemp(prefix=".preflight-", dir=target.parent)
+try:
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        json.dump({"schema_version": 1, "context_sha256": sys.argv[2],
+                   "created_epoch": int(sys.argv[3])}, handle, separators=(",", ":"))
+        handle.write("\n")
+    os.chmod(temporary, stat.S_IRUSR | stat.S_IWUSR)
+    os.replace(temporary, target)
+    os.chmod(target, stat.S_IRUSR | stat.S_IWUSR)
+finally:
+    if os.path.exists(temporary):
+        os.unlink(temporary)
+PY
+  audit_log preflight_receipt_recorded "context_sha256=$context_hash"
+}
+
+_require_preflight_receipt() {
+  local compartment="$1" receipt expected ttl
+  receipt="$(_preflight_receipt_path)"
+  expected="$(_action_context_hash "$compartment")"
+  ttl="${OCI_SKILLS_PREFLIGHT_TTL:-900}"
+  if ! python3 - "$receipt" "$expected" "$ttl" <<'PY'
+import json, pathlib, stat, sys, time
+path, expected = pathlib.Path(sys.argv[1]), sys.argv[2]
+if path.is_symlink() or not path.is_file():
+    print("[error] preflight receipt must be an existing regular non-symlink file", file=sys.stderr)
+    raise SystemExit(2)
+try:
+    data = json.loads(path.read_text(encoding="utf-8"))
+    ttl = int(sys.argv[3])
+    created = int(data.get("created_epoch", 0))
+except (OSError, TypeError, ValueError, json.JSONDecodeError):
+    print("[error] invalid preflight receipt", file=sys.stderr)
+    raise SystemExit(2)
+if data.get("context_sha256") != expected:
+    print("[error] preflight receipt context does not match this action", file=sys.stderr)
+    raise SystemExit(3)
+now = int(time.time())
+if ttl <= 0 or created > now + 5 or now - created > ttl:
+    print("[error] preflight receipt expired", file=sys.stderr)
+    raise SystemExit(4)
+if stat.S_IMODE(path.stat().st_mode) != 0o600:
+    print("[error] preflight receipt permissions must be 0600", file=sys.stderr)
+    raise SystemExit(5)
+PY
+  then
+    die "refusing live action until the exact context is preflighted again"
+  fi
+}
+
+_parse_action_contract() {
+  _ACTION_RISK=""; _ACTION_COMPARTMENT=""; _ACTION_DESCRIPTION=""
+  while (( $# > 0 )); do
+    case "$1" in
+      --risk) _ACTION_RISK="${2:-}"; shift 2 ;;
+      --compartment) _ACTION_COMPARTMENT="${2:-}"; shift 2 ;;
+      --description) _ACTION_DESCRIPTION="${2:-}"; shift 2 ;;
+      --) shift; break ;;
+      *) die "unknown run_action option: $1" ;;
+    esac
+  done
+  case "$_ACTION_RISK" in additive|in-place|destructive|credential) ;; *) die "invalid action risk: $_ACTION_RISK" ;; esac
+  [[ -n "$_ACTION_COMPARTMENT" ]] || die "run_action requires --compartment"
+  [[ -n "$_ACTION_DESCRIPTION" ]] || die "run_action requires --description"
+  (( $# > 0 )) || die "run_action requires a command after --"
+  _ACTION_COMMAND=("$@")
+}
+
+_action_hash() {
+  local context_hash="$1" risk="$2" description="$3"; shift 3
+  python3 - "$context_hash" "$risk" "$description" "$@" <<'PY'
+import hashlib, pathlib, sys
+
+
+def payload_path(argument):
+    value = argument.split("=", 1)[-1]
+    if not value.startswith("file://"):
+        return None
+    return pathlib.Path(value.removeprefix("file://"))
+
+
+parts = list(sys.argv[1:])
+for argument in sys.argv[4:]:
+    path = payload_path(argument)
+    if path is not None:
+        try:
+            payload_digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        except OSError:
+            print("[error] file:// payload changed or became unreadable", file=sys.stderr)
+            raise SystemExit(2)
+        parts.extend(("payload-sha256", payload_digest))
+digest = hashlib.sha256("\0".join(parts).encode()).hexdigest()
+print("approve-" + digest[:24])
+PY
+}
+
+_validate_file_payloads() {
+  python3 - "${_ACTION_COMMAND[@]}" <<'PY'
+import pathlib, stat, sys
+
+
+def payload_path(argument):
+    value = argument.split("=", 1)[-1]
+    if not value.startswith("file://"):
+        return None
+    return pathlib.Path(value.removeprefix("file://"))
+
+
+for argument in sys.argv[1:]:
+    path = payload_path(argument)
+    if path is None:
+        continue
+    if path.is_symlink() or not path.is_file():
+        print("[error] file:// payload must be an existing regular non-symlink file", file=sys.stderr)
+        raise SystemExit(2)
+    if stat.S_IMODE(path.stat().st_mode) != 0o600:
+        print("[error] file:// payload permissions must be exactly 0600", file=sys.stderr)
+        raise SystemExit(3)
+PY
+}
+
+_validate_action_command() {
+  local i arg flag value count="${#_ACTION_COMMAND[@]}"
+  [[ "${_ACTION_COMMAND[0]}" != "oci" ]] \
+    || die "bare OCI CLI execution is forbidden; route through oci_cli"
+  for (( i=0; i<count; i++ )); do
+    arg="${_ACTION_COMMAND[$i]}"; flag="${arg%%=*}"; value=""
+    if [[ "$arg" == --*=* ]]; then
+      value="${arg#*=}"
+    elif [[ "$arg" == --* ]] && (( i + 1 < count )) \
+      && [[ "${_ACTION_COMMAND[$((i + 1))]}" != --* ]]; then
+      value="${_ACTION_COMMAND[$((i + 1))]}"
+    fi
+    case "$flag" in
+      --password|--*-password|--credentials|--*-credentials|--auth-token|--*-auth-token|\
+      --private-key|--*-private-key|--secret|--*-secret|--secret-content|--*-secret-content|\
+      --key-content|--*-key-content|--token|--*-token)
+        [[ "$value" == file://* ]] \
+          || die "secret-bearing $flag requires a temporary 0600 file:// payload"
+        ;;
+    esac
+    case "$flag" in
+      --query|--description|--display-name) ;;
+      --*)
+        [[ "$value" != \{* && "$value" != \[* ]] \
+          || die "nested JSON for $flag requires a temporary 0600 file:// payload"
+        ;;
+    esac
+  done
+  _validate_file_payloads || die "invalid file:// action payload"
+}
+
+# action_approval_id accepts the same contract as run_action and returns an ID
+# bound to risk, context, description, and exact argv. It contains no secrets.
+action_approval_id() {
+  _parse_action_contract "$@"
+  _validate_action_command
+  local context_hash
+  context_hash="$(_action_context_hash "$_ACTION_COMPARTMENT")"
+  _action_hash "$context_hash" "$_ACTION_RISK" "$_ACTION_DESCRIPTION" "${_ACTION_COMMAND[@]}"
+}
+
+_command_preview() {
+  local rendered="" arg quoted
+  for arg in "$@"; do
+    printf -v quoted '%q' "$arg"
+    rendered="${rendered}${rendered:+ }${quoted}"
+  done
+  redact "$rendered"
+}
+
+_is_production_context() {
+  [[ "${OCI_SKILLS_CONTEXT_PROD:-}" == "true" ]] && return 0
+  [[ "${OCI_SKILLS_CONTEXT:-}" =~ (^|[-_.])(prod|production)([-_.]|$) ]]
+}
+
+# run_action --risk CLASS --compartment OCID --description TEXT -- COMMAND...
+# All live actions require a recent, matching receipt. Destructive/credential
+# actions additionally require an interactive confirmation or exact preview ID.
+run_action() {
+  _parse_action_contract "$@"
+  _validate_action_command
+  local approval preview
+  approval="$(_action_hash "$(_action_context_hash "$_ACTION_COMPARTMENT")" \
+    "$_ACTION_RISK" "$_ACTION_DESCRIPTION" "${_ACTION_COMMAND[@]}")"
+  preview="$(_command_preview "${_ACTION_COMMAND[@]}")"
+
   if [[ "${OCI_SKILLS_DRY_RUN:-}" == "true" ]]; then
-    warn "DRY-RUN ($desc): $*"
-    audit_log mutating_dry_run "desc=$desc"
+    warn "DRY-RUN [$_ACTION_RISK] ($_ACTION_DESCRIPTION): $preview"
+    case "$_ACTION_RISK" in
+      destructive|credential) warn "approval identifier: $approval" ;;
+    esac
+    audit_log action_preview "risk=$_ACTION_RISK" "desc=$_ACTION_DESCRIPTION" "approval=$approval"
     return 0
   fi
-  info "$desc"
-  audit_log mutating_run "desc=$desc"
-  "$@"
+
+  _require_preflight_receipt "$_ACTION_COMPARTMENT"
+  case "$_ACTION_RISK" in
+    destructive|credential)
+      if [[ "${OCI_SKILLS_FORCE:-}" == "true" ]]; then
+        if _is_production_context && [[ "${OCI_SKILLS_BREAK_GLASS:-}" != "true" ]]; then
+          die "production force requires OCI_SKILLS_BREAK_GLASS=true"
+        fi
+        warn "break-glass force accepted for $_ACTION_DESCRIPTION"
+        OCI_SKILLS_AUDIT_REQUIRED=true audit_log action_break_glass \
+          "risk=$_ACTION_RISK" "desc=$_ACTION_DESCRIPTION" "approval=$approval" \
+          || die "break-glass force requires a writable, redacted audit ledger"
+      elif [[ "${OCI_SKILLS_APPROVAL:-}" == "$approval" ]]; then
+        audit_log action_approval_matched "risk=$_ACTION_RISK" "desc=$_ACTION_DESCRIPTION" "approval=$approval"
+      elif _oci_is_tty; then
+        confirm "$_ACTION_DESCRIPTION [approval $approval]?" || return 1
+      else
+        warn "approval identifier: $approval"
+        die "non-interactive $_ACTION_RISK action requires matching OCI_SKILLS_APPROVAL"
+      fi
+      ;;
+  esac
+  info "$_ACTION_DESCRIPTION"
+  audit_log action_run "risk=$_ACTION_RISK" "desc=$_ACTION_DESCRIPTION" "approval=$approval"
+  "${_ACTION_COMMAND[@]}"
+}
+
+# Deprecated compatibility alias. It classifies legacy calls as additive; new
+# code must call run_action directly with an explicit risk and compartment.
+run_mutating() {
+  local desc="${1:-}" compartment; shift || true
+  warn "run_mutating is deprecated; use run_action --risk ..."
+  compartment="$(resolve_compartment)"
+  if [[ -z "$compartment" && "${OCI_SKILLS_DRY_RUN:-}" == "true" ]]; then
+    compartment="<COMPARTMENT_OCID>"
+  fi
+  [[ -n "$compartment" ]] || die "run_mutating compatibility alias needs a bound compartment"
+  run_action --risk additive --compartment "$compartment" --description "$desc" -- "$@"
 }
 
 # ---------------------------------------------------------------------------

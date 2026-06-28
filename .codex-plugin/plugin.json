@@ -1,7 +1,7 @@
 {
   "name": "oci-administrator",
-  "version": "1.14.0",
-  "description": "Tenancy-agnostic Oracle Cloud Infrastructure (OCI) administration for Codex and ChatGPT: safety-first skills for IAM, security, observability, databases, networking, cost, Log Analytics, Resource Manager, Data Safe, serverless, and project lifecycle work.",
+  "version": "2.0.0-rc.1",
+  "description": "Safe OCI engineering for Codex and ChatGPT: administration, exact CLI plans, Terraform authoring, Developer Services, product golden paths, and lifecycle orchestration.",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -34,8 +34,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "OCI Administrator",
-    "shortDescription": "Administer OCI safely across ten control-plane domains plus project lifecycle work.",
-    "longDescription": "OCI Administrator is a Codex and ChatGPT-ready skill pack for tenancy-agnostic Oracle Cloud Infrastructure administration. It routes requests across IAM, security, observability/database, Autonomous Database, networking/compute, cost, Log Analytics, Resource Manager, Data Safe, Events/Functions, and whole-project workflows. Users work by friendly named context instead of raw OCIDs; every mutation is preflighted, redacted, and confirmation-gated through the shared scripts.",
+    "shortDescription": "Engineer and administer OCI through safe skills and artifacts.",
+    "longDescription": "OCI Skills v2 is a Codex and ChatGPT-ready pack for tenancy-agnostic administration, exact OCI CLI plans, Terraform authoring, Developer Services, five product-platform golden paths, and project lifecycle orchestration. Named contexts, preflight receipts, redaction, one Terraform owner, and risk-specific approvals protect live actions.",
     "developerName": "adibirzu",
     "category": "Developer Tools",
     "capabilities": [
@@ -47,7 +47,7 @@
     "defaultPrompt": [
       "Preflight my OCI dev compartment safely.",
       "Audit OCI IAM posture without printing OCIDs.",
-      "Investigate OCI cost for the last 30 days."
+      "Create an offline OCI API + Functions platform bundle."
     ]
   }
 }

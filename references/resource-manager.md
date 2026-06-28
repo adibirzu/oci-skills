@@ -3,7 +3,7 @@
 Sanitized command shapes for **OCI Resource Manager** — managed Terraform as
 stacks + plan/apply/destroy jobs. Every CLI call goes through `oci_cli` from
 `scripts/common.sh`; apply/destroy jobs are **mutations** and go through
-`run_mutating` / `confirm`. Read `tenancy-safety.md` and `helper-conventions.md`
+`run_action`. Read `tenancy-safety.md` and `helper-conventions.md`
 first. Use `<PLACEHOLDER>` tokens — never inline real OCIDs.
 
 ORM runs your Terraform in an Oracle-managed execution environment, keeps the
@@ -16,7 +16,7 @@ unit is a **stack** (a Terraform config + variables + state); you act on it with
 ```bash
 # 1. Create a stack from a zipped Terraform dir or a folder. Variables are a flat
 #    name->string map; complex values are JSON-encoded strings.
-run_mutating "create stack" oci_cli resource-manager stack create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create stack" -- oci_cli resource-manager stack create \
   --compartment-id <COMPARTMENT_OCID> \
   --config-source <PATH_TO_ZIP_OR_TF_DIR> \
   --display-name <NAME> \
@@ -24,17 +24,17 @@ run_mutating "create stack" oci_cli resource-manager stack create \
   --terraform-version "1.5.x"
 
 # 2. PLAN first — always. Read the plan output before applying.
-run_mutating "plan" oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "plan" -- oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
 oci_cli resource-manager job get-job-logs-content --job-id <PLAN_JOB_OCID>   # human-readable plan
 
 # 3. APPLY. AUTO_APPROVED reuses the latest plan; or point at a specific plan job.
-run_mutating "apply" oci_cli resource-manager job create-apply-job --stack-id <STACK_OCID> \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "apply" -- oci_cli resource-manager job create-apply-job --stack-id <STACK_OCID> \
   --execution-plan-strategy AUTO_APPROVED
 # safer: bind to a reviewed plan
 #   --execution-plan-strategy FROM_PLAN_JOB_ID --execution-plan-job-id <PLAN_JOB_OCID>
 
 # 4. DESTROY.
-run_mutating "destroy" oci_cli resource-manager job create-destroy-job --stack-id <STACK_OCID> \
+run_action --risk destructive --compartment <COMPARTMENT_OCID> --description "destroy" -- oci_cli resource-manager job create-destroy-job --stack-id <STACK_OCID> \
   --execution-plan-strategy AUTO_APPROVED
 ```
 
@@ -63,9 +63,11 @@ done
 oci_cli resource-manager stack get-stack-tf-state --stack-id <STACK_OCID> --file -
 oci_cli resource-manager job get-job-tf-state --job-id <APPLY_JOB_OCID> --file -
 # Detect drift: a plan job with no changes == in sync; changes == drift.
-oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create drift plan job" -- \
+  oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
 # import existing resources instead of re-creating:
-oci_cli resource-manager job create-import-tf-state-job --stack-id <STACK_OCID> \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "import state" -- \
+  oci_cli resource-manager job create-import-tf-state-job --stack-id <STACK_OCID> \
   --tf-state-file file://terraform.tfstate
 ```
 

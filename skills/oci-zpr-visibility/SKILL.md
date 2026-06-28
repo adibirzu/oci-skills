@@ -10,7 +10,6 @@ description: >-
   security attributes, ZPR policy, protected resource, zpr-family, ZPR flow
   correlation, unexpected_accepted, suspected_misconfiguration, and OCI ZPR
   visibility dashboard.
-license: MIT
 ---
 
 # OCI ZPR Visibility
