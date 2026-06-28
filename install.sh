@@ -7,6 +7,7 @@
 #   ./install.sh claude codex    # install into named harnesses only
 #   ./install.sh --list          # show install targets and exit
 #   DRY_RUN=true ./install.sh     # print actions, copy nothing
+#   OCI_SKILLS_BLINDED_EVAL=true ./install.sh codex  # omit grader material
 #
 # Override any destination with an env var:
 #   CLAUDE_SKILLS_DIR  (default ~/.claude/skills)
@@ -44,10 +45,17 @@ copy_payload() {  # copy_payload <dest_dir>
   mkdir -p "$dest"
   local item
   for item in "${PAYLOAD[@]}"; do
+    if [[ "${OCI_SKILLS_BLINDED_EVAL:-}" == "true" && "$item" == "evals" ]]; then
+      continue
+    fi
     [[ -e "$REPO_DIR/$item" ]] || continue
     rm -rf "${dest:?}/$item"
     cp -R "$REPO_DIR/$item" "$dest/$item"
   done
+  if [[ "${OCI_SKILLS_BLINDED_EVAL:-}" == "true" ]]; then
+    rm -rf "${dest:?}/evals"
+    rm -f "$dest/scripts/forward_eval.py" "$dest/scripts/forward_eval_contract.py"
+  fi
   # Synthesize the bundle-root router for single-skill harnesses. The canonical
   # router lives 2 levels deep (skills/oci-administrator/) so its links use
   # ../../ ; at the bundle root those resolve to ./ instead.

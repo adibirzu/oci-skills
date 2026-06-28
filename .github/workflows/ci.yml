@@ -170,6 +170,9 @@ jobs:
       - name: eval routing validator
         run: python3 tests/check_eval_routing.py
 
+      - name: blinded forward-eval contract
+        run: python3 scripts/forward_eval.py validate
+
       - name: routing, inventory, and manifest parity
         run: python3 -m pytest tests/test_routing_consistency.py tests/test_v2_contracts.py -q
 

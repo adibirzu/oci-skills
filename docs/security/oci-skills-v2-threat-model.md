@@ -26,6 +26,7 @@ CI crosses no live-tenancy boundary. It uses fixtures, mocks, offline help parsi
 | Destructive plan bytes changed after review | unintended delete/replace | SHA-256 plan sidecar bound to context; apply verifies exact bytes | plan identity tests |
 | Queue poison message or duplicate delivery | repeated side effects/outage | idempotent consumer, visibility extension, bounded attempts, DLQ alarm/quarantine/replay | event-worker fixture/evals |
 | Build/source/image credential leakage | supply-chain compromise | Vault references, immutable artifact digest, no credentials in state/output/log/argv, canary + rollback | developer-services acceptance/evals |
+| Forward-eval rubric, prompt, manifest, or response tampering/leakage | contaminated evidence or sensitive-data disclosure | blinded candidate install excludes evaluator/evals; fresh sessions receive prompt text only; private ignored run directory; canonical prompt, manifest, and exact response hashes; repository redaction scan; report omits response/notes | blinded-install, forward-eval integrity, contract, and safety tests |
 
 ## Stop conditions
 
@@ -33,4 +34,4 @@ Stop before execution when target names do not match intent, receipt is absent/e
 
 ## Residual risk
 
-Fresh-agent behavior is probabilistic and remains a final-release evidence gate. Live service behavior and quotas cannot be proven in CI; release validation uses a disposable non-production tenancy only. Medium/low follow-ups are tracked in [the v2 task plan](../plans/oci-skills-v2.md); no critical/high finding is accepted for release.
+Fresh-agent behavior is probabilistic and remains a final-release evidence gate. The repository can enforce a blinded, complete, hash-bound evaluation but cannot independently certify its own agent runs or human review. Live service behavior and quotas cannot be proven in CI; release validation uses a disposable non-production tenancy only. Medium/low follow-ups are tracked in [the v2 task plan](../plans/oci-skills-v2.md); no critical/high finding is accepted for release.

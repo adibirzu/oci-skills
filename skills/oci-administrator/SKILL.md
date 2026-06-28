@@ -176,6 +176,7 @@ intra-domain flow table.
 | `scripts/oci_cli_lint.py` | Validate wrapper-routed read/action/verify/rollback CLI plans. |
 | `scripts/oci_tf.sh` | Scaffold, discover, validate, plan, inspect, apply, or destroy OCI Terraform. |
 | `scripts/platform_bundle.py` | Scaffold and validate schema-v1 golden-path bundles. |
+| `scripts/forward_eval.py` | Prepare and score blinded, hash-bound fresh-agent release evidence. |
 | `scripts/redact.py` | Mask OCIDs/IPs/secrets in text or JSON (CI gate). |
 | `scripts/kb_lookup.py` | Search `references/KB.md` for a known fix. |
 
