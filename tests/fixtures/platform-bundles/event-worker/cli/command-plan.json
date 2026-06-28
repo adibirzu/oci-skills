@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "context": "test",
+  "risk": "additive",
+  "reads": [
+    "oci_cli queue queue-admin queue list --compartment-id <COMPARTMENT_OCID>"
+  ],
+  "actions": [
+    "run_action --risk additive --compartment <COMPARTMENT_OCID> --description create-platform-component -- oci_cli queue queue-admin queue create --from-json file://<TMP_0600_CREATE_JSON>"
+  ],
+  "verification": [
+    "oci_cli queue queue-admin queue list --compartment-id <COMPARTMENT_OCID>"
+  ],
+  "rollback": [
+    "Prefer Terraform rollback/reconciliation; CLI deletion is destructive break-glass only."
+  ],
+  "sources": [
+    "https://docs.oracle.com/en-us/iaas/Content/queue/overview.htm"
+  ]
+}

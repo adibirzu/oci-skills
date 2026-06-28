@@ -10,14 +10,13 @@ description: >-
   activity auditing, audit policy/retention, sensitive data discovery, data
   masking, or a database NEEDS_ATTENTION / ORA-01017 in Data Safe. Assessments
   are read; registration/masking/audit-policy changes go through the safety core.
-license: MIT
 ---
 
 # OCI Data Safe
 
 Register and assess databases with Data Safe safely. Reading assessments is safe;
 **registration**, **audit-policy/retention changes**, and **masking** are
-mutations and go through `run_mutating` / `confirm`. All CLI runs through
+mutations and go through `run_action`. All CLI runs through
 `oci_cli` (`../../scripts/common.sh`). Never inline real OCIDs, IPs, service
 names, or credentials — use `<PLACEHOLDER>` tokens.
 
@@ -69,7 +68,7 @@ route to `oracle/skills` `db/`. See
 
 ```bash
 # Register an Autonomous DB target (credentials via file://, never argv).
-run_mutating "register ADB target" oci_cli data-safe target-database create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "register ADB target" -- oci_cli data-safe target-database create \
   --compartment-id <COMPARTMENT_OCID> --display-name <NAME> \
   --database-details file://database-details.json \
   --credentials file://credentials.json
@@ -97,7 +96,7 @@ oci_cli data-safe audit-event list --compartment-id <COMPARTMENT_OCID> \
 ## Safety notes
 
 - **Read assessments freely; gate the rest.** Registration, audit-policy/retention
-  changes, and masking are mutations — `confirm` / `run_mutating`.
+  changes, and masking are mutations — `run_action`.
 - **Never print or commit credentials.** `file://` payloads in `0600` files under a
   `0700` dir, deleted in `finally`; `redact` any output.
 - **Mask only a verified non-prod copy** — it is irreversible on the masked data.

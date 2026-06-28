@@ -1,0 +1,13 @@
+version: 1
+product: fixture-oke-application
+strategy: canary
+automatic_rollback: true
+artifact: "<IMMUTABLE_ARTIFACT_REFERENCE>"
+pre_deploy_checks:
+  - quota
+  - iam
+  - private-network
+post_deploy_checks:
+  - health
+  - logs
+  - alarms

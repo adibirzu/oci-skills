@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci zpr visibility"
+  short_description: "Safely handle oci-zpr-visibility workflows on OCI"
+  default_prompt: "Use $oci-zpr-visibility to handle this OCI request safely."

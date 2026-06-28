@@ -58,7 +58,7 @@ Append from the next number (`grep '^## KB-' references/KB.md | tail -1`):
 ## KB-<n> — <generalized title> (<domain-tag>)
 **Symptom:** <what the reader observes, no tenant specifics>
 **Root cause:** <the general mechanism>
-**Fix:** <commands with `<PLACEHOLDER>` tokens; run mutations via run_mutating/confirm>
+**Fix:** <commands with `<PLACEHOLDER>` tokens; run mutations via run_action>
 **See:** [<official page>](<docs.oracle.com URL registered in oracle-docs.md>)
 ```
 

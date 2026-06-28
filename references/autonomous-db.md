@@ -3,7 +3,7 @@
 Deep, sanitized command/SDK shapes for **operating** an Autonomous Database and
 **connecting** applications to it. Pairs with `skills/oci-autonomous-db/SKILL.md`.
 All examples use `<PLACEHOLDER>` tokens — resolve them from your own environment.
-Mutations run through `run_mutating` / `confirm` (`scripts/common.sh`).
+Mutations run through `run_action` (`scripts/common.sh`).
 
 > **Scope boundary.** Monitoring (DBM, Ops Insights, Performance Hub, alarms) →
 > `oci-observability-db`. Security posture (Data Safe target, assessments,
@@ -21,11 +21,11 @@ Mutations run through `run_mutating` / `confirm` (`scripts/common.sh`).
 > `oci db autonomous-database list` has **no `--compartment-id-in-subtree`** flag.
 > To search a tenancy, iterate compartments (root + children) and list per-compartment.
 
-| Intent | Command (read first, then `run_mutating`) |
+| Intent | Command (read first, then `run_action`) |
 |---|---|
 | List | `oci db autonomous-database list --compartment-id <CMPT> --all` |
 | Inspect | `oci db autonomous-database get --autonomous-database-id <ADB_OCID>` |
-| Create (ECPU) | `... create --compartment-id <CMPT> --display-name <NAME> --db-name <DBNAME> --db-workload OLTP --admin-password <PW> --compute-model ECPU --compute-count 2 --data-storage-size-in-gbs 20 --is-auto-scaling-enabled true --is-free-tier false` |
+| Create (ECPU) | `... create --from-json file://<TMP_0600_ADB_CREATE_JSON>`; keep the admin password only in that temporary payload |
 | Enable DBM | `... enable-autonomous-database-management --autonomous-database-id <ADB_OCID>` |
 | Enable OPSI | `... enable-operations-insights --autonomous-database-id <ADB_OCID>` |
 | Start | `... start --autonomous-database-id <ADB_OCID>` |
@@ -45,7 +45,7 @@ state. After any op, re-`get` and confirm `lifecycle-state`.
 
 Useful `get` projections:
 ```bash
-oci db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data.{
+oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data.{
   state:"lifecycle-state", workload:"db-workload", ecpu:"compute-count",
   storage_tb:"data-storage-size-in-tbs", autoscale:"is-auto-scaling-enabled",
   mtls_required:"is-mtls-connection-required", acl:"whitelisted-ips",
@@ -58,21 +58,21 @@ The biggest real-world footgun cluster. Battle-tested shape:
 
 ```bash
 # Reuse before create — list has no subtree flag; scope the target compartment.
-existing="$(oci db autonomous-database list --compartment-id <CMPT> \
+existing="$(oci_cli db autonomous-database list --compartment-id <CMPT> \
   --display-name '<DISPLAY_NAME>' \
   --query "data[?\"lifecycle-state\"!='TERMINATED' && \"lifecycle-state\"!='TERMINATING'].id | [0]" --raw-output)"
 
-# Create only if none. Returns the OCID, but the op is ASYNC — may return before AVAILABLE.
-run_mutating "create ADB" oci db autonomous-database create \
-  --compartment-id <CMPT> --display-name '<DISPLAY_NAME>' \
-  --db-name '<DBNAME>' --db-workload OLTP --admin-password "$ADMIN_PASSWORD" \
-  --compute-model ECPU --compute-count 2 --data-storage-size-in-gbs 20 \
-  --is-auto-scaling-enabled true --is-free-tier false \
-  --query 'data.id' --raw-output
+# Create a complete command JSON payload in a 0700 temp directory, chmod it
+# 0600, and put the Vault-sourced admin password only inside that file. The op
+# is ASYNC and may return before AVAILABLE.
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create ADB" -- oci_cli db autonomous-database create \
+  --from-json file://<TMP_0600_ADB_CREATE_JSON>
 #   Private endpoint (VCN must carry a DNS label, set at VCN-create, immutable):
 #     --subnet-id <SUBNET_OCID> --nsg-ids '["<NSG_OCID>"]' --private-endpoint-label '<LABEL>'
 ```
 
+- **Payload.** Set compartment/display name, DB name/workload, ECPU count, GB
+  storage, autoscaling/free-tier booleans, and the admin password in the JSON.
 - **Compute model.** `--compute-model ECPU` (current) takes `--compute-count N` and
   storage in **GBs** (`--data-storage-size-in-gbs`). The legacy OCPU model used
   `--cpu-core-count N` and `--data-storage-size-in-tbs N`. Don't mix them.
@@ -96,9 +96,11 @@ run_mutating "create ADB" oci db autonomous-database create \
 ### 1b. ADB-native monitoring enablement (control-plane toggles)
 
 ```bash
-oci db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
-oci db autonomous-database enable-operations-insights        --autonomous-database-id <ADB_OCID>
-oci db autonomous-database get --autonomous-database-id <ADB_OCID> \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "enable ADB management" -- \
+  oci_cli db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "enable ADB OPSI" -- \
+  oci_cli db autonomous-database enable-operations-insights --autonomous-database-id <ADB_OCID>
+oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> \
   --query 'data.{dbm:"database-management-status",opsi:"operations-insights-status"}'
 ```
 Idempotent — treat already-enabled / `409` as success. These are the ADB-resource
@@ -109,8 +111,9 @@ toggles; Performance Hub, alarms, dashboards, and Base-DB (DBCS) DBM live in
 
 ```bash
 # Download a fresh wallet (regional = all DBs in region; instance = this DB).
-oci db autonomous-database generate-wallet --autonomous-database-id <ADB_OCID> \
-  --generate-type ALL --password "$WALLET_PASSWORD" --file ~/secure/<db>_wallet.zip
+run_action --risk credential --compartment <COMPARTMENT_OCID> --description "generate ADB wallet" -- \
+  oci_cli db autonomous-database generate-wallet \
+  --from-json file://<TMP_0600_WALLET_REQUEST_JSON> --file ~/secure/<db>_wallet.zip
 unzip -o ~/secure/<db>_wallet.zip -d ~/secure/<db>_wallet && chmod 700 ~/secure/<db>_wallet
 export TNS_ADMIN=~/secure/<db>_wallet
 ```
@@ -140,10 +143,10 @@ export TNS_ADMIN=~/secure/<db>_wallet
 
 ```bash
 # The list is REPLACED, not appended — always read the current list first.
-oci db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data."whitelisted-ips"'
-run_mutating "update ADB ACL" oci db autonomous-database update \
+oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data."whitelisted-ips"'
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "update ADB ACL" -- oci_cli db autonomous-database update \
   --autonomous-database-id <ADB_OCID> \
-  --whitelisted-ips '["<CIDR_1>","<CIDR_2>","<VCN_OCID>"]'   # all keepers + the new one
+  --whitelisted-ips file://<TMP_0600_FULL_ADB_ACL_JSON>   # all keepers + the new one
 ```
 Entries may be CIDRs or VCN/subnet OCIDs. An empty list (`[]`) means *no public
 ACL restriction* (open to the internet within TLS/mTLS) — review before clearing.
@@ -250,7 +253,7 @@ ADB is trusted, then flip to strict.
 - [ ] `get` shows expected `lifecycle-state` before any mutation.
 - [ ] No wallet/key bytes printed, committed, or pasted; `TNS_ADMIN` is outside the repo.
 - [ ] `--whitelisted-ips` includes every current entry (replace semantics).
-- [ ] Mutation ran via `run_mutating` (dry-run shown); destructive op via `confirm`.
+- [ ] Mutation ran via `run_action` (dry-run shown); destructive op via `confirm`.
 - [ ] Output redacted (`python3 scripts/redact.py --check <file>`).
 
 ## 7. ORDS, Database Actions & Data Pump
@@ -258,7 +261,7 @@ ADB is trusted, then flip to strict.
 **ORDS / Database Actions** (the SQL web UI + REST front door). The launch URLs
 live on the ADB resource, not in a CLI flag — read them with `get`:
 ```bash
-oci db autonomous-database get --autonomous-database-id <ADB_OCID> \
+oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> \
   --query 'data."connection-urls"'   # ords-url, database-transforms-url, sql-dev-web-url, etc.
 ```
 Treat those URLs as sensitive (they front your DB); redact before sharing. APEX

@@ -8,7 +8,6 @@ description: >-
   spend, billing, invoice, usage, Usage API, budget, forecast, cost alert,
   FinOps, "what is this tenancy costing", or cost-tracking tags. Read-only by
   default; for creating budgets it defers to oci-iam-admin.
-license: MIT
 ---
 
 # OCI Cost & Usage (FinOps)
@@ -68,7 +67,7 @@ oci_cli usage-api usage-summary request-summarized-usages \
   --time-usage-started 2026-05-01T00:00:00Z \
   --time-usage-ended   2026-06-01T00:00:00Z \
   --granularity MONTHLY --query-type COST \
-  --group-by '["compartmentName"]'
+  --group-by file://<TMP_0600_GROUP_BY_COMPARTMENT_JSON>
 
 # Spend grouped by a cost-tracking tag (chargeback/showback).
 oci_cli usage-api usage-summary request-summarized-usages \
@@ -76,7 +75,7 @@ oci_cli usage-api usage-summary request-summarized-usages \
   --time-usage-started 2026-05-01T00:00:00Z \
   --time-usage-ended   2026-06-01T00:00:00Z \
   --granularity MONTHLY --query-type COST \
-  --group-by-tag '[{"namespace":"CostCenter","key":"team"}]'
+  --group-by-tag file://<TMP_0600_GROUP_BY_TAG_JSON>
 
 # List budgets — NOTE the triple-nested path (service/category/resource).
 oci_cli budgets budget budget list --compartment-id <TENANCY_OCID> \
@@ -103,7 +102,7 @@ oci_cli budgets budget budget list --compartment-id <TENANCY_OCID> \
 ## Safety notes
 
 - **Read-only by default.** Reporting changes nothing. Creating budgets/alerts is
-  a mutation — route to **oci-iam-admin**, which gates it via `run_mutating`.
+  a mutation — route to **oci-iam-admin**, which gates it via `run_action`.
 - **Never print OCIDs.** The aggregated views are service/compartment names +
   amounts by construction; if you query raw items, pipe through `redact`.
 - **Never invent `oci` flags.** Fetch the exact command shape first:

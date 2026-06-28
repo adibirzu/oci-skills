@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci log analytics"
+  short_description: "Safely handle oci-log-analytics workflows on OCI"
+  default_prompt: "Use $oci-log-analytics to handle this OCI request safely."

@@ -1,0 +1,14 @@
+schema_version: 1
+name: fixture-container-instances
+context: test
+runtime: container-instances
+ingress: load-balancer
+data: none
+delivery: oci-devops
+iac:
+  owner: terraform
+  path: terraform/
+verification:
+  - container-state
+  - private-listener-health
+  - container-logs

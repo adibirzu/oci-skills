@@ -23,7 +23,7 @@ They were built for different jobs and are **complementary**, not competing:
 | Shape | Broad — 10 control-plane domains + lifecycle + Stage 0 design | Narrow + deep — OKE day-2 + Enterprise AI |
 | Strength | Safety core (preflight, redaction, named contexts, KB, destructive-op guard hook), tenancy-agnostic admin, project lifecycle, [solution authoring](solution-authoring.md) | Reference architectures, GVA GPU node pools, Multus, OKE troubleshooting, GenAI agents/RAG/governance |
 | Grounding | [Open Knowledge Format index](oracle-docs.md) + offline lint + weekly liveness CI | `## Sources` footers on `docs.oracle.com` |
-| Mutations | `run_mutating` / `confirm` + PreToolUse guard | "ask before mutating" convention |
+| Mutations | `run_action` + PreToolUse guard | "ask before mutating" convention |
 
 Neither is a subset of the other. Use both: operate the tenancy here, drill into
 deep OKE / GenAI there.
@@ -96,7 +96,7 @@ sets the Oracle-wide bar. Where it strengthens this pack we follow it:
   lint + liveness CI (a stronger guarantee than a static footer).
 - **Self-contained skills.** Each skill is usable on its own — same as upstream.
 - **Tool-mutation classification.** Upstream asks before mutating; we go further
-  with `run_mutating` / `confirm` and the PreToolUse destructive-op guard hook.
+  with `run_action` and the PreToolUse destructive-op guard hook.
 - **Scope boundaries are explicit** (this doc) so navigation stays coherent
   across both packs.
 

@@ -47,20 +47,23 @@ embed a profile name or region in a committed script.
 3. For destructive operations (`delete`, `terminate`, `destroy`, replacing a load
    balancer), require explicit confirmation.
 
-## Dry-run and confirmation
+## Risk-aware actions, dry-run, and approval
 
-`common.sh` gives you two guards — use them for anything that mutates state:
+`common.sh` binds every live mutation to the compartment that was successfully
+preflighted. The receipt is hash-only, `0600`, and short-lived:
 
 ```bash
-# Prints the command instead of running it when OCI_SKILLS_DRY_RUN=true
-run_mutating "create budget" oci_cli budgets budget create ...
-
-# Prompts y/N (or honors OCI_SKILLS_FORCE=true); dies on destructive op with no TTY
-confirm "Delete compartment '$name'? This is irreversible." || exit 0
+run_action --risk additive --compartment <COMPARTMENT_OCID> \
+  --description "create budget" -- oci_cli budgets budget create ...
 ```
 
-- `OCI_SKILLS_DRY_RUN=true` — print mutating commands, change nothing.
-- `OCI_SKILLS_FORCE=true` — skip prompts (only for trusted automation).
+- `OCI_SKILLS_DRY_RUN=true` — print a redacted preview, execute nothing.
+- Additive/in-place live actions require a matching unexpired preflight receipt.
+- Destructive/credential non-TTY actions also require the exact
+  `OCI_SKILLS_APPROVAL` identifier emitted by the preview.
+- `OCI_SKILLS_FORCE=true` is audited break-glass. A production context also
+  requires `OCI_SKILLS_BREAK_GLASS=true`.
+- `run_mutating` is a deprecated additive compatibility alias.
 
 ### The destructive-command hook fails open — by design, but loudly
 
@@ -72,12 +75,12 @@ fails *open* in three cases, so it can never wedge the agent loop:
 1. **Guard script not locatable** (`CLAUDE_PLUGIN_ROOT` unset in a copy-install)
    — the hook prints `destructive guard not found … running UNGUARDED` to stderr
    and allows the command. The notice is the signal: if you see it, the only
-   thing standing between you and a `delete` is `confirm`/`run_mutating`.
+   thing standing between you and a `delete` is `run_action`.
 2. **Malformed hook payload** — allowed silently (never block on a parse error).
 3. **`OCI_SKILLS_FORCE=true`** — the operator has explicitly opted out.
 
-Because the hook is best-effort, the in-script guards (`confirm`,
-`run_mutating`) remain the authoritative control. Never rely on the hook alone.
+Because the hook is best-effort, the in-script `run_action` receipt and approval
+guard remains authoritative. Never rely on the hook alone.
 
 ### Action ledger (self-telemetry)
 

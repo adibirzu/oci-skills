@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci project"
+  short_description: "Safely handle oci-project workflows on OCI"
+  default_prompt: "Use $oci-project to handle this OCI request safely."

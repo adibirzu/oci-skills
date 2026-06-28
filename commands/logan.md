@@ -37,4 +37,4 @@ Notes:
 - The OCI CLI verb is `log-analytics query search` (a command group); `oci_logan.sh`
   wraps it. The LA namespace is auto-resolved and kept private.
 - This command never mutates Log Analytics. Source/parser/entity/dashboard changes
-  belong to the **oci-log-analytics** skill and go through `run_mutating`/`confirm`.
+  belong to the **oci-log-analytics** skill and go through `run_action`.

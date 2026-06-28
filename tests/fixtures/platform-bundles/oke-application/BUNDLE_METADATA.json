@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "golden_path": "oke-application",
+  "state_owner": "terraform",
+  "components": [
+    "oke-cluster",
+    "private-endpoint",
+    "private-load-balancer",
+    "devops-delivery"
+  ]
+}

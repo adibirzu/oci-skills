@@ -1,0 +1,14 @@
+schema_version: 1
+name: fixture-event-worker
+context: test
+runtime: functions
+ingress: event
+data: none
+delivery: oci-devops
+iac:
+  owner: terraform
+  path: terraform/
+verification:
+  - queue-round-trip
+  - poison-message-dlq
+  - empty-poll

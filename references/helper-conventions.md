@@ -10,7 +10,7 @@ instead of re-deriving auth, validation, or redaction logic.
 set -o errexit -o nounset -o pipefail
 source "$(dirname "$0")/common.sh"
 
-load_env .env.local                 # optional dotenv, never clobbers PATH/HOME
+load_env .env.local                 # validated KEY=value records; never shell source
 require_cmd oci jq                   # fail fast if tooling is missing
 require_vars COMPARTMENT_OCID        # fail fast if inputs are missing
 banner "What this script does"
@@ -19,10 +19,11 @@ preflight_identity                   # prove we can reach the intended tenancy
 # All CLI calls go through the wrapper — it negotiates auth + region.
 oci_cli iam compartment list --compartment-id "$COMPARTMENT_OCID" --all
 
-# Mutations go through the guard.
-run_mutating "tag the compartment" \
+# Mutations carry explicit risk + context. Nested JSON comes from a 0600 file.
+run_action --risk in-place --compartment "$COMPARTMENT_OCID" \
+  --description "tag the compartment" -- \
   oci_cli iam compartment update --compartment-id "$COMPARTMENT_OCID" \
-    --freeform-tags '{"managed-by":"oci-skills"}'
+    --freeform-tags file://<TMP_0600_TAGS_JSON>
 ```
 
 | Helper | Purpose |
@@ -30,11 +31,11 @@ run_mutating "tag the compartment" \
 | `oci_cli ...` | One entrypoint for the CLI. Negotiates auth mode + profile + region. |
 | `require_vars A B` | Die if any named env var is empty. |
 | `require_cmd oci jq` | Die if any command is missing from PATH. |
-| `load_env [file]` | Source a dotenv without overwriting PATH/HOME. |
+| `load_env [file]` | Parse validated KEY=value records without shell evaluation. |
 | `resolve_auth_mode` | Echo the effective auth mode (auto-detected). |
 | `preflight_identity` | Confirm IAM is reachable; print auth context. |
-| `confirm "msg"` | y/N prompt; honors `OCI_SKILLS_FORCE`; safe with no TTY. |
-| `run_mutating "desc" cmd...` | Run, or print under `OCI_SKILLS_DRY_RUN=true`. |
+| `run_action --risk ... --compartment ... --description ... -- cmd...` | Context-bound action or zero-execution preview. |
+| `run_mutating "desc" cmd...` | Deprecated additive compatibility alias. |
 | `wait_for_state "compute instance" ocid STATE [timeout]` | Poll lifecycle-state; pass the FULL CLI path (id flag derived from last word). |
 | `redact "str"` | Mask OCIDs/IPs/hex in a string (fast, partial). |
 | `banner` / `info` / `ok` / `warn` / `err` / `die` | Structured stderr logging. |
@@ -47,10 +48,9 @@ memory is the most common way a task breaks. **Before writing a mutating
 `oci_cli ...` command, fetch its exact shape and use only the flags it lists:**
 
 ```bash
-python3 scripts/oci_cli_help.py budgets budget create     # required vs optional flags
-python3 scripts/oci_cli_help.py budgets budget            # a group -> its real subcommands
-python3 scripts/oci_cli_help.py network nsg rules add --json
-# equivalently, the raw CLI: oci budgets budget create --help   (no auth, no network)
+python3 scripts/oci_cli_help.py --json budgets budget create  # required vs optional flags
+python3 scripts/oci_cli_help.py budgets budget                 # a group -> subcommands
+python3 scripts/oci_cli_help.py --json network nsg rules add
 ```
 
 `oci_cli_help.py` runs `oci ... --help` (which neither authenticates nor calls

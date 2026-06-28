@@ -9,14 +9,13 @@ description: >-
   cost-tracking), regions, and Identity Domains vs legacy IAM. Use whenever a
   request mentions OCI IAM, OCID, compartment, policy, tenancy, dynamic group,
   budget, quota, service limit, tag namespace, or auth token.
-license: MIT
 ---
 
 # OCI IAM & Tenancy Admin
 
 Administer identity and tenancy structure safely. This plugin leans on the shared
 tenancy-safety core — all CLI through `oci_cli`, all mutations through
-`run_mutating` / `confirm`.
+`run_action`.
 
 ## First move (always)
 
@@ -70,7 +69,7 @@ oci_cli iam compartment list --compartment-id <TENANCY_OCID> \
 oci_cli iam group list --compartment-id <TENANCY_OCID> --all \
   --query "data[?name=='db-admins'].id | [0]" --raw-output
 # only if empty/null:
-run_mutating "create group" oci_cli iam group create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create group" -- oci_cli iam group create \
   --compartment-id <TENANCY_OCID> --name db-admins --description "DB admins"
 
 # Policy least-privilege review — flag tenancy-wide manage-all.
@@ -79,14 +78,15 @@ oci_cli iam policy list --compartment-id <TENANCY_OCID> --all \
   | grep -iE "manage +all-resources +in +tenancy"
 
 # Dynamic group — grant a resource principal by matching rule.
-run_mutating "create dynamic group" oci_cli iam dynamic-group create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create dynamic group" -- oci_cli iam dynamic-group create \
   --name fn-runners --description "Function principals" \
   --matching-rule "any { instance.id = '<INSTANCE_OCID>' }"
 
 # Budget + 80% forecast alert.
-run_mutating "create budget" oci_cli budgets budget create \
+# <TMP_0600_TARGETS_JSON> contains ["<COMPARTMENT_OCID>"].
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create budget" -- oci_cli budgets budget create \
   --compartment-id <TENANCY_OCID> --target-type COMPARTMENT \
-  --targets '["<COMPARTMENT_OCID>"]' --amount 500 --reset-period MONTHLY \
+  --targets file://<TMP_0600_TARGETS_JSON> --amount 500 --reset-period MONTHLY \
   --display-name db-prod-budget
 
 # Service-limit pre-check before provisioning (KB-003).

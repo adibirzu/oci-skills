@@ -44,9 +44,28 @@ def _slug(tokens: list[str]) -> str:
     return "_".join(tokens) or "root"
 
 
+def cli_version() -> str:
+    """Return a filesystem-safe OCI CLI version, or ``unknown`` offline."""
+    if not shutil.which("oci"):
+        return "unknown"
+    try:
+        proc = subprocess.run(  # noqa: S603 — fixed argv, local version only
+            ["oci", "--version"], capture_output=True, text=True, timeout=10, check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return "unknown"
+    version = (proc.stdout or proc.stderr).strip().splitlines()[0] if (proc.stdout or proc.stderr).strip() else ""
+    return re.sub(r"[^A-Za-z0-9._-]", "_", version) or "unknown"
+
+
+def _cache_file(tokens: list[str], version: str) -> Path:
+    return CACHE / version / f"{_slug(tokens)}.txt"
+
+
 def get_help(tokens: list[str], refresh: bool) -> tuple[str, str]:
     """Return (help_text, source). Prefer the live CLI; fall back to cache."""
-    cache_file = CACHE / f"{_slug(tokens)}.txt"
+    version = cli_version()
+    cache_file = _cache_file(tokens, version)
     if shutil.which("oci"):
         try:
             proc = subprocess.run(  # noqa: S603 — fixed argv, no shell, --help only
@@ -55,13 +74,20 @@ def get_help(tokens: list[str], refresh: bool) -> tuple[str, str]:
             )
             text = proc.stdout or proc.stderr
             if text.strip():
-                CACHE.mkdir(parents=True, exist_ok=True)
-                cache_file.write_text(text, encoding="utf-8")
-                return text, "oci --help"
+                try:
+                    cache_file.parent.mkdir(parents=True, exist_ok=True)
+                    cache_file.write_text(text, encoding="utf-8")
+                except OSError as exc:
+                    print(f"[warn] could not cache OCI CLI help: {exc}", file=sys.stderr)
+                return text, "cli"
         except (OSError, subprocess.SubprocessError) as exc:
             print(f"[warn] `oci --help` failed: {exc}", file=sys.stderr)
     if cache_file.is_file() and not refresh:
-        return cache_file.read_text(encoding="utf-8"), f"cache ({cache_file})"
+        return cache_file.read_text(encoding="utf-8"), "cache"
+    if not refresh:
+        candidates = sorted(CACHE.glob(f"*/{_slug(tokens)}.txt"), reverse=True)
+        if candidates:
+            return candidates[0].read_text(encoding="utf-8"), "cache"
     return "", ""
 
 
@@ -128,7 +154,14 @@ def main(argv: list[str] | None = None) -> int:
     shape = parse(text)
     cmd = "oci " + " ".join(args.tokens)
     if args.json:
-        print(json.dumps({"command": cmd, "source": source, **shape}, indent=2))
+        print(json.dumps({
+            "schema_version": 1,
+            "command": cmd,
+            "command_path": args.tokens,
+            "cli_version": cli_version(),
+            "source": source,
+            **shape,
+        }, indent=2, sort_keys=True))
         return 0
 
     print(f"# {cmd}   (source: {source})")

@@ -1,7 +1,7 @@
 # OCI Project Workflow
 
 Index for the [oci-project](../skills/oci-project/SKILL.md) lifecycle
-orchestrator. The skill sequences the thirteen domain skills for one project; the
+orchestrator. The skill sequences the primary domain skills for one project; the
 detailed recipes are split into **phase references** — read the phase's file
 before running that stage. Safety rules live in
 [tenancy-safety.md](tenancy-safety.md); the decision layer in
@@ -46,8 +46,14 @@ confirm each mutation); status is a read-only one-shot.
 |---|---|---|
 | 1. Bootstrap (idempotent, gated) | [project-phase1-bootstrap.md](project-phase1-bootstrap.md) | `oci_project.sh bootstrap -n <name> -c <parent> -b <budget>` |
 | 2. Status / health (read-only) | [project-phase2-status.md](project-phase2-status.md) | `oci_project.sh status` |
-| 3. Deploy / release | [project-phase3-deploy.md](project-phase3-deploy.md) | → oci-resource-manager / oci-networking-compute |
-| 4. Teardown (planned, irreversible) | [project-phase4-teardown.md](project-phase4-teardown.md) | `oci_project.sh teardown -c <compartment>` |
+| 3. Deploy / release | [project-phase3-deploy.md](project-phase3-deploy.md) | → oci-terraform-authoring / oci-resource-manager / runtime owner |
+| 4. Teardown (planned, irreversible) | [project-phase4-teardown.md](project-phase4-teardown.md) | `oci_project.sh teardown -c <compartment> [--bundle path]` |
+
+When Stage 0 selects a golden path, pass the validated schema-v1
+`platform-bundle.yaml` to any helper stage with `--bundle <path>`. Status adds
+API Gateway, DevOps, Container Instances, Queue, state owner, health, and drift
+status. A Terraform-owned teardown uses an exact reviewed Terraform destroy
+plan; direct CLI deletion is break-glass followed by reconciliation.
 
 **Resume mid-flow:** run `oci_project.sh status` to read current state, ask which
 step was last completed, then resume from the corresponding phase reference — do

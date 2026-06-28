@@ -7,22 +7,22 @@ description: >-
   budget guardrail + project tags), get a project's overall status / health /
   posture, deploy or release a project (Resource Manager stack or OKE rollout),
   or tear down / decommission / clean up a project. It binds a project to a
-  named context (compartment + region + profile) and sequences the thirteen domain
-  skills in the right order, each call gated by the shared safety core. Triggers
+  named context (compartment + region + profile), accepts a schema-v1 platform
+  bundle after design, and sequences the owning domain skills, each call gated
+  by the shared safety core. Triggers
   on: new OCI project, bootstrap, scaffold, set up a project, project status,
   project health, "is my project healthy", deploy the project, release,
   promote, tear down, decommission, clean up, delete the project, project
   guardrails, project compartment. For a single-service task, use that domain
   skill directly.
-license: MIT
 ---
 
 # OCI Project Lifecycle
 
 Take an OCI project from an empty compartment to running-and-guarded, and back.
-This is the **orchestration layer**: it does not replace the thirteen domain skills —
+This is the **orchestration layer**: it does not replace the primary domain skills —
 it sequences them in the right order, scoped to one project, every mutation
-through `run_mutating` / `confirm`.
+through risk-classified `run_action`.
 
 A **project** is a [named context](../../references/named-contexts.md) that
 persists `name → { profile, region, compartment, prefix, budget }`. Bind it once
@@ -36,7 +36,10 @@ flags still override).
 discovery → Well-Architected requirements → reference architecture → guardrail
 design → cost → build → validate and produces a **Solution Blueprint** that fills
 this context's prefix + budget. Design is read-only; bootstrap (below) is where
-the blueprint becomes resources, each mutation gated.
+the blueprint becomes resources, each mutation gated. If Stage 0 selects a
+product golden path, generate `platform-bundle.yaml` with
+**oci-product-development** and pass it as `--bundle <path>`; Terraform remains
+the owner of bundle resources.
 
 ## First move (always)
 
@@ -101,7 +104,7 @@ exempt):
 |---|---|---|
 | new project, bootstrap, scaffold, set up, guardrails | **Bootstrap** | `oci_project.sh bootstrap -n <name>` |
 | status, health, posture, "what's the state", drift, what exists | **Status** | `oci_project.sh status` |
-| deploy, release, promote, ship, roll out | **Deploy** | → oci-resource-manager / oci-networking-compute |
+| deploy, release, promote, ship, roll out | **Deploy** | → oci-terraform-authoring / oci-resource-manager / owning runtime skill |
 | tear down, decommission, clean up, delete the project | **Teardown** | `oci_project.sh teardown` (plan) |
 
 ## The four stages
@@ -143,9 +146,12 @@ compartment, printing **names and counts, never OCIDs**:
 ```bash
 ./scripts/oci_project.sh status               # active context's compartment
 ./scripts/oci_project.sh status -c <COMPARTMENT_OCID>
+./scripts/oci_project.sh status -c <COMPARTMENT_OCID> --bundle <PATH>/platform-bundle.yaml
 ```
 
-It reports: compute / VCN / OKE / LB inventory + lifecycle states, untagged
+It reports: compute, VCN, OKE, load balancer, API Gateway, DevOps, Container
+Instances, and Queue inventory + lifecycle states, the declared state owner and
+drift status, untagged
 instances (governance gap), ACTIVE Cloud Guard problem count, alarm definitions
 plus how many are **FIRING**, and each budget's limit / spent / forecast with a
 flag when any is trending **over limit**. Empty sections are inconclusive
@@ -158,11 +164,13 @@ flag when any is trending **over limit**. Empty sections are inconclusive
 Bind the deployment to the project context, then drive it through the owning
 domain — never hand-mutate what Terraform manages:
 
+- **Local Terraform** — author/validate/plan/apply through
+  `oci-terraform-authoring`, applying the exact reviewed plan.
 - **Resource Manager (managed Terraform)** — `plan → review the plan job logs →
   apply FROM_PLAN_JOB_ID` (→ `oci-resource-manager`). Prefer this for
-  infrastructure.
+  managed execution, but never apply the same resources locally too.
 - **OKE rollout** — verify the kube context maps to *this* project's cluster,
-  then roll out (→ `oci-networking-compute`, KB-001/KB-094).
+  then roll out (→ `oci-oke-admin`, KB-001/KB-094).
 - After deploy, re-run `status` and confirm alarms + budget cover the new
   resources.
 
@@ -175,14 +183,13 @@ attached resources (KB-043). Teardown is irreversible: plan first, confirm each
 destructive step.
 
 ```bash
-./scripts/oci_project.sh teardown -c <COMPARTMENT_OCID>   # READ-ONLY inventory + ordered destroy plan
+./scripts/oci_project.sh teardown -c <COMPARTMENT_OCID> --bundle <PATH>/platform-bundle.yaml
 ```
 
 The helper lists what exists and prints the **ordered, gated destroy commands**;
-it does not destroy anything itself. Run them through the domain skills so each
-passes `confirm` / `run_mutating`. Order: workloads → compute → load balancers →
-OKE → network (subnets before VCN) → the compartment last. Prefer a Resource
-Manager `destroy` job when the project was stack-deployed.
+it does not destroy anything itself. For a Terraform-owned bundle, prefer a
+reviewed Terraform destroy plan. Order: delivery/workloads → gateways/runtimes →
+Queue/Streaming → database/compute → load balancers/OKE → network → compartment last.
 
 ## Common multi-step flows
 
@@ -192,6 +199,7 @@ Manager `destroy` job when the project was stack-deployed.
 | Daily project check | `oci_context.py use <name>` → `oci_project.sh status` → triage any ACTIVE Cloud Guard problem (→ oci-security-compliance) → check budget forecast (→ oci-cost) |
 | Ship an infra change | bind context → `oci-resource-manager` plan → review → apply FROM_PLAN_JOB_ID → `status` → confirm alarms cover new resources |
 | Decommission cleanly | `oci_project.sh teardown` (inventory + plan) → run ordered destroys via the domains → re-run `status` (empty) → delete the compartment last |
+| Bundle lifecycle | validate bundle → author/plan through owning skills → deploy via one Terraform surface → owner-aware status → reviewed teardown plan |
 
 ## Safety notes
 
@@ -203,7 +211,7 @@ Manager `destroy` job when the project was stack-deployed.
 - **Never `manage all-resources in tenancy`** for a project — the scoped policy
   is compartment + verb + resource-family.
 - **Mutations go through the domains' guards.** This skill orchestrates; the
-  domain skills own the actual `run_mutating` / `confirm` calls.
+  domain skills own the actual risk-classified `run_action` calls.
 - **Never print OCIDs.** `status` is names + counts by construction; pipe any raw
   output through `redact`.
 

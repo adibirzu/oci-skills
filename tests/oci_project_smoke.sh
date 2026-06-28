@@ -66,6 +66,10 @@ printf '%s' "$out_b" | grep -qi "DRY-RUN" \
   || { echo "FAIL B: bootstrap should announce dry-run"; echo "$out_b"; exit 1; }
 printf '%s' "$out_b" | grep -qi "compartment create" \
   || { echo "FAIL B: bootstrap should print the gated compartment create"; echo "$out_b"; exit 1; }
+printf '%s' "$out_b" | grep -q -- "--freeform-tags file:" \
+  || { echo "FAIL B: nested tag JSON must use a 0600 file payload"; echo "$out_b"; exit 1; }
+printf '%s' "$out_b" | grep -q -- "--targets file:" \
+  || { echo "FAIL B: nested budget targets must use a 0600 file payload"; echo "$out_b"; exit 1; }
 grep -qE 'compartment create|budget create|compartment update' "$calls" \
   && { echo "FAIL B: dry-run must not EXECUTE mutations"; cat "$calls"; exit 1; }
 echo "B ok: bootstrap dry-run printed mutations, executed none (rc=$rc_b)"
@@ -121,5 +125,46 @@ printf '%s' "$out_f" | grep -q "FIRING" \
 printf '%s' "$out_f" | grep -qi "over limit" \
   || { echo "FAIL F: should flag budget trending over limit"; echo "$out_f"; exit 1; }
 echo "F ok: enriched status surfaces untagged/FIRING/over-budget (rc=$rc_f)"
+
+# ── G) a schema-v1 platform bundle adds developer-service inventory and reports
+#       one state owner without mutating Terraform-owned resources.
+bundle="$dir/tests/fixtures/platform-bundles/api-functions/platform-bundle.yaml"
+cat > "$tmp/oci" <<EOF
+#!/bin/sh
+echo "\$*" >> "$calls"
+case "\$*" in
+  *"api-gateway gateway list"*) echo '{"data":[{"display-name":"gateway","lifecycle-state":"ACTIVE"}]}' ;;
+  *"devops project list"*) echo '{"data":[{"name":"delivery","lifecycle-state":"ACTIVE"}]}' ;;
+  *"container-instance list"*) echo '{"data":[]}' ;;
+  *"queue-admin queue list"*) echo '{"data":[{"display-name":"work","lifecycle-state":"ACTIVE"}]}' ;;
+  *) echo '{"data":[]}' ;;
+esac
+EOF
+chmod +x "$tmp/oci"
+: > "$calls"
+set +e; out_g="$(run status -c "$CMPT" --bundle "$bundle" 2>&1)"; rc_g=$?; set -e
+[ "$rc_g" -eq 0 ] || { echo "FAIL G: bundle status should exit 0, got $rc_g"; echo "$out_g"; exit 1; }
+printf '%s' "$out_g" | grep -q "owner=terraform" \
+  || { echo "FAIL G: bundle status must report Terraform owner"; echo "$out_g"; exit 1; }
+for surface in "API Gateway" "DevOps" "containers" "Queue"; do
+  printf '%s' "$out_g" | grep -qi "$surface" \
+    || { echo "FAIL G: bundle status missing $surface"; echo "$out_g"; exit 1; }
+done
+grep -qiE ' create | delete | terminate | update ' "$calls" \
+  && { echo "FAIL G: bundle status issued a mutation"; cat "$calls"; exit 1; }
+echo "G ok: bundle status reports owner and developer-service inventory (rc=$rc_g)"
+
+# ── H) bundle teardown remains a read-only plan, prefers the one Terraform
+#       owner, and includes the new services before network/compartment removal.
+: > "$calls"
+set +e; out_h="$(run teardown -c "$CMPT" --bundle "$bundle" 2>&1)"; rc_h=$?; set -e
+[ "$rc_h" -eq 0 ] || { echo "FAIL H: bundle teardown should exit 0, got $rc_h"; echo "$out_h"; exit 1; }
+printf '%s' "$out_h" | grep -qi "reviewed Terraform destroy plan" \
+  || { echo "FAIL H: Terraform-owned bundle must prefer Terraform destroy"; echo "$out_h"; exit 1; }
+printf '%s' "$out_h" | grep -qi "Queue" \
+  || { echo "FAIL H: teardown should inventory/order Queue"; echo "$out_h"; exit 1; }
+grep -qiE ' create | delete | terminate | update ' "$calls" \
+  && { echo "FAIL H: teardown must remain read-only"; cat "$calls"; exit 1; }
+echo "H ok: bundle teardown is owner-aware and read-only (rc=$rc_h)"
 
 echo "oci project smoke OK"

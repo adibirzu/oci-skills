@@ -9,14 +9,13 @@ description: >-
   plan/apply/destroy job, terraform-version, execution plan strategy, tfstate,
   drift, stack outputs, or "deploy to Oracle Cloud". Plan/read is safe; apply and
   destroy jobs are mutations gated by the shared safety core.
-license: MIT
 ---
 
 # OCI Resource Manager (ORM)
 
 Operate managed-Terraform stacks safely. Stack/job **reads** (get, list, plan,
 logs, state) are safe; **apply** and **destroy** jobs are mutations and go through
-`run_mutating` / `confirm`. All CLI runs through `oci_cli`
+`run_action`. All CLI runs through `oci_cli`
 (`../../scripts/common.sh`). Never inline real OCIDs — use `<PLACEHOLDER>` tokens.
 
 ## First move (always)
@@ -58,18 +57,18 @@ the safety rules.
 
 ```bash
 # Plan a stack and read the human-readable plan BEFORE applying.
-run_mutating "plan" oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "plan" -- oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
 oci_cli resource-manager job get-job-logs-content --job-id <PLAN_JOB_OCID>
 
 # Apply bound to a reviewed plan (safer than AUTO_APPROVED on prod).
-run_mutating "apply" oci_cli resource-manager job create-apply-job --stack-id <STACK_OCID> \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "apply" -- oci_cli resource-manager job create-apply-job --stack-id <STACK_OCID> \
   --execution-plan-strategy FROM_PLAN_JOB_ID --execution-plan-job-id <PLAN_JOB_OCID>
 
 # Drift check = a plan job that reports no changes.
-run_mutating "drift plan" oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "drift plan" -- oci_cli resource-manager job create-plan-job --stack-id <STACK_OCID>
 
 # Destroy (gated).
-run_mutating "destroy" oci_cli resource-manager job create-destroy-job --stack-id <STACK_OCID> \
+run_action --risk destructive --compartment <COMPARTMENT_OCID> --description "destroy" -- oci_cli resource-manager job create-destroy-job --stack-id <STACK_OCID> \
   --execution-plan-strategy AUTO_APPROVED
 ```
 

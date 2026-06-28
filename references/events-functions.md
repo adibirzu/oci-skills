@@ -3,9 +3,9 @@
 Sanitized command shapes for OCI's **event-driven / serverless** stack:
 **Functions** (OCI Functions / Fn), the **Events** service (rules → actions),
 **Notifications/ONS** (topics + subscriptions), **Service Connector Hub** (SCH
-fan-out), with **Streaming** as the transport. Every CLI call goes through
+fan-out), with **Queue** and **Streaming** as transports. Every CLI call goes through
 `oci_cli` from `scripts/common.sh`; create/update/invoke are **mutations** gated
-by `run_mutating` / `confirm`. Read `tenancy-safety.md` and
+by `run_action`. Read `tenancy-safety.md` and
 `helper-conventions.md` first. Use `<PLACEHOLDER>` tokens — never inline real
 OCIDs, OCIR namespaces, emails, or endpoints.
 
@@ -13,9 +13,9 @@ OCIDs, OCIR namespaces, emails, or endpoints.
 
 ```bash
 # Application = the deploy unit (pins a VCN subnet for egress).
-run_mutating "create fn app" oci_cli fn application create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create fn app" -- oci_cli fn application create \
   --compartment-id <COMPARTMENT_OCID> --display-name <APP_NAME> \
-  --subnet-ids '["<SUBNET_OCID>"]'
+  --subnet-ids file://<TMP_0600_SUBNET_IDS_JSON>
 
 # Point the local Fn context at the region + OCIR repo, then deploy (build+push+register).
 fn use context <REGION>
@@ -24,9 +24,11 @@ fn update context registry <REGION_KEY>.ocir.io/<TENANCY_NAMESPACE>/<REPO>
 fn deploy --app <APP_NAME>
 
 # Invoke + per-function config (surfaced as env vars) + memory/timeout.
-oci_cli fn function invoke --function-id <FUNCTION_OCID> --file - --body '{"k":"v"}'
-run_mutating "set fn config" oci_cli fn function update --function-id <FUNCTION_OCID> \
-  --config '{"LOG_LEVEL":"INFO"}' --memory-in-mbs 512 --timeout-in-seconds 120
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "invoke function" -- \
+  oci_cli fn function invoke --function-id <FUNCTION_OCID> --file - \
+    --body file://<TMP_0600_BODY_JSON>
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "set fn config" -- oci_cli fn function update --function-id <FUNCTION_OCID> \
+  --config file://<TMP_0600_CONFIG_JSON> --memory-in-mbs 512 --timeout-in-seconds 120
 ```
 
 Handler discipline (battle-tested): read all config from env, validate required
@@ -46,11 +48,10 @@ A rule = a **condition** (matches a CloudEvents `eventType` + optional attribute
 filters) + one or more **actions** (`FAAS` / `ONS` / `STREAMING`) + `is-enabled`.
 
 ```bash
-run_mutating "create events rule" oci_cli events rule create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create events rule" -- oci_cli events rule create \
   --compartment-id <COMPARTMENT_OCID> --display-name <RULE_NAME> --is-enabled true \
-  --condition '{"eventType":["com.oraclecloud.objectstorage.createobject"],
-                "data":{"additionalDetails":{"bucketName":["<BUCKET_NAME>"]}}}' \
-  --actions file://actions.json
+  --condition file://<TMP_0600_EVENT_CONDITION_JSON> \
+  --actions file://<TMP_0600_EVENT_ACTIONS_JSON>
 ```
 
 `actions.json` (fan-out):
@@ -70,9 +71,9 @@ run_mutating "create events rule" oci_cli events rule create \
 ## Notifications (ONS)
 
 ```bash
-run_mutating "create topic" oci_cli ons topic create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create topic" -- oci_cli ons topic create \
   --compartment-id <COMPARTMENT_OCID> --name <TOPIC_NAME>
-run_mutating "subscribe" oci_cli ons subscription create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "subscribe" -- oci_cli ons subscription create \
   --compartment-id <COMPARTMENT_OCID> --topic-id <TOPIC_OCID> \
   --protocol EMAIL --subscription-endpoint <EMAIL_ENDPOINT>
 # Protocols: EMAIL | HTTPS | PAGERDUTY | SLACK | ORACLE_FUNCTIONS (endpoint = <FUNCTION_OCID>)
@@ -93,7 +94,7 @@ Source → optional task → target. Kinds: sources `logging` / `streaming` /
 
 ```bash
 # source.json / target.json passed as files; create is async (work request).
-run_mutating "create SCH" oci_cli sch service-connector create \
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create SCH" -- oci_cli sch service-connector create \
   --compartment-id <COMPARTMENT_OCID> --display-name <SCH_NAME> \
   --source file://source.json --target file://target.json \
   --wait-for-state ACTIVE --max-wait-seconds 300
@@ -115,6 +116,53 @@ Allow any-user to use loganalytics-log-group in compartment id <COMPARTMENT_OCID
 (Policies are created at the **tenancy** level but scoped `in compartment id
 <COMPARTMENT_OCID>`. A `function` task additionally needs `use fn-function` /
 `use fn-invocation` for the principal.)
+
+## Queue (transactional transport)
+
+Choose Queue for at-least-once, independently processed transactional messages;
+choose Streaming for ordered partition logs, replay, Kafka compatibility, and
+consumer offsets. Check the regional queue quota before creating one.
+
+```bash
+# Read by name before create.
+oci_cli queue queue-admin queue list --compartment-id <COMPARTMENT_OCID> \
+  --display-name <QUEUE_NAME>
+
+run_action --risk additive --compartment <COMPARTMENT_OCID> \
+  --description "create bounded-retry queue" -- \
+  oci_cli queue queue-admin queue create --compartment-id <COMPARTMENT_OCID> \
+    --display-name <QUEUE_NAME> --visibility-in-seconds 60 \
+    --retention-in-seconds 86400 --dlq-delivery-count 5
+
+# Nested message payloads belong in a chmod 0600 file, removed by a trap.
+run_action --risk additive --compartment <COMPARTMENT_OCID> \
+  --description "publish queue fixture" -- \
+  oci_cli queue messages put-messages --queue-id <QUEUE_OCID> \
+    --messages file://<TMP_0600_MESSAGES_JSON>
+
+# Long-poll. An empty data array is normal; record it as an empty poll.
+oci_cli queue messages get-messages --queue-id <QUEUE_OCID> \
+  --visibility-in-seconds 60 --timeout-in-seconds 20 --limit 20
+```
+
+Consumers must be idempotent. If processing will exceed the current visibility
+window, call `update-message` with the receipt and a longer visibility timeout.
+Delete the message only after processing commits; otherwise let visibility
+expire so another consumer can retry. Alert on age/size, failed processing,
+delivery count, and DLQ depth. Quarantine poison messages and replay only after
+the cause is corrected.
+
+Least-privilege policies separate roles:
+
+```text
+Allow dynamic-group <PRODUCERS> to use queue-push in compartment <PROJECT>
+Allow dynamic-group <CONSUMERS> to use queue-pull in compartment <PROJECT>
+```
+
+OCI Events targets Functions, Notifications, and Streaming—not Queue directly.
+For Events → Queue → Function, make the Events action invoke a small producer
+Function that validates and publishes to Queue; the consumer Function or worker
+polls Queue. Delivery ownership stays here; DevOps owns only delivery.
 
 ## Streaming (transport)
 
@@ -194,6 +242,9 @@ after the consumer group has joined.
 4. **Log/Monitoring → SCH → Function task → target.** In-pipeline transform: SCH
    `logging`/`monitoring` source → `function` task → `objectStorage`/
    `notifications`/`streaming` target.
+5. **Events → Function producer → Queue → consumer.** Match the Events rule,
+   validate/publish in the producer, poll with a visibility timeout, acknowledge
+   after success, and exercise the DLQ with a poison fixture.
 
 ## Risks to flag
 
@@ -214,5 +265,7 @@ Canonical Oracle docs for the services covered above (verified live):
 - [Notifications (ONS)](https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm)
 - [Service Connector Hub](https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm)
 - [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm)
+- [Queue](https://docs.oracle.com/en-us/iaas/Content/queue/overview.htm)
+- [Queue IAM policies](https://docs.oracle.com/en-us/iaas/Content/queue/policy-reference.htm)
 - [Streaming Kafka compatibility](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm)
 - [Streaming Kafka API configuration](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm)

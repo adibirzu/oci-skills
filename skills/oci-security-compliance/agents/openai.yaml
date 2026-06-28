@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci security compliance"
+  short_description: "Safely handle oci-security-compliance workflows on OCI"
+  default_prompt: "Use $oci-security-compliance to handle this OCI request safely."

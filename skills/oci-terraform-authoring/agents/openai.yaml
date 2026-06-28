@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci terraform authoring"
+  short_description: "Safely handle oci-terraform-authoring workflows on OCI"
+  default_prompt: "Use $oci-terraform-authoring to handle this OCI request safely."

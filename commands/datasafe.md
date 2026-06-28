@@ -23,7 +23,7 @@ Steps:
    password / `ORA-01017` — see KB-057).
 4. **Stop.** This command does not mutate anything. To register a target, refresh
    an assessment, change audit retention, or mask data, route to the
-   **oci-data-safe** skill, which gates those via `run_mutating` / `confirm`.
+   **oci-data-safe** skill, which gates those via `run_action`.
 
 Note: if "no targets" is reported, Data Safe may simply not be enabled in that
 compartment, or the targets live in another region/compartment — widen the scope

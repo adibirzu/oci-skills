@@ -1,0 +1,4 @@
+interface:
+  display_name: "oci resource manager"
+  short_description: "Safely handle oci-resource-manager workflows on OCI"
+  default_prompt: "Use $oci-resource-manager to handle this OCI request safely."

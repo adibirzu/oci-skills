@@ -14,7 +14,6 @@ description: >-
   SQLcl, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN. Mentions
   Autonomous Database, ADB, ADW, ATP, wallet, cwallet.sso, ewallet, DSN, oracledb,
   cx_Oracle, SQLcl, V$SESSION, in-DB diagnostics.
-license: MIT
 ---
 
 # OCI Autonomous Database — lifecycle & connectivity
@@ -22,7 +21,7 @@ license: MIT
 Tenancy-agnostic helpers for **operating** an Autonomous Database (lifecycle,
 wallet, scaling, ACL) and **connecting** applications to it (wallet/DSN,
 python-oracledb, SQLAlchemy, Alembic). All CLI runs through `oci_cli`
-(`../../scripts/common.sh`); mutations through `run_mutating` / `confirm`. Never
+(`../../scripts/common.sh`); mutations through `run_action`. Never
 inline real OCIDs, DSNs, IPs, or wallet contents — use `<PLACEHOLDER>` tokens.
 
 > **Wallets are credentials.** `cwallet.sso` is a passwordless auto-login store;
@@ -67,8 +66,8 @@ Safety rules (auth modes, read-before-write, redaction):
 
 | Task | Sequence |
 |------|----------|
-| Provision a new ADB (idempotent) | `list --display-name` (reuse if non-TERMINATED) → preflight quota → `confirm` → `run_mutating ... create` → on `db-name already in use` retry alt name → on timeout re-discover by `--display-name` → poll `AVAILABLE` → `generate-wallet` |
-| App can't reach a stopped ADB | `get` (state `STOPPED`) → `confirm` → `run_mutating ... start` → poll state `AVAILABLE` → reconnect |
+| Provision a new ADB (idempotent) | `list --display-name` (reuse if non-TERMINATED) → preflight quota → `confirm` → `run_action ... create` → on `db-name already in use` retry alt name → on timeout re-discover by `--display-name` → poll `AVAILABLE` → `generate-wallet` |
+| App can't reach a stopped ADB | `get` (state `STOPPED`) → `confirm` → `run_action ... start` → poll state `AVAILABLE` → reconnect |
 | Wallet leaked / rotated staff | **Console → DB → Database Connection → Rotate Wallet** (invalidates old wallets) → `generate-wallet` fresh → redeploy `TNS_ADMIN` → rotate the DB password too |
 | New client IP blocked | `get` ACL → `confirm` → `update --whitelisted-ips '[...existing + new]'` (the list is **replace, not append**) → verify |
 | Wire an app to a new ADB | `generate-wallet` (out of repo) → set `TNS_ADMIN` + DSN service level → `oracledb.connect`/pool smoke test → SQLAlchemy `oracle+oracledb://` → `alembic upgrade head` |
@@ -93,18 +92,18 @@ OCPU model used `--cpu-core-count` + `--data-storage-size-in-tbs`:
 existing="$(oci_cli db autonomous-database list --compartment-id <COMPARTMENT_OCID> \
   --display-name '<DISPLAY_NAME>' \
   --query "data[?\"lifecycle-state\"!='TERMINATED' && \"lifecycle-state\"!='TERMINATING'].id | [0]" --raw-output)"
-# 2. Create only if none. Async op — the CLI may return before AVAILABLE or time out.
-run_mutating "create ADB" oci_cli db autonomous-database create \
-  --compartment-id <COMPARTMENT_OCID> --display-name '<DISPLAY_NAME>' \
-  --db-name '<DBNAME>' --db-workload OLTP --admin-password "$ADMIN_PASSWORD" \
-  --compute-model ECPU --compute-count 2 --data-storage-size-in-gbs 20 \
-  --is-auto-scaling-enabled true --is-free-tier false \
-  --query 'data.id' --raw-output
+# 2. Create a complete command JSON payload in a 0700 temp directory, chmod it
+#    0600, and place the Vault-sourced admin password only inside that file.
+#    Async op — the CLI may return before AVAILABLE or time out.
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create ADB" -- oci_cli db autonomous-database create \
+  --from-json file://<TMP_0600_ADB_CREATE_JSON>
 #    Private endpoint (VCN must already carry a DNS label — set at VCN creation, immutable):
 #      --subnet-id <SUBNET_OCID> --nsg-ids '["<NSG_OCID>"]' --private-endpoint-label '<LABEL>'
 # 3. Poll to AVAILABLE; if create timed out, re-discover by display name before assuming failure.
 ```
-Footguns (all real, KB-121/122/123): `--db-name` is alnum, ≤14 chars, **globally
+The payload contains the compartment/display name, DB name/workload, ECPU count,
+GB storage, autoscaling/free-tier booleans, and admin password. Footguns (all
+real, KB-121/122/123): `--db-name` is alnum, ≤14 chars, **globally
 unique per region** — a collision returns `db-name ... already in use`; randomize
 and retry. `--admin-password` is 12–30 chars (upper+lower+digit, no `"` and not the
 literal `admin`). A private-endpoint ADB listens on **TCP 1522** (not 1521) — the
@@ -115,21 +114,21 @@ request Autonomous Database quota in **Console → Limits** and retry.
 **Start / stop** (stop to save cost; confirm — it drops sessions):
 ```bash
 oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data."lifecycle-state"'
-run_mutating "stop ADB" oci_cli db autonomous-database stop --autonomous-database-id <ADB_OCID>
-run_mutating "start ADB" oci_cli db autonomous-database start --autonomous-database-id <ADB_OCID>
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "stop ADB" -- oci_cli db autonomous-database stop --autonomous-database-id <ADB_OCID>
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "start ADB" -- oci_cli db autonomous-database start --autonomous-database-id <ADB_OCID>
 ```
 
 **Scale** (ECPU + storage; auto-scaling is a separate flag):
 ```bash
-run_mutating "scale ADB" oci_cli db autonomous-database update --autonomous-database-id <ADB_OCID> \
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "scale ADB" -- oci_cli db autonomous-database update --autonomous-database-id <ADB_OCID> \
   --compute-count 4 --data-storage-size-in-tbs 2 --is-auto-scaling-enabled true
 ```
 
 **Generate a wallet** (download fresh; write OUTSIDE the repo; never commit):
 ```bash
-run_mutating "generate ADB wallet" oci_cli db autonomous-database generate-wallet \
-  --autonomous-database-id <ADB_OCID> --generate-type ALL \
-  --password "$WALLET_PASSWORD" --file ~/secure/<db>_wallet.zip
+run_action --risk credential --compartment <COMPARTMENT_OCID> --description "generate ADB wallet" -- oci_cli db autonomous-database generate-wallet \
+  --from-json file://<TMP_0600_WALLET_REQUEST_JSON> \
+  --file ~/secure/<db>_wallet.zip
 unzip -o ~/secure/<db>_wallet.zip -d ~/secure/<db>_wallet && chmod 700 ~/secure/<db>_wallet
 export TNS_ADMIN=~/secure/<db>_wallet     # never under the repo tree
 ```
@@ -139,8 +138,8 @@ export TNS_ADMIN=~/secure/<db>_wallet     # never under the repo tree
 **Update the IP access-control list** (the list is **replaced**, so include all keepers):
 ```bash
 oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> --query 'data."whitelisted-ips"'
-run_mutating "update ADB ACL" oci_cli db autonomous-database update \
-  --autonomous-database-id <ADB_OCID> --whitelisted-ips '["<CIDR_OR_OCID_1>","<CIDR_OR_OCID_2>"]'
+run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "update ADB ACL" -- oci_cli db autonomous-database update \
+  --autonomous-database-id <ADB_OCID> --whitelisted-ips file://<TMP_0600_FULL_ADB_ACL_JSON>
 ```
 
 **Connect from Python** (`python-oracledb`, thin mode + wallet):
@@ -178,8 +177,8 @@ python cli/db.py downgrade -1 # roll back one
 control-plane toggles on the ADB resource — idempotent, treat `409`/already-enabled
 as success). Deep monitoring/Performance-Hub work still routes to `oci-observability-db`:
 ```bash
-run_mutating "enable DBM"  oci_cli db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
-run_mutating "enable OPSI" oci_cli db autonomous-database enable-operations-insights        --autonomous-database-id <ADB_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "enable DBM" -- oci_cli db autonomous-database enable-autonomous-database-management --autonomous-database-id <ADB_OCID>
+run_action --risk additive --compartment <COMPARTMENT_OCID> --description "enable OPSI" -- oci_cli db autonomous-database enable-operations-insights        --autonomous-database-id <ADB_OCID>
 oci_cli db autonomous-database get --autonomous-database-id <ADB_OCID> \
   --query 'data.{dbm:"database-management-status",opsi:"operations-insights-status"}'
 ```
@@ -264,7 +263,7 @@ wallet** (rewrite `retry_count=20` → `1` so a stopped DB fails fast, KB-121):
   1522 (KB-125).** No DNS label at VCN creation → no private endpoint (recreate the
   VCN). Open `client-subnet → ADB-PE:1522` in the NSG/security list, not 1521.
 - Read before write; treat `409 Conflict` as "already exists" and re-`get`.
-- Mutations go through `run_mutating` (honors `OCI_SKILLS_DRY_RUN=true`);
+- Mutations go through `run_action` (honors `OCI_SKILLS_DRY_RUN=true`);
   destructive ops (stop, restore, terminate) also through `confirm`.
 - **Never invent `oci` flags.** Fetch the exact shape first:
   `python3 ../../scripts/oci_cli_help.py db autonomous-database`.
@@ -275,7 +274,7 @@ wallet** (rewrite `retry_count=20` → `1` so a stopped DB fails fast, KB-121):
 ```
 Finding:      <e.g. app 500s — ADB is STOPPED / client IP not in ACL>
 Evidence:     <redacted get/list output proving the state>
-Action:       <oci_cli ... via run_mutating, dry-run shown first>
+Action:       <oci_cli ... via run_action, dry-run shown first>
 Verification: <re-get showing AVAILABLE / ACL now contains the IP / pool connects>
 KB:           <KB-<n> if a new error was resolved, else n/a>
 ```

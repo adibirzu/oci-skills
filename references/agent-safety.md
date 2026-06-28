@@ -2,7 +2,7 @@
 
 How an *agent* should reason before touching an OCI tenancy — intent
 disambiguation, idempotency, and destructive-operation classification. This is
-the decision layer; the **mechanics** (auth, `confirm`, `run_mutating`,
+the decision layer; the **mechanics** (auth, `run_action`,
 `wait_for_state`, redaction) live in
 [helper-conventions.md](helper-conventions.md), and the **tenancy-targeting
 rule** lives in [tenancy-safety.md](tenancy-safety.md). Read those once; read
@@ -80,7 +80,8 @@ additive:
 id=$(oci_cli <svc> <res> list --compartment-id "$CMPT" --all \
        --query "data[?\"display-name\"=='$NAME'].id | [0]" --raw-output)
 [ -z "$id" -o "$id" = "null" ] && \
-  run_mutating "create $NAME" oci_cli <svc> <res> create --display-name "$NAME" ...
+  run_action --risk additive --compartment "$CMPT" --description "create $NAME" -- \
+    oci_cli <svc> <res> create --display-name "$NAME" ...
 ```
 
 ## 4. Classify the operation before running it
@@ -88,24 +89,25 @@ id=$(oci_cli <svc> <res> list --compartment-id "$CMPT" --all \
 | Class | Examples | Guard required |
 |---|---|---|
 | **Read** | `get`, `list`, `query`, assessments, plan jobs (read the plan) | none — just preflight the tenancy |
-| **Additive mutation** | create alarm/policy/topic/stack, add NSG rule, tag | `run_mutating` (honors `OCI_SKILLS_DRY_RUN`) + idempotent check |
-| **In-place mutation** | update config, rotate secret, apply job | `run_mutating`; capture etag/plan first |
-| **Destructive** | `delete`, `terminate`, `destroy`, replace LB, force-delete, **data masking** | `confirm` **and** `run_mutating`; prefer a dry-run/plan first |
+| **Additive mutation** | create alarm/policy/topic/stack, add NSG rule, tag | `run_action --risk additive`; idempotent check |
+| **In-place mutation** | update config, apply reviewed plan | `run_action --risk in-place`; capture etag/plan first |
+| **Credential** | create auth token, rotate secret/key, update credentials | `run_action --risk credential`; keep values off argv |
+| **Destructive** | `delete`, `terminate`, `destroy`, replace LB, force-delete, **data masking** | `run_action --risk destructive`; dry-run/plan first |
 
 Destructive operations are irreversible or service-affecting. For them:
 
 - Show **exactly** what will be removed/changed (names, counts) before the prompt.
 - Prefer staging the change in a non-prod tenancy (`cap`-style) first.
-- Honor `OCI_SKILLS_DRY_RUN=true` to print without executing; require
-  `confirm` (or explicit `OCI_SKILLS_FORCE=true` for trusted automation).
+- Honor `OCI_SKILLS_DRY_RUN=true` to preview without executing; require the
+  exact approval identifier for non-interactive execution.
 - Set deletion side-effects explicitly (`--preserve-boot-volume` on instance
   terminate; child-resource ordering on VCN/subnet delete, KB-043).
 - **Data masking is destructive on the masked copy** — mask only a verified
   non-prod database (see [data-safe.md](data-safe.md)).
 
 The `PreToolUse` destructive-guard hook is **defense-in-depth that fails open**
-(see [tenancy-safety.md](tenancy-safety.md)); the in-script `confirm` /
-`run_mutating` calls are the authoritative control. Never rely on the hook alone.
+(see [tenancy-safety.md](tenancy-safety.md)); in-script `run_action` receipt and
+approval checks are the authoritative control. Never rely on the hook alone.
 
 ## 5. Stop conditions
 

@@ -5,7 +5,8 @@ allowed-tools: Bash, Read
 ---
 
 Drive an OCI **project** through its lifecycle, scoped to one project compartment.
-This orchestrates the ten domain skills; every mutation is gated. Default
+This orchestrates the primary domains and accepts schema-v1 platform bundles;
+every mutation is gated. Default
 sub-command is `status` (read-only).
 
 Scripts live at `${CLAUDE_PLUGIN_ROOT}/scripts/` when installed as a plugin, else
@@ -30,7 +31,7 @@ Steps:
      VCN commands to run via `oci-iam-admin` / `oci-networking-compute`.
    - **teardown** → `./scripts/oci_project.sh teardown -c <COMPARTMENT>` — prints a
      READ-ONLY inventory + the ordered destroy plan. It destroys nothing; run each
-     step via the owning domain skill so it passes `confirm` / `run_mutating`.
+     step via the owning domain skill so it passes `run_action`.
 3. **Report** using the project Expected-output block: project + bound context,
    stage, finding across domains, the ordered action(s) (gated), and the
    verification (`oci_project.sh status` showing the desired end state).

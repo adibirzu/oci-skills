@@ -71,9 +71,13 @@ Safe), the upstream `db/` domain of
 | Logging | <https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm> |
 | APM (Application Performance Monitoring) | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm> |
 | APM Synthetic Monitoring | <https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/use-synthetic-monitoring.html> |
+
+## DBM / OPSI — `oci-dbm-opsi`
+
+| Topic | Canonical doc |
+|---|---|
 | Database Management (DBM) | <https://docs.oracle.com/en-us/iaas/database-management/home.htm> |
 | Operations Insights (OPSI) | <https://docs.oracle.com/en-us/iaas/operations-insights/home.htm> |
-| Autonomous Database | <https://docs.oracle.com/en-us/iaas/autonomous-database/index.html> |
 
 ## Autonomous Database — `oci-autonomous-db`
 
@@ -100,9 +104,13 @@ Safe), the upstream `db/` domain of
 |---|---|
 | Networking (VCN, subnets, NSGs, gateways, LB) | <https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm> |
 | Compute | <https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm> |
-| Kubernetes Engine (OKE) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm> |
-| Container Registry (OCIR) | <https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm> |
 | Object Storage (buckets) | <https://docs.oracle.com/en-us/iaas/Content/Object/home.htm> |
+
+## OKE — `oci-oke-admin`
+
+| Topic | Canonical doc |
+|---|---|
+| Kubernetes Engine (OKE) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm> |
 
 ## Cost & FinOps — `oci-cost`
 
@@ -119,6 +127,13 @@ Safe), the upstream `db/` domain of
 | Resource Manager (managed Terraform) | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm> |
 | Terraform on OCI (provider, authoring stacks) | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm> |
 
+## Terraform authoring — `oci-terraform-authoring`
+
+| Topic | Canonical doc |
+|---|---|
+| OCI Terraform provider | <https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/> |
+| Resource discovery | <https://docs.oracle.com/en-us/iaas/Content/terraform/resource-discovery.htm> |
+
 ## Data Safe — `oci-data-safe`
 
 | Topic | Canonical doc |
@@ -134,8 +149,20 @@ Safe), the upstream `db/` domain of
 | Notifications (ONS) | <https://docs.oracle.com/en-us/iaas/Content/Notification/home.htm> |
 | Service Connector Hub | <https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm> |
 | Streaming | <https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm> |
+| Queue overview | <https://docs.oracle.com/en-us/iaas/Content/queue/overview.htm> |
+| Queue IAM policies | <https://docs.oracle.com/en-us/iaas/Content/queue/policy-reference.htm> |
 | Streaming Kafka compatibility | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility.htm> |
 | Streaming Kafka API configuration | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm> |
+
+## Developer Services — `oci-developer-services`
+
+| Topic | Canonical doc |
+|---|---|
+| OCI DevOps overview | <https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_overview.htm> |
+| DevOps deployment rollback | <https://docs.oracle.com/en-us/iaas/Content/devops/using/deployment_rollback.htm> |
+| API Gateway concepts | <https://docs.oracle.com/en-us/iaas/Content/APIGateway/Concepts/apigatewayconcepts.htm> |
+| Container Instances overview | <https://docs.oracle.com/en-us/iaas/Content/container-instances/overview-of-container-instances.htm> |
+| Container Registry (OCIR) | <https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm> |
 
 ## Solution authoring — `oci-administrator` / `oci-project`
 

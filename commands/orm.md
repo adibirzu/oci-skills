@@ -22,7 +22,7 @@ Steps:
    `APPLY=SUCCEEDED`, `DESTROY=FAILED`, `(none)`). Flag any stack whose last job
    is `FAILED` and offer to pull its logs (`job get-job-logs-content`).
 4. **Stop.** This command does not mutate anything. To plan/apply/destroy, route
-   to the **oci-resource-manager** skill, which gates jobs via `run_mutating` and
+   to the **oci-resource-manager** skill, which gates jobs via `run_action` and
    reads the plan before applying.
 
 Note: a `FAILED` last job + a "stuck" apply is usually KB-007/KB-083 (the
