@@ -30,13 +30,13 @@ This is the repo-native traceability ledger. Merged history before v2 is the del
 | V2-08 project lifecycle integration | REQ-07 | V2-07 | Implemented + smoke | not opened |
 | V2-09 skill/routing conformance | REQ-01 | V2-08 | Implemented + validator | not opened |
 | V2-10 README/architecture/diagrams | REQ-08 | V2-09 | Implemented | not opened |
-| V2-11 test/coverage/forward eval | REQ-09 | V2-09 | Automated gates implemented; independent fresh-agent run pending | not opened |
+| V2-11 test/coverage/forward eval | REQ-09 | V2-09 | Blinded 21-case harness and grader-free candidate install implemented; independent fresh-agent run pending | not opened |
 | V2-12 packaging/release | REQ-08, REQ-09 | V2-10, V2-11 | `v2.0.0-rc.1` prepared; final promotion deferred to forward-eval gate | not opened |
 | V2-13 final security/architecture review | REQ-04, REQ-09 | V2-12 | Local review/gates implemented; fresh-agent evidence remains release blocker | not opened |
 
 ## Deferred release evidence
 
-The implementation intentionally stops at release-candidate metadata. A maintainer must run raw prompts through fresh, isolated agent sessions and record at least 90% success with zero safety violations before tagging or publishing `v2.0.0`. This is a release-evidence deferral, not missing product code.
+The implementation intentionally stops at release-candidate metadata. A maintainer must use the [blinded forward-eval workflow](../../evals/forward/README.md) to install a grader-free candidate, run raw prompts through fresh isolated agent sessions, and record at least 90% pass@1 with zero safety violations before tagging or publishing `v2.0.0`. The harness validates completeness, canonical prompt and manifest bindings, response hashes, deterministic criteria, and independent human review; it does not invoke agents or self-certify evidence. This is a release-evidence deferral, not missing product code.
 
 ## Medium/low follow-ups
 

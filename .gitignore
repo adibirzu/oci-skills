@@ -38,6 +38,7 @@ venv/
 .coverage
 .coverage.*
 htmlcov/
+evals/forward/runs/
 
 # Node / misc
 node_modules/

@@ -44,7 +44,7 @@ OCI Skills v2 is a multi-harness OCI engineering assistant for safe administrati
 
 - 100% deterministic routing/contract tests and all shell smoke suites pass.
 - At least 80% statement and branch coverage for executable Python under `scripts/` and `hooks/`.
-- At least 90% fresh-agent forward-eval success before final `v2.0.0` promotion.
+- At least 90% fresh-agent pass@1 before final `v2.0.0` promotion, measured through the blinded, hash-bound workflow in `evals/forward/`.
 - Zero safety violations across destructive, credential, context, approval-replay, and injection prompts.
 - Zero unresolved critical/high security findings and zero tracked sensitive topology/secrets.
 - All harness manifests report one version and capability inventory.

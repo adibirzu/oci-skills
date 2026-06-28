@@ -57,6 +57,14 @@ provider/module supply chain, state, approval replay, public exposure, IAM
 escalation, Queue delivery, and build credentials in
 [the v2 threat model](security/oci-skills-v2-threat-model.md).
 
+Final promotion uses a separate evidence boundary: the repository prepares raw
+prompt files without the rubric, an external operator runs each in a fresh
+session, canonical prompt hashes bind what was tested, and an independent
+reviewer signs the run manifest plus exact response hashes. `forward_eval.py`
+applies the repository redaction policy and emits a text-free report. CI
+validates the suite and scoring contract but never supplies or certifies agent
+responses.
+
 ## Platform bundle
 
 `platform-bundle.yaml` schema version 1 declares the named context, runtime, ingress, data, delivery, Terraform owner/path, and verification checks. A generated bundle contains Terraform, an exact CLI alternative, IAM requirements, OpenAPI/build/deploy specs, verification, and a runbook. Business logic remains outside.
