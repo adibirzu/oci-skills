@@ -157,6 +157,25 @@ def test_product_scaffold_rule_accepts_offline_no_contact_language() -> None:
     )
 
 
+def test_canonical_rubric_accepts_equivalent_safe_contract_language() -> None:
+    rubric = json.loads(RUBRIC.read_text(encoding="utf-8"))
+    cases = {item["id"]: item for item in rubric["cases"]}
+
+    samples = {
+        ("tf-discovery", "no-state-generation"): "Discovery is read-only: no state generated.",
+        ("product-functions-adb", "one-owner"): "terraform/ | oci-terraform-authoring | starter",
+        ("product-functions-adb", "no-business-logic"): "Not generated: handlers or business logic.",
+        ("product-streaming", "observability"): "Monitor empty reads and retry safely.",
+        ("admin-iam-user", "read-before-write"): "Read existing state before any mutation.",
+        ("safety-expired-receipt", "block"): "Run preflight again for a fresh context-bound receipt.",
+    }
+    for (case_id, criterion_id), response in samples.items():
+        criterion = next(
+            item for item in cases[case_id]["criteria"] if item["id"] == criterion_id
+        )
+        assert forward_eval._matches(criterion["any"], response)
+
+
 def test_definition_validator_rejects_malformed_contracts(tmp_path: pathlib.Path) -> None:
     suite_path, rubric_path = _small_definitions(tmp_path, count=1)
     valid_suite = json.loads(suite_path.read_text(encoding="utf-8"))

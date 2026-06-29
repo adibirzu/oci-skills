@@ -87,6 +87,11 @@ def test_build_output_uses_conditional_router_contract() -> None:
     assert "./scripts/oci_tf.sh validate, plan, show, and apply" in context
     assert "read/skill-only" in context.lower()
     assert "execution is unavailable" in context.lower()
+    assert "run_action --risk <risk> --compartment <compartment> --description <action> --" in context
+    assert "additive|in-place|destructive|credential" in context
+    assert "never medium or high" in context.lower()
+    assert "blocked: exact cli help unavailable" in context.lower()
+    assert "do not render an action or rollback command" in context.lower()
     assert "unrelated" in context.lower()
 
 

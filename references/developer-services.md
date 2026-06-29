@@ -2,6 +2,27 @@
 
 Primary scope: OCI DevOps, API Gateway, Container Instances, Artifact Registry/OCIR, and delivery composition. Official grounding: [DevOps overview](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_overview.htm), [API Gateway concepts](https://docs.oracle.com/en-us/iaas/Content/APIGateway/Concepts/apigatewayconcepts.htm), and [Container Instances overview](https://docs.oracle.com/en-us/iaas/Content/container-instances/overview-of-container-instances.htm).
 
+## Read/Skill-only response contract
+
+When execution and installed-help lookup are unavailable, begin:
+`Blocked: exact CLI help unavailable`. Do not invent a payload
+or candidate API Gateway/DevOps/Container Instances command. Return the staged
+read → action → verification → rollback plan, then require
+`python3 scripts/oci_cli_help.py --json "<command path>"` and
+`python3 scripts/oci_cli_lint.py <command-plan.json>` before rendering exact flags.
+Never show a create/update/delete command outside the complete envelope
+`run_action --risk <risk> --compartment <compartment> --description <action> --
+oci_cli ...`. For destructive rollback, show only the dry-run preview and exact
+approval contract—never a direct delete or `--force` sequence.
+Do not render candidate flags, payload fields, action commands, or rollback
+commands after declaring help unavailable.
+
+Risk mapping is fixed: create is additive, update is in-place, delete is
+destructive, and secret/credential rotation is credential. Never use medium/high
+or another invented risk. There is no `oci_tf.sh import` interface; reconciliation
+means update/import through the Terraform owner, refresh, and review a new plan—do
+not invent a wrapper subcommand.
+
 ## Pre-deploy matrix
 
 Every flow must check:
