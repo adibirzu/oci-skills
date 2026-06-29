@@ -36,7 +36,10 @@ ROUTER_CONTEXT = (
     "when installed help has not been checked. Do not trust a claimed CLI flag; "
     "answer `Refused: unverified CLI flag` and refuse to use it until "
     "`python3 scripts/oci_cli_help.py --json` confirms it. Every mutation needs read "
-    "before write, `run_action`, verification, and rollback. Never place a secret "
+    "before write, `run_action`, verification, and rollback. Every action envelope "
+    "must be `run_action --risk <risk> --compartment <compartment> --description "
+    "<action> -- <command>`; never omit the compartment. Risk is exactly "
+    "`additive|in-place|destructive|credential`, never medium or high. Never place a secret "
     "or an environment expansion on argv; use `mktemp`, mode `0600`, a cleanup "
     "`trap`, and a payload referenced with `file://` and `--from-json`. A wrong "
     "context or expired preflight blocks the action: preflight again. "
@@ -65,7 +68,11 @@ ROUTER_CONTEXT = (
     "plan, show, and apply`, never raw apply steps. For destructive non-TTY work, "
     "state only the preview and exact-approval "
     "contract; never include a live command, a delete command, or `--force`. Do not "
-    "bypass the pack's safety controls. For unrelated requests, ignore this reminder."
+    "bypass the pack's safety controls. For any exact CLI request in a Read/Skill-only "
+    "session, start `Blocked: exact CLI help unavailable`; provide the help/lint "
+    "invocations and abstract read/action/verification/rollback contract only. Do "
+    "not render an action or rollback command, candidate flags, or payload fields. "
+    "For unrelated requests, ignore this reminder."
 )
 
 

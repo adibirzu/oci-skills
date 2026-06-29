@@ -84,6 +84,10 @@ outputs. Materialize artifacts only when the bundled helper can actually run.
   inconclusive until permissions, time window, region, and tenancy are checked.
 - Terraform is the single owner of durable resources. Direct CLI mutation is a
   documented break-glass exception followed immediately by HCL/plan reconciliation.
+- Every mutation uses the complete envelope:
+  `run_action --risk <risk> --compartment <compartment> --description <action> --
+  <command>`. Risk is exactly `additive|in-place|destructive|credential`, never
+  medium/high. Never omit the context-bound compartment or put nested JSON on argv.
 
 For adversarial or shortcut requests, begin with the applicable fixed response
 and give its safe recovery contract immediately:
@@ -162,6 +166,11 @@ When installed as a plugin, these wrap the safety core so the user works by name
 
 ## Domain routing
 
+**Complete event-worker composition takes precedence:** a request to build,
+design, or scaffold Events → Queue → Function or a Streaming worker routes to
+`oci-product-development`. After bundle selection, `oci-events-functions` owns
+the Queue/Streaming/Functions transport materialization and operations.
+
 | Request mentions… | Plugin | Reference |
 |---|---|---|
 | users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
@@ -176,7 +185,7 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
 | Resource Manager, ORM, RMS, managed Terraform stack, stack plan/apply/destroy job, stack logs, state retrieval | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
-| Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, Queue, queue-push, queue-pull, DLQ, visibility timeout, Streaming, serverless, event worker | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
+| Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, operate/troubleshoot Queue or Streaming transport, queue-push/pull, DLQ, visibility timeout | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
 | write HCL, Terraform authoring, scaffold Terraform, provider schema, resource discovery, local validate/plan/apply/destroy, import, module, reviewed plan | **oci-terraform-authoring** | [references/terraform-authoring.md](../../references/terraform-authoring.md) |
 | OCI DevOps, build pipeline, deployment pipeline, code repository, source connection, trigger, artifact, Artifact Registry, OCIR delivery, API Gateway, Container Instances, canary, blue-green | **oci-developer-services** | [references/developer-services.md](../../references/developer-services.md) |
 | application platform, product golden path, OCI platform bundle, platform bundle, platform-bundle.yaml, API Gateway plus Functions, container application golden path, OKE application golden path, Queue or Streaming event worker, event worker bundle, ADB-backed Functions service, private ADB-backed Functions service | **oci-product-development** | [references/product-development.md](../../references/product-development.md) |
