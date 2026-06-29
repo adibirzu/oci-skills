@@ -13,6 +13,16 @@
     ],
     "PreToolUse": [
       {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'script=\"${CLAUDE_PLUGIN_ROOT:-$(pwd)}/hooks/guard_skill_routing.py\"; if [ ! -f \"$script\" ]; then echo \"[oci-administrator] skill routing guard not found at $script — chained skill calls are unguarded\" >&2; exit 0; fi; python3 \"$script\"'",
+            "description": "Keep model-initiated OCI routing to one router skill while preserving direct user skill invocation."
+          }
+        ]
+      },
+      {
         "matcher": "Bash",
         "hooks": [
           {

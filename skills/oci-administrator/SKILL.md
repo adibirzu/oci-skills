@@ -41,6 +41,17 @@ the destructive-op guard apply), then hand off the deep work:
   `oracle/skills` `fusion/` only when that domain grows beyond its current
   placeholder skeleton.
 
+### Hard handoff rule
+
+For every upstream route above, stop after naming the owning official skill or
+documentation, explaining the boundary, and listing only the inputs that owner
+needs. **Do not emit implementation commands**, flags, model IDs, endpoint or
+region claims, or a substitute design from this pack. Do not provide example values
+for regions, endpoints, or model identifiers. Continue with surrounding
+in-scope infrastructure only when the user asks for it separately and the owning
+skill's current guidance is available. This prevents stale or invented deep-domain
+advice from bypassing the intended owner.
+
 The full routing contract — coverage matrix, hand-off rules, shared conventions —
 is in [references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
 
@@ -158,6 +169,10 @@ intra-domain flow table.
 - **Never print or commit secrets.** Run output through `redact` /
   `scripts/redact.py`; use `<PLACEHOLDER>` tokens in docs.
 - **All CLI through `oci_cli`.** It negotiates auth mode, profile, and region.
+- **Treat bundled scripts as black boxes.** Execute them without reading their
+  source or assets unless debugging or modifying them. When execution is
+  unavailable, give the concise invocation and artifact contract instead of
+  inlining generated files.
 - **Add a KB entry** after resolving any new operational error.
 
 ## Scripts

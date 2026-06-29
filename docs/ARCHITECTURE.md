@@ -23,6 +23,8 @@ User / Claude / Codex / Gemini / Antigravity
 
 The primary domains are IAM, security/compliance, observability, DBM/OPSI, ADB, networking/compute, OKE, ZPR, cost, Log Analytics, Resource Manager, Data Safe, Events/Functions/Queue, Terraform authoring, and Developer Services. `oci-project` owns lifecycle composition; `oci-product-development` owns golden-path selection and bundle composition. Neither orchestrator steals service ownership.
 
+Claude's plugin hook invokes the shared router exactly once for OCI prompts and blocks model-initiated domain-skill chains; the routed agent reads one directly linked reference instead. Direct user skill invocation is unaffected. This keeps shared safety rules in force while avoiding duplicated context and multi-skill latency. Other harnesses use their native skill descriptions and adapter instructions.
+
 ## Artifact lifecycle
 
 ```text

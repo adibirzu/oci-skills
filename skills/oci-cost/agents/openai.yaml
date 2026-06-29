@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci cost"
-  short_description: "Safely handle oci-cost workflows on OCI"
-  default_prompt: "Use $oci-cost to handle this OCI request safely."
+  display_name: "OCI Cost Management"
+  short_description: "Analyze OCI cost, usage, and budgets"
+  default_prompt: "Use $oci-cost to investigate this OCI cost or usage question read-only."

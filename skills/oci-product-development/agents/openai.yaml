@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci product development"
-  short_description: "Safely handle oci-product-development workflows on OCI"
-  default_prompt: "Use $oci-product-development to handle this OCI request safely."
+  display_name: "OCI Product Development"
+  short_description: "Compose secure OCI platform bundles"
+  default_prompt: "Use $oci-product-development to compose a secure OCI golden-path platform bundle."

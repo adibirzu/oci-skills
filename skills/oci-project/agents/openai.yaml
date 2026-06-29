@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci project"
-  short_description: "Safely handle oci-project workflows on OCI"
-  default_prompt: "Use $oci-project to handle this OCI request safely."
+  display_name: "OCI Project Lifecycle"
+  short_description: "Manage the OCI project lifecycle safely"
+  default_prompt: "Use $oci-project to plan this OCI project bootstrap, status, deploy, or teardown task."

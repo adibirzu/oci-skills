@@ -35,8 +35,15 @@ def test_build_output_uses_conditional_router_contract() -> None:
     }
     context = output["hookSpecificOutput"]["additionalContext"]
     assert "if and only if" in context.lower()
+    assert "exactly one" in context.lower()
     assert "oci-administrator:oci-administrator" in context
     assert "invoke" in context.lower()
+    assert "must not invoke a second skill" in context.lower()
+    assert "read" in context.lower()
+    assert "do not inspect bundled scripts or assets" in context.lower()
+    assert "concise" in context.lower()
+    assert "hard handoff" in context.lower()
+    assert "example region" in context.lower()
     assert "oci_cli" in context
     assert "never bare `oci`" in context
     assert "installed help" in context.lower()

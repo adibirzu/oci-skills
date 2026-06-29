@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci security compliance"
-  short_description: "Safely handle oci-security-compliance workflows on OCI"
-  default_prompt: "Use $oci-security-compliance to handle this OCI request safely."
+  display_name: "OCI Security and Compliance"
+  short_description: "Audit and harden OCI tenancy security"
+  default_prompt: "Use $oci-security-compliance to audit or harden this OCI security requirement safely."

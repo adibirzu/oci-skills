@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci events functions"
-  short_description: "Safely handle oci-events-functions workflows on OCI"
-  default_prompt: "Use $oci-events-functions to handle this OCI request safely."
+  display_name: "OCI Events and Functions"
+  short_description: "Build OCI event and serverless workflows"
+  default_prompt: "Use $oci-events-functions to design this safe OCI event, Queue, or Functions workflow."
