@@ -1483,3 +1483,67 @@ working directories, run `init` again, and only then run `validate`; never work
 around the mismatch by disabling checksum verification.
 **See:** [OCI Terraform provider](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/)
 **Status:** resolved.
+
+## KB-154 — Terraform OCI provider source/address differs across roots (terraform)
+
+**Symptom:** `terraform init` reports a provider-address migration or a lock-file
+checksum/address mismatch in an example or packaged Resource Manager root.
+**Root cause:** A root that uses or inherits OCI resources omitted an explicit
+`required_providers` declaration, or a generated lock file retained a legacy
+provider address.
+**Fix:** Declare `oracle/oci` with the project-compatible version in every
+Terraform root and OCI-using module. Reinitialize disposable `.terraform/`
+directories serially, inspect `terraform providers`, and retain only reviewed
+lock-file changes.
+**See:** [OCI Terraform provider](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/)
+**Status:** resolved.
+
+## KB-155 — OCI CLI profile does not automatically configure Terraform (terraform)
+
+**Symptom:** OCI CLI commands succeed with a non-default profile while Terraform
+uses `DEFAULT`, fails authentication, or targets a different identity.
+**Root cause:** `OCI_CLI_PROFILE` configures the OCI CLI only; the Terraform OCI
+provider does not inherit that environment variable as its config-file profile.
+**Fix:** Expose an optional Terraform variable such as `oci_config_profile`, set
+`config_file_profile` only when it is non-empty, and for local runs set both
+`OCI_CLI_PROFILE=<PROFILE>` and `TF_VAR_oci_config_profile=$OCI_CLI_PROFILE`.
+Leave it empty for Resource Manager and principal-based authentication.
+**See:** [Terraform provider configuration](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/configuring.htm)
+**Status:** resolved.
+
+## KB-156 — Resource Search CLI uses `--query-text`, not `--search-query` (cli)
+
+**Symptom:** `oci search resource structured-search --search-query ...` fails
+with `No such option` despite a valid structured query.
+**Root cause:** The OCI CLI command names its required structured-query flag
+`--query-text`; similarly, free-text search uses `--text`.
+**Fix:** Run `oci search resource structured-search --help` for the installed
+CLI version, then use `--query-text "query <type> resources where ..."`. Redact
+all returned resource summaries before sharing them.
+**See:** [OCI Search](https://docs.oracle.com/en-us/iaas/Content/Search/Concepts/queryoverview.htm)
+**Status:** resolved.
+
+## KB-157 — VCN teardown must remove references before gateways (networking-compute)
+
+**Symptom:** Deleting a service gateway returns `InvalidParameter` because a
+route table still references it, even after all subnets are gone.
+**Root cause:** OCI preserves route-table gateway references independently of
+subnet lifecycle; the gateway cannot be deleted while a route rule points to it.
+**Fix:** Delete owned subnets first, then custom route tables, service gateways,
+NSGs, NAT gateways, and custom security lists. Delete the now-empty VCN last;
+OCI removes its default DNS, DHCP, route-table, and security-list components.
+**See:** [Deleting VCNs](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/delete_vcn.htm)
+**Status:** resolved.
+
+## KB-158 — Resource Manager destroy needs terminal-state polling (resource-manager)
+
+**Symptom:** A destroy job is accepted, but scripts either assume completion or
+wait only for success and leave cleanup status unknown on failure.
+**Root cause:** Resource Manager job creation is asynchronous and terminal
+states include success, failure, and cancellation.
+**Fix:** Capture the job identifier, poll its lifecycle state, and stop on every
+terminal state. After success, run a tag-scoped, read-only resource inventory;
+scheduled Vault/key deletion is a distinct OCI lifecycle state, not evidence of
+an active stack resource.
+**See:** [Resource Manager jobs](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/usingconsole.htm)
+**Status:** resolved.
