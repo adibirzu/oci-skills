@@ -95,6 +95,8 @@ def test_router_and_references_define_failure_response_contracts() -> None:
     assert "Refused: unverified CLI flag" in router
     assert "./scripts/oci_tf.sh" in router
     assert "Do not show JSON keys" in router
+    assert "Complete event-worker composition" in router
+    assert "run_action --risk <risk> --compartment <compartment>" in router
     for response_prefix in (
         "Refused: secrets never go on argv",
         "Blocked: context mismatch",
@@ -122,6 +124,16 @@ def test_router_and_references_define_failure_response_contracts() -> None:
         assert term in credentials
     for term in ("claimed cli flag", "installed help", "break-glass"):
         assert term in developer.lower()
+    for term in (
+        "read/skill-only response contract",
+        "run_action --risk <risk> --compartment <compartment>",
+        "never show a create/update/delete command",
+        "create is additive",
+        "there is no `oci_tf.sh import`",
+        "blocked: exact cli help unavailable",
+        "do not render candidate flags",
+    ):
+        assert term in developer.lower()
     for term in ("does not deploy", "no business logic", "idempotent"):
         assert term in product.lower()
     for golden_path in (
@@ -139,6 +151,12 @@ def test_router_and_references_define_failure_response_contracts() -> None:
         "does not contain service resource hcl",
         "materialized later",
         "contains no hash",
+        "private subnet, no public ip, private load balancer",
+        "events → queue → function",
+        "events → producer function → queue → consumer",
+        "automatically provided dlq",
+        "no second queue",
+        "do not name service fields, metrics, or cli/sdk methods",
     ):
         assert term in product.lower()
     for term in ("primary owner", "oci-dbm-opsi", "oci-observability-db"):

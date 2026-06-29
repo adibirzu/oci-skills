@@ -40,6 +40,29 @@ ADB, networking, Queue/Streaming, and other service HCL are materialized later b
 their owning skills before validate/plan. Never claim the offline scaffold has
 already provisioned, configured, or fully authored those resources.
 
+Secure golden-path selections to state in the scaffold response:
+
+- `adb-service`: private ADB, private API Gateway, Vault references, Terraform owner,
+  and no business logic.
+- `container-instances`: private subnet, no public IP, private load balancer,
+  immutable image digest, DevOps rollback.
+- `oke-application`: OKE owner, developer-services delivery owner, rollout/cluster
+  verification.
+- `event-worker` Queue: the logical Events → Queue → Function bundle is implemented
+  as Events → producer Function → Queue → consumer Function/worker. It requires a
+  visibility timeout, idempotent consumer, poison-message handling, the OCI Queue
+  automatically provided DLQ, and empty-read verification. Create no second Queue
+  for a DLQ.
+- `event-worker` Streaming: ordered partition/replay, consumer group/checkpoint,
+  lag or empty-read observability.
+
+A request to build the complete Events → Queue → Function or Streaming worker is
+bundle composition here. `oci-events-functions` receives the transport/runtime
+handoff only after this scaffold contract is selected.
+In a scaffold-only response, do not name service fields, metrics, or CLI/SDK methods;
+those must come from the transport owner's installed schema/help in the later
+materialization step.
+
 ## Schema v1
 
 `platform-bundle.yaml` is validated by `scripts/platform_bundle.py` and `schemas/platform-bundle.schema.json`. Required fields are schema version, safe name, named context, runtime, ingress, data, `oci-devops` delivery, Terraform owner/path, and named verification checks.
