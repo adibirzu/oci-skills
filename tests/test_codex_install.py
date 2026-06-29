@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 import pathlib
 import subprocess
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -40,10 +41,22 @@ def _assert_common_payload(dest: pathlib.Path) -> None:
     assert (dest / "scripts" / "forward_eval.py").is_file()
     assert (dest / "evals" / "forward" / "prompts.json").is_file()
     assert (dest / "evals" / "forward" / "rubric.json").is_file()
+    assert not list(dest.rglob("__pycache__"))
+    assert not list(dest.rglob("*.pyc"))
+    assert not list(dest.rglob("*.pyo"))
 
     root_router = (dest / "SKILL.md").read_text(encoding="utf-8")
     assert "../../references/" not in root_router
     assert "./references/" in root_router
+
+    result = subprocess.run(
+        [sys.executable, str(dest / "scripts" / "forward_eval.py"), "validate"],
+        cwd=dest,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_codex_install_copies_every_skill_and_adapter(tmp_path: pathlib.Path) -> None:
@@ -82,6 +95,9 @@ def test_codex_blinded_eval_install_excludes_grader_material(tmp_path: pathlib.P
     assert not (dest / "evals").exists()
     assert not (dest / "scripts" / "forward_eval.py").exists()
     assert not (dest / "scripts" / "forward_eval_contract.py").exists()
+    assert not list(dest.rglob("__pycache__"))
+    assert not list(dest.rglob("*.pyc"))
+    assert not list(dest.rglob("*.pyo"))
 
 
 def test_gemini_install_copies_every_skill_and_manifest(tmp_path: pathlib.Path) -> None:
