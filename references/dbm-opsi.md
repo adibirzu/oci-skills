@@ -22,6 +22,8 @@ an exact OCI command or JSON payload, validate its installed shape with
 required inputs instead of guessing. Every enable/create/update is a mutation:
 show read-before-write and route the action through `run_action`, followed by
 work-request and lifecycle verification.
+Never offer inline monitoring credentials; require a Vault-backed credential
+reference and least-privilege service-principal access.
 
 In a Read/Skill-only harness, execution and CLI-help lookup are unavailable. Give
 only the owner/handoff sentence, prerequisites, read → enable DBM → verify → enable
@@ -30,6 +32,9 @@ commands, JSON, SQL, privilege lists, regions, service values, or payload shapes
 Do not include the literal `oci_cli`, guessed subcommands, flags, port numbers, or
 code blocks; say that exact commands require installed-help validation in an
 execution-capable session.
+
+End every response with: `Monitoring alarms, APM, Logging, and dashboards hand off
+to oci-observability-db; DBM/OPSI remains owned by oci-dbm-opsi.`
 
 ## Discovery
 

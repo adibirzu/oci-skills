@@ -96,6 +96,7 @@ def test_router_and_references_define_failure_response_contracts() -> None:
     assert "./scripts/oci_tf.sh" in router
     assert "Do not show JSON keys" in router
     assert "Complete event-worker composition" in router
+    assert "Golden-path composition takes precedence" in router
     assert "run_action --risk <risk> --compartment <compartment>" in router
     for response_prefix in (
         "Refused: secrets never go on argv",
@@ -118,6 +119,7 @@ def test_router_and_references_define_failure_response_contracts() -> None:
     for term in ("provider.tf", "no `main.tf`", "do not show raw `terraform`"):
         assert term in terraform.lower()
     assert "only fenced code block" in terraform.lower()
+    assert "do not scaffold the discovery destination first" in terraform.lower()
     for term in ("file://", "0600", "--from-json", "never place"):
         assert term in credentials.lower()
     for term in ("mktemp", "trap"):
@@ -157,6 +159,7 @@ def test_router_and_references_define_failure_response_contracts() -> None:
         "automatically provided dlq",
         "no second queue",
         "do not name service fields, metrics, or cli/sdk methods",
+        "every streaming scaffold response must state",
     ):
         assert term in product.lower()
     for term in ("primary owner", "oci-dbm-opsi", "oci-observability-db"):
@@ -164,6 +167,8 @@ def test_router_and_references_define_failure_response_contracts() -> None:
     for term in ("response contract", "do not emit sql", "run_action", "oci_cli_help.py"):
         assert term in dbm.lower()
     assert "Start every response with: `Primary owner: oci-dbm-opsi.`" in dbm
+    assert "End every response with:" in dbm
+    assert "Never offer inline monitoring credentials" in dbm
     assert "Read/Skill-only" in dbm
     assert "do not include the literal `oci_cli`" in dbm.lower()
     for term in ("inconclusive", "not proof", "region", "tenancy"):
