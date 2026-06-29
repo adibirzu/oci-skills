@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci zpr visibility"
-  short_description: "Safely handle oci-zpr-visibility workflows on OCI"
-  default_prompt: "Use $oci-zpr-visibility to handle this OCI request safely."
+  display_name: "OCI ZPR Visibility"
+  short_description: "Operate OCI Zero Trust Packet Routing"
+  default_prompt: "Use $oci-zpr-visibility to investigate this OCI ZPR policy or flow-visibility request."

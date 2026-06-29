@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci administrator"
-  short_description: "Safely handle oci-administrator workflows on OCI"
-  default_prompt: "Use $oci-administrator to handle this OCI request safely."
+  display_name: "OCI Administrator"
+  short_description: "Route OCI engineering requests safely"
+  default_prompt: "Use $oci-administrator to route this OCI engineering request to the correct safe workflow."

@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci data safe"
-  short_description: "Safely handle oci-data-safe workflows on OCI"
-  default_prompt: "Use $oci-data-safe to handle this OCI request safely."
+  display_name: "OCI Data Safe"
+  short_description: "Assess and operate OCI Data Safe"
+  default_prompt: "Use $oci-data-safe to assess this Data Safe request and propose a verified workflow."

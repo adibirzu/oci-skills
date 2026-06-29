@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci autonomous db"
-  short_description: "Safely handle oci-autonomous-db workflows on OCI"
-  default_prompt: "Use $oci-autonomous-db to handle this OCI request safely."
+  display_name: "OCI Autonomous Database"
+  short_description: "Operate Autonomous Database safely"
+  default_prompt: "Use $oci-autonomous-db to plan this Autonomous Database task with safe verification."

@@ -41,12 +41,44 @@ def test_v2_skill_topology_and_codex_metadata() -> None:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
 
 
+def test_skill_creator_progressive_disclosure_and_payload_shape() -> None:
+    allowed_entries = {"SKILL.md", "agents", "assets", "scripts", "references"}
+    for skill in EXPECTED_SKILLS:
+        root = ROOT / "skills" / skill
+        assert len((root / "SKILL.md").read_text(encoding="utf-8").splitlines()) < 500
+        assert {entry.name for entry in root.iterdir()} <= allowed_entries
+
+
+def test_openai_skill_metadata_is_human_facing_and_invocable() -> None:
+    for skill in EXPECTED_SKILLS:
+        metadata = (ROOT / "skills" / skill / "agents" / "openai.yaml").read_text(encoding="utf-8")
+        values = {
+            key: match.group(1)
+            for key in ("display_name", "short_description", "default_prompt")
+            if (match := re.search(rf'^  {key}: "([^"]+)"$', metadata, re.MULTILINE))
+        }
+        assert set(values) == {"display_name", "short_description", "default_prompt"}
+        assert values["display_name"].startswith("OCI ")
+        assert 25 <= len(values["short_description"]) <= 64
+        assert f"${skill}" in values["default_prompt"]
+
+
 def test_router_description_fits_validator_limit() -> None:
     frontmatter = _frontmatter(ROOT / "skills" / "oci-administrator" / "SKILL.md")
     match = re.search(r"description:\s*>-\s*\n(?P<body>(?:  .*\n)+)", frontmatter)
     assert match
     description = " ".join(line.strip() for line in match.group("body").splitlines())
     assert len(description) <= 1024
+
+
+def test_router_hard_handoffs_stop_local_implementation() -> None:
+    router = (ROOT / "skills" / "oci-administrator" / "SKILL.md").read_text(encoding="utf-8")
+    assert "Hard handoff" in router
+    assert "Do not emit implementation commands" in router
+    assert "Do not provide example values" in router
+    assert "Treat bundled scripts as black boxes" in router
+    for owner in ("oci/enterprise-ai", "oci/oke", "db/", "fusion/"):
+        assert owner in router
 
 
 def test_planning_and_architecture_artifacts_trace_every_requirement() -> None:
