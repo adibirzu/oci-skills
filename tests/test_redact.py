@@ -156,6 +156,34 @@ def test_check_mode_clean(tmp_path: pathlib.Path) -> None:
     assert redact.main(["--check", str(f)]) == 0
 
 
+def test_terraform_lock_checksums_are_not_treated_as_secrets(tmp_path: pathlib.Path) -> None:
+    lock = tmp_path / ".terraform.lock.hcl"
+    h1 = "A" * 43 + "="
+    zh = "a" * 64
+    lock.write_text(
+        'provider "registry.terraform.io/oracle/oci" {\n'
+        "  hashes = [\n"
+        f'    "h1:{h1}",\n'
+        f'    "zh:{zh}",\n'
+        "  ]\n}\n",
+        encoding="utf-8",
+    )
+    assert redact.main(["--check", str(lock)]) == 0
+
+
+def test_terraform_lock_still_flags_non_checksum_secrets(tmp_path: pathlib.Path) -> None:
+    lock = tmp_path / ".terraform.lock.hcl"
+    assignment = "tok" + "en=" + _b64_no_slash()
+    lock.write_text("# " + assignment, encoding="utf-8")
+    assert redact.main(["--check", str(lock)]) == 1
+
+
+def test_checksum_shaped_value_outside_lockfile_is_still_flagged(tmp_path: pathlib.Path) -> None:
+    regular = tmp_path / "regular.txt"
+    regular.write_text('"zh:' + "a" * 64 + '"\n', encoding="utf-8")
+    assert redact.main(["--check", str(regular)]) == 1
+
+
 def test_strict_check_flags_private_ip(tmp_path: pathlib.Path) -> None:
     f = tmp_path / "x.txt"
     f.write_text("worker 10.0.0.4")

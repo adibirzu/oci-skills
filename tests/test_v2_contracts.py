@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import pathlib
 import re
+import subprocess
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -84,3 +85,33 @@ def test_manifests_share_release_candidate_version() -> None:
     )
     versions.add(marketplace["plugins"][0]["version"])
     assert versions == {"2.0.0-rc.1"}
+
+
+def test_tracked_distribution_has_no_runtime_or_provider_binaries() -> None:
+    result = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=ROOT,
+        capture_output=True,
+        check=True,
+    )
+    tracked = [pathlib.Path(raw.decode("utf-8")) for raw in result.stdout.split(b"\0") if raw]
+    forbidden = [
+        path for path in tracked
+        if ".terraform" in path.parts
+        or path.name.startswith("terraform-provider-")
+        or path.suffix in {".tfstate", ".tfplan", ".pyc", ".pyo"}
+    ]
+    assert forbidden == []
+    oversized = [path for path in tracked if (ROOT / path).is_file() and (ROOT / path).stat().st_size > 5_000_000]
+    assert oversized == []
+
+
+def test_gitignore_covers_used_toolchains_and_sensitive_iac_output() -> None:
+    ignored = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
+    required = {
+        ".terraform/", "terraform-provider-*", "*.tfstate*", "*.tfplan", "*.tfvars", "__pycache__/",
+        "*.pyc", ".pytest_cache/", ".ruff_cache/", ".mypy_cache/", ".venv/",
+        "node_modules/", ".npm/", ".pnpm-store/", ".DS_Store", ".claude/",
+        ".gemini/", ".antigravity/", "evals/forward/runs/",
+    }
+    assert required <= set(ignored)

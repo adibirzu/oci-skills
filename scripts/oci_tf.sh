@@ -13,7 +13,7 @@ set -o errexit -o nounset -o pipefail
 # shellcheck source=scripts/common.sh
 source "$(dirname "$0")/common.sh"
 
-ASSET_DIR="$_OCI_SKILLS_SCRIPT_DIR/../skills/oci-terraform-authoring/assets/starter"
+ASSET_DIR="${OCI_TF_ASSET_DIR:-$_OCI_SKILLS_SCRIPT_DIR/../skills/oci-terraform-authoring/assets/starter}"
 PLAN_TOOL="$_OCI_SKILLS_SCRIPT_DIR/oci_tf_plan.py"
 
 usage() { print_self_help; }
@@ -34,6 +34,22 @@ assert_directory() {
   [[ -d "$1" && ! -L "$1" ]] || die "Terraform directory must be a non-symlink directory: $1"
 }
 
+copy_safe_starter() {
+  local destination="$1" asset source
+  local -a assets=(
+    .gitignore .terraform.lock.hcl versions.tf provider.tf variables.tf
+    locals.tf outputs.tf schema.yaml terraform.tfvars.example tests
+  )
+  for asset in "${assets[@]}"; do
+    source="$ASSET_DIR/$asset"
+    [[ -e "$source" && ! -L "$source" ]] || die "starter asset is missing or unsafe: $asset"
+    if find "$source" -type l -print -quit | grep -q .; then
+      die "starter asset contains a symlink: $asset"
+    fi
+    cp -R "$source" "$destination/"
+  done
+}
+
 cmd_scaffold() {
   local destination="${1:-}" name="oci-platform"; shift || true
   [[ -n "$destination" ]] || die "scaffold needs DIR"
@@ -42,7 +58,7 @@ cmd_scaffold() {
   done
   [[ "$name" =~ ^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$ ]] || die "invalid scaffold name"
   safe_empty_destination "$destination"
-  cp -R "$ASSET_DIR/." "$destination/"
+  copy_safe_starter "$destination"
   # Only a non-sensitive logical name is substituted into the starter.
   sed -i.bak "s/__PROJECT_NAME__/$name/g" "$destination/locals.tf"
   rm -f "$destination/locals.tf.bak"
