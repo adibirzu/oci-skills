@@ -53,6 +53,10 @@ oci_cli usage-api usage-summary request-summarized-usages \
 - **`computed-amount` can be null** for zero-usage rows — filter them before
   summing (`select(.["computed-amount"] != null)`).
 
+An empty result is inconclusive and not proof of zero spend. Before closing the
+investigation, diagnose permission, time-window alignment and lag, region, and
+tenancy scope, then rerun a completed trailing window as a read-only check.
+
 ## Budgets
 
 ```bash

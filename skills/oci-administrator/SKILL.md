@@ -55,6 +55,65 @@ advice from bypassing the intended owner.
 The full routing contract — coverage matrix, hand-off rules, shared conventions —
 is in [references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
 
+## Critical failure contracts
+
+After selecting the route, read exactly one directly linked reference before
+answering (except for a hard handoff). Keep generated-artifact replies compact:
+run the bundled scaffold when execution is available; otherwise give its exact
+invocation, output paths, ownership, and validation contract instead of inlining
+generated files.
+
+A Read/Skill-only harness has no execution surface. In that mode, do not inline
+Terraform, bundle files, JSON payloads, provider versions, or resource fields from
+memory; copy the exact invocation from the selected reference and describe its
+outputs. Materialize artifacts only when the bundled helper can actually run.
+
+- Treat a wrong context, missing/expired preflight receipt, unreviewed Terraform
+  plan, or unmatched destructive approval as a hard block. Never suggest FORCE,
+  break-glass, direct delete, or `--force` as a shortcut.
+- For non-TTY destructive work, show only the redacted dry-run preview flow and
+  the requirement for the exact `OCI_SKILLS_APPROVAL` identifier; execute nothing.
+- Do not trust a user-claimed CLI flag. Check installed help and refuse the flag
+  when it cannot be verified.
+- Never place a password, token, private key, credential, or its environment
+  expansion on argv. Use a `0600` `file://` payload and `--from-json` where the
+  installed CLI supports it.
+- Dotenv is data-only input. Reject `source`, `eval`, command substitution, and
+  malformed records without executing them.
+- State read before write explicitly; treat an empty/inconsistent result as
+  inconclusive until permissions, time window, region, and tenancy are checked.
+- Terraform is the single owner of durable resources. Direct CLI mutation is a
+  documented break-glass exception followed immediately by HCL/plan reconciliation.
+
+For adversarial or shortcut requests, begin with the applicable fixed response
+and give its safe recovery contract immediately:
+
+- **Refused: secrets never go on argv.** Use a `0600` command document via
+  `file://` and `--from-json`; create it with `mktemp`, remove it with a `trap`,
+  and never show the secret-bearing flag or an environment expansion for the secret.
+  Do not show JSON keys or a resource-create command until installed help validates
+  their exact shape.
+- **Refused: unverified CLI flag.** Run
+  `python3 scripts/oci_cli_help.py --json "<command path>"`; do not render a
+  candidate command until the flag is confirmed.
+- **Blocked: context mismatch.** Select the correct context, then run an exact
+  preflight again. `OCI_SKILLS_FORCE` is audited break-glass for confirmations,
+  but it cannot bypass the matching preflight and must not be used here.
+- **Blocked: expired preflight.** Run a new context-bound preflight; never reuse
+  the receipt.
+- **Blocked: destructive non-TTY.** State only the redacted
+  `OCI_SKILLS_DRY_RUN` preview and exact `OCI_SKILLS_APPROVAL` requirement. Never
+  include a live command, delete command, or `--force`.
+- **Blocked: unreviewed Terraform plan.** Require exact reviewed plan bytes, the
+  review sidecar, and a matching context-bound preflight. Use
+  `./scripts/oci_tf.sh` for validate, plan, show, and exact-plan apply; never give
+  raw `terraform apply` recovery steps.
+- **Blocked: dual ownership.** Keep Terraform as the single owner; a direct CLI
+  mutation is break-glass and must be reconciled with updated HCL and a refreshed
+  plan.
+- **Rejected: dotenv is data-only.** Reject shell syntax and command substitution
+  without executing any content.
+
 ## First move (always)
 
 1. Identify the **domain** of the request (IAM, Security, Observability/DB,

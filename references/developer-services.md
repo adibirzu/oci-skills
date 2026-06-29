@@ -29,3 +29,9 @@ Use an immutable digest, private subnet, no public IP, least-privilege image-pul
 ## CLI recovery
 
 Use `oci_cli_help.py --json` before constructing commands and `oci_cli_lint.py` before presenting a plan. CLI is an inspection/recovery surface. After any mutation of a Terraform-owned resource, run a refreshed plan and either import/update HCL or revert the change.
+
+A user-claimed CLI flag is not evidence that the installed version supports it.
+Do not assume or invent the flag: refuse to include it until installed help or the
+version-keyed help cache confirms the exact spelling and command path. A direct
+CLI change to a Terraform-owned API Gateway, Container Instance, or DevOps
+resource is break-glass only and must be reconciled into HCL or reverted.
