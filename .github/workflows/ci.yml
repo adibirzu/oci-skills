@@ -72,6 +72,30 @@ jobs:
           coverage run -m pytest tests/ -q
           coverage report
 
+  python-compat:
+    name: Python ${{ matrix.python-version }} helper compatibility
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: compile and validate release helpers
+        run: |
+          python3 -m py_compile scripts/*.py hooks/*.py
+          python3 scripts/forward_eval.py validate
+
+      - name: clean-install and forward-eval contracts
+        run: |
+          pip install pytest
+          python3 -m pytest tests/test_codex_install.py tests/test_forward_eval.py -q
+
   bash32:
     name: bash 3.2 portability (macOS)
     runs-on: macos-latest

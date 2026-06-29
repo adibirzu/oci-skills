@@ -1201,7 +1201,7 @@ with the private DSN from a host that has a route into the VCN.
 **Symptom:** An existence check finds a `DELETED`/terminated `<RESOURCE>` (e.g. an APM domain), skips creation, then verification fails because nothing usable exists.
 **Root cause:** OCI `list` APIs return resources in **all** lifecycle states by default, including `DELETED`/`TERMINATED`.
 **Fix:** Always pass `--lifecycle-state ACTIVE` (or filter client-side on `"lifecycle-state"`) when listing to test for existence — applies to APM domains, instances, VCNs, databases, buckets, etc.
-**See:** [Manage APM domains](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/manage-apm-domains.html)
+**See:** [Configure APM domains](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/configure-apm-domain.html)
 **Status:** resolved.
 
 ## KB-127 — Intermittent 404s behind an OCI Load Balancer from a stale "zombie" backend (networking-compute)
@@ -1217,7 +1217,7 @@ with the private DSN from a host that has a route into the VCN.
 **Symptom:** VCN teardown cascades into `409` failures — route tables, LPGs, NAT/Internet gateways, and subnets all refuse to delete.
 **Root cause:** Route rules reference gateways/LPGs/DRGs as `network-entity-id`; OCI blocks deleting any resource still referenced by a route rule, so deleting in the wrong order deadlocks.
 **Fix:** Clear **all** route-table rules first, then delete in order: DRG attachments → LPGs → mount targets/LBs → subnets → NSGs → gateways → route tables → security lists → VCN.
-**See:** [Deleting a VCN](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/deletingVCN.htm)
+**See:** [Deleting a VCN](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/delete_vcn.htm)
 **Status:** resolved.
 
 ## KB-129 — Service limits must be queried against the tenancy root OCID, not a child compartment (cost)
@@ -1257,7 +1257,7 @@ with the private DSN from a host that has a route into the VCN.
 **Symptom:** `ServiceError: InvalidParameter: Cannot specify both compartment id and stream pool id`.
 **Root cause:** When creating a stream inside a specific stream pool, OCI Streaming forbids passing `compartment_id` alongside `stream_pool_id`.
 **Fix:** Pass only `stream_pool_id` when targeting a pool; supply `compartment_id` only on the default/no-pool create path.
-**See:** [Creating streams and stream pools](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/creating-streams-and-stream-pools.htm)
+**See:** [Creating stream pools](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/creating-stream-pools.htm)
 **Status:** resolved.
 
 ## KB-134 — OCI Terraform provider needs `auth = "SecurityToken"` for session-token profiles (resource-manager)
@@ -1305,7 +1305,7 @@ with the private DSN from a host that has a route into the VCN.
 **Symptom:** `409 Conflict` deleting a subnet/VCN because private-endpoint VNICs (e.g. `PE-<SERVICE>-*`) are still attached.
 **Root cause:** A managed service (OpenSearch, ORM private endpoint, etc.) created private endpoints in the subnet; deleting only the reference leaves the underlying VNICs, which block teardown.
 **Fix:** Delete the owning managed resource first (poll to `DELETED`) so its private-endpoint VNICs detach before deleting the subnet/VCN; ensure every created resource has matching destroy logic.
-**See:** [Deleting VCNs](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/managingVCNs_topic-Deleting_VCNs.htm)
+**See:** [Deleting VCNs](https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/delete_vcn.htm)
 **Status:** resolved.
 
 ## KB-140 — Log Analytics CLI moved source-association commands, breaking older scripts (log-analytics)
@@ -1313,7 +1313,7 @@ with the private DSN from a host that has a route into the VCN.
 **Symptom:** `Current OCI CLI does not support '--items' for entity add-associations`, then source associations are silently skipped.
 **Root cause:** Newer OCI CLI moved associations to `oci log-analytics assoc upsert-assocs --items` and source discovery to `source list-sources`, deprecating the legacy `entity add-associations`/`source list`.
 **Fix:** Detect CLI capability and prefer `assoc upsert-assocs` with `[{"entityId":...,"sourceName":...}]`, falling back to the legacy command only when present.
-**See:** [Manage Log Analytics with the CLI](https://docs.oracle.com/en-us/iaas/log-analytics/doc/use-cli-manage-log-analytics.html)
+**See:** [Log Analytics CLI command reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/log-analytics.html)
 **Status:** resolved.
 
 ## KB-141 — Data Safe `list_audit_events` filters time via `scim_query`, not `time_started`/`time_ended` (data-safe)
@@ -1466,4 +1466,20 @@ repair the Kubernetes Cluster entity metadata with a real RFC3339 `cluster_date`
 matching cluster key/name, correct metrics namespace, and updated
 `time-last-discovered`; force a discovery job and recheck.
 **See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.
+
+## KB-153 — Parallel Terraform init corrupts a shared plugin-cache view (terraform)
+
+**Symptom:** `terraform init` succeeds in several working directories, but a
+subsequent `validate` reports that the cached OCI provider package does not
+match any checksum in the generated dependency lock file.
+**Root cause:** Multiple `terraform init` processes wrote to the same
+`TF_PLUGIN_CACHE_DIR` concurrently. The shared cache is not a concurrency
+coordination mechanism, so consumers can observe inconsistent package and lock
+metadata even though the configuration and signed provider are valid.
+**Fix:** Initialize modules serially when sharing one plugin cache, or give each
+parallel initializer an isolated cache. Recreate the affected disposable
+working directories, run `init` again, and only then run `validate`; never work
+around the mismatch by disabling checksum verification.
+**See:** [OCI Terraform provider](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/)
 **Status:** resolved.

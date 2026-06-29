@@ -12,7 +12,7 @@ import subprocess
 import sys
 import tempfile
 from collections.abc import Iterable
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -108,7 +108,7 @@ def prepare_run(
         "rubric_sha256": _sha256(rubric_path),
         "source_commit": source_commit,
         "attempts": attempts,
-        "created_at": datetime.now(UTC).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),
         "trials": trials,
     }
     _write_json(output / "manifest.json", manifest, 0o600)
@@ -407,7 +407,7 @@ def score_run(
         "source_commit": manifest["source_commit"],
         "suite_sha256": manifest["suite_sha256"],
         "rubric_sha256": manifest["rubric_sha256"],
-        "generated_at": datetime.now(UTC).isoformat(),
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "metrics": {
             "cases": total,
             "trials": len(trial_results),
@@ -440,7 +440,7 @@ def _git_head() -> str:
 
 
 def _default_run_id() -> str:
-    return "forward-" + datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
+    return "forward-" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
 
 
 def build_parser() -> argparse.ArgumentParser:

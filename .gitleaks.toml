@@ -29,11 +29,14 @@ description = "Auth token in an OCI config-style assignment"
 regex = '''(?i)(security_token|auth_token|pass_phrase)\s*=\s*[^\s#]{12,}'''
 tags = ["oci", "token"]
 
-[allowlist]
+[[allowlists]]
 description = "Placeholders and documentation are allowed"
+regexTarget = "match"
 regexes = [
   '''<[A-Z_]+(_OCID|_ID|_KEY|_IP|_DATAKEY)?>''',
   '''ocid1\.[a-z]+\.oc1\.\.aaaa…''',
+  # Historical redact() smoke fixture, never a tenancy resource identifier.
+  '''aaaaexamplex{20}''',
   '''10\.0\.0\.0/16''',
 ]
 paths = [

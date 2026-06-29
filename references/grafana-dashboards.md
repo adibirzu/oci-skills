@@ -157,7 +157,7 @@ OCI API limits:
 
 ## Official documentation
 
-- [Querying Metric Data (MQL)](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/query-metric-data.htm)
+- [Querying Metric Data (MQL)](https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/query-metric-landing.htm)
 - [Monitoring overview](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm)
 - [APM — query and visualize traces](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm)
 
