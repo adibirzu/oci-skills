@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci iam admin"
-  short_description: "Safely handle oci-iam-admin workflows on OCI"
-  default_prompt: "Use $oci-iam-admin to handle this OCI request safely."
+  display_name: "OCI IAM Administration"
+  short_description: "Manage OCI IAM with least privilege"
+  default_prompt: "Use $oci-iam-admin to plan this least-privilege OCI IAM change safely."

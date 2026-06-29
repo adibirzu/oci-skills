@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci oke admin"
-  short_description: "Safely handle oci-oke-admin workflows on OCI"
-  default_prompt: "Use $oci-oke-admin to handle this OCI request safely."
+  display_name: "OCI OKE Administration"
+  short_description: "Operate OKE workloads and clusters safely"
+  default_prompt: "Use $oci-oke-admin to diagnose or execute this OKE operation with verification."

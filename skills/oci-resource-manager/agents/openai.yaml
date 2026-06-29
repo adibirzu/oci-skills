@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci resource manager"
-  short_description: "Safely handle oci-resource-manager workflows on OCI"
-  default_prompt: "Use $oci-resource-manager to handle this OCI request safely."
+  display_name: "OCI Resource Manager"
+  short_description: "Operate OCI Resource Manager stacks"
+  default_prompt: "Use $oci-resource-manager to inspect or operate this OCI Resource Manager stack safely."

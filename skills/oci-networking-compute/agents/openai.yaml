@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci networking compute"
-  short_description: "Safely handle oci-networking-compute workflows on OCI"
-  default_prompt: "Use $oci-networking-compute to handle this OCI request safely."
+  display_name: "OCI Networking and Compute"
+  short_description: "Operate OCI networks and compute safely"
+  default_prompt: "Use $oci-networking-compute to plan this OCI network or compute operation safely."

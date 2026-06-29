@@ -81,7 +81,7 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 6. Dry-run executes nothing. Redaction masks sensitive topology and credentials before output or persistence.
 7. Terraform owns durable resources by default. Direct CLI mutation is break-glass and must be reconciled in Terraform.
 
-`run_mutating` remains a deprecated additive compatibility alias for v2 migration. The Claude plugin also includes a conditional prompt-routing reminder and a destructive-command hook. Other harnesses use their native instruction adapters plus the authoritative in-script guard, so the README does not claim Claude hooks exist everywhere.
+`run_mutating` remains a deprecated additive compatibility alias for v2 migration. The Claude plugin also includes a conditional router reminder, a model-initiated skill-chain guard, and a destructive-command hook. Other harnesses use their native instruction adapters plus the authoritative in-script guard, so the README does not claim Claude hooks exist everywhere.
 
 ## Quick examples
 
@@ -164,7 +164,7 @@ evals/           routing cases plus blinded fresh-agent prompts and rubric
 docs/            PRD, plan, architecture, ADRs, quickstart
 harness/         Codex, Gemini, and Antigravity adapters
 commands/        legacy Claude slash-entry compatibility
-hooks/           Claude-only router reminder + defense-in-depth guard
+hooks/           Claude-only router, skill-chain, and destructive guards
 ```
 
 License: MIT.

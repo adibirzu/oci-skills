@@ -1,4 +1,4 @@
 interface:
-  display_name: "oci dbm opsi"
-  short_description: "Safely handle oci-dbm-opsi workflows on OCI"
-  default_prompt: "Use $oci-dbm-opsi to handle this OCI request safely."
+  display_name: "OCI DBM and OPSI"
+  short_description: "Operate Database Management and OPSI"
+  default_prompt: "Use $oci-dbm-opsi to plan this Database Management or Operations Insights workflow."
