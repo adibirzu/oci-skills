@@ -102,7 +102,7 @@
         {"id": "bundle", "any": ["platform-bundle\\.yaml", "container-instances"]},
         {"id": "private-runtime", "any": ["private subnet", "no public ip", "private.*load balancer"]},
         {"id": "immutable", "any": ["immutable.*digest", "image.*digest"]},
-        {"id": "delivery-rollback", "any": ["DevOps.*rollback", "canary", "blue.green"]}
+        {"id": "delivery-rollback", "any": ["DevOps.*rollback", "delivery.*rollback", "canary", "blue.green"]}
       ]
     },
     {
@@ -127,7 +127,7 @@
       "id": "product-streaming",
       "criteria": [
         {"id": "variant", "any": ["--event-transport streaming", "Streaming variant"]},
-        {"id": "stream-semantics", "any": ["checkpoint", "consumer offset", "consumer group"]},
+        {"id": "stream-semantics", "any": ["checkpoint", "consumer offset", "consumer group", "offset.managed"]},
         {"id": "observability", "any": ["lag", "empty poll", "empty read"]},
         {"id": "not-queue-semantics", "any": ["replay", "ordered partition"]}
       ]

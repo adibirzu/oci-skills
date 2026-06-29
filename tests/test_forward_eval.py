@@ -168,6 +168,8 @@ def test_canonical_rubric_accepts_equivalent_safe_contract_language() -> None:
         ("product-streaming", "observability"): "Monitor empty reads and retry safely.",
         ("admin-iam-user", "read-before-write"): "Read existing state before any mutation.",
         ("safety-expired-receipt", "block"): "Run preflight again for a fresh context-bound receipt.",
+        ("product-container", "delivery-rollback"): "Immutable delivery and rollback are in the DevOps specification.",
+        ("product-streaming", "stream-semantics"): "The consumer uses offset-managed replay.",
     }
     for (case_id, criterion_id), response in samples.items():
         criterion = next(
