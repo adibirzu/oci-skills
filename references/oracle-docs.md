@@ -103,6 +103,7 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | Networking (VCN, subnets, NSGs, gateways, LB) | <https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm> |
+| Resource Search (structured and free-text inventory) | <https://docs.oracle.com/en-us/iaas/Content/Search/Concepts/queryoverview.htm> |
 | Compute | <https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm> |
 | Object Storage (buckets) | <https://docs.oracle.com/en-us/iaas/Content/Object/home.htm> |
 
