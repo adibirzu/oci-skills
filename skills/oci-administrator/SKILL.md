@@ -166,6 +166,12 @@ When installed as a plugin, these wrap the safety core so the user works by name
 
 ## Domain routing
 
+**Golden-path composition takes precedence:** any request to scaffold or design a
+golden path, platform bundle, or complete multi-service application platform routes
+to `oci-product-development`, even when it names API Gateway, Functions, Container
+Instances, OKE, ADB, Queue, or Streaming. Owning domains materialize components only
+after bundle selection.
+
 **Complete event-worker composition takes precedence:** a request to build,
 design, or scaffold Events → Queue → Function or a Streaming worker routes to
 `oci-product-development`. After bundle selection, `oci-events-functions` owns

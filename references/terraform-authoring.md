@@ -58,6 +58,11 @@ or a matching context-bound preflight. A verbal approval cannot replace plan
 identity or review metadata. Discovery requires an empty destination and does not
 request generated state; it is not ownership or migration proof.
 
+For discovery, do not scaffold the discovery destination first. Create or select a
+new empty directory and pass it directly to `oci_tf.sh discover`; the provider
+export populates it. A non-empty destination—including a starter scaffold—must be
+rejected.
+
 ## State and artifact rules
 
 - Use a remote encrypted backend with locking for teams; one state writer at a time.

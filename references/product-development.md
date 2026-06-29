@@ -45,7 +45,7 @@ Secure golden-path selections to state in the scaffold response:
 - `adb-service`: private ADB, private API Gateway, Vault references, Terraform owner,
   and no business logic.
 - `container-instances`: private subnet, no public IP, private load balancer,
-  immutable image digest, DevOps rollback.
+  immutable image digest, DevOps delivery and rollback.
 - `oke-application`: OKE owner, developer-services delivery owner, rollout/cluster
   verification.
 - `event-worker` Queue: the logical Events → Queue → Function bundle is implemented
@@ -55,6 +55,9 @@ Secure golden-path selections to state in the scaffold response:
   for a DLQ.
 - `event-worker` Streaming: ordered partition/replay, consumer group/checkpoint,
   lag or empty-read observability.
+
+Every Streaming scaffold response must state consumer group/checkpoint semantics
+and lag or empty-read observability; neither is optional acceptance evidence.
 
 A request to build the complete Events → Queue → Function or Streaming worker is
 bundle composition here. `oci-events-functions` receives the transport/runtime
