@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import os
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -98,6 +99,64 @@ def test_codex_blinded_eval_install_excludes_grader_material(tmp_path: pathlib.P
     assert not list(dest.rglob("__pycache__"))
     assert not list(dest.rglob("*.pyc"))
     assert not list(dest.rglob("*.pyo"))
+
+
+def test_copy_install_excludes_terraform_runtime_and_sensitive_artifacts(
+    tmp_path: pathlib.Path,
+) -> None:
+    source = tmp_path / "source"
+    shutil.copytree(
+        ROOT,
+        source,
+        ignore=shutil.ignore_patterns(
+            ".git", ".terraform", "__pycache__", ".pytest_cache", ".ruff_cache", "*.pyc", "*.pyo",
+        ),
+    )
+    starter = source / "skills" / "oci-terraform-authoring" / "assets" / "starter"
+    forbidden = (
+        ".terraform/providers/synthetic-provider",
+        "terraform.tfstate",
+        "reviewed.tfplan",
+        "production.tfvars",
+        "wallet.zip",
+        "api-key.pem",
+    )
+    for relative in forbidden:
+        path = starter / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("synthetic-sensitive-artifact", encoding="utf-8")
+
+    codex_skills = tmp_path / "codex-skills"
+    env = os.environ.copy()
+    env["CODEX_SKILLS_DIR"] = str(codex_skills)
+    result = subprocess.run(
+        ["bash", str(source / "install.sh"), "codex"],
+        cwd=source,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    installed = codex_skills / "oci-administrator"
+    for relative in forbidden:
+        assert not (installed / "skills" / "oci-terraform-authoring" / "assets" / "starter" / relative).exists()
+
+    outside = tmp_path / "outside-secret"
+    outside.write_text("must-not-follow", encoding="utf-8")
+    (starter / "linked-secret").symlink_to(outside)
+    env["CODEX_SKILLS_DIR"] = str(tmp_path / "codex-symlink-test")
+    symlink_result = subprocess.run(
+        ["bash", str(source / "install.sh"), "codex"],
+        cwd=source,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert symlink_result.returncode != 0
+    assert "symlink" in symlink_result.stderr.lower()
 
 
 def test_gemini_install_copies_every_skill_and_manifest(tmp_path: pathlib.Path) -> None:

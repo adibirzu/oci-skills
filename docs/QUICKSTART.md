@@ -12,7 +12,7 @@ cd oci-skills
 ./install.sh codex      # claude, gemini, or antigravity also supported
 ```
 
-Claude activates its slash commands and defense-in-depth hook through the plugin. Codex/ChatGPT, Gemini, and Antigravity use the same in-script safety guard without claiming that Claude-only hook.
+When installed through the marketplace (or loaded with `--plugin-dir`), Claude activates its slash commands, conditional OCI router reminder, and defense-in-depth destructive-command hook. A plain `./install.sh claude` copy installs the skill content but does not activate plugin hooks. Codex/ChatGPT, Gemini, and Antigravity use their native instruction adapters plus the same in-script safety guard without claiming Claude-only hooks.
 
 ## Work by named context
 

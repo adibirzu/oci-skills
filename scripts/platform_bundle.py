@@ -15,6 +15,18 @@ from typing import Any
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "skills" / "oci-product-development" / "assets"
 STARTER = ROOT / "skills" / "oci-terraform-authoring" / "assets" / "starter"
+SAFE_STARTER_ASSETS = (
+    ".gitignore",
+    ".terraform.lock.hcl",
+    "versions.tf",
+    "provider.tf",
+    "variables.tf",
+    "locals.tf",
+    "outputs.tf",
+    "schema.yaml",
+    "terraform.tfvars.example",
+    "tests",
+)
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
 TOP_LEVEL = {
     "schema_version", "name", "context", "runtime", "ingress", "data",
@@ -193,6 +205,23 @@ def _secure_write(path: Path, content: str, mode: int = 0o644) -> None:
     os.chmod(path, mode)
 
 
+def _copy_safe_starter(source: Path, destination: Path) -> None:
+    """Copy only reviewed source assets; never copy Terraform runtime data."""
+    destination.mkdir(parents=True, exist_ok=True)
+    for name in SAFE_STARTER_ASSETS:
+        asset = source / name
+        if not asset.exists() or asset.is_symlink():
+            raise ValueError(f"starter asset is missing or unsafe: {name}")
+        if asset.is_dir():
+            if any(path.is_symlink() for path in asset.rglob("*")):
+                raise ValueError(f"starter asset contains a symlink: {name}")
+            shutil.copytree(asset, destination / name)
+        elif asset.is_file():
+            shutil.copy2(asset, destination / name)
+        else:
+            raise ValueError(f"starter asset is not a regular file or directory: {name}")
+
+
 def scaffold(
     golden_path: str,
     name: str,
@@ -230,7 +259,10 @@ def scaffold(
                 "stream-round-trip", "consumer-checkpoint", "empty-poll",
             ],
         }
-    shutil.copytree(STARTER, output / "terraform", dirs_exist_ok=True)
+    try:
+        _copy_safe_starter(STARTER, output / "terraform")
+    except (OSError, ValueError) as exc:
+        return [f"cannot copy safe Terraform starter: {exc}"]
     locals_file = output / "terraform" / "locals.tf"
     locals_file.write_text(locals_file.read_text(encoding="utf-8").replace("__PROJECT_NAME__", name), encoding="utf-8")
     components = json.dumps(spec["components"], indent=2)

@@ -13,8 +13,20 @@
 *.tfplan
 *.tfplan.review.json
 .terraform/
+.terraform.d/
+.terragrunt-cache/
+.terraformrc
+terraform.rc
+terraform-provider-*
+.terraform.tfstate.lock.info
 terraform.tfvars
+*.tfvars
+*.tfvars.json
 *.auto.tfvars
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
 crash.log
 id_rsa*
 oci_api_key*
@@ -31,19 +43,38 @@ reports/*-private*
 # Python
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .venv/
 venv/
 .pytest_cache/
 .ruff_cache/
+.mypy_cache/
+.tox/
+.nox/
 .coverage
 .coverage.*
 htmlcov/
+build/
+dist/
+*.egg-info/
 evals/forward/runs/
 
 # Node / misc
 node_modules/
+.npm/
+.pnpm-store/
+.yarn/cache/
+coverage/
+.next/
+.nuxt/
 .DS_Store
 *.log
+
+# Harness-local runtime state (distribution manifests remain tracked)
+.claude/
+.gemini/
+.antigravity/
 
 # Editor swap / backup files
 *.swp

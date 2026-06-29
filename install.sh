@@ -50,7 +50,27 @@ copy_payload() {  # copy_payload <dest_dir>
     fi
     [[ -e "$REPO_DIR/$item" ]] || continue
     rm -rf "${dest:?}/$item"
-    cp -R "$REPO_DIR/$item" "$dest/$item"
+    if [[ -d "$REPO_DIR/$item" ]]; then
+      command -v tar >/dev/null 2>&1 || { warn "tar is required to create a safe portable payload"; return 1; }
+      if find "$REPO_DIR/$item" -type l -print -quit | grep -q .; then
+        warn "refusing to package symlinks from $item"
+        return 1
+      fi
+      (
+        cd "$REPO_DIR"
+        tar -cf - \
+          --exclude='.terraform' --exclude='*/.terraform' --exclude='*/.terraform/*' \
+          --exclude='__pycache__' --exclude='*/__pycache__' --exclude='*/__pycache__/*' \
+          --exclude='.pytest_cache' --exclude='*/.pytest_cache' --exclude='*/.pytest_cache/*' \
+          --exclude='.ruff_cache' --exclude='*/.ruff_cache' --exclude='*/.ruff_cache/*' \
+          --exclude='*.pyc' --exclude='*.pyo' --exclude='*.tfstate' --exclude='*.tfstate.*' \
+          --exclude='*.tfplan' --exclude='*.tfvars' --exclude='*wallet*' \
+          --exclude='*.pem' --exclude='*.key' --exclude='*.p12' --exclude='*.pfx' \
+          --exclude='terraform-provider-*' "$item"
+      ) | (cd "$dest" && tar -xf -)
+    else
+      cp "$REPO_DIR/$item" "$dest/$item"
+    fi
   done
   # Local interpreter caches are neither runtime assets nor portable. Strip
   # them before applying the stricter blinded-evaluation exclusions below.

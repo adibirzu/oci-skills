@@ -81,7 +81,7 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 6. Dry-run executes nothing. Redaction masks sensitive topology and credentials before output or persistence.
 7. Terraform owns durable resources by default. Direct CLI mutation is break-glass and must be reconciled in Terraform.
 
-`run_mutating` remains a deprecated additive compatibility alias for v2 migration. The Claude plugin also includes a destructive-command hook; other harnesses rely on the authoritative in-script guard, so the README does not claim the hook exists everywhere.
+`run_mutating` remains a deprecated additive compatibility alias for v2 migration. The Claude plugin also includes a conditional prompt-routing reminder and a destructive-command hook. Other harnesses use their native instruction adapters plus the authoritative in-script guard, so the README does not claim Claude hooks exist everywhere.
 
 ## Quick examples
 
@@ -137,11 +137,11 @@ Claude Code plugin:
 /plugin install oci-administrator@oci-skills
 ```
 
-Codex/ChatGPT can import `.codex-plugin/plugin.json`. Gemini uses `harness/gemini/`; Antigravity uses `harness/antigravity/AGENTS.md`. Copy installs include skills, references, scripts, schemas, planning docs, commands, and hooks; only Claude Code activates the hook surface.
+Codex/ChatGPT can import `.codex-plugin/plugin.json`. Gemini uses `harness/gemini/`; Antigravity uses `harness/antigravity/AGENTS.md`. Copy installs include skills, references, scripts, schemas, planning docs, commands, and hooks. Claude activates hooks only when the pack is loaded as a plugin (marketplace or `--plugin-dir`), not from a plain skill copy.
 
 ## Requirements
 
-- Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI for administration helpers.
+- Bash 3.2+, Python 3.10+, `tar`, `jq`, and the OCI CLI for administration helpers.
 - Terraform 1.5+ for authoring/execution; 1.7+ for native `.tftest.hcl` tests.
 - A configured OCI profile or supported principal mode only for live reads/plans/actions.
 - No OCI credentials for scaffolding, schema validation, routing tests, docs, or bundle generation.
@@ -164,7 +164,7 @@ evals/           routing cases plus blinded fresh-agent prompts and rubric
 docs/            PRD, plan, architecture, ADRs, quickstart
 harness/         Codex, Gemini, and Antigravity adapters
 commands/        legacy Claude slash-entry compatibility
-hooks/           Claude-only defense-in-depth guard
+hooks/           Claude-only router reminder + defense-in-depth guard
 ```
 
 License: MIT.
