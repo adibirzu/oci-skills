@@ -71,6 +71,14 @@ oci_cli secrets secret-bundle get --secret-id <SECRET_OCID> \
 
 ## 3. Best practices
 
+For nested or sensitive CLI input, create a temporary payload with `umask 077`
+and `payload="$(mktemp)"`, enforce mode `0600`, and register
+`trap 'rm -f "$payload"' EXIT`. Reference it with `file://`; prefer a command
+document passed through `--from-json` when installed help supports it. Never place a
+password, token, private key, credential, or an environment-variable expansion
+for one of those values on argv—the shell expands it into the process argument
+list. Remove the temporary payload after verification.
+
 **Do**
 - Use a **principal** (instance/resource/workload) for anything running in OCI.
 - Grant via **dynamic group + least-privilege policy**, scoped to a compartment with

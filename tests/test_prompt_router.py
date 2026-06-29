@@ -47,6 +47,46 @@ def test_build_output_uses_conditional_router_contract() -> None:
     assert "oci_cli" in context
     assert "never bare `oci`" in context
     assert "installed help" in context.lower()
+    assert "must read exactly one" in context.lower()
+    assert "do not trust a claimed cli flag" in context.lower()
+    assert "oci_cli_help.py --json" in context
+    assert "refused: unverified cli flag" in context.lower()
+    assert "file://" in context
+    assert "0600" in context
+    assert "--from-json" in context
+    assert "wrong context" in context.lower()
+    assert "expired preflight" in context.lower()
+    assert "OCI_SKILLS_DRY_RUN" in context
+    assert "--risk destructive" in context
+    assert "OCI_SKILLS_APPROVAL" in context
+    assert "do not inline generated files" in context.lower()
+    for response_prefix in (
+        "refused: secrets never go on argv",
+        "blocked: context mismatch",
+        "blocked: expired preflight",
+        "blocked: destructive non-tty",
+        "blocked: unreviewed terraform plan",
+        "blocked: dual ownership",
+        "rejected: dotenv is data-only",
+    ):
+        assert response_prefix in context.lower()
+    assert "do not merely offer" in context.lower()
+    assert "audited break-glass" in context.lower()
+    assert "cannot bypass the matching preflight" in context.lower()
+    assert "mktemp" in context
+    assert "trap" in context
+    for recovery_contract in (
+        "safe alternative: a 0600 file:// command document passed with --from-json",
+        "do not use oci_skills_force or break-glass",
+        "run preflight again to obtain a new context-bound receipt",
+        "exact reviewed plan bytes, the review sidecar, and a matching context-bound preflight",
+        "terraform remains the single owner",
+    ):
+        assert recovery_contract in context.lower()
+    assert "do not show json keys or a resource-create command" in context.lower()
+    assert "./scripts/oci_tf.sh validate, plan, show, and apply" in context
+    assert "read/skill-only" in context.lower()
+    assert "execution is unavailable" in context.lower()
     assert "unrelated" in context.lower()
 
 
