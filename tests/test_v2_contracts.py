@@ -81,6 +81,77 @@ def test_router_hard_handoffs_stop_local_implementation() -> None:
         assert owner in router
 
 
+def test_router_and_references_define_failure_response_contracts() -> None:
+    router = (ROOT / "skills" / "oci-administrator" / "SKILL.md").read_text(encoding="utf-8")
+    safety = (ROOT / "references" / "tenancy-safety.md").read_text(encoding="utf-8")
+    terraform = (ROOT / "references" / "terraform-authoring.md").read_text(encoding="utf-8")
+    credentials = (ROOT / "references" / "credential-management.md").read_text(encoding="utf-8")
+    developer = (ROOT / "references" / "developer-services.md").read_text(encoding="utf-8")
+    product = (ROOT / "references" / "product-development.md").read_text(encoding="utf-8")
+    dbm = (ROOT / "references" / "dbm-opsi.md").read_text(encoding="utf-8")
+    cost = (ROOT / "references" / "cost-management.md").read_text(encoding="utf-8")
+
+    assert "Critical failure contracts" in router
+    assert "Refused: unverified CLI flag" in router
+    assert "./scripts/oci_tf.sh" in router
+    assert "Do not show JSON keys" in router
+    for response_prefix in (
+        "Refused: secrets never go on argv",
+        "Blocked: context mismatch",
+        "Blocked: expired preflight",
+        "Blocked: destructive non-TTY",
+        "Blocked: unreviewed Terraform plan",
+        "Blocked: dual ownership",
+        "Rejected: dotenv is data-only",
+    ):
+        assert response_prefix in router
+    for term in ("wrong context", "expired preflight", "oci_skills_approval", "data-only"):
+        assert term in safety.lower()
+    for term in ("exact reviewed plan bytes", "context-bound preflight", "refuse"):
+        assert term in terraform.lower()
+    for term in ("when execution is unavailable", "do not inline hcl", "./scripts/oci_tf.sh scaffold"):
+        assert term in terraform.lower()
+    for term in ("oracle/oci", "do not list resource field names", "at most"):
+        assert term in terraform.lower()
+    for term in ("provider.tf", "no `main.tf`", "do not show raw `terraform`"):
+        assert term in terraform.lower()
+    assert "only fenced code block" in terraform.lower()
+    for term in ("file://", "0600", "--from-json", "never place"):
+        assert term in credentials.lower()
+    for term in ("mktemp", "trap"):
+        assert term in credentials
+    for term in ("claimed cli flag", "installed help", "break-glass"):
+        assert term in developer.lower()
+    for term in ("does not deploy", "no business logic", "idempotent"):
+        assert term in product.lower()
+    for golden_path in (
+        "adb-service", "api-functions", "container-instances", "event-worker", "oke-application",
+    ):
+        assert golden_path in product
+    assert "python3 scripts/platform_bundle.py scaffold <golden-path> <output>" in product
+    for term in (
+        "this scaffold does not deploy",
+        "no preflight is required to scaffold",
+        "bundle_metadata.json",
+        "cli/command-plan.json",
+        "do not include plan/apply commands",
+        "generic terraform starter",
+        "does not contain service resource hcl",
+        "materialized later",
+        "contains no hash",
+    ):
+        assert term in product.lower()
+    for term in ("primary owner", "oci-dbm-opsi", "oci-observability-db"):
+        assert term in dbm.lower()
+    for term in ("response contract", "do not emit sql", "run_action", "oci_cli_help.py"):
+        assert term in dbm.lower()
+    assert "Start every response with: `Primary owner: oci-dbm-opsi.`" in dbm
+    assert "Read/Skill-only" in dbm
+    assert "do not include the literal `oci_cli`" in dbm.lower()
+    for term in ("inconclusive", "not proof", "region", "tenancy"):
+        assert term in cost.lower()
+
+
 def test_planning_and_architecture_artifacts_trace_every_requirement() -> None:
     prd = (ROOT / "docs" / "product" / "oci-skills-v2-prd.md").read_text(encoding="utf-8")
     plan = (ROOT / "docs" / "plans" / "oci-skills-v2.md").read_text(encoding="utf-8")

@@ -65,6 +65,18 @@ run_action --risk additive --compartment <COMPARTMENT_OCID> \
   requires `OCI_SKILLS_BREAK_GLASS=true`.
 - `run_mutating` is a deprecated additive compatibility alias.
 
+### Failure-response contract
+
+Use these exact stop conditions in chat and automation plans:
+
+| Condition | Required response |
+|---|---|
+| Wrong context or compartment mismatch | Block the action, select the correct context, and run an exact-context preflight again. Do not use `OCI_SKILLS_FORCE` or break-glass to bypass a wrong context. |
+| Missing or expired preflight receipt | Block the action and run a new preflight. An expired preflight is never reusable. |
+| Destructive/credential action without a TTY | Produce an `OCI_SKILLS_DRY_RUN=true` preview through `run_action --risk destructive` or `--risk credential`; execute nothing until the operator supplies the exact `OCI_SKILLS_APPROVAL` identifier from that preview. Never substitute direct delete commands or `--force`. |
+| Malicious or malformed dotenv input | Treat dotenv as data-only `KEY=VALUE` records. Reject `source`, `eval`, command substitution, shell operators, and malformed keys without executing any content. |
+| Empty or inconsistent read result | Call the result inconclusive—not proof of absence—and check permission, time window, region, tenancy, and pagination before deciding. |
+
 ### The destructive-command hook fails open — by design, but loudly
 
 The Claude Code plugin wires a `PreToolUse` hook (`hooks/guard_destructive.py`)

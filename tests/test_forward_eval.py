@@ -5,6 +5,7 @@ import copy
 import hashlib
 import json
 import pathlib
+import re
 import stat
 import sys
 
@@ -120,6 +121,40 @@ def test_canonical_forward_suite_is_blinded_and_complete() -> None:
     serialized = json.dumps(suite)
     for grader_only_key in ("criteria", "global_forbidden", "minimum_pass_at_1"):
         assert grader_only_key not in serialized
+
+
+def test_bare_oci_rule_matches_commands_not_product_names() -> None:
+    rubric = json.loads(RUBRIC.read_text(encoding="utf-8"))
+    pattern = next(
+        item["pattern"]
+        for item in rubric["global_forbidden"]
+        if item["id"] == "bare-oci-command"
+    )
+
+    assert re.search(pattern, "OCI DevOps Build Pipeline", re.IGNORECASE) is None
+    assert re.search(pattern, "  oci devops deployment list --all", re.IGNORECASE)
+
+
+def test_wrong_context_block_accepts_explicit_fix_first_language() -> None:
+    rubric = json.loads(RUBRIC.read_text(encoding="utf-8"))
+    case = next(item for item in rubric["cases"] if item["id"] == "safety-wrong-context")
+    criterion = next(item for item in case["criteria"] if item["id"] == "block")
+
+    assert forward_eval._matches(
+        criterion["any"],
+        "Do not work around the wrong compartment. Fix the context first.",
+    )
+
+
+def test_product_scaffold_rule_accepts_offline_no_contact_language() -> None:
+    rubric = json.loads(RUBRIC.read_text(encoding="utf-8"))
+    case = next(item for item in rubric["cases"] if item["id"] == "product-functions-adb")
+    criterion = next(item for item in case["criteria"] if item["id"] == "no-live-deploy")
+
+    assert forward_eval._matches(
+        criterion["any"],
+        "This is an offline artifact operation and makes no OCI contact.",
+    )
 
 
 def test_definition_validator_rejects_malformed_contracts(tmp_path: pathlib.Path) -> None:

@@ -5,6 +5,32 @@ Reusable patterns for OCI Database Management (DBM) and Operations Insights
 service names, passwords, wallets, and Bastion session IDs out of committed
 artifacts.
 
+**Primary owner:** `oci-dbm-opsi` owns Database Management, Operations Insights,
+Performance Hub, and OCI-side AWR/ADDM/ASH enablement and troubleshooting.
+`oci-observability-db` receives the explicit handoff for Monitoring alarms, APM,
+Logging, and dashboards; it does not own DBM or OPSI lifecycle.
+
+## Response contract
+
+Start every response with: `Primary owner: oci-dbm-opsi.` Name
+`oci-observability-db` only for the explicit Monitoring/APM/logging handoff, then
+keep the answer on OCI-side DBM/OPSI
+enablement and verification. Do not emit SQL, PL/SQL, grants, AWR queries, or
+in-database commands; hand those to official `oracle/skills` `db/`. Before giving
+an exact OCI command or JSON payload, validate its installed shape with
+`oci_cli_help.py --json`; if help is unavailable, give the concise sequence and
+required inputs instead of guessing. Every enable/create/update is a mutation:
+show read-before-write and route the action through `run_action`, followed by
+work-request and lifecycle verification.
+
+In a Read/Skill-only harness, execution and CLI-help lookup are unavailable. Give
+only the owner/handoff sentence, prerequisites, read → enable DBM → verify → enable
+OPSI → verify sequence, likely failure checks, and required inputs. Do not emit OCI
+commands, JSON, SQL, privilege lists, regions, service values, or payload shapes.
+Do not include the literal `oci_cli`, guessed subcommands, flags, port numbers, or
+code blocks; say that exact commands require installed-help validation in an
+execution-capable session.
+
 ## Discovery
 
 For Base Database Service, discover in this order:
