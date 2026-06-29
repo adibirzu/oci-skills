@@ -18,6 +18,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import pathlib
 import re
 import sys
 from dataclasses import dataclass
@@ -101,6 +102,20 @@ RULES: tuple[Rule, ...] = (
     ),
 )
 
+TERRAFORM_CHECKSUM_LINE = re.compile(
+    r'\s*"(?:h1:[A-Za-z0-9+/]{43}=|zh:[0-9a-f]{64})",?\s*'
+)
+
+
+def _is_terraform_checksum(text: str, match: "re.Match[str]") -> bool:
+    """True only when a high-entropy match is an exact provider lock checksum."""
+    line_start = text.rfind("\n", 0, match.start()) + 1
+    line_end = text.find("\n", match.end())
+    if line_end == -1:
+        line_end = len(text)
+    line = text[line_start:line_end]
+    return bool(TERRAFORM_CHECKSUM_LINE.fullmatch(line))
+
 
 def _b64_slash_is_secret(token: str) -> bool:
     """True if a 40+ char run containing "/" is a base64 secret, not a URL path.
@@ -176,7 +191,11 @@ def _ip_is_safe(ip: str, strict: bool = False) -> bool:
     return False
 
 
-def redact(text: str, strict: bool = False) -> tuple[str, dict[str, int]]:
+def redact(
+    text: str,
+    strict: bool = False,
+    allow_terraform_checksums: bool = False,
+) -> tuple[str, dict[str, int]]:
     """Return (redacted_text, {rule_name: count})."""
     counts: dict[str, int] = {}
     for rule in RULES:
@@ -189,6 +208,12 @@ def redact(text: str, strict: bool = False) -> tuple[str, dict[str, int]]:
                 return token  # documentation/example address, not PII
             if _name == "secret_blob_slash" and not _b64_slash_is_secret(token):
                 return token  # URL/endpoint path, not a secret
+            if (
+                allow_terraform_checksums
+                and _name in ("secret_blob", "secret_blob_slash")
+                and _is_terraform_checksum(text, match)
+            ):
+                return token  # signed provider checksum, not credential material
             counts[_name] = counts.get(_name, 0) + 1
             return _repl
         text = rule.pattern.sub(_sub, text)
@@ -217,7 +242,14 @@ def main(argv: list[str] | None = None) -> int:
     else:
         raw = sys.stdin.read()
 
-    cleaned, counts = redact(raw, strict=args.strict)
+    allow_terraform_checksums = bool(
+        args.file and pathlib.Path(args.file).name == ".terraform.lock.hcl"
+    )
+    cleaned, counts = redact(
+        raw,
+        strict=args.strict,
+        allow_terraform_checksums=allow_terraform_checksums,
+    )
     total = sum(counts.values())
 
     if args.summary or args.check:

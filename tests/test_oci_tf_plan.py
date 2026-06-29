@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import json
+import os
 import pathlib
+import shutil
 import subprocess
 import sys
 
@@ -71,6 +73,40 @@ def test_scaffold_is_secret_safe_and_empty_destination_only(tmp_path: pathlib.Pa
     )
     assert second.returncode != 0
     assert "empty" in second.stderr.lower()
+
+
+def test_shell_scaffold_copies_only_safe_starter_assets(tmp_path: pathlib.Path) -> None:
+    source = ROOT / "skills" / "oci-terraform-authoring" / "assets" / "starter"
+    starter = tmp_path / "starter-source"
+    shutil.copytree(source, starter)
+    forbidden = (
+        ".terraform/providers/synthetic-provider",
+        "terraform.tfstate",
+        "reviewed.tfplan",
+        "production.tfvars",
+        "wallet.zip",
+        "api-key.pem",
+    )
+    for relative in forbidden:
+        path = starter / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("synthetic-sensitive-artifact", encoding="utf-8")
+
+    destination = tmp_path / "safe-output"
+    env = os.environ.copy()
+    env["OCI_TF_ASSET_DIR"] = str(starter)
+    result = subprocess.run(
+        ["bash", str(ROOT / "scripts" / "oci_tf.sh"), "scaffold", str(destination)],
+        capture_output=True,
+        text=True,
+        check=False,
+        env=env,
+    )
+
+    assert result.returncode == 0, result.stderr
+    for relative in forbidden:
+        assert not (destination / relative).exists()
+    assert (destination / "versions.tf").is_file()
 
 
 def test_plan_identity_changes_with_plan_bytes(tmp_path: pathlib.Path) -> None:

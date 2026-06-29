@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import pathlib
+import shutil
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts"))
@@ -94,6 +95,33 @@ def test_event_worker_supports_streaming_transport_variant(tmp_path: pathlib.Pat
     assert "stream-with-consumer-group" in metadata
     assert '"event_transport": "streaming"' in metadata
     assert "oci_cli streaming admin stream" in command_plan
+
+
+def test_scaffold_never_copies_runtime_or_sensitive_terraform_artifacts(
+    tmp_path: pathlib.Path,
+    monkeypatch,
+) -> None:
+    starter = tmp_path / "starter"
+    shutil.copytree(platform_bundle.STARTER, starter)
+    forbidden = {
+        ".terraform/providers/synthetic-provider": "binary-placeholder",
+        "terraform.tfstate": "state-placeholder",
+        "reviewed.tfplan": "plan-placeholder",
+        "production.tfvars": "secret-placeholder",
+        "wallet.zip": "wallet-placeholder",
+        "api-key.pem": "key-placeholder",
+    }
+    for relative, content in forbidden.items():
+        path = starter / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    monkeypatch.setattr(platform_bundle, "STARTER", starter)
+
+    output = tmp_path / "safe-bundle"
+    assert platform_bundle.scaffold("api-functions", "api", "dev", output) == []
+    for relative in forbidden:
+        assert not (output / "terraform" / relative).exists()
+    assert (output / "terraform" / "versions.tf").is_file()
 
 
 def test_parser_and_validator_cover_invalid_shapes(tmp_path: pathlib.Path) -> None:

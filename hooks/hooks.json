@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh -c 'script=\"${CLAUDE_PLUGIN_ROOT:-$(pwd)}/hooks/inject_oci_router.py\"; if [ ! -f \"$script\" ]; then echo \"[oci-administrator] prompt router not found at $script — automatic OCI routing is unavailable\" >&2; exit 0; fi; python3 \"$script\"'",
+            "description": "Conditionally require the OCI router for OCI prompts without copying, logging, or classifying user prompt content."
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

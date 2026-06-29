@@ -43,3 +43,12 @@ paths = [
   '''(.*?)(\.example)$''',
   '''README\.md''',
 ]
+
+[[allowlists]]
+description = "Generated local test and interpreter caches are not release artifacts"
+paths = [
+  '''(^|/)\.pytest_cache/''',
+  '''(^|/)\.ruff_cache/''',
+  '''(^|/)\.terraform/''',
+  '''(^|/)__pycache__/''',
+]
