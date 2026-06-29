@@ -52,6 +52,10 @@ copy_payload() {  # copy_payload <dest_dir>
     rm -rf "${dest:?}/$item"
     cp -R "$REPO_DIR/$item" "$dest/$item"
   done
+  # Local interpreter caches are neither runtime assets nor portable. Strip
+  # them before applying the stricter blinded-evaluation exclusions below.
+  find "$dest" -type d -name '__pycache__' -prune -exec rm -rf {} +
+  find "$dest" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
   if [[ "${OCI_SKILLS_BLINDED_EVAL:-}" == "true" ]]; then
     rm -rf "${dest:?}/evals"
     rm -f "$dest/scripts/forward_eval.py" "$dest/scripts/forward_eval_contract.py"
