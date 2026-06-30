@@ -9,7 +9,7 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 ## Routing
 
 - `oci-iam-admin`: IAM, compartments, budgets, quotas, tags, limits.
-- `oci-security-compliance`: Cloud Guard, Vault, WAF, audit, compliance, credentials, and DevSecOps release gates (ADM Maven audits; explicit scanner handoff otherwise).
+- `oci-security-compliance`: OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates.
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms, dashboards.
 - `oci-dbm-opsi`: DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP.
 - `oci-autonomous-db`: ADB lifecycle, wallet, ACL, private connectivity.

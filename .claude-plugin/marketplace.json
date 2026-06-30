@@ -10,7 +10,7 @@
     {
       "name": "oci-administrator",
       "description": "OCI Skills v2 adds exact CLI plans, Terraform authoring, Developer Services, Queue, product golden-path bundles, and owner-aware project lifecycle to the safety-first administration pack. Named contexts, preflight receipts, redaction, and risk-specific approval protect live actions.",
-      "version": "2.0.0-rc.1",
+      "version": "2.0.0-rc.2",
       "author": {
         "name": "adibirzu"
       },

@@ -1,7 +1,7 @@
 # OCI Skills v2 product requirements
 
 Status: release-candidate implementation
-Target: `v2.0.0-rc.1`
+Target: `v2.0.0-rc.2`
 Decision owner: repository maintainers
 
 ## Product intent

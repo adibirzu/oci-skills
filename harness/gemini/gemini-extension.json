@@ -1,6 +1,6 @@
 {
   "name": "oci-skills",
-  "version": "2.0.0-rc.1",
+  "version": "2.0.0-rc.2",
   "description": "Safe OCI engineering for Gemini CLI: administration, exact CLI plans, Terraform, Developer Services, platform bundles, and lifecycle work.",
   "contextFileName": "GEMINI.md"
 }

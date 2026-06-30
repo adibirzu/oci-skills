@@ -210,7 +210,17 @@ def test_manifests_share_release_candidate_version() -> None:
         (ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8")
     )
     versions.add(marketplace["plugins"][0]["version"])
-    assert versions == {"2.0.0-rc.1"}
+    assert versions == {"2.0.0-rc.2"}
+
+
+def test_security_skill_ships_vendor_neutral_secure_development_resources() -> None:
+    reference = ROOT / "references" / "security-development.md"
+    evidence = ROOT / "skills" / "oci-security-compliance" / "assets" / "security-release-evidence.yaml"
+    assert reference.is_file()
+    assert evidence.is_file()
+    text = reference.read_text(encoding="utf-8")
+    for baseline in ("NIST SSDF", "OWASP ASVS", "SLSA", "SPDX", "CycloneDX", "Agentic Skills"):
+        assert baseline in text
 
 
 def test_tracked_distribution_has_no_runtime_or_provider_binaries() -> None:
