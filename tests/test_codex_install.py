@@ -42,6 +42,8 @@ def _assert_common_payload(dest: pathlib.Path) -> None:
     assert (dest / "scripts" / "forward_eval.py").is_file()
     assert (dest / "evals" / "forward" / "prompts.json").is_file()
     assert (dest / "evals" / "forward" / "rubric.json").is_file()
+    assert (dest / "references" / "security-development.md").is_file()
+    assert (dest / "skills" / "oci-security-compliance" / "assets" / "security-release-evidence.yaml").is_file()
     assert not list(dest.rglob("__pycache__"))
     assert not list(dest.rglob("*.pyc"))
     assert not list(dest.rglob("*.pyo"))

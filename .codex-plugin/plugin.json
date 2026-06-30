@@ -1,7 +1,7 @@
 {
   "name": "oci-administrator",
-  "version": "2.0.0-rc.1",
-  "description": "Safe OCI engineering for Codex and ChatGPT: administration, exact CLI plans, Terraform authoring, Developer Services, product golden paths, and lifecycle orchestration.",
+  "version": "2.0.0-rc.2",
+  "description": "Safe OCI engineering for Codex and ChatGPT: administration, Terraform, platform delivery, and vendor-neutral security-development evidence.",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"

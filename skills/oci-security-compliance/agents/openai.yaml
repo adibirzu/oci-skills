@@ -1,4 +1,4 @@
 interface:
   display_name: "OCI Security and Compliance"
-  short_description: "Audit, harden, and gate OCI secure delivery"
-  default_prompt: "Use $oci-security-compliance to audit or harden this OCI security or DevSecOps release requirement safely."
+  short_description: "Review cloud, AppSec, supply-chain, and agent security"
+  default_prompt: "Use $oci-security-compliance to review this cloud, application, API, supply-chain, agent/plugin/MCP, compliance, or DevSecOps requirement with versioned evidence."

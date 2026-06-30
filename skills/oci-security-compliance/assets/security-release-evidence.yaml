@@ -1,0 +1,39 @@
+schema_version: 1
+release:
+  name: <RELEASE_NAME>
+  commit: <COMMIT_SHA>
+  artifact_digest: <DIGEST>
+  environment: <ENVIRONMENT>
+baselines:
+  - id: <STANDARD_AND_VERSION>
+    requirements: []
+threat_model:
+  reviewed_at: <RFC3339>
+  owner: <ROLE>
+  residual_risks: []
+supply_chain:
+  sbom:
+    format: SPDX | CycloneDX
+    version: <VERSION>
+    digest: <DIGEST>
+  provenance:
+    slsa_version: "1.2"
+    attestation_digest: <DIGEST>
+  signature_verified: false
+verification:
+  sast: {status: not_tested, evidence_digest: null}
+  sca: {status: not_tested, evidence_digest: null}
+  secrets: {status: not_tested, evidence_digest: null}
+  iac: {status: not_tested, evidence_digest: null}
+  container: {status: not_applicable, evidence_digest: null}
+  dast_api: {status: not_tested, evidence_digest: null}
+findings: []
+exceptions: []
+deployment:
+  strategy: canary | blue-green | none
+  rollback_verified: false
+  post_deploy_checks: []
+decision:
+  status: blocked | approved | approved_with_exceptions
+  authority: <ROLE>
+  decided_at: <RFC3339>
