@@ -14,8 +14,9 @@ Default API gateways, build runners, target environments, and workloads to priva
 2. Check service limits, IAM for both operators and resource principals, subnet/NSG reachability, log availability, and target health.
 3. Author durable resources with **oci-terraform-authoring**. Use exact wrapper-routed CLI plans for inspection or unsupported/recovery operations.
 4. Keep source connection tokens, image-pull credentials, and deploy secrets in Vault; reference them from DevOps or runtime principals.
-5. Build immutable artifacts, attach provenance, and deploy with a canary or blue-green stage plus automatic rollback.
-6. Verify pipeline state, target health, logs, alarms, and the user-visible route. Exercise rollback before production.
+5. Build immutable artifacts, attach provenance/SBOM evidence, and apply the `oci-security-compliance` release gate. OCI DevOps ADM vulnerability audits support Maven builds; hand off other ecosystems to an approved scanner rather than claiming coverage.
+6. Deploy with a canary or blue-green stage plus automatic rollback.
+7. Verify pipeline state, target health, Cloud Guard/WAF posture, logs, alarms, and the user-visible route. Exercise rollback before production.
 
 Read [developer-services.md](../../references/developer-services.md) for detailed flows, ownership, IAM, network, logging, and rollback checks.
 Reuse `assets/terraform/private-platform/` for provider-schema-validated private
