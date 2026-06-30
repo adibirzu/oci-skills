@@ -31,7 +31,7 @@ This is the repo-native traceability ledger. Merged history before v2 is the del
 | V2-09 skill/routing conformance | REQ-01 | V2-08 | Implemented + validator | not opened |
 | V2-10 README/architecture/diagrams | REQ-08 | V2-09 | Implemented | not opened |
 | V2-11 test/coverage/forward eval | REQ-09 | V2-09 | Blinded 21-case harness and grader-free candidate install implemented; independent fresh-agent run pending | not opened |
-| V2-12 packaging/release | REQ-08, REQ-09 | V2-10, V2-11 | `v2.0.0-rc.1` prepared; final promotion deferred to forward-eval gate | not opened |
+| V2-12 packaging/release | REQ-08, REQ-09 | V2-10, V2-11 | `v2.0.0-rc.2` prepared with vendor-neutral security-development evidence; final promotion deferred to forward-eval gate | not opened |
 | V2-13 final security/architecture review | REQ-04, REQ-09 | V2-12 | Local review/gates implemented; fresh-agent evidence remains release blocker | not opened |
 
 ## Deferred release evidence

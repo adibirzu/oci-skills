@@ -23,7 +23,7 @@ The router selects fifteen primary domains and two orchestrators:
 | Skill | Primary ownership |
 |---|---|
 | `oci-iam-admin` | Users, groups, policies, compartments, budgets, quotas, tags, limits, named contexts |
-| `oci-security-compliance` | Cloud Guard, Vault/KMS, Security Zones, WAF, Audit, CIS/ISO-42001, credentials, DevSecOps release gates |
+| `oci-security-compliance` | OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates |
 | `oci-observability-db` | Monitoring, Logging, APM, OTel, alarms, notifications, connectors, dashboards |
 | `oci-dbm-opsi` | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP |
 | `oci-autonomous-db` | ADB lifecycle, private endpoints, wallet, ACL, scale, connectivity, read-only diagnostics |
@@ -150,7 +150,7 @@ Codex/ChatGPT can import `.codex-plugin/plugin.json`. Gemini uses `harness/gemin
 
 CI runs Python tests with branch/statement coverage, Bash 3.2 smoke matrices, shell/Python lint, skill validation, routing collision checks, the blinded forward-eval contract, Terraform formatting/validation fixtures, documentation links, and secret/redaction gates. No CI test contacts or mutates a tenancy.
 
-The manifests are prepared as `v2.0.0-rc.1`. Final `v2.0.0` promotion is blocked on the independently recorded fresh-agent gate. Prepare and score a blinded run with `python3 scripts/forward_eval.py`; follow [the evidence workflow](evals/forward/README.md) and status ledger in [docs/plans/oci-skills-v2.md](docs/plans/oci-skills-v2.md).
+The manifests are prepared as `v2.0.0-rc.2`. Final `v2.0.0` promotion is blocked on the independently recorded fresh-agent gate. Prepare and score a blinded run with `python3 scripts/forward_eval.py`; follow [the evidence workflow](evals/forward/README.md) and status ledger in [docs/plans/oci-skills-v2.md](docs/plans/oci-skills-v2.md).
 
 ## Repository map
 

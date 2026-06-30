@@ -19,7 +19,13 @@ through `oci_cli`; mutations through `run_action`; read before
 write; idempotent by display name (treat `409` as exists).
 
 Deep reference: `../../references/security-compliance.md`
+Vendor-neutral secure-development reference: `../../references/security-development.md`
 Safety contract: `../../references/tenancy-safety.md`
+
+For application/API security, threat modeling, software supply chain, SBOM and
+provenance, AI-agent/skill/plugin/MCP review, or cross-framework compliance,
+read `security-development.md`. Load the OCI reference only when OCI services
+are the implementation or evidence source.
 
 ## First move (always)
 
@@ -43,6 +49,9 @@ If the resolved tenancy/compartment name is not the one you expect, stop.
 | Tighten over-broad grants | `scripts/iam_audit.py` |
 | Stop secrets reaching git | `scripts/redact.py --check` |
 | Secure a build/release | DevSecOps release gate below; pipeline ownership → `oci-developer-services` |
+| Review an app/API | ASVS/API requirements → abuse cases → code/tests → independent verification |
+| Review AI agents/skills/plugins/MCP | authority/tool inventory → injection/goal/tool misuse → isolation/provenance/revocation |
+| Produce audit evidence | portable evidence asset → control mapping → limitations/exceptions → signed release decision |
 
 ## Common multi-step flows
 
@@ -84,6 +93,8 @@ steps:
 
 Verification evidence must contain no dependency credentials, source-connection
 tokens, endpoints, OCIDs, or package contents. Redact results before persistence.
+Start portable evidence from `assets/security-release-evidence.yaml`; do not
+store raw scanner dumps or secrets in the bundle.
 
 ## Common tasks
 
