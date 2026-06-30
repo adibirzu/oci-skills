@@ -38,6 +38,41 @@ oci_cli cloud-guard detector-recipe-detector-rule list \
 problems before changing anything — a noisy detector usually means a recipe rule
 is too broad, not that the resource is wrong.
 
+**Recipe change boundary.** Oracle-managed recipes receive Oracle updates; use a
+user-managed clone only for a reviewed customization. Prefer target-level rule
+scope over recipe-level changes, which affect every attached target. Include
+Container Security Config detectors for containerized workloads; inspect and
+triage before enabling automatic responders.
+
+---
+
+## Secure development / DevSecOps
+
+`oci-security-compliance` owns secure-release policy and evidence; pipeline
+authoring and delivery are owned by `oci-developer-services`. A release must
+preserve artifact digest/provenance, dependency/SBOM evidence, audit result,
+exception decision, rollout result, and post-deploy posture checks.
+
+OCI DevOps integrates Application Dependency Management (ADM) vulnerability
+audits in managed builds for **Maven** projects. Do not represent it as a
+universal SCA scanner: use an approved external scanner for other ecosystems
+and record that handoff explicitly.
+
+```yaml
+steps:
+  - type: VulnerabilityAudit
+    name: dependency-vulnerability-audit
+    configuration:
+      buildType: maven
+      pomFilePath: ${OCI_PRIMARY_SOURCE_DIR}/pom.xml
+```
+
+Gate CRITICAL/HIGH findings under the approved release policy. Exceptions must
+be documented, time-bounded, attributable, and verified at expiry; never mute a
+finding solely to promote a build. After canary/blue-green deployment, verify
+runtime principal, private ingress/WAF policy, Cloud Guard problems, logs and
+alarms; roll back on a failed gate.
+
 SDK (paginated, read-only):
 
 ```python
@@ -351,4 +386,5 @@ Canonical Oracle docs for the services covered above (verified live):
 - [Security Zones](https://docs.oracle.com/en-us/iaas/security-zone/home.htm)
 - [Web Application Firewall (WAF)](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm)
 - [Audit](https://docs.oracle.com/en-us/iaas/Content/Audit/home.htm)
+- [OCI DevOps dependency vulnerability audits (ADM, Maven)](https://docs.oracle.com/en-us/iaas/Content/devops/using/scan-code.htm)
 - [CIS OCI Foundations Benchmark (landing zone)](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html)

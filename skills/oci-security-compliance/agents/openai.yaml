@@ -1,4 +1,4 @@
 interface:
   display_name: "OCI Security and Compliance"
-  short_description: "Audit and harden OCI tenancy security"
-  default_prompt: "Use $oci-security-compliance to audit or harden this OCI security requirement safely."
+  short_description: "Audit, harden, and gate OCI secure delivery"
+  default_prompt: "Use $oci-security-compliance to audit or harden this OCI security or DevSecOps release requirement safely."

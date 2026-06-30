@@ -26,7 +26,7 @@ sequence a request instead of re-deriving the steps.
 | Topic | Skill / reference |
 |---|---|
 | IAM, policies, compartments, budgets, quotas, tags | `skills/oci-iam-admin/` · `references/iam-tenancy.md` |
-| Cloud Guard, Vault, WAF, CIS/ISO-42001, audit | `skills/oci-security-compliance/` · `references/security-compliance.md` |
+| Cloud Guard, Vault, WAF, CIS/ISO-42001, audit, DevSecOps release gates | `skills/oci-security-compliance/` · `references/security-compliance.md` |
 | APM, Monitoring, Logging, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |
 | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP | `skills/oci-dbm-opsi/` · `references/dbm-opsi.md` |
 | Autonomous DB lifecycle, wallet, scale, ACL, connect (oracledb/SQLAlchemy/Alembic) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` |

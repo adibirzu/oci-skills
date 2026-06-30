@@ -59,6 +59,7 @@ Safe), the upstream `db/` domain of
 | WAF (Web Application Firewall) | <https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm> |
 | Audit | <https://docs.oracle.com/en-us/iaas/Content/Audit/home.htm> |
 | Security Zones | <https://docs.oracle.com/en-us/iaas/security-zone/home.htm> |
+| OCI DevOps dependency vulnerability audits (ADM; Maven) | <https://docs.oracle.com/en-us/iaas/Content/devops/using/scan-code.htm> |
 | CIS OCI Benchmark | <https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html> |
 
 ## Observability & database — `oci-observability-db`
