@@ -28,6 +28,14 @@ URL_RE = re.compile(r"https://docs\.oracle\.com[^\s)>\]]*")
 # Accept the two real OCI doc path shapes: most pages are /en-us/iaas/…, a few
 # legacy/global pages are /iaas/… or /en/solutions/… .
 PATH_OK = re.compile(r"^https://docs\.oracle\.com/(en-us/iaas/|iaas/|en/)")
+RETIRED_URLS = {
+    "https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/query-metric-data.htm",
+    "https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/deletingVCN.htm",
+    "https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/managingVCNs_topic-Deleting_VCNs.htm",
+    "https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/creating-streams-and-stream-pools.htm",
+    "https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/manage-apm-domains.html",
+    "https://docs.oracle.com/en-us/iaas/log-analytics/doc/use-cli-manage-log-analytics.html",
+}
 
 
 def _scan_files() -> list[pathlib.Path]:
@@ -69,6 +77,14 @@ def test_every_used_url_is_in_the_index() -> None:
     assert not missing, (
         "doc URLs outside the single-source-of-truth index:\n" + "\n".join(sorted(set(missing)))
     )
+
+
+def test_retired_doc_urls_cannot_be_reintroduced() -> None:
+    found: list[str] = []
+    for f in _scan_files():
+        for url in set(_urls_in(f.read_text(encoding="utf-8"))) & RETIRED_URLS:
+            found.append(f"{f.relative_to(ROOT)}: {url}")
+    assert not found, "retired Oracle doc URLs were reintroduced:\n" + "\n".join(found)
 
 
 def test_every_kb_entry_cites_a_doc() -> None:
