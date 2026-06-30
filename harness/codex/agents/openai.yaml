@@ -3,7 +3,7 @@
 # which places SKILL.md + references/ + scripts/ where Codex discovers skills.
 interface:
   display_name: "OCI Skills v2"
-  short_description: "Administer OCI and author safe CLI, Terraform, and platform bundles."
+  short_description: "Administer OCI and author safe CLI, Terraform, platform bundles, and DevSecOps release gates."
   default_prompt: >-
     Use $oci-administrator to handle this OCI tenancy request. Run
     scripts/oci_preflight.sh to confirm the target tenancy/compartment, check

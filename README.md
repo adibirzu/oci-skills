@@ -23,7 +23,7 @@ The router selects fifteen primary domains and two orchestrators:
 | Skill | Primary ownership |
 |---|---|
 | `oci-iam-admin` | Users, groups, policies, compartments, budgets, quotas, tags, limits, named contexts |
-| `oci-security-compliance` | Cloud Guard, Vault/KMS, Security Zones, WAF, Audit, CIS/ISO-42001, credentials |
+| `oci-security-compliance` | Cloud Guard, Vault/KMS, Security Zones, WAF, Audit, CIS/ISO-42001, credentials, DevSecOps release gates |
 | `oci-observability-db` | Monitoring, Logging, APM, OTel, alarms, notifications, connectors, dashboards |
 | `oci-dbm-opsi` | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP |
 | `oci-autonomous-db` | ADB lifecycle, private endpoints, wallet, ACL, scale, connectivity, read-only diagnostics |
