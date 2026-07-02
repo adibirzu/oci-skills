@@ -1547,3 +1547,47 @@ scheduled Vault/key deletion is a distinct OCI lifecycle state, not evidence of
 an active stack resource.
 **See:** [Resource Manager jobs](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/usingconsole.htm)
 **Status:** resolved.
+
+## KB-159 — Resource Manager source and runtime variables must advance together (resource-manager)
+
+**Symptom:** A redeploy uses stale Terraform source or stale capacity/authentication
+inputs even though a local runtime variables file was edited.
+**Root cause:** A Resource Manager stack stores both its configuration archive and
+its variables. Editing an uncommitted local JSON file does not update an existing
+stack, while uploading a new archive without the reviewed runtime values can
+produce an unintended plan.
+**Fix:** Treat one uncommitted runtime variables file as the stack lifecycle
+record. Before every redeploy, resolve any auto modes into that file, upload the
+archive and sanitized variables together with `stack update`, then create and
+review a fresh plan. Keep `oci_config_profile` local-only; remove it from the
+uploaded copy so Resource Manager uses its principal.
+**See:** [Updating a stack](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/update-stack.htm)
+**Status:** resolved.
+
+## KB-160 — Reuse an active OKE cluster instead of recreating it (resource-manager)
+
+**Symptom:** A redeploy risks creating a second OKE cluster when the intended
+private cluster is already active.
+**Root cause:** A generic install path creates a stack without first checking the
+target compartment for the expected active cluster identity.
+**Fix:** Query the authoritative Container Engine cluster list by expected name
+and require lifecycle state `ACTIVE` before installation. Exit with an explicit
+reuse result when found; otherwise continue to the reviewed stack install. Do
+not use a search-index record as proof of current lifecycle state.
+**See:** [Listing clusters](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contenglistingclusters.htm)
+**Status:** resolved.
+
+## KB-161 — OCI Run Command can fail before an in-VCN payload starts (compute)
+
+**Symptom:** A Run Command execution is acknowledged but fails immediately with
+an agent working-directory or generated-command-path error and exit code 127.
+**Root cause:** The Compute Instance Run Command agent failed to materialize the
+OCI-managed command source. The target instance and its plugin can still be
+healthy; this is distinct from application bootstrap or network failure.
+**Fix:** Check the command execution delivery state and agent plugin state before
+diagnosing the payload. Retry with a source-script payload where appropriate. If
+the managed source path remains absent, collect the redacted execution metadata
+and use a supported alternate in-VCN observability path; do not expose SSH or a
+private API endpoint as a workaround.
+**See:** [Run commands on instances](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runcmd.htm)
+**Status:** unresolved; requires OCI agent-service remediation when repeated.
