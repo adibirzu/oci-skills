@@ -173,24 +173,52 @@ No example above deploys infrastructure. Plan/apply examples and approval behavi
 
 ## Install
 
-From a clone:
+### Plugin install — Claude Code
 
-```bash
-git clone https://github.com/adibirzu/oci-skills.git
-cd oci-skills
-make install              # every detected harness
-make install-codex        # or one target
-make dry-run              # preview copy operations
+The recommended public catalog is the adibirzu LLM marketplace:
+
+```text
+/plugin marketplace add adibirzu/adibirzu-plugins
+/plugin install oci-administrator@adibirzu-plugins
+/reload-plugins
 ```
 
-Claude Code plugin:
+For an OCI-only catalog, install directly from this repository:
 
 ```text
 /plugin marketplace add adibirzu/oci-skills
 /plugin install oci-administrator@oci-skills
+/reload-plugins
 ```
 
-Codex/ChatGPT can import `.codex-plugin/plugin.json`. Gemini uses `harness/gemini/`; Antigravity uses `harness/antigravity/AGENTS.md`. Copy installs include skills, references, scripts, schemas, planning docs, commands, and hooks. Claude activates hooks only when the pack is loaded as a plugin (marketplace or `--plugin-dir`), not from a plain skill copy.
+The default is **User scope**. For a repository-managed **Project scope** install, use the plugin manager UI or:
+
+```bash
+claude plugin install oci-administrator@adibirzu-plugins --scope project
+```
+
+Refresh an existing marketplace installation with:
+
+```text
+/plugin marketplace update adibirzu-plugins
+/plugin update oci-administrator@adibirzu-plugins
+/reload-plugins
+```
+
+### Skill / copy install — all harnesses
+
+```bash
+git clone https://github.com/adibirzu/oci-skills.git
+cd oci-skills
+./install.sh --list
+DRY_RUN=true ./install.sh
+./install.sh claude
+./install.sh codex
+./install.sh gemini
+./install.sh antigravity
+```
+
+`make install`, `make install-codex`, and `make dry-run` provide equivalent shortcuts. Upgrade a clone with `git pull --ff-only`, then rerun the selected installer. A skill / copy install does not activate Claude plugin hooks; use the plugin install for commands and hooks. Codex/ChatGPT can also import `.codex-plugin/plugin.json`; Gemini and Antigravity use the adapters under `harness/`. Installation and validation are offline and do not contact an OCI tenancy.
 
 ## Requirements
 
