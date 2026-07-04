@@ -36,6 +36,8 @@ deep OKE / GenAI there.
 | Cloud Guard, Vault/KMS, WAF, Security Zones, CIS scan | **this pack** | `skills/oci-security-compliance` |
 | Monitoring, alarms, APM, OpenTelemetry, dashboards, Autonomous DB observability | **this pack** | `skills/oci-observability-db` |
 | DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP, Database Insights | **this pack** | `skills/oci-dbm-opsi` |
+| Base Database and Exadata control-plane lifecycle, backups, patching, Data Guard associations | **this pack** | `skills/oci-database-cloud` |
+| Bastion access, Managed SSH, port forwarding, allowlists, plugin diagnosis | **this pack** | `skills/oci-bastion-access` |
 | VCN, subnets, NSGs, LB, compute, OCIR | **this pack** | `skills/oci-networking-compute` |
 | OKE deploys, kubeconfig/kubectl, ingress-nginx, OCI LoadBalancer Services, TLS secrets, OCIR pulls, rollouts, virtual-node gotchas | **this pack** | `skills/oci-oke-admin` |
 | ZPR visibility, security attributes, protected resources, flow-log correlation | **this pack** | `skills/oci-zpr-visibility` |
@@ -45,6 +47,7 @@ deep OKE / GenAI there.
 | Data Safe (registration, assessments, masking) | **this pack** | `skills/oci-data-safe` |
 | Functions, Events, ONS, Service Connector Hub, Streaming | **this pack** | `skills/oci-events-functions` |
 | Project lifecycle (bootstrap/status/deploy/teardown) | **this pack** | `skills/oci-project` |
+| Landing-zone assessment, design, deployment/upgrade orchestration | **this pack** | `skills/oci-landing-zone` |
 | Solution design (requirement → guardrailed architecture) | **this pack** | [solution-authoring.md](solution-authoring.md) |
 | **OKE day-2 deep-dive** — cluster design, GVA GPU node pools, Multus multihoming, incident troubleshooting | **`oracle/skills`** | [`oci/oke/`](https://github.com/oracle/skills/tree/main/oci/oke) |
 | **OCI Generative AI / Enterprise AI** — models, Responses-API agents, RAG, GenAI governance, GenAI cost | **`oracle/skills`** | [`oci/enterprise-ai/`](https://github.com/oracle/skills/tree/main/oci/enterprise-ai) |
@@ -76,7 +79,9 @@ hand off the deep work:
   for a GenAI workload — design and guardrail it here, implement it there.
 - **Inside the database.** Anything *within* an Oracle DB (SQL/PLSQL, RMAN,
   AWR/ASH, migrations, Data Guard internals) → `oracle/skills` `db/`. We handle
-  the OCI services *around* the database (DBM, OPSI, Data Safe, ADB provisioning).
+  the OCI services *around* the database (DBM, OPSI, Data Safe, ADB provisioning,
+  and Base Database/Exadata control-plane lifecycle including Data Guard
+  associations).
 - **Oracle Fusion Cloud Applications.** Fusion SaaS configuration, extension, or
   application-level work is outside this OCI control-plane pack. Use the
   [Oracle Fusion Cloud Applications documentation](https://docs.oracle.com/en/cloud/saas/index.html)

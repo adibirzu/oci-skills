@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Landing Zone"
+  short_description: "Design and govern OCI landing-zone lifecycle"
+  default_prompt: "Use $oci-landing-zone to assess or design this OCI landing-zone lifecycle safely."

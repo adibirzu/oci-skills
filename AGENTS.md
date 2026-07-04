@@ -7,12 +7,25 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
-skill pack. Route requests to one of fifteen primary domain skills or the
-`oci-project` / `oci-product-development` orchestrator under `skills/`.
+skill pack. Route requests to one of seventeen primary domain skills or the
+`oci-project`, `oci-product-development`, `oci-application-engineering`, or
+`oci-landing-zone` orchestrator under `skills/`.
 
-## Always, before acting
+## Before live OCI control-plane work
 
-1. `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>` — confirm the tenancy.
+These gates apply to a live OCI read or mutation, not to offline application
+code, documentation, tests, bundle scaffolding, local validation, or review.
+Those development tasks should proceed immediately and say explicitly that no
+tenancy was contacted.
+
+Use a progress-first ladder. Execute offline generators, local validation,
+linting, tests, documentation, and reusable-code discovery immediately. Execute
+an unambiguous live read when the user supplied a valid named context. Pause
+only the risky part of a request—an ambiguous live target, mutation, credential
+operation, destructive action, or Terraform ownership conflict—while continuing
+all safe preparation and verification work.
+
+1. `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>` — confirm the tenancy before a mutation; use it for live reads when tenancy scope is ambiguous.
 2. `python3 ./scripts/kb_lookup.py "symptom words"` — check known fixes.
 3. Read `references/tenancy-safety.md` once per session. For *how to reason*
    before acting, read `references/agent-safety.md`; when a call fails, map the
@@ -30,6 +43,8 @@ sequence a request instead of re-deriving the steps.
 | APM, Monitoring, Logging, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |
 | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP | `skills/oci-dbm-opsi/` · `references/dbm-opsi.md` |
 | Autonomous DB lifecycle, wallet, scale, ACL, connect (oracledb/SQLAlchemy/Alembic) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` |
+| Base Database and Exadata DB system/home/database/PDB/backup/patch/Data Guard lifecycle | `skills/oci-database-cloud/` · `references/database-cloud.md` |
+| Bastion, Managed SSH, fixed/dynamic forwarding, allowlists, Bastion plugin | `skills/oci-bastion-access/` · `references/bastion-access.md` |
 | VCN, NSG, LB, compute, VNIC, volume | `skills/oci-networking-compute/` · `references/networking-compute.md` |
 | OKE deploy, kubectl, ingress-nginx, LoadBalancer services, TLS certs, OCIR pulls, rollout troubleshooting | `skills/oci-oke-admin/` · `references/oke-operations.md` |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, flow-log correlation | `skills/oci-zpr-visibility/` · `references/zpr-visibility.md` |
@@ -41,6 +56,8 @@ sequence a request instead of re-deriving the steps.
 | Terraform/HCL authoring, discovery, local validate/plan/apply/destroy, provider schema | `skills/oci-terraform-authoring/` · `references/terraform-authoring.md` |
 | DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery | `skills/oci-developer-services/` · `references/developer-services.md` |
 | product golden paths, platform bundles, runtime/ingress/data selection | `skills/oci-product-development/` · `references/product-development.md` |
+| application code, code review, debugging, reuse, plugin assessment, adaptive model measurement | `skills/oci-application-engineering/` · `skills/oci-application-engineering/references/workflow.md` |
+| landing zones, Cloud Adoption Framework, greenfield tenancy foundation, enterprise guardrails | `skills/oci-landing-zone/` · `references/landing-zone.md` |
 | whole-project bootstrap, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` |
 
 **Related: MCP gateway (non-official).** This pack is the authoritative,
@@ -57,7 +74,7 @@ source of truth — see `references/mcp-gateway.md`.
 
 - All CLI through `oci_cli` (negotiates auth/profile/region).
 - Read before write; treat `409` as "exists"; keep operations idempotent.
-- Live actions use `run_action` and require a current matching preflight receipt.
+- Live mutations use `run_action` and require a current matching preflight receipt.
   Destructive/credential automation requires an exact approval identifier;
   production force additionally requires `OCI_SKILLS_BREAK_GLASS=true`.
 - Terraform owns durable resources by default. CLI mutation of a Terraform-owned

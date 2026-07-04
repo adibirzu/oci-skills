@@ -66,6 +66,16 @@ In a scaffold-only response, do not name service fields, metrics, or CLI/SDK met
 those must come from the transport owner's installed schema/help in the later
 materialization step.
 
+## Progress-first product work
+
+Do not withhold a safe bundle scaffold or local schema validation because a
+named context has not yet been bound, a provider is unavailable, or a later
+deployment approval is missing. Produce the bundle, validate its local schema,
+record ownership and verification intent, and identify the next live checkpoint.
+Only materialization, live inspection, and deployment wait for their applicable
+live gate. This keeps a design or application team moving while preserving the
+existing controls for OCI reads and mutations.
+
 ## Schema v1
 
 `platform-bundle.yaml` is validated by `scripts/platform_bundle.py` and `schemas/platform-bundle.schema.json`. Required fields are schema version, safe name, named context, runtime, ingress, data, `oci-devops` delivery, Terraform owner/path, and named verification checks.

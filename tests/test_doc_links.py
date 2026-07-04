@@ -29,6 +29,8 @@ URL_RE = re.compile(r"https://docs\.oracle\.com[^\s)>\]]*")
 # legacy/global pages are /iaas/… or /en/solutions/… .
 PATH_OK = re.compile(r"^https://docs\.oracle\.com/(en-us/iaas/|iaas/|en/)")
 RETIRED_URLS = {
+    "https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runcmd.htm",
+    "https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contenglistingclusters.htm",
     "https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/query-metric-data.htm",
     "https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/deletingVCN.htm",
     "https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/managingVCNs_topic-Deleting_VCNs.htm",

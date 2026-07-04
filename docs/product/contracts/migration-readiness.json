@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "current_major": 2,
+  "breaking_changes": "major-release-only",
+  "deprecations": {
+    "run_mutating": {
+      "replacement": "run_action",
+      "earliest_removal_major": 3,
+      "compatibility": "additive-alias"
+    }
+  },
+  "stable_surfaces": ["named-contexts", "risk-values", "platform-bundle-schema-v1", "canonical-skill-names", "terraform-single-owner"],
+  "readiness_checks": [
+    {"id": "contract-validation", "owner": "release-owner", "evidence": "product-contracts-report"},
+    {"id": "adapter-parity", "owner": "distribution-maintainer", "evidence": "clean-install-tests"},
+    {"id": "deprecated-callers", "owner": "compatibility-owner", "evidence": "repository-search"},
+    {"id": "external-evidence", "owner": "independent-reviewer", "evidence": "forward-eval-report"}
+  ]
+}

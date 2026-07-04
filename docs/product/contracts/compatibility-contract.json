@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "stable": {
+    "named_contexts": true,
+    "risk_values": ["additive", "in-place", "destructive", "credential"],
+    "platform_bundle_schema": 1,
+    "skill_names": "additive-only-within-v2"
+  },
+  "deprecated": {
+    "run_mutating": {
+      "replacement": "run_action",
+      "behavior": "additive-compatibility-alias",
+      "removal": "next-major-only"
+    }
+  },
+  "ownership": {
+    "durable_resources": "terraform",
+    "execution_surfaces": ["local-terraform", "oci-resource-manager"],
+    "dual_ownership_allowed": false
+  }
+}

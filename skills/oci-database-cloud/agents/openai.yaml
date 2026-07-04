@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Database Cloud"
+  short_description: "Operate Base Database and Exadata lifecycle safely"
+  default_prompt: "Use $oci-database-cloud to plan this OCI Base Database or Exadata control-plane workflow safely."

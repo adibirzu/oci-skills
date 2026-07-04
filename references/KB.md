@@ -1574,7 +1574,7 @@ target compartment for the expected active cluster identity.
 and require lifecycle state `ACTIVE` before installation. Exit with an explicit
 reuse result when found; otherwise continue to the reviewed stack install. Do
 not use a search-index record as proof of current lifecycle state.
-**See:** [Listing clusters](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contenglistingclusters.htm)
+**See:** [Listing clusters](https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/list-clusters.htm)
 **Status:** resolved.
 
 ## KB-161 — OCI Run Command can fail before an in-VCN payload starts (compute)
@@ -1589,5 +1589,5 @@ diagnosing the payload. Retry with a source-script payload where appropriate. If
 the managed source path remains absent, collect the redacted execution metadata
 and use a supported alternate in-VCN observability path; do not expose SSH or a
 private API endpoint as a workaround.
-**See:** [Run commands on instances](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runcmd.htm)
+**See:** [Run commands on instances](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm)
 **Status:** unresolved; requires OCI agent-service remediation when repeated.

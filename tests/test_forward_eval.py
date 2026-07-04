@@ -260,7 +260,7 @@ def test_prepare_run_emits_only_raw_prompts_and_private_manifest(tmp_path: pathl
         run_id="forward-001",
         source_commit="deadbeef",
     )
-    assert len(manifest["trials"]) == 42
+    assert len(manifest["trials"]) == 44
     assert stat.S_IMODE(output.stat().st_mode) == 0o700
     assert stat.S_IMODE((output / "manifest.json").stat().st_mode) == 0o600
     assert not (output / "rubric.json").exists()

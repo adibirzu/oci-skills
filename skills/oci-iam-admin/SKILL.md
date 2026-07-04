@@ -8,7 +8,8 @@ description: >-
   resource-availability pre-checks, tags (namespaces, defined, freeform,
   cost-tracking), regions, and Identity Domains vs legacy IAM. Use whenever a
   request mentions OCI IAM, OCID, compartment, policy, tenancy, dynamic group,
-  budget, quota, service limit, tag namespace, or auth token.
+  budget, quota, service limit, tag namespace, auth token, generic OIDC/OAuth
+  or SAML application integration, claims/scopes, or SCIM provisioning.
 ---
 
 # OCI IAM & Tenancy Admin
@@ -44,7 +45,7 @@ for the safety rules.
 | user, group, add-user, membership | Users & groups |
 | dynamic group, matching rule, instance/function principal | Dynamic groups |
 | policy, allow statement, least privilege, manage-all | Policies |
-| Identity Domain, SCIM, userName filter, auth token | Identity Domains |
+| Identity Domain, OIDC/OAuth app, SAML app or IdP, scopes/claims, SCIM users/groups, userName filter, auth token | Identity Domains |
 | budget, spend alert, forecast threshold | Budgets |
 | quota policy, service limit, capacity, LimitExceeded | Quotas & limits |
 | tag namespace, defined/freeform tag, cost-tracking | Tags |
@@ -57,6 +58,13 @@ for the safety rules.
 | Least-privilege review | `policy list` → grep `manage all-resources in tenancy` → `iam_audit.py` for effective grants → propose a compartment-scoped rewrite |
 | Grant a resource principal | `dynamic-group create` with a matching rule (`instance.id`/`resource.id`) → `policy` allowing the dynamic-group → verify with `dynamic-group get` (KB-021) |
 | Pre-flight a provision | `limits resource-availability get` for the shape/limit → if blocked, request an increase before creating, not mid-create (KB-003, KB-015) |
+| Register an OIDC/OAuth application | identify domain/app type → read integrations → define origins, grants, scopes and claims → credential-risk activation → validate discovery, audience and least privilege |
+| Register a SAML integration | establish IdP/SP roles → exchange reviewed metadata/certificates → map subject/attributes/groups → credential-risk activation → test signed SSO/SLO and failures |
+| Provision users/groups with SCIM | define authoritative source/conflict policy → read schemas/filters → least-privilege client → staged sync → reconcile users, groups, memberships and failures |
+
+Identity integration guidance is protocol-generic. Framework-specific recipes
+such as Better Auth remain application engineering, not an IAM control-plane
+contract.
 
 ## Common tasks
 
@@ -98,6 +106,14 @@ Identity Domains: SCIM filters are **camelCase** (`userName eq "x"`), responses
 are **kebab-case** (KB-002). Auth tokens come from `iam auth-token create`, not
 identity-domains.
 
+For OIDC/OAuth, SAML, or SCIM, read the domain and existing applications first.
+Treat client-secret generation, certificate/key association, token generation,
+and application activation as `credential` risk. Put secret payloads in a
+reviewed `0600` `file://` command document with `--from-json` only after installed
+help validates the exact shape; never print sensitive claims. Validate
+issuer/audience, redirect origins, signing, scopes/roles, subject/group mapping,
+provisioning conflicts, deactivation, and rollback.
+
 ## Safety notes
 
 - **Read before write.** `get`/`list` first; treat `409 Conflict` as "exists".
@@ -122,6 +138,6 @@ identity-domains.
 
 ## Official documentation
 
-[IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm) · [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm). Full list in the [iam-tenancy reference](../../references/iam-tenancy.md).
+[IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm) · [Identity Domains REST/SCIM API](https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/api-get-started.htm) · [OAuth scopes](https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/Scopes.htm) · [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm). Full list in the [iam-tenancy reference](../../references/iam-tenancy.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

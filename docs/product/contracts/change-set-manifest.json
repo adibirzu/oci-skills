@@ -1,0 +1,1 @@
+{"schema_version":1,"required_fields":["change_id","classification","owners","artifacts","tests"],"path_ordering":"bytewise","raw_content":false}

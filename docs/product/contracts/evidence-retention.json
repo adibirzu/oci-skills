@@ -1,0 +1,1 @@
+{"schema_version":1,"secrets":"never-retain","raw_provider_content":"local-ephemeral-only","committed_evidence":"metadata-only","deletion_verification":"required","allowed_committed_fields":["ids","counts","hashes","statuses","test-names"]}

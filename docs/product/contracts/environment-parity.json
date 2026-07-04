@@ -1,0 +1,1 @@
+{"schema_version":1,"harnesses":["claude","codex","gemini","antigravity"],"invariants":["skills","contracts","safety","routing","references","schemas"],"live_oci_required":false,"verification":"clean-install"}

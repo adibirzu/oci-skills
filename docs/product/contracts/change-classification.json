@@ -1,0 +1,1 @@
+{"schema_version":1,"default":"breaking","unknown_change":"fail-closed","classes":{"editorial":{"minimum_release":"patch","requires":["docs-review"]},"additive":{"minimum_release":"minor","requires":["compatibility-tests"]},"breaking":{"minimum_release":"next-major","requires":["migration-plan","independent-review"]}}}

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/oci-skills/evidence-envelope.schema.json",
+  "schema_version": 1,
+  "title": "OCI Skills evidence envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "finding",
+    "evidence",
+    "action",
+    "verification",
+    "rollback",
+    "secret_values"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "finding": {"type": "string"},
+    "evidence": {"type": "array", "items": {"type": "string"}},
+    "action": {
+      "type": "object",
+      "required": ["owner", "risk", "status"],
+      "properties": {
+        "owner": {"type": "string"},
+        "risk": {"enum": ["none", "additive", "in-place", "destructive", "credential"]},
+        "status": {"enum": ["planned", "blocked", "executed", "not-applicable"]}
+      }
+    },
+    "verification": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "rollback": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "kb": {"type": ["string", "null"]},
+    "secret_values": {"type": "array", "maxItems": 0}
+  }
+}
