@@ -185,6 +185,7 @@ resolve_tenancy_ocid() {
 # resolve_compartment [explicit] — echo the compartment to operate in: the
 # explicit arg if given, else $OCI_SKILLS_COMPARTMENT, else the tenancy root.
 # Echoes empty if none can be resolved (caller decides whether to die).
+# shellcheck disable=SC2120  # [explicit] arg is optional; callers in other files pass it
 resolve_compartment() {
   local explicit="${1:-${OCI_SKILLS_COMPARTMENT:-}}"
   if [[ -n "$explicit" ]]; then printf '%s' "$explicit"; return 0; fi
