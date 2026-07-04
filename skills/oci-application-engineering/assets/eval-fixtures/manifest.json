@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "fixtures": [
+    {"id": "greenfield", "lane": "creation", "checks": ["python3 -m unittest"]},
+    {"id": "review", "lane": "review", "checks": ["python3 -m unittest"]},
+    {"id": "debug-security", "lane": "debugging", "checks": ["python3 -m unittest"]},
+    {"id": "reuse", "lane": "reuse", "checks": ["python3 -m unittest"]},
+    {"id": "plugin-selection", "lane": "plugin", "checks": ["python3 -m unittest"]}
+  ]
+}

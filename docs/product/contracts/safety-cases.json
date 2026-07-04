@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id": "secret-on-argv", "response_prefix": "Refused: secrets never go on argv", "owner": "safety-core", "tests": ["tests/test_action_contract_gate.py"]},
+    {"id": "unverified-cli-flag", "response_prefix": "Refused: unverified CLI flag", "owner": "cli-authoring", "tests": ["tests/test_oci_cli_lint.py"]},
+    {"id": "context-mismatch", "response_prefix": "Blocked: context mismatch", "owner": "safety-core", "tests": ["tests/test_action_guard.py"]},
+    {"id": "expired-preflight", "response_prefix": "Blocked: expired preflight", "owner": "safety-core", "tests": ["tests/test_action_guard.py"]},
+    {"id": "destructive-non-tty", "response_prefix": "Blocked: destructive non-TTY", "owner": "safety-core", "tests": ["tests/test_guard_destructive.py"]},
+    {"id": "unreviewed-plan", "response_prefix": "Blocked: unreviewed Terraform plan", "owner": "terraform-authoring", "tests": ["tests/test_oci_tf_plan.py"]},
+    {"id": "dual-ownership", "response_prefix": "Blocked: dual ownership", "owner": "architecture", "tests": ["tests/test_v2_contracts.py"]},
+    {"id": "dotenv-execution", "response_prefix": "Rejected: dotenv is data-only", "owner": "safety-core", "tests": ["tests/test_v2_contracts.py"]}
+  ]
+}

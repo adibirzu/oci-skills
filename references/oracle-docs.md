@@ -45,6 +45,9 @@ Safe), the upstream `db/` domain of
 |---|---|
 | IAM (users, groups, policies, compartments) | <https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm> |
 | Identity Domains | <https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm> |
+| Identity Domains applications, SSO, and provisioning | <https://docs.oracle.com/en-us/iaas/Content/identity-domains/identity-domains.htm> |
+| Identity Domains REST API and SCIM 2.0 | <https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/api-get-started.htm> |
+| Identity Domains OAuth scopes | <https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/Scopes.htm> |
 | Compartment Quotas | <https://docs.oracle.com/en-us/iaas/Content/Quotas/Concepts/resourcequotas.htm> |
 | Service Limits | <https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm> |
 | Budgets | <https://docs.oracle.com/en-us/iaas/Content/Billing/Concepts/budgetsoverview.htm> |
@@ -106,13 +109,35 @@ Safe), the upstream `db/` domain of
 | Networking (VCN, subnets, NSGs, gateways, LB) | <https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm> |
 | Resource Search (structured and free-text inventory) | <https://docs.oracle.com/en-us/iaas/Content/Search/Concepts/queryoverview.htm> |
 | Compute | <https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm> |
+| Run commands on instances | <https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm> |
 | Object Storage (buckets) | <https://docs.oracle.com/en-us/iaas/Content/Object/home.htm> |
+
+## Bastion access — `oci-bastion-access`
+
+| Topic | Canonical doc |
+|---|---|
+| Bastion overview | <https://docs.oracle.com/en-us/iaas/Content/Bastion/Concepts/bastionoverview.htm> |
+| Connect to port forwarding | <https://docs.oracle.com/en-us/iaas/Content/Bastion/Tasks/connect-port-forwarding.htm> |
+| Create port forwarding | <https://docs.oracle.com/iaas/Content/Bastion/Tasks/create-session-port-forwarding.htm> |
+| Bastion known issues and plugin prerequisites | <https://docs.oracle.com/en-us/iaas/Content/Bastion/Tasks/known-issues.htm> |
+| Bastion session CLI reference | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/bastion/session/create-port-forwarding.html> |
+
+## Database Cloud — `oci-database-cloud`
+
+| Topic | Canonical doc |
+|---|---|
+| OCI Database service | <https://docs.oracle.com/en-us/iaas/Content/Database/home.htm> |
+| Base Database | <https://docs.oracle.com/en-us/iaas/base-database/index.html> |
+| Base Database lifecycle and backup/recovery | <https://docs.oracle.com/en-us/iaas/Content/Database/Tasks/backingupFRA.htm> |
+| Pluggable databases | <https://docs.oracle.com/en/cloud/paas/base-database/about-pdb/> |
+| Exadata infrastructure maintenance | <https://docs.oracle.com/en-us/iaas/exadatacloud/doc/exa-conf-oracle-man-infra.html> |
 
 ## OKE — `oci-oke-admin`
 
 | Topic | Canonical doc |
 |---|---|
 | Kubernetes Engine (OKE) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm> |
+| List Kubernetes clusters | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/list-clusters.htm> |
 
 ## Cost & FinOps — `oci-cost`
 
@@ -127,6 +152,7 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | Resource Manager (managed Terraform) | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm> |
+| Update a Resource Manager stack | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/update-stack.htm> |
 | Terraform on OCI (provider, authoring stacks) | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm> |
 
 ## Terraform authoring — `oci-terraform-authoring`
@@ -135,6 +161,19 @@ Safe), the upstream `db/` domain of
 |---|---|
 | OCI Terraform provider | <https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/> |
 | Resource discovery | <https://docs.oracle.com/en-us/iaas/Content/terraform/resource-discovery.htm> |
+| OCI Object Storage native and legacy state backends | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/object-storage-state.htm> |
+| OCI provider authentication | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/configuring.htm> |
+| OCI provider availability and FIPS | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm> |
+| Terraform/provider/module version pinning | <https://docs.oracle.com/en-us/iaas/Content/dev/terraform/specifying-versions.htm> |
+
+## Landing zones — `oci-landing-zone`
+
+| Topic | Canonical doc |
+|---|---|
+| Cloud Adoption Framework technology implementation | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/landing-zone-v1.htm> |
+| OCI Core Landing Zone | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/oci-core-landing-zone.htm> |
+| Well-Architected OCI Landing Zones | <https://docs.oracle.com/en/solutions/oci-best-practices/simplify-provisioning-oci-landing-zones1.html> |
+| Resource Manager and Terraform | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resource-manager-and-terraform.htm> |
 
 ## Data Safe — `oci-data-safe`
 

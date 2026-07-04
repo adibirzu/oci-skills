@@ -1,0 +1,1 @@
+{"schema_version":1,"self_attestation_allowed":false,"external_signature_required":true,"raw_content_included":false,"required_fields":["contract_sha256","install_manifest_sha256","forward_evidence_sha256","reviewer_id","reviewed_at"],"secret_fields":[]}

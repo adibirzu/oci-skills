@@ -3,6 +3,13 @@
   "description": "Trigger and behavior evals for the OCI Administrator skill pack.",
   "cases": [
     {
+      "id": "trigger-application-engineering",
+      "prompt": "Review this OCI-backed application, find reusable modules, assess installed plugins, and measure whether adaptive MultiLLM helps before implementing the fix.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-application-engineering",
+      "expect_behavior": "Classifies data, searches local knowledge and reuse first, assesses plugins read-only, uses TDD and independent review, and does not mutate OCI infrastructure."
+    },
+    {
       "id": "trigger-iam-policy",
       "prompt": "Audit the IAM policies in my OCI tenancy for anything granting manage all-resources.",
       "expect_skill": "oci-administrator",
@@ -324,6 +331,139 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-terraform-authoring",
       "expect_behavior": "Refuses because the preflight/plan/argv/context binding changed; requires a new reviewed identity and exact approval plus production break-glass."
+    },
+    {
+      "id": "trigger-bastion-managed-ssh",
+      "prompt": "Create a time-bound Managed SSH session through OCI Bastion and verify the Bastion plugin.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-bastion-access",
+      "expect_behavior": "Reads bastion, allowlist, target, OpenSSH, Cloud Agent and plugin state; treats session/key handling as credential risk; verifies expiry and connection without printing keys."
+    },
+    {
+      "id": "trigger-bastion-fixed-forward",
+      "prompt": "Use OCI Bastion to forward one local port to a private database endpoint.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-bastion-access",
+      "expect_behavior": "Routes fixed forwarding to Bastion, validates allowlist and target reachability, protects SSH key material, verifies the tunnel, and defines cleanup."
+    },
+    {
+      "id": "trigger-bastion-dynamic-forward",
+      "prompt": "Create a dynamic SOCKS5 forwarding session with OCI Bastion.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-bastion-access",
+      "expect_behavior": "Bounds destinations and client proxy use, uses credential approval, verifies the dynamic session, and records expiry/cleanup."
+    },
+    {
+      "id": "trigger-bastion-allowlist-plugin",
+      "prompt": "My Bastion session fails and the client CIDR allowlist or Bastion plugin may be wrong.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-bastion-access",
+      "expect_behavior": "Diagnoses allowlist, agent/plugin, IAM, region and target network without broadening exposure; hands pure NSG/route changes to networking."
+    },
+    {
+      "id": "trigger-db-system-create",
+      "prompt": "Create a VM Base Database DB system with backups and verify it.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-database-cloud",
+      "expect_behavior": "Reads capacity, network, encryption, backup and ownership prerequisites; uses an additive reviewed action and verifies work request, database and backup posture."
+    },
+    {
+      "id": "trigger-db-home-patch",
+      "prompt": "Patch the DB home on my Base Database system with a rollback plan.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-database-cloud",
+      "expect_behavior": "Checks backup, precheck, Data Guard and maintenance state, uses an in-place reviewed action, and verifies version and database health."
+    },
+    {
+      "id": "trigger-database-backup-restore",
+      "prompt": "Back up and restore a PDB resource through the OCI Database service control plane.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-database-cloud",
+      "expect_behavior": "Owns the control-plane backup/restore, validates recoverability and destination, protects credentials, waits for work requests, and verifies recovery."
+    },
+    {
+      "id": "trigger-database-data-guard",
+      "prompt": "Create and test an OCI Base Database Data Guard association.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-database-cloud",
+      "expect_behavior": "Owns association lifecycle, checks both sites/backups/network/maintenance, verifies roles and apply health, and hands database internals to oracle/skills db."
+    },
+    {
+      "id": "trigger-exadata-lifecycle",
+      "prompt": "Scale and schedule maintenance for Exadata cloud infrastructure and its VM cluster.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-database-cloud",
+      "expect_behavior": "Reads infrastructure, cluster, database and maintenance dependencies, reviews capacity and prechecks, risk-classifies changes, and verifies cluster/database health."
+    },
+    {
+      "id": "trigger-landing-zone-design",
+      "prompt": "Design an OCI Core Landing Zone for a greenfield tenancy using the Cloud Adoption Framework.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-landing-zone",
+      "expect_behavior": "Produces a Solution Blueprint and decision matrix for IAM, network, security, observability, cost and operations, then declares one Terraform owner."
+    },
+    {
+      "id": "trigger-landing-zone-assess",
+      "prompt": "Assess our existing OCI estate against a landing-zone blueprint and create an adoption backlog.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-landing-zone",
+      "expect_behavior": "Performs scoped read-only inventories, compares observed and desired state, identifies unmanaged ownership/drift, and phases adoption without treating empty output as proof."
+    },
+    {
+      "id": "trigger-landing-zone-deploy",
+      "prompt": "Deploy and later upgrade an OCI landing zone with Terraform through Resource Manager.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-landing-zone",
+      "expect_behavior": "Reviews source/modules/backends/auth/realm/import/drift, selects Resource Manager as sole execution owner, requires exact reviewed plans, and validates guardrails."
+    },
+    {
+      "id": "trigger-identity-oidc",
+      "prompt": "Register a generic OIDC confidential application in an OCI Identity Domain with scopes and claims.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-iam-admin",
+      "expect_behavior": "Reads domain/apps, validates origins, grants, scopes, claims, issuer and audience, treats secrets and activation as credential risk, and avoids framework-specific recipes."
+    },
+    {
+      "id": "trigger-identity-saml",
+      "prompt": "Configure a generic SAML application integration in OCI Identity Domains.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-iam-admin",
+      "expect_behavior": "Defines IdP/SP roles, reviews metadata/certificates and mappings, credential-gates activation, and verifies signed SSO/SLO."
+    },
+    {
+      "id": "trigger-identity-scim",
+      "prompt": "Provision users and groups into an OCI Identity Domain over SCIM.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-iam-admin",
+      "expect_behavior": "Defines authority/conflict handling, uses least privilege, stages user/group/membership sync, and audits failures/deactivation."
+    },
+    {
+      "id": "negative-bastion-network-only",
+      "prompt": "Add a narrow NSG rule and route for an existing private subnet; no Bastion session is involved.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-networking-compute",
+      "expect_behavior": "Keeps pure NSG and route ownership with networking-compute."
+    },
+    {
+      "id": "negative-database-adb",
+      "prompt": "Rotate my Autonomous Database wallet and update its private endpoint ACL.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Preserves Autonomous Database lifecycle and wallet ownership."
+    },
+    {
+      "id": "negative-database-observability",
+      "prompt": "Onboard a Base Database into DBM and Operations Insights for Performance Hub.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-dbm-opsi",
+      "expect_behavior": "Preserves DBM/OPSI observability ownership instead of routing to Database Cloud."
+    },
+    {
+      "id": "negative-landing-zone-project",
+      "prompt": "Bootstrap and deploy one existing application project in its project compartment.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-project",
+      "expect_behavior": "Keeps ordinary single-project lifecycle with oci-project."
     },
     {
       "id": "routeout-oke-day2",

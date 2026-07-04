@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Application Engineering"
+  short_description: "Build and verify OCI-backed application code"
+  default_prompt: "Use $oci-application-engineering to plan, implement, review, and measure an OCI-backed application change."

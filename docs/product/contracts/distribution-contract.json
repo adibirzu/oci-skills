@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "harnesses": {
+    "claude": {"adapter": ".claude-plugin/plugin.json", "install_target": "claude"},
+    "codex": {"adapter": ".codex-plugin/plugin.json", "install_target": "codex"},
+    "gemini": {"adapter": "harness/gemini/GEMINI.md", "install_target": "gemini"},
+    "antigravity": {"adapter": "harness/antigravity/AGENTS.md", "install_target": "antigravity"}
+  },
+  "required_payload": ["skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "AGENTS.md", "README.md", "LICENSE", "evals"],
+  "forbidden_payload": [".terraform", "*.tfstate", "*.tfplan", "*.tfvars", "__pycache__", "*.pyc"]
+}

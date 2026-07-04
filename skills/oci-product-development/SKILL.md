@@ -33,6 +33,11 @@ All paths compose IAM, networking, security, observability, cost, Terraform, and
 5. Preflight, plan, approve, apply, and verify. Record named checks in the runbook.
 6. Roll back through DevOps or the reviewed Terraform plan. Reconcile any break-glass CLI mutation.
 
+If a context, provider, or approval is not available, still complete steps 1–2
+and the offline ownership, OpenAPI-boundary, delivery-specification, and runbook
+work. Report the one later live gate instead of treating it as a block on design
+or scaffolding.
+
 ## Common multi-step flows
 
 | Request | Sequence |

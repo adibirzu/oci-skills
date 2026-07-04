@@ -3,6 +3,11 @@
   "suite_id": "oci-skills-v2-forward",
   "prompts": [
     {
+      "id": "application-reuse-review",
+      "category": "application",
+      "prompt": "Review an OCI-backed application change, search local reusable modules and installed skills before external plugins, use tests first, and explain how you will measure adaptive MultiLLM without exposing restricted code."
+    },
+    {
       "id": "tf-private-container",
       "category": "terraform",
       "prompt": "Write production-ready OCI Terraform for a private VCN and a Container Instance. I want something I can review and deploy."

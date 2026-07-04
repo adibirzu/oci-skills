@@ -41,6 +41,11 @@ product golden path, generate `platform-bundle.yaml` with
 **oci-product-development** and pass it as `--bundle <path>`; Terraform remains
 the owner of bundle resources.
 
+Stage 0 and local bundle validation proceed without a bound context or OCI
+credentials. Treat a missing context or preflight as a gate on bootstrap,
+status, deploy, and teardown only; finish the safe blueprint, ownership, and
+handoff work and report the exact live checkpoint still needed.
+
 ## First move (always)
 
 1. Bind / confirm the project context (so every op targets the right compartment):

@@ -40,9 +40,17 @@ def _assert_common_payload(dest: pathlib.Path) -> None:
     for skill in _skill_names(ROOT):
         assert (dest / "skills" / skill / "agents" / "openai.yaml").is_file()
     assert (dest / "scripts" / "forward_eval.py").is_file()
+    assert (dest / "scripts" / "product_contracts.py").is_file()
+    assert (dest / "scripts" / "workflow_eval.py").is_file()
     assert (dest / "evals" / "forward" / "prompts.json").is_file()
     assert (dest / "evals" / "forward" / "rubric.json").is_file()
     assert (dest / "references" / "security-development.md").is_file()
+    assert (dest / "schemas" / "application-workflow.schema.json").is_file()
+    assert (dest / "schemas" / "evidence-envelope.schema.json").is_file()
+    assert (dest / "docs" / "product" / "contracts" / "capability-catalog.json").is_file()
+    assert (dest / "docs" / "product" / "contracts" / "install-manifest.json").is_file()
+    assert (dest / "docs" / "product" / "contracts" / "safety-cases.json").is_file()
+    assert (dest / "docs" / "product" / "prds" / "req-32-migration-readiness.md").is_file()
     assert (dest / "skills" / "oci-security-compliance" / "assets" / "security-release-evidence.yaml").is_file()
     assert not list(dest.rglob("__pycache__"))
     assert not list(dest.rglob("*.pyc"))
@@ -60,6 +68,15 @@ def _assert_common_payload(dest: pathlib.Path) -> None:
         check=False,
     )
     assert result.returncode == 0, result.stderr
+
+    contract_result = subprocess.run(
+        [sys.executable, str(dest / "scripts" / "product_contracts.py"), "validate"],
+        cwd=dest,
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert contract_result.returncode == 0, contract_result.stderr
 
 
 def test_codex_install_copies_every_skill_and_adapter(tmp_path: pathlib.Path) -> None:

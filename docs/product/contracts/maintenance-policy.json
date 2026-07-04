@@ -1,0 +1,1 @@
+{"schema_version":1,"security_critical":{"release_blocking":true,"owner":"security-owner"},"breaking_change_window":"major-release-only","stale_owner_policy":"block-change","live_oci_in_ci":false,"knowledge_updates":"required-for-new-operational-errors"}
