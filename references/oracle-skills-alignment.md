@@ -14,6 +14,13 @@ compose instead of colliding.
 > work). Start here for *operating a tenancy*; hand off to `oracle/skills` for
 > the deep capabilities below.
 
+Current specialist handoffs also include local Functions workstation setup and
+deployment (`oci/functions/oci-functions-deploy`), deep Functions diagnosis
+(`oci/functions/oci-functions-troubleshoot`), and OCI IoT domains, twins,
+adapters, relationships, and publish flows (`oci/iot-platform`). This pack
+retains Functions control-plane integration with Events, Queue, Streaming,
+Service Connector Hub, tenancy safety, and product bundles.
+
 ## Why two packs
 
 They were built for different jobs and are **complementary**, not competing:

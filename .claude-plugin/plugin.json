@@ -1,7 +1,7 @@
 {
   "name": "oci-administrator",
-  "description": "Safe OCI engineering for Claude Code: tenancy administration, Terraform, platform delivery, and vendor-neutral security-development evidence. Named-context preflight, redaction, one Terraform owner, and risk-specific approval protect every live action.",
-  "version": "2.0.0-rc.2",
+  "description": "Safe OCI engineering for Claude Code: administration, storage, disaster recovery, Bastion, landing zones, Terraform, platform delivery, and security evidence.",
+  "version": "2.0.0-rc.3",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -17,6 +17,10 @@
     "vault",
     "oke",
     "vcn",
+    "storage",
+    "disaster-recovery",
+    "bastion",
+    "landing-zone",
     "observability",
     "cost-management",
     "finops",

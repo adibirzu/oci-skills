@@ -8,7 +8,7 @@ Start with the [five-minute quickstart](docs/QUICKSTART.md), read the [architect
 
 ## What it does
 
-- Safely inspect and administer OCI IAM, security, networking, databases, observability, cost, serverless, OKE, and related control-plane services.
+- Safely inspect and administer OCI IAM, security, networking, storage, disaster recovery, databases, observability, cost, serverless, OKE, and related control-plane services.
 - Generate exact `oci_cli` command plans with read, risk-classified action, verification, rollback, and official sources.
 - Scaffold, discover, validate, test, plan, inspect, apply, and destroy OCI Terraform while binding the applied plan to the reviewed bytes and context.
 - Compose five private-default platform golden paths as schema-v1 bundles: API + Functions, Container Instances, OKE applications, Queue/Streaming workers, and ADB-backed services.
@@ -18,7 +18,7 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 ## Skill topology
 
-The router selects seventeen primary domains and four orchestrators:
+The 24-skill pack contains a router selecting nineteen primary domains and four orchestrators:
 
 | Skill | Primary ownership |
 |---|---|
@@ -28,8 +28,10 @@ The router selects seventeen primary domains and four orchestrators:
 | `oci-dbm-opsi` | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP |
 | `oci-autonomous-db` | ADB lifecycle, private endpoints, wallet, ACL, scale, connectivity, read-only diagnostics |
 | `oci-database-cloud` | Base Database and Exadata control-plane lifecycle, backup/restore, patching, Data Guard |
+| `oci-storage` | Object, File, Block, and Boot storage lifecycle, retention, backup, and replication |
+| `oci-disaster-recovery` | Full Stack DR protection groups, plans, prechecks, drills, switchovers, failovers, reprotection |
 | `oci-bastion-access` | Bastion, Managed SSH, fixed/dynamic forwarding, allowlists, plugin diagnosis |
-| `oci-networking-compute` | VCN, subnet, NSG, routing, gateways, load balancers, VM/VNIC/volume lifecycle |
+| `oci-networking-compute` | VCN, subnet, NSG, routing, DNS, Traffic Management, Health Checks, Certificates, load balancers, VM/VNIC/attachment lifecycle |
 | `oci-oke-admin` | OKE cluster/application operations, kubeconfig, ingress, TLS, OCIR pulls, rollouts |
 | `oci-zpr-visibility` | ZPR attributes/policies, protected-resource inventory, flow-log correlation |
 | `oci-cost` | Usage/spend, forecasts, budgets, FinOps guardrails |
@@ -63,7 +65,10 @@ resources.
 
 The discoverable `oci-administrator` router sits above them. Each request loads the router, one skill, and only the direct reference needed—progressive disclosure rather than all domain knowledge at once.
 
-Deep OCI Generative AI, in-database SQL/RMAN, specialist OKE day-2, and Fusion application work continue to route to official Oracle skills or Fusion documentation. See [the alignment contract](references/oracle-skills-alignment.md).
+Deep OCI Generative AI, local Functions workstation deployment/troubleshooting,
+OCI IoT Platform, in-database SQL/RMAN, specialist OKE day-2, and Fusion
+application work route to current official Oracle skills or Fusion documentation.
+See [the alignment contract](references/oracle-skills-alignment.md).
 
 ## Architecture
 
@@ -88,12 +93,12 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 
 ## Product contracts and readiness
 
-The consolidated release contains **22 skills, 52 requirements, 40 detailed
+The consolidated release contains **24 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic
-workflow evaluation, the 22-skill capability catalog, routing precedence,
+workflow evaluation, the 24-skill capability catalog, routing precedence,
 evidence envelopes, architecture traceability, distribution/redaction/release
 contracts, compatibility policy, user journeys, dependency and impact graphs,
 verification/provenance registries, an install manifest, safety cases, a release
@@ -198,7 +203,7 @@ Codex/ChatGPT can import `.codex-plugin/plugin.json`. Gemini uses `harness/gemin
 
 CI runs Python tests with branch/statement coverage, Bash 3.2 smoke matrices, shell/Python lint, skill validation, routing collision checks, the blinded forward-eval contract, Terraform formatting/validation fixtures, documentation links, and secret/redaction gates. No CI test contacts or mutates a tenancy.
 
-The manifests are prepared as `v2.0.0-rc.2`. Final `v2.0.0` promotion is blocked on the independently recorded fresh-agent gate. Prepare and score a blinded run with `python3 scripts/forward_eval.py`; follow [the evidence workflow](evals/forward/README.md) and status ledger in [docs/plans/oci-skills-v2.md](docs/plans/oci-skills-v2.md).
+The manifests are prepared as `v2.0.0-rc.3`. Final `v2.0.0` promotion is blocked on the independently recorded fresh-agent gate. Prepare and score a blinded run with `python3 scripts/forward_eval.py`; follow [the evidence workflow](evals/forward/README.md) and status ledger in [docs/plans/oci-skills-v2.md](docs/plans/oci-skills-v2.md).
 
 ## Repository map
 

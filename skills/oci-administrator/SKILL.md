@@ -3,7 +3,8 @@ name: oci-administrator
 description: >-
   Default router for tenancy-agnostic Oracle Cloud Infrastructure engineering.
   Use for OCI administration, audit, security, IAM, Bastion, networking, compute,
-  OKE, observability, Base Database, Exadata, DBM/OPSI, ADB, cost, Log Analytics,
+  OKE, observability, storage, disaster recovery, Base Database, Exadata,
+  DBM/OPSI, ADB, cost, Log Analytics,
   Resource Manager, Data Safe, Events, Functions, Queue, Terraform/HCL, landing
   zones, DevOps, API Gateway, Container Instances, Artifact Registry/OCIR, exact
   oci-cli commands, platform bundles, or project lifecycle requests. Routes to
@@ -16,8 +17,8 @@ description: >-
 
 # OCI Administrator
 
-Operate and engineer OCI safely. This router selects one of seventeen primary
-domain skills or the **oci-project**, **oci-product-development**,
+Operate and engineer OCI safely. The pack exposes 24 skills: this router selects
+one of nineteen primary domain skills or the **oci-project**, **oci-product-development**,
 **oci-application-engineering**, and **oci-landing-zone** orchestrators,
 all sharing one tenancy-safety core.
 
@@ -38,6 +39,12 @@ the destructive-op guard apply), then hand off the deep work:
 - **Inside an Oracle Database** (SQL/PL-SQL, RMAN, AWR/ASH, migrations, Data Guard)
   → `oracle/skills` `db/`. We handle the OCI services *around* the database (DBM,
   OPSI, Data Safe, ADB provisioning).
+- **Local Functions workstation deployment and deep function troubleshooting**
+  → `oracle/skills` `oci/functions/oci-functions-deploy` or
+  `oci/functions/oci-functions-troubleshoot`. This pack retains Functions
+  control-plane, Events, Queue/Streaming, and platform-composition ownership.
+- **OCI IoT Platform** domains, digital twins, adapters, relationships, and
+  device publish flows → `oracle/skills` `oci/iot-platform`.
 - **Oracle Fusion Cloud Applications / SaaS app work** is out of scope. Use the
   Oracle Fusion Cloud Applications documentation today; route to upstream
   `oracle/skills` `fusion/` only when that domain grows beyond its current
@@ -216,23 +223,34 @@ resources, backups/restores, patching, Data Guard associations, and Exadata
 control-plane lifecycle route to `oci-database-cloud`. ADB and DBM/OPSI retain
 their existing owners; SQL/RMAN/tuning remain a hard handoff.
 
+**Storage lifecycle beats generic compute:** Object/File Storage, volume data
+protection, backups, snapshots, clones, retention, and replication route to
+`oci-storage`; attaching a volume to compute remains networking/compute, OKE
+persistent volumes remain OKE, and database-native backups remain database-owned.
+
+**Full Stack DR orchestration beats project lifecycle:** protection groups, DR
+plans, prechecks, drills, switchovers, failovers, and reprotection route to
+`oci-disaster-recovery`; Data Guard and storage replication retain their owners.
+
 | Request mentions… | Plugin | Reference |
 |---|---|---|
 | users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context, OIDC, OAuth application, SAML, SCIM provisioning | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
-| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
+| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, public Object Storage, 0.0.0.0/0 SSH rules, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
 | APM, Monitoring, alarm, dashboard, metric, Logging, OpenTelemetry, agent trace, trace integrity, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
 | Database Management, DBM, Operations Insights, OPSI, managed database, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight, Base DB observability, DB log ingestion | **oci-dbm-opsi** | [references/dbm-opsi.md](../../references/dbm-opsi.md) |
 | ADB/ADW/ATP lifecycle, provision, create autonomous database, start/stop/scale, wallet, generate-wallet, rotate wallet, TNS_ADMIN, whitelisted-ips/ACL, DSN service level, oracledb, SQLAlchemy oracle+oracledb, Alembic on Oracle, clone, restore, SQLcl, execute SQL, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN | **oci-autonomous-db** | [references/autonomous-db.md](../../references/autonomous-db.md) |
 | DB system, Base Database, DB home, database resource, PDB, PDB resource, Base Database backup, backup/restore, patch/upgrade, Data Guard association, Exadata, Exadata infrastructure, cloud VM cluster lifecycle | **oci-database-cloud** | [references/database-cloud.md](../../references/database-cloud.md) |
+| Object Storage, Archive Storage, bucket/object lifecycle, retention, versioning, replication, pre-authenticated request, File Storage, file system, mount target, export, snapshot, Block/Boot Volume backup, backup policy, clone, volume replication | **oci-storage** | [references/storage.md](../../references/storage.md) |
+| Full Stack Disaster Recovery, DR protection group, DR plan, precheck, drill, switchover, failover, reprotection, RTO/RPO readiness | **oci-disaster-recovery** | [references/disaster-recovery.md](../../references/disaster-recovery.md) |
 | Bastion, Managed SSH, SSH tunnel, fixed/dynamic port forwarding, SOCKS5, client CIDR allowlist, Bastion plugin | **oci-bastion-access** | [references/bastion-access.md](../../references/bastion-access.md) |
-| VCN, subnet, NSG, network security group, route table, gateway, load balancer, compute VM, instance, image, VNIC, volume | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
+| VCN, subnet, NSG, network security group, route table, gateway, load balancer, DNS, Traffic Management, Health Checks, Certificates, compute VM, instance, image, VNIC, volume attachment | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
 | OKE, kubectl, kubeconfig, Kubernetes deployment, Kubernetes service, ingress-nginx, nginx ingress, OCI Native Ingress, LoadBalancer pending, TLS secret, certificate, OCIR image pull, ImagePullBackOff, CrashLoopBackOff, rollout status, virtual nodes, Workload Identity | **oci-oke-admin** | [references/oke-operations.md](../../references/oke-operations.md) |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, ZPR policy, VCN Flow Logs correlation, unexpected accepted/rejected flows, ZPR dashboards | **oci-zpr-visibility** | [references/zpr-visibility.md](../../references/zpr-visibility.md) |
 | cost, spend, usage, billing, invoice, forecast, FinOps, cost-tracking tag, Usage API | **oci-cost** | [references/cost-management.md](../../references/cost-management.md) |
 | Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
 | Resource Manager, ORM, RMS, managed Terraform stack, stack plan/apply/destroy job, stack logs, state retrieval | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
-| Functions, fn deploy, Events rule, eventType, Notifications/ONS, Service Connector Hub, operate/troubleshoot Queue or Streaming transport, queue-push/pull, DLQ, visibility timeout | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
+| Function control plane, Functions, Events rule, object uploaded event, eventType, Notifications/ONS, Service Connector Hub, Queue or Streaming transport, queue-push/pull, DLQ, visibility timeout | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
 | write HCL, Terraform authoring, scaffold Terraform, provider schema, resource discovery, local validate/plan/apply/destroy, import, module, reviewed plan | **oci-terraform-authoring** | [references/terraform-authoring.md](../../references/terraform-authoring.md) |
 | OCI DevOps, build pipeline, deployment pipeline, code repository, source connection, trigger, artifact, Artifact Registry, OCIR delivery, API Gateway, Container Instances, canary, blue-green | **oci-developer-services** | [references/developer-services.md](../../references/developer-services.md) |
 | application platform, product golden path, OCI platform bundle, platform bundle, platform-bundle.yaml, API Gateway plus Functions, container application golden path, OKE application golden path, Queue or Streaming event worker, event worker bundle, ADB-backed Functions service, private ADB-backed Functions service | **oci-product-development** | [references/product-development.md](../../references/product-development.md) |

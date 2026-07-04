@@ -7,7 +7,7 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
-skill pack. Route requests to one of seventeen primary domain skills or the
+skill pack. Route requests to one of nineteen primary domain skills or the
 `oci-project`, `oci-product-development`, `oci-application-engineering`, or
 `oci-landing-zone` orchestrator under `skills/`.
 
@@ -44,8 +44,10 @@ sequence a request instead of re-deriving the steps.
 | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP | `skills/oci-dbm-opsi/` · `references/dbm-opsi.md` |
 | Autonomous DB lifecycle, wallet, scale, ACL, connect (oracledb/SQLAlchemy/Alembic) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` |
 | Base Database and Exadata DB system/home/database/PDB/backup/patch/Data Guard lifecycle | `skills/oci-database-cloud/` · `references/database-cloud.md` |
+| Object/File/Block/Boot storage lifecycle, retention, backup, replication | `skills/oci-storage/` · `references/storage.md` |
+| Full Stack DR protection groups, plans, prechecks, drills, switchovers/failovers | `skills/oci-disaster-recovery/` · `references/disaster-recovery.md` |
 | Bastion, Managed SSH, fixed/dynamic forwarding, allowlists, Bastion plugin | `skills/oci-bastion-access/` · `references/bastion-access.md` |
-| VCN, NSG, LB, compute, VNIC, volume | `skills/oci-networking-compute/` · `references/networking-compute.md` |
+| VCN, NSG, LB, DNS, Traffic Management, Health Checks, Certificates, compute, VNIC, volume attachment | `skills/oci-networking-compute/` · `references/networking-compute.md` |
 | OKE deploy, kubectl, ingress-nginx, LoadBalancer services, TLS certs, OCIR pulls, rollout troubleshooting | `skills/oci-oke-admin/` · `references/oke-operations.md` |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, flow-log correlation | `skills/oci-zpr-visibility/` · `references/zpr-visibility.md` |
 | cost, usage, spend, budget, forecast, billing, FinOps | `skills/oci-cost/` · `references/cost-management.md` (read-only; `scripts/oci_cost.sh`) |
@@ -95,6 +97,8 @@ few capabilities. Catch the request here, then hand off the deep work:
 
 - Deep OKE day-2 (GVA, Multus, specialized cluster design) → `oracle/skills` `oci/oke`; common OKE deploy/ingress/LB/TLS/OCIR troubleshooting → `skills/oci-oke-admin/`.
 - OCI Generative AI / Enterprise AI (models, agents, RAG, governance) → `oracle/skills` `oci/enterprise-ai`.
+- Local Functions workstation deployment/troubleshooting → `oracle/skills` `oci/functions/oci-functions-deploy` or `oci/functions/oci-functions-troubleshoot`; Events/Queue/Streaming integration remains local.
+- OCI IoT Platform domains, digital twins, adapters, relationships, and publish flows → `oracle/skills` `oci/iot-platform`.
 - Inside an Oracle Database (SQL/PL/SQL, RMAN, AWR/ASH, migrations, Data Guard) → `oracle/skills` `db/`.
 - Oracle Fusion Cloud Applications / SaaS app work → use Oracle Fusion Cloud Applications documentation today; route to `oracle/skills` `fusion/` only after upstream publishes concrete Fusion skills.
 

@@ -1,0 +1,107 @@
+"""Contracts for the post-consolidation capability and usability review."""
+from __future__ import annotations
+
+import json
+import pathlib
+import re
+
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+NEW_SKILLS = {
+    "oci-storage": "storage.md",
+    "oci-disaster-recovery": "disaster-recovery.md",
+}
+
+
+def _text(path: pathlib.Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def test_storage_and_disaster_recovery_are_complete_discoverable_skills() -> None:
+    for name, reference in NEW_SKILLS.items():
+        root = ROOT / "skills" / name
+        text = _text(root / "SKILL.md")
+        frontmatter = text.split("---", 2)[1]
+        assert re.findall(r"(?m)^([a-z][a-z0-9_-]*):", frontmatter) == ["name", "description"]
+        assert f"name: {name}" in frontmatter
+        assert "Use for" in frontmatter or "Use when" in frontmatter
+        assert "## Common multi-step flows" in text
+        assert "## Verification and rollback" in text
+        assert f"../../references/{reference}" in text
+        assert (ROOT / "references" / reference).is_file()
+        assert (root / "agents" / "openai.yaml").is_file()
+
+
+def test_storage_and_disaster_recovery_define_safe_ownership_boundaries() -> None:
+    storage = _text(ROOT / "references" / "storage.md").lower()
+    recovery = _text(ROOT / "references" / "disaster-recovery.md").lower()
+    for term in (
+        "object storage", "file storage", "block volume", "boot volume",
+        "pre-authenticated request", "credential", "retention", "replication",
+        "terraform", "oci_cli_help.py --json",
+    ):
+        assert term in storage
+    for term in (
+        "full stack disaster recovery", "protection group", "dr plan", "precheck",
+        "switchover", "failover", "rto", "rpo", "destructive", "run_action",
+    ):
+        assert term in recovery
+    for text in (storage, recovery):
+        assert "read before write" in text
+        assert "verification" in text
+        assert "rollback" in text
+        assert not re.search(r"(?m)^\s*(?:\$\s*)?oci\s+", text)
+
+
+def test_network_edge_and_official_handoff_gaps_are_closed() -> None:
+    networking = _text(ROOT / "skills" / "oci-networking-compute" / "SKILL.md").lower()
+    router = _text(ROOT / "skills" / "oci-administrator" / "SKILL.md").lower()
+    for term in ("dns", "traffic management", "health checks", "certificates"):
+        assert term in networking
+    for owner in ("oci/functions/oci-functions-deploy", "oci/functions/oci-functions-troubleshoot", "oci/iot-platform"):
+        assert owner in router
+    assert "local functions workstation" in router
+    assert "iot" in router
+
+
+def test_router_docs_catalog_and_evals_publish_the_24_skill_surface() -> None:
+    catalog = json.loads(_text(ROOT / "docs" / "product" / "contracts" / "capability-catalog.json"))
+    skills = {entry["skill"] for entry in catalog["capabilities"]}
+    assert set(NEW_SKILLS) <= skills
+    assert len(skills) == 24
+
+    router = _text(ROOT / "skills" / "oci-administrator" / "SKILL.md")
+    readme = _text(ROOT / "README.md")
+    architecture = _text(ROOT / "docs" / "ARCHITECTURE.md")
+    quickstart = _text(ROOT / "docs" / "QUICKSTART.md")
+    for text in (router, readme, architecture, quickstart):
+        assert "24 skills" in text
+    assert "nineteen primary" in router.lower()
+    assert "nineteen primary" in readme.lower()
+
+    cases = json.loads(_text(ROOT / "evals" / "evals.json"))["cases"]
+    routes = {
+        case["id"]: case["expect_route"]
+        for case in cases
+        if "expect_route" in case
+    }
+    assert routes["trigger-object-storage-lifecycle"] == "oci-storage"
+    assert routes["trigger-file-storage"] == "oci-storage"
+    assert routes["trigger-full-stack-dr"] == "oci-disaster-recovery"
+    assert routes["negative-storage-volume-attachment"] == "oci-networking-compute"
+    assert routes["negative-dr-data-guard"] == "oci-database-cloud"
+
+
+def test_release_candidate_metadata_describes_the_current_surface() -> None:
+    manifests = [
+        ROOT / ".claude-plugin" / "plugin.json",
+        ROOT / ".codex-plugin" / "plugin.json",
+        ROOT / "harness" / "gemini" / "gemini-extension.json",
+    ]
+    versions = {json.loads(_text(path))["version"] for path in manifests}
+    marketplace = json.loads(_text(ROOT / ".claude-plugin" / "marketplace.json"))
+    versions.add(marketplace["plugins"][0]["version"])
+    assert versions == {"2.0.0-rc.3"}
+    combined = " ".join(_text(path).lower() for path in manifests)
+    for term in ("storage", "disaster recovery", "bastion", "landing zone"):
+        assert term in combined
