@@ -6,13 +6,46 @@ This guide distinguishes offline artifact generation, read-only inspection, and 
 
 Use Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI. Terraform 1.5+ supports HCL validation/execution; 1.7+ runs the native `.tftest.hcl` tests.
 
+### Plugin install
+
+Install from the public adibirzu LLM marketplace (recommended):
+
+```text
+/plugin marketplace add adibirzu/adibirzu-plugins
+/plugin install oci-administrator@adibirzu-plugins
+/reload-plugins
+```
+
+Or use this repository's OCI-only marketplace:
+
+```text
+/plugin marketplace add adibirzu/oci-skills
+/plugin install oci-administrator@oci-skills
+/reload-plugins
+```
+
+The default is **User scope**. Choose **Project scope** in the plugin manager, or run `claude plugin install oci-administrator@adibirzu-plugins --scope project`. To upgrade:
+
+```text
+/plugin marketplace update adibirzu-plugins
+/plugin update oci-administrator@adibirzu-plugins
+/reload-plugins
+```
+
+### Skill / copy install
+
 ```bash
 git clone https://github.com/adibirzu/oci-skills.git
 cd oci-skills
-./install.sh codex      # claude, gemini, or antigravity also supported
+./install.sh --list
+DRY_RUN=true ./install.sh
+./install.sh claude
+./install.sh codex
+./install.sh gemini
+./install.sh antigravity
 ```
 
-When installed through the marketplace (or loaded with `--plugin-dir`), Claude activates its slash commands, conditional OCI router reminder, model-initiated skill-chain guard, and defense-in-depth destructive-command hook. Direct user skill invocation remains available. A plain `./install.sh claude` copy installs the skill content but does not activate plugin hooks. Codex/ChatGPT, Gemini, and Antigravity use their native instruction adapters plus the same in-script safety guard without claiming Claude-only hooks.
+Upgrade a clone with `git pull --ff-only`, then rerun the target installer. A skill / copy install does not activate Claude plugin hooks. Marketplace plugin installs activate Claude commands and hooks; Codex/ChatGPT, Gemini, and Antigravity use their native adapters and the same in-script safety guard. Installation and local validation are offline and do not contact an OCI tenancy.
 
 ## Work by named context
 

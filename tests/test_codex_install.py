@@ -17,6 +17,38 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
+def test_public_docs_cover_plugin_and_skill_install_lifecycle() -> None:
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    quickstart = (ROOT / "docs" / "QUICKSTART.md").read_text(encoding="utf-8")
+    combined = readme + "\n" + quickstart
+
+    for command in (
+        "/plugin marketplace add adibirzu/adibirzu-plugins",
+        "/plugin install oci-administrator@adibirzu-plugins",
+        "/plugin marketplace add adibirzu/oci-skills",
+        "/plugin install oci-administrator@oci-skills",
+        "/plugin marketplace update adibirzu-plugins",
+        "/plugin update oci-administrator@adibirzu-plugins",
+        "/reload-plugins",
+        "./install.sh --list",
+        "DRY_RUN=true ./install.sh",
+        "./install.sh claude",
+        "./install.sh codex",
+        "./install.sh gemini",
+        "./install.sh antigravity",
+    ):
+        assert command in combined
+
+    for phrase in (
+        "Plugin install",
+        "Skill / copy install",
+        "User scope",
+        "Project scope",
+        "does not activate Claude plugin hooks",
+    ):
+        assert phrase in combined
+
+
 def _skill_names(root: pathlib.Path) -> set[str]:
     return {p.parent.name for p in (root / "skills").glob("*/SKILL.md")}
 

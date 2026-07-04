@@ -142,6 +142,15 @@ contract stabilizes named contexts, risk values, schema-v1 platform bundles,
 skill names, and Terraform ownership. `run_mutating` remains a deprecated
 additive alias for `run_action` until a future major release.
 
+Claude plugin distribution has two catalog edges that resolve to the same
+canonical repository and version: the multi-plugin `adibirzu/adibirzu-plugins`
+marketplace is the recommended discovery surface, while this repository's
+`.claude-plugin/marketplace.json` remains the OCI-only source. Claude caches the
+versioned plugin payload, so upgrades refresh the selected marketplace, update
+the plugin, and reload plugins. Copy installation is a separate adapter path:
+`install.sh` materializes the portable payload for Claude, Codex, Gemini, or
+Antigravity, but it does not activate Claude-only commands or hooks.
+
 ## Contract governance plane
 
 The contract-schema registry declares the required top-level shape of every
