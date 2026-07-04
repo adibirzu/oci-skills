@@ -10,8 +10,10 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 - `oci-dbm-opsi`: DBM/OPSI and database performance control plane.
 - `oci-autonomous-db`: ADB lifecycle/connectivity.
 - `oci-database-cloud`: Base Database and Exadata control-plane lifecycle.
+- `oci-storage`: Object, File, Block, and Boot storage protection lifecycle.
+- `oci-disaster-recovery`: Full Stack DR plans, prechecks, drills, and transitions.
 - `oci-bastion-access`: Bastion sessions, forwarding, allowlists, and plugin health.
-- `oci-networking-compute`: VCN/NSG/LB/VM/VNIC/volume.
+- `oci-networking-compute`: VCN/NSG/DNS/certificates/LB/VM/VNIC attachments.
 - `oci-oke-admin`: OKE/Kubernetes application and cluster operations.
 - `oci-zpr-visibility`: ZPR/flow visibility.
 - `oci-cost`: cost and usage.

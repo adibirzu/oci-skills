@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Storage"
+  short_description: "Protect and operate OCI storage services safely"
+  default_prompt: "Use $oci-storage to inspect, protect, or recover this OCI storage resource safely."

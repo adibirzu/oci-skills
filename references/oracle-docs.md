@@ -112,6 +112,21 @@ Safe), the upstream `db/` domain of
 | Run commands on instances | <https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm> |
 | Object Storage (buckets) | <https://docs.oracle.com/en-us/iaas/Content/Object/home.htm> |
 
+## Storage and disaster recovery
+
+| Capability | Oracle documentation |
+|---|---|
+| Object Storage overview | <https://docs.oracle.com/en-us/iaas/Content/Object/Concepts/objectstorageoverview.htm> |
+| File Storage | <https://docs.oracle.com/en-us/iaas/Content/File/home.htm> |
+| File Storage overview | <https://docs.oracle.com/en-us/iaas/Content/File/Concepts/filestorageoverview.htm> |
+| Block Volume | <https://docs.oracle.com/en-us/iaas/Content/Block/home.htm> |
+| Block Volume overview | <https://docs.oracle.com/en-us/iaas/Content/Block/Concepts/overview.htm> |
+| Full Stack Disaster Recovery | <https://docs.oracle.com/en-us/iaas/disaster-recovery/index.html> |
+| Disaster-recovery design guidance | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/disaster-recovery.htm> |
+| DNS and Traffic Management | <https://docs.oracle.com/en-us/iaas/Content/DNS/home.htm> |
+| Health Checks | <https://docs.oracle.com/en-us/iaas/Content/HealthChecks/home.htm> |
+| Certificates overview | <https://docs.oracle.com/en-us/iaas/Content/certificates/overview.htm> |
+
 ## Bastion access — `oci-bastion-access`
 
 | Topic | Canonical doc |

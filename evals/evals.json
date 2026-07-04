@@ -161,8 +161,8 @@
       "id": "trigger-function-deploy",
       "prompt": "Deploy an OCI Function with fn and invoke it; it deploys but every invocation fails.",
       "expect_skill": "oci-administrator",
-      "expect_route": "oci-events-functions",
-      "expect_behavior": "Diagnoses KB-084: arm64 image on x86 OCIR — rebuild --platform linux/amd64; covers app create, fn deploy to OCIR, fn function invoke; enable function logging; invoke gated."
+      "expect_route_out": "oracle/skills oci/functions/oci-functions-troubleshoot",
+      "expect_behavior": "Hands deep local Fn deployment and invocation diagnosis to the official Functions troubleshooting skill while retaining surrounding tenancy guardrails."
     },
     {
       "id": "trigger-sch-no-data",
@@ -498,6 +498,55 @@
       "prompt": "Help me center a div in CSS.",
       "expect_skill": null,
       "expect_behavior": "Does NOT trigger the OCI Administrator skill."
+    },
+    {
+      "id": "trigger-object-storage-lifecycle",
+      "prompt": "Enable versioning, retention, and replication for an OCI Object Storage bucket, then create time-bound access.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-storage",
+      "expect_behavior": "Routes bucket lifecycle and replication to storage, treats pre-authenticated access as credential risk, reads current policy first, and verifies without exposing the URL."
+    },
+    {
+      "id": "trigger-file-storage",
+      "prompt": "Create an OCI File Storage file system, mount target, export, snapshot, and replication policy.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-storage",
+      "expect_behavior": "Owns File Storage lifecycle while handing subnet and NSG prerequisites to networking; uses one Terraform owner and verifies recovery state."
+    },
+    {
+      "id": "trigger-full-stack-dr",
+      "prompt": "Assess and execute an OCI Full Stack Disaster Recovery plan with a precheck and planned switchover.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-disaster-recovery",
+      "expect_behavior": "Reviews protection groups, dependencies, replication, plan order, RTO/RPO, and precheck evidence; treats switchover execution as destructive and verifies roles and application health."
+    },
+    {
+      "id": "negative-storage-volume-attachment",
+      "prompt": "Attach an existing block volume to my compute instance and diagnose the guest connection.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-networking-compute",
+      "expect_behavior": "Keeps compute attachment and guest connectivity with networking-compute; storage owns backup and replication."
+    },
+    {
+      "id": "negative-dr-data-guard",
+      "prompt": "Create and validate a Data Guard association for my Base Database.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-database-cloud",
+      "expect_behavior": "Keeps database Data Guard control-plane lifecycle with database-cloud instead of Full Stack DR."
+    },
+    {
+      "id": "routeout-functions-workstation",
+      "prompt": "Install Fn and Docker locally, configure my Fn context, scaffold a Python function, and deploy it.",
+      "expect_skill": "oci-administrator",
+      "expect_route_out": "oracle/skills oci/functions/oci-functions-deploy",
+      "expect_behavior": "Hands local Functions workstation setup and deployment to the official specialist while retaining surrounding tenancy guardrails."
+    },
+    {
+      "id": "routeout-iot-platform",
+      "prompt": "Create an OCI IoT domain, digital twin model, adapter, and device publish flow.",
+      "expect_skill": "oci-administrator",
+      "expect_route_out": "oracle/skills oci/iot-platform",
+      "expect_behavior": "Hands IoT domains, digital twins, adapters, relationships, and device publish flows to the official OCI IoT skill."
     },
     {
       "id": "trigger-adb-blocking",

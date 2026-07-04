@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Disaster Recovery"
+  short_description: "Validate and operate OCI disaster recovery safely"
+  default_prompt: "Use $oci-disaster-recovery to assess or operate this OCI Full Stack DR workflow safely."

@@ -16,6 +16,8 @@ EXPECTED_SKILLS = {
     "oci-dbm-opsi",
     "oci-autonomous-db",
     "oci-database-cloud",
+    "oci-storage",
+    "oci-disaster-recovery",
     "oci-bastion-access",
     "oci-networking-compute",
     "oci-oke-admin",
@@ -41,7 +43,7 @@ def _frontmatter(path: pathlib.Path) -> str:
 def test_v2_skill_topology_and_codex_metadata() -> None:
     skills = {path.parent.name for path in ROOT.glob("skills/*/SKILL.md")}
     assert skills == EXPECTED_SKILLS
-    assert len(skills) == 22
+    assert len(skills) == 24
     for skill in skills:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
 
@@ -270,7 +272,7 @@ def test_manifests_share_release_candidate_version() -> None:
         (ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8")
     )
     versions.add(marketplace["plugins"][0]["version"])
-    assert versions == {"2.0.0-rc.2"}
+    assert versions == {"2.0.0-rc.3"}
 
 
 def test_security_skill_ships_vendor_neutral_secure_development_resources() -> None:
