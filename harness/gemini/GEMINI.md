@@ -14,8 +14,10 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 - `oci-dbm-opsi`: DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP.
 - `oci-autonomous-db`: ADB lifecycle, wallet, ACL, private connectivity.
 - `oci-database-cloud`: Base Database and Exadata control-plane lifecycle.
+- `oci-storage`: Object, File, Block, and Boot storage protection lifecycle.
+- `oci-disaster-recovery`: Full Stack DR plans, prechecks, drills, and transitions.
 - `oci-bastion-access`: Bastion sessions, forwarding, allowlists, and plugin health.
-- `oci-networking-compute`: VCN, NSG, routing, LB, VM/VNIC/volume.
+- `oci-networking-compute`: VCN, NSG, routing, DNS, certificates, LB, VM/VNIC attachments.
 - `oci-oke-admin`: OKE/Kubernetes, ingress, TLS, OCIR pulls, rollouts.
 - `oci-zpr-visibility`: ZPR inventory and flow-log correlation.
 - `oci-cost`: usage, spend, budgets, FinOps.

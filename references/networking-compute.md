@@ -1,5 +1,19 @@
 # Networking & Compute Reference
 
+## DNS, Traffic Management, Health Checks, and Certificates
+
+This domain owns public/private DNS zones and records, Traffic Management
+steering, external Health Checks, Certificates/CA lifecycle, and endpoint
+certificate associations. Read current zone/record versions, steering
+attachments, monitor results, certificate expiry/renewal rules, and endpoint
+associations before change.
+
+Keep DNS cutovers and certificate revocation staged, independently verified,
+and paired with an explicit rollback record. Certificate private material is
+credential data and never belongs on argv or in output. Validate every exact
+CLI family with installed help. Storage backup/replication belongs to
+`oci-storage`; Full Stack DR sequencing belongs to `oci-disaster-recovery`.
+
 Sanitized command shapes for VCN, subnets, routing, gateways, security lists vs
 NSGs, load balancers, compute, OKE, and OCIR. Every CLI call goes through
 `oci_cli` (see `helper-conventions.md`); every mutation is gated by

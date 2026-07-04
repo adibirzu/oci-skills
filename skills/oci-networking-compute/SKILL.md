@@ -1,7 +1,13 @@
 ---
 name: oci-networking-compute
 description: >-
-  Operate OCI VCNs, subnets, route tables, internet/NAT/service gateways, DRGs, security lists, NSGs, load balancers, compute instances, VNICs, images, volumes, and instance groups. Use for connectivity, network policy, VM lifecycle, load-balancer health, capacity, or compute troubleshooting. Route OKE clusters, kubeconfig, Kubernetes deployments, ingress, and OKE load balancers to oci-oke-admin; route Container Instances, Artifact Registry, and OCIR delivery to oci-developer-services.
+  Operate OCI VCNs, subnets, routes, gateways, DRGs, NSGs, load balancers, DNS,
+  Traffic Management, Health Checks, Certificates, compute instances, VNICs,
+  images, volume attachments, and instance groups. Use for connectivity,
+  network policy, name resolution, TLS endpoint lifecycle, VM lifecycle,
+  load-balancer health, capacity, or compute troubleshooting. Route storage
+  protection and replication to oci-storage, OKE resources to oci-oke-admin,
+  and Container Instances or registry delivery to oci-developer-services.
 ---
 
 # OCI Networking & Compute
@@ -13,6 +19,8 @@ Preflight the context, read existing topology by name, then choose the narrowest
 | Intent | Owner |
 |---|---|
 | VCN/subnet/routing/NSG/LB/VM/VNIC/volume/instance group | This skill |
+| Public/private DNS, steering policies, external Health Checks, Certificates/CA associations | This skill |
+| Bucket/file-system/volume backup, snapshot, clone, retention, replication | **oci-storage** |
 | OKE cluster/app/kubeconfig/ingress/Kubernetes LB | **oci-oke-admin** |
 | Container Instances, Artifact Registry, OCIR delivery | **oci-developer-services** |
 | Terraform HCL for any of these | **oci-terraform-authoring** |

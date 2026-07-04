@@ -128,8 +128,10 @@ primary agent rather than blocking the task.
 | DBM/OPSI/Performance Hub | `oci-dbm-opsi` |
 | ADB lifecycle/connectivity | `oci-autonomous-db` |
 | Base Database/Exadata lifecycle | `oci-database-cloud` |
+| Object/File/Block/Boot storage and protection | `oci-storage` |
+| Full Stack DR orchestration and readiness | `oci-disaster-recovery` |
 | Bastion/private access sessions | `oci-bastion-access` |
-| VCN/NSG/LB/VM | `oci-networking-compute` |
+| VCN/NSG/LB/DNS/Certificates/VM | `oci-networking-compute` |
 | OKE/Kubernetes/ingress/rollout | `oci-oke-admin` |
 | ZPR/flow correlation | `oci-zpr-visibility` |
 | cost/usage/budgets | `oci-cost` |
@@ -158,7 +160,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **22 skills, 52 requirements, 37 contracts, and
+The installed pack exposes **24 skills, 52 requirements, 37 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 

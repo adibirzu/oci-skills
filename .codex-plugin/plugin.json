@@ -1,7 +1,7 @@
 {
   "name": "oci-administrator",
-  "version": "2.0.0-rc.2",
-  "description": "Safe OCI engineering for Codex and ChatGPT: administration, Terraform, platform delivery, and vendor-neutral security-development evidence.",
+  "version": "2.0.0-rc.3",
+  "description": "Safe OCI engineering for Codex and ChatGPT: administration, storage, disaster recovery, Bastion, landing zones, Terraform, and platform delivery.",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -19,6 +19,10 @@
     "vault",
     "oke",
     "vcn",
+    "storage",
+    "disaster-recovery",
+    "bastion",
+    "landing-zone",
     "observability",
     "cost-management",
     "finops",
@@ -35,7 +39,7 @@
   "interface": {
     "displayName": "OCI Administrator",
     "shortDescription": "Engineer and administer OCI through safe skills and artifacts.",
-    "longDescription": "OCI Skills v2 is a Codex and ChatGPT-ready pack for tenancy-agnostic administration, exact OCI CLI plans, Terraform authoring, Developer Services, five product-platform golden paths, and project lifecycle orchestration. Named contexts, preflight receipts, redaction, one Terraform owner, and risk-specific approvals protect live actions.",
+    "longDescription": "OCI Skills v2 provides Codex and ChatGPT with 24 safety-gated skills for administration, storage, disaster recovery, Bastion, landing zones, exact OCI CLI plans, Terraform, Developer Services, product bundles, and project orchestration.",
     "developerName": "adibirzu",
     "category": "Developer Tools",
     "capabilities": [

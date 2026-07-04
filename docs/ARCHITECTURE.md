@@ -9,7 +9,7 @@ User / Claude / Codex / Gemini / Antigravity
                      |
      +---------------+----------------+
      |                                |
-17 primary domain skills         orchestrators
+19 primary domain skills         orchestrators
      |                       oci-project
      |                       oci-product-development
      |                       oci-application-engineering
@@ -23,7 +23,15 @@ User / Claude / Codex / Gemini / Antigravity
       local Terraform OR OCI Resource Manager (one owner)
 ```
 
-The primary domains are IAM, security/compliance, observability, DBM/OPSI, ADB, Database Cloud, Bastion access, networking/compute, OKE, ZPR, cost, Log Analytics, Resource Manager, Data Safe, Events/Functions/Queue, Terraform authoring, and Developer Services. `oci-project` owns lifecycle composition; `oci-product-development` owns golden-path selection and bundle composition; `oci-application-engineering` owns application code workflow, reuse, review, and measurement; `oci-landing-zone` owns tenancy-foundation assessment/design and coordinates deployment/upgrade validation. No orchestrator steals service ownership.
+The primary domains are IAM, security/compliance, observability, DBM/OPSI, ADB,
+Database Cloud, Storage, Full Stack Disaster Recovery, Bastion access,
+networking/compute/DNS/certificates, OKE, ZPR, cost, Log Analytics, Resource
+Manager, Data Safe, Events/Functions/Queue, Terraform authoring, and Developer
+Services. `oci-project` owns lifecycle composition; `oci-product-development`
+owns golden-path selection and bundle composition; `oci-application-engineering`
+owns application code workflow, reuse, review, and measurement;
+`oci-landing-zone` owns tenancy-foundation assessment/design and coordinates
+deployment/upgrade validation. No orchestrator steals service ownership.
 
 Claude's plugin hook invokes the shared router exactly once for OCI prompts and blocks model-initiated domain-skill chains; the routed agent reads one directly linked reference instead. Direct user skill invocation is unaffected. This keeps shared safety rules in force while avoiding duplicated context and multi-skill latency. Other harnesses use their native skill descriptions and adapter instructions.
 
@@ -75,11 +83,20 @@ responses.
 
 ## External handoffs
 
-Deep OKE day-2, OCI Generative AI/Enterprise AI, in-database SQL/RMAN/AWR work, and Fusion application work continue to route to official Oracle skills or current Fusion documentation. The community MCP gateway remains optional read-only glue and is never an authority or mutation path.
+Deep OKE day-2, OCI Generative AI/Enterprise AI, local Functions workstation
+deployment/troubleshooting, OCI IoT Platform, in-database SQL/RMAN/AWR work, and
+Fusion application work route to official Oracle skills or current Fusion
+documentation. The community MCP gateway remains optional read-only glue and
+is never an authority or mutation path.
+
+Storage owns data-service lifecycle and protection, while networking owns
+compute attachment and endpoint connectivity. Full Stack DR owns cross-stack
+orchestration but never steals ownership from storage replication, Data Guard,
+Terraform, DNS, or application operators.
 
 ## Product contract plane
 
-The consolidated product plane covers **22 skills, 52 requirements, 40 detailed
+The consolidated product plane covers **24 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**.
 
 `docs/product/contracts/` is the machine-readable control plane for capability

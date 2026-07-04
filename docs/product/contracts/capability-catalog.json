@@ -8,6 +8,8 @@
     {"skill": "oci-dbm-opsi", "owner": "database-observability", "reference": "references/dbm-opsi.md"},
     {"skill": "oci-autonomous-db", "owner": "autonomous-database", "reference": "references/autonomous-db.md"},
     {"skill": "oci-database-cloud", "owner": "database-cloud", "reference": "references/database-cloud.md"},
+    {"skill": "oci-storage", "owner": "storage", "reference": "references/storage.md"},
+    {"skill": "oci-disaster-recovery", "owner": "disaster-recovery", "reference": "references/disaster-recovery.md"},
     {"skill": "oci-bastion-access", "owner": "bastion-access", "reference": "references/bastion-access.md"},
     {"skill": "oci-networking-compute", "owner": "networking-compute", "reference": "references/networking-compute.md"},
     {"skill": "oci-oke-admin", "owner": "oke-operations", "reference": "references/oke-operations.md"},

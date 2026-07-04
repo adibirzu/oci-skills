@@ -84,7 +84,7 @@ This is the repo-native traceability ledger. Merged history before v2 is the del
 | V2-09 skill/routing conformance | REQ-01 | V2-08 | Implemented + validator | not opened |
 | V2-10 README/architecture/diagrams | REQ-08 | V2-09 | Implemented | not opened |
 | V2-11 test/coverage/forward eval | REQ-09 | V2-09 | Blinded 21-case harness and grader-free candidate install implemented; independent fresh-agent run pending | not opened |
-| V2-12 packaging/release | REQ-08, REQ-09 | V2-10, V2-11 | `v2.0.0-rc.2` prepared with vendor-neutral security-development evidence; final promotion deferred to forward-eval gate | not opened |
+| V2-12 packaging/release | REQ-08, REQ-09 | V2-10, V2-11 | `v2.0.0-rc.3` prepared with storage, DR, network-edge, and current Oracle handoff coverage; final promotion deferred to forward-eval gate | not opened |
 | V2-13 final security/architecture review | REQ-04, REQ-09 | V2-12 | Local review/gates implemented; fresh-agent evidence remains release blocker | not opened |
 | APP-01 application-engineering workflow | REQ-10 | V2-09 | Implemented locally: routing, evidence schema, reuse/TDD/review workflow, and non-blocking contracts | not opened |
 | APP-02 optional MultiLLM measurement adapter | REQ-10 | APP-01 | Implemented local boundary: deterministic preparation/scoring, permissions, caps, and aggregate evidence; provider/DeepEval execution remains external and opt-in | not opened |
@@ -93,7 +93,7 @@ This is the repo-native traceability ledger. Merged history before v2 is the del
 | GAP-03 Landing zone plus Terraform/IAM depth | REQ-12 | GAP-01, GAP-02 | Implemented locally with synchronized documentation and capability contracts | not opened |
 | PROD-13 application workflow evidence | REQ-13 | APP-01 | Implemented locally: schema, PRD, application boundary, validation | not opened |
 | PROD-14 deterministic workflow evaluation | REQ-14 | APP-02, PROD-13 | Implemented locally: permission-safe evaluator and aggregate-only report | not opened |
-| PROD-15 capability catalog | REQ-15 | V2-09 | Implemented locally: 22-skill catalog and parity validation | not opened |
+| PROD-15 capability catalog | REQ-15 | V2-09 | Implemented locally: 24-skill catalog and parity validation | not opened |
 | PROD-16 routing precedence | REQ-16 | PROD-15 | Implemented locally: six positive/negative precedence rules | not opened |
 | PROD-17 evidence envelope | REQ-17 | V2-02 | Implemented locally: versioned secret-free schema | not opened |
 | PROD-18 architecture traceability | REQ-18 | PROD-13..PROD-17 | Implemented locally: traceability contract, validator, and CI wiring | not opened |
@@ -198,5 +198,5 @@ REQ-43 through REQ-52 close the consolidation boundary with change-set
 manifests, fail-closed exception and waiver handling, dependency integrity,
 deterministic output, offline performance budgets, network-isolated validation,
 version-control restore, reviewed rollback, and major-only end-of-life policy.
-Future work should improve the usability or correctness of the 22 skills rather
+Future work should improve the usability or correctness of the 24 skills rather
 than extend the PRD count without a demonstrated capability gap.
