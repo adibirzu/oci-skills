@@ -38,6 +38,15 @@ touch git.
 
 ## Workflow map
 
+## Progress-first project work
+
+Project mutation remains context-bound and preflighted, but project design is
+not a live mutation. Before a context is available, continue with a Solution
+Blueprint, a product bundle scaffold, local bundle validation, ownership and
+delivery planning, and a deployment/teardown checklist. Record the named
+context and preflight as the next live checkpoint. Do not use their absence to
+block safe local planning or artifacts.
+
 Run the stages in order; **read the phase reference before starting the stage**.
 Bootstrap and teardown are guided, one-step-at-a-time flows (progress block,
 confirm each mutation); status is a read-only one-shot.

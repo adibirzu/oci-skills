@@ -1,0 +1,1 @@
+{"schema_version":1,"security_exceptions_allowed":false,"default":"deny","required_fields":["owner","reason","scope","expiry","evidence"]}

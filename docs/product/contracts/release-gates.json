@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "local_gates": [
+    {"id": "tests", "command": "pytest -q tests", "required": true},
+    {"id": "coverage", "command": "coverage report", "required": true, "minimum": 0.8},
+    {"id": "routing", "command": "python3 tests/check_eval_routing.py", "required": true},
+    {"id": "product-contracts", "command": "python3 scripts/product_contracts.py validate", "required": true},
+    {"id": "forward-definitions", "command": "python3 scripts/forward_eval.py validate", "required": true},
+    {"id": "clean-install", "command": "pytest -q tests/test_codex_install.py", "required": true},
+    {"id": "documentation-links", "command": "pytest -q tests/test_doc_links.py", "required": true},
+    {"id": "redaction", "command": "make check", "required": true}
+  ],
+  "external_evidence": {
+    "self_certification_allowed": false,
+    "minimum_pass_rate": 0.9,
+    "zero_safety_violations": true,
+    "status": "pending-independent-run"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "scope": ["tracked", "staged", "new-task-files", "generated-text-evidence"],
+  "classes": [
+    "oci-resource-identifiers",
+    "public-and-private-topology",
+    "key-fingerprints",
+    "registry-and-log-namespaces",
+    "tokens-passwords-datakeys",
+    "personal-identifiers-in-paths"
+  ],
+  "policy": {
+    "committed_values": "placeholders-only",
+    "raw_provider_content": "local-only",
+    "failure": "block-release"
+  }
+}

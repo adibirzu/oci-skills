@@ -17,6 +17,12 @@ approval contract—never a direct delete or `--force` sequence.
 Do not render candidate flags, payload fields, action commands, or rollback
 commands after declaring help unavailable.
 
+This block is narrow: it applies only to an exact live CLI command. Do not stop
+safe development work. Generate or review build specifications, application
+code, tests, OpenAPI documents, delivery checklists, local validation, and
+Terraform/module boundaries immediately; label them offline and state the one
+later installed-help or preflight gate for live materialization.
+
 Risk mapping is fixed: create is additive, update is in-place, delete is
 destructive, and secret/credential rotation is credential. Never use medium/high
 or another invented risk. There is no `oci_tf.sh import` interface; reconciliation

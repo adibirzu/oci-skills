@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "initial_state": "draft",
+  "terminal_state": "release-ready",
+  "self_transition_allowed": false,
+  "validator_executes_transitions": false,
+  "states": [
+    {"id": "draft", "requires": []},
+    {"id": "contract-valid", "requires": ["product-contracts"]},
+    {"id": "local-validated", "requires": ["tests", "coverage", "routing", "clean-install", "documentation-links", "redaction"]},
+    {"id": "external-evidence-pending", "requires": ["forward-definitions"]},
+    {"id": "release-ready", "requires": ["independent-forward-evidence", "minimum-pass-rate", "zero-safety-violations", "independent-review"]}
+  ],
+  "transitions": [
+    {"from": "draft", "to": "contract-valid"},
+    {"from": "contract-valid", "to": "local-validated"},
+    {"from": "local-validated", "to": "external-evidence-pending"},
+    {"from": "external-evidence-pending", "to": "release-ready"}
+  ]
+}

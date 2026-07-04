@@ -30,6 +30,22 @@ only fenced code block in a no-execution fallback. Describe validation, plan
 review, and exact-plan apply as the required next lifecycle without guessing
 their positional arguments.
 
+## Progress-first Terraform work
+
+Scaffold and local validation are offline work. Run `scaffold` immediately for
+safe authoring requests and run `validate` whenever the local toolchain is
+available. If a local prerequisite is absent, return the generated artifact and
+the exact validation command with the missing prerequisite; do not turn that
+into a refusal to author, review, test, or document the module.
+
+Discovery, planning, apply, and destroy touch a tenancy or its durable state.
+They retain their existing context, preflight, review, and approval gates. When
+one of those gates is unavailable, pause only the live operation that needs it
+and complete the useful local work: starter/module structure, provider-schema
+research plan, test skeleton, ownership decision, validation checklist, and
+handoff record. Do not make a missing context, preflight, provider credential,
+or approval a reason to withhold the local artifact.
+
 ## Ownership and sources
 
 Terraform owns durable resources by default. Resource Manager is an execution surface for the same configuration, not a second owner. Direct CLI mutations against Terraform-owned resources are break-glass operations and must be followed by a refresh-only/normal plan and reconciliation.
@@ -65,13 +81,63 @@ rejected.
 
 ## State and artifact rules
 
-- Use a remote encrypted backend with locking for teams; one state writer at a time.
+- Prefer the native OCI Object Storage backend when the reviewed Terraform
+  runtime supports it. The S3-compatible Object Storage backend is deprecated
+  and is a legacy fallback only.
+- Use a remote encrypted backend with tested concurrency controls for teams; one
+  state writer at a time. Verify locking behavior rather than assuming it.
 - Never echo, attach, or commit state or binary plans.
 - Mark sensitive variables and outputs, but remember sensitivity is display suppression—not encryption.
 - Ignore `.terraform/`, state, plans, tfvars, wallets, keys, archives, and crash logs.
 - Pin provider constraints and commit the dependency lock file after reviewed initialization.
 - Review module/provider source, checksum, and version before init; do not run untrusted provisioners.
 
+### Execution-context authentication
+
+Choose authentication for where Terraform executes: a named local profile/API
+key, short-lived security token, instance principal, resource principal, OKE
+workload identity, or Resource Manager-managed execution. Prefer workload
+identity/principals over long-lived user keys when supported. Keep secrets and
+private-key contents out of HCL, tfvars, backend settings, plan output, and argv.
+Validate short-lived token lifetime before a long plan or apply.
+
+### Adoption, refactoring, and drift
+
+There is no `oci_tf.sh import` subcommand. Author declarative `import` blocks and
+matching resource configuration, resolve identity syntax from current provider
+docs, and use the normal wrapped plan/review/apply lifecycle. Map each remote
+object to exactly one address. Adoption is complete only when the next reviewed
+plan has no unintended change.
+
+Use and retain declarative `moved` blocks for address changes so consumers avoid
+destroy/recreate. Removing historical moves is a breaking change. For drift,
+inspect a refresh-backed reviewed plan, decide whether the out-of-band change is
+accepted or reverted, then update HCL or restore through the declared owner.
+Never use state-only refresh as a shortcut around review.
+
+### Realms and module quality
+
+The OCI provider is region agnostic, but realms, service availability, DNS
+suffixes, and FIPS requirements differ. Resolve realm/endpoints from the
+installed provider and current Oracle docs; never hardcode commercial-realm
+domains. Oracle directs US Government and US Defense Cloud users to the
+FIPS-compatible provider.
+
+Review modules as supply-chain dependencies: source ownership, immutable
+version, checksum/lock metadata, license, maintenance, nested modules/providers,
+provisioners, public exposure, sensitive outputs/state, tests, upgrade notes,
+and `moved`/import migrations.
+
 ## Resource Manager package
 
 Package the same root module and optional `schema.yaml`. Hand stack creation, plan/apply/destroy jobs, logs, and state retrieval to `oci-resource-manager`. Never apply locally and through Resource Manager to the same state/resources.
+
+## Additional authoritative sources
+
+- [Using Object Storage for state](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/object-storage-state.htm)
+- [Configuring OCI provider authentication](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/configuring.htm)
+- [OCI provider availability and FIPS](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm)
+- [Specifying versions](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/specifying-versions.htm)
+- [Terraform import blocks](https://developer.hashicorp.com/terraform/language/import)
+- [Terraform moved blocks](https://developer.hashicorp.com/terraform/language/modules/develop/refactoring)
+- [Terraform drift](https://developer.hashicorp.com/terraform/tutorials/state/resource-drift)

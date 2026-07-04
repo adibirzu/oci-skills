@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "executes_on_validate": false,
+  "gates": [
+    {"id": "tests", "command": "pytest -q tests", "required": true, "evidence": "exit-code"},
+    {"id": "coverage", "command": "coverage report", "required": true, "evidence": "coverage-summary"},
+    {"id": "routing", "command": "python3 tests/check_eval_routing.py", "required": true, "evidence": "exit-code"},
+    {"id": "product-contracts", "command": "python3 scripts/product_contracts.py validate", "required": true, "evidence": "metadata-report"},
+    {"id": "forward-definitions", "command": "python3 scripts/forward_eval.py validate", "required": true, "evidence": "metadata-report"},
+    {"id": "clean-install", "command": "pytest -q tests/test_codex_install.py", "required": true, "evidence": "exit-code"},
+    {"id": "documentation-links", "command": "pytest -q tests/test_doc_links.py", "required": true, "evidence": "exit-code"},
+    {"id": "redaction", "command": "make check", "required": true, "evidence": "exit-code"}
+  ]
+}

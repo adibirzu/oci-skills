@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "capabilities": [
+    {"skill": "oci-administrator", "owner": "router", "reference": "references/oracle-skills-alignment.md"},
+    {"skill": "oci-iam-admin", "owner": "iam-tenancy", "reference": "references/iam-tenancy.md"},
+    {"skill": "oci-security-compliance", "owner": "security-compliance", "reference": "references/security-compliance.md"},
+    {"skill": "oci-observability-db", "owner": "observability", "reference": "references/observability-db.md"},
+    {"skill": "oci-dbm-opsi", "owner": "database-observability", "reference": "references/dbm-opsi.md"},
+    {"skill": "oci-autonomous-db", "owner": "autonomous-database", "reference": "references/autonomous-db.md"},
+    {"skill": "oci-database-cloud", "owner": "database-cloud", "reference": "references/database-cloud.md"},
+    {"skill": "oci-bastion-access", "owner": "bastion-access", "reference": "references/bastion-access.md"},
+    {"skill": "oci-networking-compute", "owner": "networking-compute", "reference": "references/networking-compute.md"},
+    {"skill": "oci-oke-admin", "owner": "oke-operations", "reference": "references/oke-operations.md"},
+    {"skill": "oci-zpr-visibility", "owner": "zpr-visibility", "reference": "references/zpr-visibility.md"},
+    {"skill": "oci-cost", "owner": "cost-management", "reference": "references/cost-management.md"},
+    {"skill": "oci-log-analytics", "owner": "log-analytics", "reference": "references/log-analytics.md"},
+    {"skill": "oci-resource-manager", "owner": "resource-manager", "reference": "references/resource-manager.md"},
+    {"skill": "oci-data-safe", "owner": "data-safe", "reference": "references/data-safe.md"},
+    {"skill": "oci-events-functions", "owner": "events-functions", "reference": "references/events-functions.md"},
+    {"skill": "oci-terraform-authoring", "owner": "terraform-authoring", "reference": "references/terraform-authoring.md"},
+    {"skill": "oci-developer-services", "owner": "developer-services", "reference": "references/developer-services.md"},
+    {"skill": "oci-project", "owner": "project-lifecycle", "reference": "references/project-workflow.md"},
+    {"skill": "oci-product-development", "owner": "product-bundles", "reference": "references/product-development.md"},
+    {"skill": "oci-application-engineering", "owner": "application-workflow", "reference": "references/application-engineering.md"},
+    {"skill": "oci-landing-zone", "owner": "landing-zone", "reference": "references/landing-zone.md"}
+  ]
+}

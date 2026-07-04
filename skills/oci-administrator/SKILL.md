@@ -2,12 +2,13 @@
 name: oci-administrator
 description: >-
   Default router for tenancy-agnostic Oracle Cloud Infrastructure engineering.
-  Use for OCI administration, audit, security, IAM, networking, compute, OKE,
-  observability, DBM/OPSI, ADB, cost, Log Analytics, Resource Manager, Data Safe,
-  Events, Functions, Queue, Terraform/HCL, DevOps, API Gateway, Container
-  Instances, Artifact Registry/OCIR, exact oci-cli commands, platform bundles,
-  or project lifecycle requests. Routes to distinct domain skills and the
-  oci-project or oci-product-development orchestrator while enforcing named
+  Use for OCI administration, audit, security, IAM, Bastion, networking, compute,
+  OKE, observability, Base Database, Exadata, DBM/OPSI, ADB, cost, Log Analytics,
+  Resource Manager, Data Safe, Events, Functions, Queue, Terraform/HCL, landing
+  zones, DevOps, API Gateway, Container Instances, Artifact Registry/OCIR, exact
+  oci-cli commands, platform bundles, or project lifecycle requests. Routes to
+  distinct domain skills and the oci-project, oci-product-development,
+  oci-application-engineering, or oci-landing-zone orchestrator while enforcing named
   contexts, preflight receipts, redaction, and risk-specific approval. Routes
   deep GenAI, in-database work, specialist OKE, and Fusion work to official
   Oracle skills or documentation.
@@ -15,8 +16,9 @@ description: >-
 
 # OCI Administrator
 
-Operate and engineer OCI safely. This router selects one of fifteen primary
-domain skills or the **oci-project** / **oci-product-development** orchestrator,
+Operate and engineer OCI safely. This router selects one of seventeen primary
+domain skills or the **oci-project**, **oci-product-development**,
+**oci-application-engineering**, and **oci-landing-zone** orchestrators,
 all sharing one tenancy-safety core.
 
 **Scope:** this pack is the **default entry point for OCI tenancy
@@ -63,14 +65,36 @@ run the bundled scaffold when execution is available; otherwise give its exact
 invocation, output paths, ownership, and validation contract instead of inlining
 generated files.
 
-A Read/Skill-only harness has no execution surface. In that mode, do not inline
-Terraform, bundle files, JSON payloads, provider versions, or resource fields from
-memory; copy the exact invocation from the selected reference and describe its
-outputs. Materialize artifacts only when the bundled helper can actually run.
+### Development-first boundary
+
+Offline work is never blocked by tenancy controls: application code, tests,
+documentation, code review, local lint/validate, reusable-module discovery, and
+bundle scaffolding may proceed without a context, preflight receipt, OCI CLI
+help, provider credentials, or `run_action`. State that the output is offline
+and identify the later live owner/checkpoint. Apply preflight, exact CLI-help,
+approval, and rollback requirements only when reading a live tenancy with an
+ambiguous target or changing a real OCI resource.
+
+### Progress-first execution
+
+Do the maximum safe work before pausing. Run offline generators, local schema
+checks, tests, linting, documentation updates, and reuse discovery immediately.
+For a live request with a valid named context, perform the read-only inspection
+needed to resolve names and ownership. If a later step needs a preflight,
+installed-help lookup, plan review, or approval, pause only that later step and
+return the completed artifacts plus the exact next gate. Never turn a missing
+live permission into a refusal to plan, validate, or scaffold.
+
+A Read/Skill-only harness has no OCI execution surface. It may still review,
+plan, write application tests/docs, and describe an offline artifact contract.
+For a live OCI resource shape, do not invent Terraform, bundle files, JSON
+payloads, provider versions, or resource fields from memory; copy the exact
+invocation from the selected reference and describe its outputs.
 
 - Treat a wrong context, missing/expired preflight receipt, unreviewed Terraform
-  plan, or unmatched destructive approval as a hard block. Never suggest FORCE,
-  break-glass, direct delete, or `--force` as a shortcut.
+  plan, or unmatched destructive approval as a hard block only for the affected
+  live mutation. Continue safe offline preparation, validation, and diagnosis;
+  never suggest FORCE, break-glass, direct delete, or `--force` as a shortcut.
 - For non-TTY destructive work, show only the redacted dry-run preview flow and
   the requirement for the exact `OCI_SKILLS_APPROVAL` identifier; execute nothing.
 - Do not trust a user-claimed CLI flag. Check installed help and refuse the flag
@@ -118,22 +142,23 @@ and give its safe recovery contract immediately:
 - **Rejected: dotenv is data-only.** Reject shell syntax and command substitution
   without executing any content.
 
-## First move (always)
+## First move for live OCI work
 
-1. Identify the **domain** of the request (IAM, Security, Observability/DB,
-   Networking/Compute, Cost/FinOps, Log Analytics) and the
-   **tenancy/compartment** it targets.
+1. For a live tenancy read or mutation, identify the **domain** and target
+   **tenancy/compartment**. For offline development, identify the artifact,
+   acceptance tests, and later infrastructure owner instead.
 2. Prefer a **named context** over raw OCIDs — `dev`, `prod`, etc. resolve to a
    profile + compartment + region (see
    [references/named-contexts.md](../../references/named-contexts.md)):
    ```bash
    eval "$(scripts/oci_context.py use dev)"   # sets profile/region/compartment
    ```
-3. Confirm the target tenancy before any change (by name, never raw OCID):
+3. Confirm the target tenancy before any live change (by name, never raw OCID):
    ```bash
    ./scripts/oci_preflight.sh -c "${OCI_SKILLS_COMPARTMENT:-<COMPARTMENT_OCID>}"
    ```
-4. Search the KB before deep debugging:
+4. Search the KB before deep live debugging; use local project knowledge first
+   for application-development work:
    ```bash
    python3 scripts/kb_lookup.py "symptom words"
    ```
@@ -177,13 +202,29 @@ design, or scaffold Events → Queue → Function or a Streaming worker routes t
 `oci-product-development`. After bundle selection, `oci-events-functions` owns
 the Queue/Streaming/Functions transport materialization and operations.
 
+**Landing-zone composition takes precedence:** a request for a landing zone,
+Cloud Adoption Framework implementation, greenfield tenancy foundation, or
+cross-workload enterprise guardrails routes to `oci-landing-zone`. Ordinary
+single-project lifecycle remains with `oci-project`.
+
+**Access intent beats generic networking:** Bastion, Managed SSH, fixed or
+dynamic port forwarding, client allowlists, and Bastion plugin failures route to
+`oci-bastion-access`; pure NSG, route, subnet, or VCN work remains networking.
+
+**Database lifecycle beats observability:** DB systems, DB homes, database/PDB
+resources, backups/restores, patching, Data Guard associations, and Exadata
+control-plane lifecycle route to `oci-database-cloud`. ADB and DBM/OPSI retain
+their existing owners; SQL/RMAN/tuning remain a hard handoff.
+
 | Request mentions… | Plugin | Reference |
 |---|---|---|
-| users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
+| users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context, OIDC, OAuth application, SAML, SCIM provisioning | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
 | Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
 | APM, Monitoring, alarm, dashboard, metric, Logging, OpenTelemetry, agent trace, trace integrity, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
 | Database Management, DBM, Operations Insights, OPSI, managed database, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight, Base DB observability, DB log ingestion | **oci-dbm-opsi** | [references/dbm-opsi.md](../../references/dbm-opsi.md) |
 | ADB/ADW/ATP lifecycle, provision, create autonomous database, start/stop/scale, wallet, generate-wallet, rotate wallet, TNS_ADMIN, whitelisted-ips/ACL, DSN service level, oracledb, SQLAlchemy oracle+oracledb, Alembic on Oracle, clone, restore, SQLcl, execute SQL, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN | **oci-autonomous-db** | [references/autonomous-db.md](../../references/autonomous-db.md) |
+| DB system, Base Database, DB home, database resource, PDB, PDB resource, Base Database backup, backup/restore, patch/upgrade, Data Guard association, Exadata, Exadata infrastructure, cloud VM cluster lifecycle | **oci-database-cloud** | [references/database-cloud.md](../../references/database-cloud.md) |
+| Bastion, Managed SSH, SSH tunnel, fixed/dynamic port forwarding, SOCKS5, client CIDR allowlist, Bastion plugin | **oci-bastion-access** | [references/bastion-access.md](../../references/bastion-access.md) |
 | VCN, subnet, NSG, network security group, route table, gateway, load balancer, compute VM, instance, image, VNIC, volume | **oci-networking-compute** | [references/networking-compute.md](../../references/networking-compute.md) |
 | OKE, kubectl, kubeconfig, Kubernetes deployment, Kubernetes service, ingress-nginx, nginx ingress, OCI Native Ingress, LoadBalancer pending, TLS secret, certificate, OCIR image pull, ImagePullBackOff, CrashLoopBackOff, rollout status, virtual nodes, Workload Identity | **oci-oke-admin** | [references/oke-operations.md](../../references/oke-operations.md) |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, ZPR policy, VCN Flow Logs correlation, unexpected accepted/rejected flows, ZPR dashboards | **oci-zpr-visibility** | [references/zpr-visibility.md](../../references/zpr-visibility.md) |
@@ -195,20 +236,28 @@ the Queue/Streaming/Functions transport materialization and operations.
 | write HCL, Terraform authoring, scaffold Terraform, provider schema, resource discovery, local validate/plan/apply/destroy, import, module, reviewed plan | **oci-terraform-authoring** | [references/terraform-authoring.md](../../references/terraform-authoring.md) |
 | OCI DevOps, build pipeline, deployment pipeline, code repository, source connection, trigger, artifact, Artifact Registry, OCIR delivery, API Gateway, Container Instances, canary, blue-green | **oci-developer-services** | [references/developer-services.md](../../references/developer-services.md) |
 | application platform, product golden path, OCI platform bundle, platform bundle, platform-bundle.yaml, API Gateway plus Functions, container application golden path, OKE application golden path, Queue or Streaming event worker, event worker bundle, ADB-backed Functions service, private ADB-backed Functions service | **oci-product-development** | [references/product-development.md](../../references/product-development.md) |
+| application code, application engineering, existing-code review, code review, debugging application, module reuse, plugin selection, skill evaluation, adaptive MultiLLM, model-efficiency measurement | **oci-application-engineering** | [references/application-engineering.md](../../references/application-engineering.md) |
+| landing zone, Cloud Adoption Framework, greenfield tenancy, enterprise guardrails, existing estate, existing OCI estate, adoption backlog, deploy landing zone, deploy and later upgrade, upgrade an OCI landing zone, upgrade landing zone, landing-zone assessment, landing-zone deployment, landing-zone upgrade | **oci-landing-zone** | [references/landing-zone.md](../../references/landing-zone.md) |
 | new project, bootstrap, scaffold, set up a project, project status, project health, deploy a project, tear down, decommission, project guardrails, project lifecycle | **oci-project** | [references/project-workflow.md](../../references/project-workflow.md) |
 
 Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared core.
 **oci-project** sequences lifecycle work for one project compartment;
 **oci-product-development** composes the five platform-bundle golden paths.
+**oci-application-engineering** owns application-code workflow, reuse, review,
+and measurement; it never mutates OCI infrastructure.
+**oci-landing-zone** owns tenancy-foundation assessment/design and orchestrates
+deployment/upgrade validation without stealing domain or Terraform ownership.
 
 **Designing a *new* solution for a customer?** When the request is a *requirement*
-("the customer needs a PCI-scoped 3-tier web app", "a landing zone for three
-teams") rather than a service operation, start at **Stage 0 — Design**:
+("the customer needs a PCI-scoped 3-tier web app") rather than a service
+operation, start at **Stage 0 — Design**:
 [references/solution-authoring.md](../../references/solution-authoring.md) walks
 discovery → Well-Architected requirements → reference architecture → guardrail
 design → cost → build → validate, producing a Solution Blueprint that feeds
 `oci-project` bootstrap. It is read-only (writes a blueprint, not resources) and
 grounded in Oracle's Architecture Center / Cloud Adoption Framework.
+Landing-zone requirements route to `oci-landing-zone`, which reuses this
+Solution Blueprint and adds the tenancy-foundation decision matrix.
 
 **Related: MCP gateway (non-official).** This pack is the authoritative,
 safety-gated CLI/SDK path. The `oci-mcp-gateway` is **community / self-hosted

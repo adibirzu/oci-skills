@@ -15,6 +15,8 @@ EXPECTED_SKILLS = {
     "oci-observability-db",
     "oci-dbm-opsi",
     "oci-autonomous-db",
+    "oci-database-cloud",
+    "oci-bastion-access",
     "oci-networking-compute",
     "oci-oke-admin",
     "oci-zpr-visibility",
@@ -27,6 +29,8 @@ EXPECTED_SKILLS = {
     "oci-terraform-authoring",
     "oci-project",
     "oci-product-development",
+    "oci-application-engineering",
+    "oci-landing-zone",
 }
 
 
@@ -37,6 +41,7 @@ def _frontmatter(path: pathlib.Path) -> str:
 def test_v2_skill_topology_and_codex_metadata() -> None:
     skills = {path.parent.name for path in ROOT.glob("skills/*/SKILL.md")}
     assert skills == EXPECTED_SKILLS
+    assert len(skills) == 22
     for skill in skills:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
 
@@ -108,6 +113,7 @@ def test_router_and_references_define_failure_response_contracts() -> None:
         "Rejected: dotenv is data-only",
     ):
         assert response_prefix in router
+
     for term in ("wrong context", "expired preflight", "oci_skills_approval", "data-only"):
         assert term in safety.lower()
     for term in ("exact reviewed plan bytes", "context-bound preflight", "refuse"):
@@ -175,15 +181,65 @@ def test_router_and_references_define_failure_response_contracts() -> None:
         assert term in cost.lower()
 
 
+def test_router_does_not_block_offline_development_on_live_oci_gates() -> None:
+    router = " ".join((ROOT / "skills" / "oci-administrator" / "SKILL.md").read_text(encoding="utf-8").split())
+    application = " ".join((ROOT / "references" / "application-engineering.md").read_text(encoding="utf-8").split())
+    for term in (
+        "Offline work is never blocked by tenancy controls",
+        "application code, tests",
+        "without a context, preflight receipt, OCI CLI help",
+        "Offline development is not a blocked OCI action",
+    ):
+        assert term in router or term in application
+
+
+def test_router_continues_safe_work_when_only_a_later_live_step_is_blocked() -> None:
+    router = " ".join((ROOT / "skills" / "oci-administrator" / "SKILL.md").read_text(encoding="utf-8").split())
+    developer = " ".join((ROOT / "references" / "developer-services.md").read_text(encoding="utf-8").split())
+    for term in (
+        "Progress-first execution",
+        "Do the maximum safe work before pausing",
+        "Continue safe offline preparation, validation, and diagnosis",
+        "This block is narrow",
+        "Do not stop safe development work",
+    ):
+        assert term in router or term in developer
+
+
+def test_terraform_and_product_workflows_keep_offline_work_unblocked() -> None:
+    terraform = " ".join((ROOT / "references" / "terraform-authoring.md").read_text(encoding="utf-8").lower().split())
+    product = " ".join((ROOT / "references" / "product-development.md").read_text(encoding="utf-8").lower().split())
+    for term in (
+        "progress-first terraform work",
+        "scaffold and local validation are offline work",
+        "pause only the live operation that needs it",
+        "do not make a missing context, preflight, provider credential, or approval a reason to withhold the local artifact",
+    ):
+        assert term in terraform
+    for term in (
+        "progress-first product work",
+        "do not withhold a safe bundle scaffold or local schema validation",
+        "only materialization, live inspection, and deployment wait for their applicable live gate",
+    ):
+        assert term in product
+
+
 def test_planning_and_architecture_artifacts_trace_every_requirement() -> None:
     prd = (ROOT / "docs" / "product" / "oci-skills-v2-prd.md").read_text(encoding="utf-8")
     plan = (ROOT / "docs" / "plans" / "oci-skills-v2.md").read_text(encoding="utf-8")
     architecture = (ROOT / "docs" / "ARCHITECTURE.md").read_text(encoding="utf-8")
     adr = (ROOT / "docs" / "adr" / "0003-iac-ownership-and-approval-model.md").read_text(encoding="utf-8")
-    for number in range(1, 10):
+    for number in range(1, 53):
         requirement = f"REQ-{number:02d}"
         assert requirement in prd
         assert requirement in plan
+    normalized_prd = prd.lower()
+    for term in (
+        "optional multillm",
+        "does not require gateway access",
+        "application business logic belongs to oci-application-engineering",
+    ):
+        assert term in normalized_prd
     for term in ("platform-bundle.yaml", "run_action", "Terraform", "Resource Manager"):
         assert term in architecture
         assert term in adr
@@ -197,6 +253,10 @@ def test_eval_routes_resolve_ownership_overlaps() -> None:
     assert by_id["trigger-terraform-authoring"]["expect_route"] == "oci-terraform-authoring"
     assert by_id["trigger-container-instance"]["expect_route"] == "oci-developer-services"
     assert by_id["trigger-product-api-functions"]["expect_route"] == "oci-product-development"
+    assert by_id["trigger-bastion-managed-ssh"]["expect_route"] == "oci-bastion-access"
+    assert by_id["trigger-db-system-create"]["expect_route"] == "oci-database-cloud"
+    assert by_id["trigger-landing-zone-design"]["expect_route"] == "oci-landing-zone"
+    assert by_id["trigger-identity-oidc"]["expect_route"] == "oci-iam-admin"
 
 
 def test_manifests_share_release_candidate_version() -> None:

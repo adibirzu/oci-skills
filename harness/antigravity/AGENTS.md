@@ -9,6 +9,8 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms.
 - `oci-dbm-opsi`: DBM/OPSI and database performance control plane.
 - `oci-autonomous-db`: ADB lifecycle/connectivity.
+- `oci-database-cloud`: Base Database and Exadata control-plane lifecycle.
+- `oci-bastion-access`: Bastion sessions, forwarding, allowlists, and plugin health.
 - `oci-networking-compute`: VCN/NSG/LB/VM/VNIC/volume.
 - `oci-oke-admin`: OKE/Kubernetes application and cluster operations.
 - `oci-zpr-visibility`: ZPR/flow visibility.
@@ -21,6 +23,8 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 - `oci-developer-services`: DevOps, API Gateway, Container Instances, artifacts.
 - `oci-project`: lifecycle orchestration.
 - `oci-product-development`: platform-bundle golden paths.
+- `oci-application-engineering`: application code workflow, reuse, review, and measurement; no OCI mutation.
+- `oci-landing-zone`: landing-zone assessment, design, deployment, upgrade, and validation.
 
 ## Operating contract
 

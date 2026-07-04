@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "precedence_rules": [
+    {
+      "id": "golden-path-over-components",
+      "positive_intent": "complete platform bundle or golden path",
+      "positive_owner": "oci-product-development",
+      "negative_intent": "operate one named service",
+      "negative_owner": "owning domain"
+    },
+    {
+      "id": "event-worker-composition-over-transport",
+      "positive_intent": "compose a complete event worker",
+      "positive_owner": "oci-product-development",
+      "negative_intent": "operate Queue, Streaming, Events, or Functions",
+      "negative_owner": "oci-events-functions"
+    },
+    {
+      "id": "bastion-over-generic-networking",
+      "positive_intent": "Bastion session, forwarding, allowlist, or plugin",
+      "positive_owner": "oci-bastion-access",
+      "negative_intent": "pure NSG, route, subnet, or VCN",
+      "negative_owner": "oci-networking-compute"
+    },
+    {
+      "id": "database-lifecycle-over-observability",
+      "positive_intent": "DB system, home, backup, patch, Data Guard, or Exadata lifecycle",
+      "positive_owner": "oci-database-cloud",
+      "negative_intent": "DBM, OPSI, Performance Hub, or telemetry",
+      "negative_owner": "oci-dbm-opsi"
+    },
+    {
+      "id": "landing-zone-over-project",
+      "positive_intent": "tenancy foundation or landing-zone lifecycle",
+      "positive_owner": "oci-landing-zone",
+      "negative_intent": "one project lifecycle",
+      "negative_owner": "oci-project"
+    },
+    {
+      "id": "application-code-over-platform",
+      "positive_intent": "application code, review, reuse, or measurement",
+      "positive_owner": "oci-application-engineering",
+      "negative_intent": "platform infrastructure bundle",
+      "negative_owner": "oci-product-development"
+    }
+  ]
+}

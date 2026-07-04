@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Bastion Access"
+  short_description: "Operate private Bastion access and sessions safely"
+  default_prompt: "Use $oci-bastion-access to plan or diagnose this OCI Bastion access workflow safely."

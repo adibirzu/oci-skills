@@ -99,6 +99,27 @@ Dry-run prints a redacted preview and exact approval ID, and executes nothing. I
 
 ## Routing
 
+## Development versus live OCI work
+
+Start offline development immediately: application code, tests, documentation,
+bundle scaffolding, local validation, and review do not require credentials, a
+named context, preflight, or OCI CLI help. Mark those artifacts as offline and
+name the future OCI owner where relevant.
+
+Use the context/preflight/action safeguards only for a live tenancy read whose
+scope is uncertain or any real OCI mutation. This keeps normal development
+moving while preserving wrong-tenancy, destructive-action, and secret-handling
+protections when infrastructure is actually touched.
+
+### Optional MultiLLM synthesis
+
+MultiLLM is never required. If a user opts in to a multi-agent comparison,
+start its local gateway and use `claude-multillm` or `codex-multillm`; then ask
+the registered MCP server for `llm_adaptive` (cheap-first) or `llm_fusion`
+(panel, comparison, and synthesis). Check `llm_model_catalog` first so only
+live aliases participate. If the gateway is unavailable, continue with the
+primary agent rather than blocking the task.
+
 | Intent | Skill |
 |---|---|
 | IAM/tenancy | `oci-iam-admin` |
@@ -106,6 +127,8 @@ Dry-run prints a redacted preview and exact approval ID, and executes nothing. I
 | Monitoring/Logging/APM/alarms | `oci-observability-db` |
 | DBM/OPSI/Performance Hub | `oci-dbm-opsi` |
 | ADB lifecycle/connectivity | `oci-autonomous-db` |
+| Base Database/Exadata lifecycle | `oci-database-cloud` |
+| Bastion/private access sessions | `oci-bastion-access` |
 | VCN/NSG/LB/VM | `oci-networking-compute` |
 | OKE/Kubernetes/ingress/rollout | `oci-oke-admin` |
 | ZPR/flow correlation | `oci-zpr-visibility` |
@@ -118,6 +141,8 @@ Dry-run prints a redacted preview and exact approval ID, and executes nothing. I
 | DevOps/API Gateway/Container Instances/artifacts | `oci-developer-services` |
 | project lifecycle | `oci-project` |
 | golden-path platform bundle | `oci-product-development` |
+| application code/review/reuse/model evaluation | `oci-application-engineering` |
+| landing-zone/greenfield tenancy guardrails | `oci-landing-zone` |
 
 ## External handoffs and troubleshooting
 
@@ -130,3 +155,27 @@ python3 ./scripts/kb_lookup.py "error or symptom words"
 ```
 
 Never paste live output into an issue or commit. Sanitize with `python3 scripts/redact.py --strict` first.
+
+## Validate product contracts
+
+The installed pack exposes **22 skills, 52 requirements, 37 contracts, and
+30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
+acceptance and architecture boundaries.
+
+The forty PRDs from REQ-13 through REQ-52 have executable, offline contracts:
+
+~~~bash
+python3 scripts/product_contracts.py validate
+python3 scripts/product_contracts.py report
+~~~
+
+Validation checks capability ownership, routing precedence, traceability,
+distribution, redaction, compatibility, contract shapes, journeys,
+dependencies, verification declarations, provenance, change impact, install
+payload, release transitions, safety cases, migration readiness, schema
+evolution, accountability, retention, parity, recovery, architecture
+invariants, documentation freshness, attestation, maintenance, change-set
+manifests, exceptions, waiver expiry, dependency integrity, deterministic
+output, performance budgets, network isolation, backup/restore, rollback, and
+end-of-life policy. The report is metadata-only and does not execute tests,
+providers, installers, transitions, or OCI operations.

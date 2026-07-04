@@ -13,6 +13,8 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms, dashboards.
 - `oci-dbm-opsi`: DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP.
 - `oci-autonomous-db`: ADB lifecycle, wallet, ACL, private connectivity.
+- `oci-database-cloud`: Base Database and Exadata control-plane lifecycle.
+- `oci-bastion-access`: Bastion sessions, forwarding, allowlists, and plugin health.
 - `oci-networking-compute`: VCN, NSG, routing, LB, VM/VNIC/volume.
 - `oci-oke-admin`: OKE/Kubernetes, ingress, TLS, OCIR pulls, rollouts.
 - `oci-zpr-visibility`: ZPR inventory and flow-log correlation.
@@ -25,6 +27,8 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 - `oci-developer-services`: DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery.
 - `oci-project`: project lifecycle orchestration.
 - `oci-product-development`: five platform-bundle golden paths.
+- `oci-application-engineering`: application code workflow, reuse, review, and measurement; no OCI mutation.
+- `oci-landing-zone`: landing-zone assessment, design, deployment, upgrade, and validation.
 
 ## Rules
 

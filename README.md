@@ -1,6 +1,6 @@
 # oci-skills — safe OCI engineering for AI agents
 
-OCI Skills v2 is a tenancy-agnostic engineering assistant for **OCI administration, exact CLI plans, Terraform authoring, and product-platform bundles**. The same safety and routing core installs into Claude Code, Codex/ChatGPT, Gemini CLI, and Antigravity.
+OCI Skills v2 is a tenancy-agnostic engineering assistant for **OCI administration, exact CLI plans, Terraform authoring, product-platform bundles, and OCI-backed application engineering**. The same safety and routing core installs into Claude Code, Codex/ChatGPT, Gemini CLI, and Antigravity.
 
 It ships no tenancy data, OCIDs, IPs, keys, or credentials. Examples use `<PLACEHOLDER>` tokens resolved from your named context at runtime.
 
@@ -18,7 +18,7 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 ## Skill topology
 
-The router selects fifteen primary domains and two orchestrators:
+The router selects seventeen primary domains and four orchestrators:
 
 | Skill | Primary ownership |
 |---|---|
@@ -27,6 +27,8 @@ The router selects fifteen primary domains and two orchestrators:
 | `oci-observability-db` | Monitoring, Logging, APM, OTel, alarms, notifications, connectors, dashboards |
 | `oci-dbm-opsi` | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP |
 | `oci-autonomous-db` | ADB lifecycle, private endpoints, wallet, ACL, scale, connectivity, read-only diagnostics |
+| `oci-database-cloud` | Base Database and Exadata control-plane lifecycle, backup/restore, patching, Data Guard |
+| `oci-bastion-access` | Bastion, Managed SSH, fixed/dynamic forwarding, allowlists, plugin diagnosis |
 | `oci-networking-compute` | VCN, subnet, NSG, routing, gateways, load balancers, VM/VNIC/volume lifecycle |
 | `oci-oke-admin` | OKE cluster/application operations, kubeconfig, ingress, TLS, OCIR pulls, rollouts |
 | `oci-zpr-visibility` | ZPR attributes/policies, protected-resource inventory, flow-log correlation |
@@ -39,6 +41,25 @@ The router selects fifteen primary domains and two orchestrators:
 | `oci-developer-services` | DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery |
 | `oci-project` | Project bootstrap/status/deploy/teardown lifecycle orchestration |
 | `oci-product-development` | Golden-path intake and `platform-bundle.yaml` composition |
+| `oci-application-engineering` | Application workflow, reuse, review, and adaptive evaluation (no OCI mutation) |
+| `oci-landing-zone` | Landing-zone assessment, design, deployment, upgrade, and validation orchestration |
+
+`oci-application-engineering` can optionally use a locally configured MultiLLM gateway for model comparison, adaptive cheap-first routing, Fusion synthesis, and sanitized cost/latency traces. It is not enabled or required by this pack: ask for the user's choice, keep restricted code local unless separately approved, and continue normally when the gateway is absent.
+
+When a user chooses MultiLLM, use its optional `claude-multillm` or
+`codex-multillm` launcher. In the agent session select `llm_adaptive` for
+cheap-first work or `llm_fusion` for a panel-and-synthesis result; check
+`llm_model_catalog` before choosing aliases. The setup and direct API example
+are in the [MultiLLM guide](https://github.com/adibirzu/multillm#use-fusion-from-claude-code-or-codex).
+
+## Development without unnecessary gates
+
+Offline development is intentionally frictionless: source code, tests,
+documentation, local validation, review, and bundle scaffolding proceed without
+OCI credentials, a named context, a preflight receipt, or exact CLI help. The
+pack applies tenancy checks, action approval, and rollback requirements when a
+request actually reads an ambiguously scoped tenancy or changes live OCI
+resources.
 
 The discoverable `oci-administrator` router sits above them. Each request loads the router, one skill, and only the direct reference needed—progressive disclosure rather than all domain knowledge at once.
 
@@ -64,6 +85,33 @@ flowchart TD
 ```
 
 Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [ADR 0003](docs/adr/0003-iac-ownership-and-approval-model.md).
+
+## Product contracts and readiness
+
+The consolidated release contains **22 skills, 52 requirements, 40 detailed
+PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
+and copied into every supported harness.
+
+REQ-13 through REQ-52 add versioned application evidence, deterministic
+workflow evaluation, the 22-skill capability catalog, routing precedence,
+evidence envelopes, architecture traceability, distribution/redaction/release
+contracts, compatibility policy, user journeys, dependency and impact graphs,
+verification/provenance registries, an install manifest, safety cases, a release
+state machine, migration readiness, schema evolution, accountability,
+retention, parity, recovery, architecture invariants, documentation freshness,
+release attestation, maintenance policy, change-set manifests, fail-closed
+exceptions and waiver expiry, dependency integrity, deterministic output,
+performance budgets, network isolation, validated restore, reviewed rollback,
+and end-of-life policy. Validate the complete product definition offline:
+
+~~~bash
+python3 scripts/product_contracts.py validate
+python3 scripts/product_contracts.py report
+~~~
+
+The report executes no gate and cannot self-certify the independent fresh-agent
+release evidence. It emits only counts, release state, and contract/install
+digests.
 
 ## Safety model
 
