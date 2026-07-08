@@ -1,0 +1,4 @@
+interface:
+  display_name: "Just Do It"
+  short_description: "Plan, delegate, review, and finish complex work"
+  default_prompt: "Use $jd. Start this as a persistent goal, split it into PRDs and tasks, delegate implementation, require Sol review, and continue until verified completion:"
