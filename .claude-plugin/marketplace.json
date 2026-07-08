@@ -31,6 +31,17 @@
       },
       "category": "ai",
       "homepage": "https://github.com/adibirzu/oci-skills"
+    },
+    {
+      "name": "just-do-it",
+      "description": "Turn one goal into reviewed PRDs and model-tiered agent tasks with strict isolation, durable recovery, and an auditable scoped break-glass mode.",
+      "version": "1.2.0",
+      "author": {
+        "name": "adibirzu"
+      },
+      "source": "./plugins/just-do-it",
+      "category": "development",
+      "homepage": "https://github.com/adibirzu/oci-skills"
     }
   ]
 }

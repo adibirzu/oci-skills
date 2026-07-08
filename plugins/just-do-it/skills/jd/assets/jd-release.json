@@ -1,0 +1,14 @@
+{
+  "name": "jd",
+  "version": "1.2.0",
+  "status": "production-ready",
+  "gates": {
+    "skill_validation": true,
+    "contract_tests": true,
+    "strict_config": true,
+    "security_scan": true,
+    "forward_test": true,
+    "distribution_parity": true
+  },
+  "notes": "Validated with skill checks, JD contract/scenario and role-installer tests, OCI Skills regressions, strict Codex config parsing, plugin validation, gitleaks, and byte-for-byte distribution parity. Forward coverage is deterministic scenario validation; no production system was contacted."
+}

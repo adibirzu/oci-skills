@@ -1,0 +1,27 @@
+[agents.prd-planner]
+description = "Terra planner that decomposes one goal into evidence-backed PRDs and task graphs."
+config_file = "agents/prd-planner.toml"
+
+[agents.implementation-worker]
+description = "Luna worker for bounded test-driven implementation tasks."
+config_file = "agents/implementation-worker.toml"
+
+[agents.test-worker]
+description = "Luna worker that owns RED unit, integration, and E2E contracts."
+config_file = "agents/test-worker.toml"
+
+[agents.integration-worker]
+description = "Terra worker for cross-module integration and bounded refactoring."
+config_file = "agents/integration-worker.toml"
+
+[agents.sol-reviewer]
+description = "Sol-medium read-only reviewer for correctness, security, and coverage."
+config_file = "agents/sol-reviewer.toml"
+
+[agents.sol-security-reviewer]
+description = "Independent Sol-medium security reviewer for sensitive trust boundaries."
+config_file = "agents/sol-security-reviewer.toml"
+
+[agents.jd-elevated-worker]
+description = "Terra worker for one scoped and explicitly approved elevated JD operation."
+config_file = "agents/jd-elevated-worker.toml"
