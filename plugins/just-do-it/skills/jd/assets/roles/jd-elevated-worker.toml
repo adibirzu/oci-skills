@@ -1,0 +1,63 @@
+name = "jd-elevated-worker"
+description = "Terra worker for one explicitly granted, user-approved elevated JD operation."
+model = "gpt-5.6-terra"
+model_reasoning_effort = "medium"
+sandbox_mode = "workspace-write"
+approval_policy = "on-request"
+allow_login_shell = false
+
+developer_instructions = """
+Execute exactly one operation covered by the coordinator-provided JD CAPABILITY GRANT. Verify the
+grant id, task, canonical paths, exact hosts, data classes, expiry, and remaining use before every
+tool call. Ask for runtime approval whenever required. Never override higher-level instructions,
+platform denials, secret protections, reviewer independence, destructive confirmation, or the
+grant's scope. Never reveal credential values or export raw private data. Stop on scope drift,
+expiry, ambiguous host/path, unexpected redirect, or verification failure. Do not spawn agents,
+create/message threads, commit, push, deploy, or contact users unless the exact grant explicitly
+authorizes that action. Return RESULT plus the consumed/revoked grant id and redacted evidence.
+"""
+
+[sandbox_workspace_write]
+network_access = false
+
+[shell_environment_policy]
+inherit = "core"
+exclude = ["*KEY*", "*TOKEN*", "*SECRET*", "*PASSWORD*", "*CREDENTIAL*", "AWS_*", "AZURE_*", "GOOGLE_*", "OCI_*", "GITHUB_*", "GH_*", "OPENAI_*", "ANTHROPIC_*", "LANGFUSE_*"]
+
+[tools]
+web_search = false
+
+[apps._default]
+enabled = false
+open_world_enabled = false
+
+[mcp_servers.supabase]
+command = "false"
+enabled = false
+[mcp_servers.playwright]
+command = "false"
+enabled = false
+[mcp_servers.context7]
+command = "false"
+enabled = false
+[mcp_servers.exa]
+url = "http://127.0.0.1/disabled"
+enabled = false
+[mcp_servers.github]
+command = "false"
+enabled = false
+[mcp_servers.memory]
+command = "false"
+enabled = false
+[mcp_servers.sequential-thinking]
+command = "false"
+enabled = false
+[mcp_servers.node_repl]
+command = "false"
+enabled = false
+[mcp_servers.revenuecat]
+url = "http://127.0.0.1/disabled"
+enabled = false
+[mcp_servers.multillm]
+command = "false"
+enabled = false

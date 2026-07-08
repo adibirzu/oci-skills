@@ -1,0 +1,12 @@
+{
+  "name": "just-do-it",
+  "version": "1.2.0",
+  "description": "Secure autonomous PRD delivery with model-tiered agents and scoped break glass.",
+  "author": {
+    "name": "adibirzu",
+    "url": "https://github.com/adibirzu"
+  },
+  "homepage": "https://github.com/adibirzu/oci-skills",
+  "repository": "https://github.com/adibirzu/oci-skills.git",
+  "license": "MIT"
+}
