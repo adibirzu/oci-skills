@@ -64,6 +64,28 @@ def test_network_edge_and_official_handoff_gaps_are_closed() -> None:
     assert "iot" in router
 
 
+def test_oke_mcp_safety_contract_is_documented() -> None:
+    skill = _text(ROOT / "skills" / "oci-oke-admin" / "SKILL.md").lower()
+    reference = _text(ROOT / "references" / "oke-operations.md").lower()
+    combined = skill + "\n" + reference
+
+    for term in (
+        "optional read surface",
+        "allow_only_readonly_tools",
+        "allowed_tools",
+        "mask_secrets",
+        "helm template",
+        "dns rebinding",
+        "opentelemetry",
+        "kubectl_generic",
+        "node_management",
+    ):
+        assert term in combined
+
+    assert "mcp is not a source of truth" in combined
+    assert "mutations still use this pack's preflight" in combined
+
+
 def test_router_docs_catalog_and_evals_publish_the_24_skill_surface() -> None:
     catalog = json.loads(_text(ROOT / "docs" / "product" / "contracts" / "capability-catalog.json"))
     skills = {entry["skill"] for entry in catalog["capabilities"]}

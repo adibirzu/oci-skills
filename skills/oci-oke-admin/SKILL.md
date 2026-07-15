@@ -8,10 +8,11 @@ description: >-
   Kubernetes TLS secrets, OCIR image pulls, imagePullSecrets, rollout status,
   CrashLoopBackOff, ImagePullBackOff, Pending LoadBalancers, virtual nodes,
   managed node pools, Workload Identity, External Secrets, or OKE deployment
-  troubleshooting. Triggers: OKE deploy, nginx ingress, LB pending, certificate
+  troubleshooting. Also use when evaluating Kubernetes MCP read surfaces against
+  OKE safety rules. Triggers: OKE deploy, nginx ingress, LB pending, certificate
   or TLS listener issue, kubeconfig endpoint error, kubectl Unauthorized,
   backend health CRITICAL, NodePort, virtual node, OCIR Unauthorized, pod
-  readiness/liveness, or public app exposure on Kubernetes.
+  readiness/liveness, Kubernetes MCP, or public app exposure on Kubernetes.
 ---
 
 # OCI OKE Admin
@@ -61,6 +62,7 @@ not match the intended target, stop.
 | Task | Sequence |
 |---|---|
 | Deploy an OKE app | prove context/profile/cluster → build/push linux/amd64 image → verify OCIR pull auth from target namespace → apply namespace/secrets/config/deployment/service/ingress → `kubectl rollout status` → probe readiness and public routes |
+| Use a Kubernetes MCP server for OKE triage | treat it as an optional read surface → prove kube context/profile/cluster through this skill → restrict tools to read-only allowlists → keep secret masking and redaction on → reproduce any needed mutation through preflighted `kubectl`/`helm`/`oci_cli` here |
 | Add a web service behind shared nginx ingress | create/verify `ClusterIP` service → add Ingress host/path → copy or create namespace-local TLS secret → update DNS to the shared ingress LB → verify HTML and API routes |
 | Diagnose `EXTERNAL-IP <pending>` | decide if service should be `ClusterIP` behind ingress → if direct LB is required, check LB quota, subnet annotation, service events, finalizers, and OCI CCM errors |
 | Diagnose 502 / backend health `CRITICAL` | check pod readiness → service endpoints → NodePort path → LB subnet egress to node CIDR on `10256` and `30000-32767` → node subnet ingress from LB CIDR |
@@ -91,6 +93,11 @@ These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
   ever contained secret values.
 - Keep long remote image pulls/builds detached from SSH sessions; poll short
   status commands rather than holding one fragile connection open.
+- Kubernetes MCP servers such as `mcp-server-kubernetes` are optional read
+  surfaces, not authorities. Prefer `ALLOW_ONLY_READONLY_TOOLS` or a narrow
+  `ALLOWED_TOOLS` list, keep `MASK_SECRETS` enabled, and do not expose
+  `kubectl_generic`, `node_management`, pod cleanup, delete, or Helm uninstall
+  tools in production sessions.
 
 ## Safety notes
 
@@ -103,6 +110,9 @@ These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
   ingress or app-level auth. Direct `LoadBalancer` services are public exposure.
 - Health endpoints should expose probe-safe status only, not internal URLs,
   OCIDs, topology, or tokens.
+- MCP is not a source of truth. Mutations still use this pack's preflight,
+  `run_action`, redaction, and exact approval gates; MCP output is evidence to
+  verify, not an authorization to change an OKE cluster.
 - Never invent `oci` flags. Fetch command shapes with:
   `python3 scripts/oci_cli_help.py <service> <op>`.
 
