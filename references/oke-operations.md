@@ -20,6 +20,7 @@ domains, API keys, fingerprints, or certificate material.
 - [Kubeconfig endpoint failures](#kubeconfig-endpoint-failures)
 - [Virtual nodes and nginx ingress](#virtual-nodes-and-nginx-ingress)
 - [Rollout and health checks](#rollout-and-health-checks)
+- [Optional Kubernetes MCP read surface](#optional-kubernetes-mcp-read-surface)
 - [Secrets and last-applied annotations](#secrets-and-last-applied-annotations)
 - [Troubleshooting matrix](#troubleshooting-matrix)
 
@@ -302,6 +303,60 @@ actually exposes. Examples:
 - App-specific APIs: `/healthz` or `/ready` only when implemented
 
 Use `127.0.0.1` inside Docker health checks, not `0.0.0.0`.
+
+## Optional Kubernetes MCP read surface
+
+Community Kubernetes MCP servers such as Flux159 `mcp-server-kubernetes` can be
+useful when an agent runtime already speaks MCP and needs quick Kubernetes
+inventory, describe, logs, explain, or API-resource discovery. MCP is not a
+source of truth for this pack. Treat MCP output as convenience evidence to
+verify through the context-proof and redaction workflow above.
+
+Before connecting an OKE cluster to a Kubernetes MCP server:
+
+- Prove the kube context, OCI exec profile, region, cluster identity, and RBAC
+  with this reference's preflight commands. A current MCP context is only a
+  label until verified.
+- Prefer strict tool filtering: set `ALLOW_ONLY_READONLY_TOOLS=true`, or set
+  `ALLOWED_TOOLS=kubectl_get,kubectl_describe,kubectl_logs,kubectl_context,explain_resource,list_api_resources,ping`.
+- Treat `ALLOW_ONLY_NON_DESTRUCTIVE_TOOLS=true` as weaker than read-only. It can
+  still leave create/update tools such as apply, create, scale, patch, rollout,
+  and Helm install/upgrade available.
+- Keep `MASK_SECRETS=true`. Secret masking usually covers `kubectl get secret`
+  data fields only; logs, events, env dumps, rendered manifests, and arbitrary
+  tool output can still leak sensitive values. Run shared output through
+  `scripts/redact.py`.
+- Do not expose `kubectl_generic`, `node_management`, `cleanup_pods`,
+  `kubectl_delete`, `uninstall_helm_chart`, or equivalent cleanup/delete tools
+  in production MCP sessions. Node drain, cleanup, and delete paths are
+  operationally destructive even when framed as maintenance.
+- If using an HTTP MCP transport, bind to localhost by default. For a remote
+  endpoint, terminate TLS at an ingress/proxy, require header authentication,
+  keep DNS rebinding protection enabled, and set the DNS rebinding allowlist to
+  the public hostname clients actually use.
+- OpenTelemetry on the MCP server is only an audit/debug signal for tool calls:
+  tool name, duration, success/failure, Kubernetes context, and errors. Use
+  sampling in shared environments and avoid OCIDs, tokens, IPs, or tenant names
+  in resource attributes.
+
+When an MCP read suggests a change, reproduce the finding with normal
+`kubectl`, `helm`, or `oci_cli` commands and run the change through this pack.
+Mutations still use this pack's preflight, `run_action`, redaction, and exact
+approval gates.
+
+For Helm chart issues, a safe review path is:
+
+```bash
+helm template "<RELEASE>" "<CHART>" \
+  --namespace "<NAMESPACE>" \
+  --values "<VALUES_FILE>" > "<RENDERED_MANIFEST>"
+
+kubectl -n "<NAMESPACE>" diff -f "<RENDERED_MANIFEST>"
+```
+
+Use a Helm template review before apply when chart authentication, repository
+access, CRDs, RBAC, namespace selection, or values provenance is uncertain.
+Apply only after context proof and normal mutation approval.
 
 ## OCI Kubernetes Monitoring checks
 
