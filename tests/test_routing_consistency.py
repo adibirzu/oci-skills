@@ -121,3 +121,21 @@ def test_route_out_contract_has_eval_coverage() -> None:
         assert repo in alignment and domain in alignment
     assert "Oracle Fusion Cloud Applications documentation" in alignment
     assert "fusion/` domain placeholder" in alignment
+
+
+def test_genai_catalog_discovery_is_live_region_scoped_and_handed_off() -> None:
+    router = ROUTER.read_text(encoding="utf-8")
+    command_path = ROOT / "commands" / "genai-models.md"
+
+    assert command_path.is_file()
+    command = command_path.read_text(encoding="utf-8")
+    for required in (
+        "read-only",
+        "named context",
+        "region",
+        "retrieved_at",
+        "oci/enterprise-ai",
+        "do not use a static model list",
+    ):
+        assert required.lower() in f"{router}\n{command}".lower()
+    assert "/oci-administrator:genai-models" in router

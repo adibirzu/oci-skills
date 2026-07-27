@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "profiles": {
+    "linux": {
+      "title": "Linux Host Overview",
+      "exporter": "Prometheus node_exporter",
+      "variables": ["device", "mountpoint"],
+      "panels": [
+        {
+          "title": "CPU utilization",
+          "description": "Five-minute idle counter rate converted to utilization and averaged by instance.",
+          "metric": "node_cpu_seconds_total",
+          "mql": "100 - (node_cpu_seconds_total[5m]{mode = \"idle\", instance = \"$instance\"}.rate()).groupBy(instance).mean() * 100",
+          "unit": "percent",
+          "legend": "{{instance}}"
+        },
+        {
+          "title": "Memory utilization",
+          "description": "Used physical memory as a percentage of total memory.",
+          "metric": "node_memory_MemTotal_bytes",
+          "mql": "(node_memory_MemTotal_bytes[1m]{instance = \"$instance\"}.last() - node_memory_MemAvailable_bytes[1m]{instance = \"$instance\"}.last()) / node_memory_MemTotal_bytes[1m]{instance = \"$instance\"}.last() * 100",
+          "unit": "percent",
+          "legend": "{{instance}}"
+        },
+        {
+          "title": "Network receive",
+          "description": "Inbound network counter rate converted from bytes to bits per second.",
+          "metric": "node_network_receive_bytes_total",
+          "mql": "node_network_receive_bytes_total[1m]{instance = \"$instance\", device = \"$device\"}.rate() * 8",
+          "unit": "bps",
+          "legend": "{{instance}} {{device}} receive"
+        },
+        {
+          "title": "Network transmit",
+          "description": "Outbound network counter rate converted from bytes to bits per second.",
+          "metric": "node_network_transmit_bytes_total",
+          "mql": "node_network_transmit_bytes_total[1m]{instance = \"$instance\", device = \"$device\"}.rate() * 8",
+          "unit": "bps",
+          "legend": "{{instance}} {{device}} transmit"
+        },
+        {
+          "title": "Disk I/O utilization",
+          "description": "Fraction of each interval spent performing disk I/O, converted to percent.",
+          "metric": "node_disk_io_time_seconds_total",
+          "mql": "node_disk_io_time_seconds_total[1m]{instance = \"$instance\", device = \"$device\"}.rate() * 100",
+          "unit": "percent",
+          "legend": "{{instance}} {{device}}"
+        },
+        {
+          "title": "Disk read throughput",
+          "description": "Per-device disk read bytes per second.",
+          "metric": "node_disk_read_bytes_total",
+          "mql": "node_disk_read_bytes_total[1m]{instance = \"$instance\", device = \"$device\"}.rate()",
+          "unit": "Bps",
+          "legend": "{{instance}} {{device}} read"
+        },
+        {
+          "title": "Disk write throughput",
+          "description": "Per-device disk write bytes per second.",
+          "metric": "node_disk_written_bytes_total",
+          "mql": "node_disk_written_bytes_total[1m]{instance = \"$instance\", device = \"$device\"}.rate()",
+          "unit": "Bps",
+          "legend": "{{instance}} {{device}} write"
+        },
+        {
+          "title": "Filesystem utilization",
+          "description": "Used filesystem bytes as a percentage of filesystem size.",
+          "metric": "node_filesystem_size_bytes",
+          "mql": "(node_filesystem_size_bytes[1m]{instance = \"$instance\", mountpoint = \"$mountpoint\"}.last() - node_filesystem_avail_bytes[1m]{instance = \"$instance\", mountpoint = \"$mountpoint\"}.last()) / node_filesystem_size_bytes[1m]{instance = \"$instance\", mountpoint = \"$mountpoint\"}.last() * 100",
+          "unit": "percent",
+          "legend": "{{instance}} {{mountpoint}}"
+        },
+        {
+          "title": "One-minute load average",
+          "description": "Latest one-minute load average emitted for the selected host.",
+          "metric": "node_load1",
+          "mql": "node_load1[1m]{instance = \"$instance\"}.last()",
+          "unit": "short",
+          "legend": "{{instance}}"
+        }
+      ]
+    },
+    "windows": {
+      "title": "Windows Host Overview",
+      "exporter": "Prometheus windows_exporter",
+      "variables": ["nic", "volume"],
+      "panels": [
+        {
+          "title": "CPU utilization",
+          "description": "Five-minute idle counter rate converted to utilization and averaged by instance.",
+          "metric": "windows_cpu_time_total",
+          "mql": "100 - (windows_cpu_time_total[5m]{mode = \"idle\", instance = \"$instance\"}.rate()).groupBy(instance).mean() * 100",
+          "unit": "percent",
+          "legend": "{{instance}}"
+        },
+        {
+          "title": "Memory utilization",
+          "description": "Used physical memory as a percentage of total physical memory.",
+          "metric": "windows_cs_physical_memory_bytes",
+          "mql": "(windows_cs_physical_memory_bytes[1m]{instance = \"$instance\"}.last() - windows_memory_available_bytes[1m]{instance = \"$instance\"}.last()) / windows_cs_physical_memory_bytes[1m]{instance = \"$instance\"}.last() * 100",
+          "unit": "percent",
+          "legend": "{{instance}}"
+        },
+        {
+          "title": "Network receive",
+          "description": "Inbound network counter rate converted from bytes to bits per second.",
+          "metric": "windows_net_bytes_received_total",
+          "mql": "windows_net_bytes_received_total[1m]{instance = \"$instance\", nic = \"$nic\"}.rate() * 8",
+          "unit": "bps",
+          "legend": "{{instance}} {{nic}} receive"
+        },
+        {
+          "title": "Network transmit",
+          "description": "Outbound network counter rate converted from bytes to bits per second.",
+          "metric": "windows_net_bytes_sent_total",
+          "mql": "windows_net_bytes_sent_total[1m]{instance = \"$instance\", nic = \"$nic\"}.rate() * 8",
+          "unit": "bps",
+          "legend": "{{instance}} {{nic}} transmit"
+        },
+        {
+          "title": "Logical disk utilization",
+          "description": "Used logical-disk bytes as a percentage of reported disk size.",
+          "metric": "windows_logical_disk_size_bytes",
+          "mql": "(windows_logical_disk_size_bytes[1m]{instance = \"$instance\", volume = \"$volume\"}.last() - windows_logical_disk_free_bytes[1m]{instance = \"$instance\", volume = \"$volume\"}.last()) / windows_logical_disk_size_bytes[1m]{instance = \"$instance\", volume = \"$volume\"}.last() * 100",
+          "unit": "percent",
+          "legend": "{{instance}} {{volume}}"
+        },
+        {
+          "title": "Disk read throughput",
+          "description": "Logical-disk read bytes per second.",
+          "metric": "windows_logical_disk_read_bytes_total",
+          "mql": "windows_logical_disk_read_bytes_total[1m]{instance = \"$instance\", volume = \"$volume\"}.rate()",
+          "unit": "Bps",
+          "legend": "{{instance}} {{volume}} read"
+        },
+        {
+          "title": "Disk write throughput",
+          "description": "Logical-disk write bytes per second.",
+          "metric": "windows_logical_disk_write_bytes_total",
+          "mql": "windows_logical_disk_write_bytes_total[1m]{instance = \"$instance\", volume = \"$volume\"}.rate()",
+          "unit": "Bps",
+          "legend": "{{instance}} {{volume}} write"
+        },
+        {
+          "title": "System uptime",
+          "description": "Latest system uptime value emitted by windows_exporter.",
+          "metric": "windows_system_system_up_time",
+          "mql": "windows_system_system_up_time[1m]{instance = \"$instance\"}.last()",
+          "unit": "s",
+          "legend": "{{instance}}"
+        },
+        {
+          "title": "Process count",
+          "description": "Latest number of system processes emitted by windows_exporter.",
+          "metric": "windows_system_processes",
+          "mql": "windows_system_processes[1m]{instance = \"$instance\"}.last()",
+          "unit": "short",
+          "legend": "{{instance}}"
+        }
+      ]
+    }
+  },
+  "references": {
+    "implementation": {
+      "repository": "https://github.com/adibirzu/oci-prometheus-otel-monitoring",
+      "role": "Exporter discovery, installation, Prometheus aggregation, and optional OCI Monitoring or OTLP export paths."
+    },
+    "grafana": [
+      {"id": 2381, "os": "linux", "url": "https://grafana.com/grafana/dashboards/2381-olympus/"},
+      {"id": 2011, "os": "linux", "url": "https://grafana.com/grafana/dashboards/2011-template-linux-server/"},
+      {"id": 10180, "os": "linux", "url": "https://grafana.com/grafana/dashboards/10180-kds-linux-hosts/"},
+      {"id": 24390, "os": "windows", "url": "https://grafana.com/grafana/dashboards/24390-windows-exporter-dashboard-2025/"},
+      {"id": 11954, "os": "windows", "url": "https://grafana.com/grafana/dashboards/11954-windows-system-dashboard/"},
+      {"id": 1323, "os": "windows", "url": "https://grafana.com/grafana/dashboards/1323-dashboard-servers-windows/"},
+      {"id": 20763, "os": "windows", "url": "https://grafana.com/grafana/dashboards/20763-windows-exporter-dashboard-2024/"}
+    ],
+    "oracle_mql": "https://docs.oracle.com/en-us/iaas/Content/Monitoring/Reference/mql.htm"
+  }
+}

@@ -3,7 +3,7 @@
   "algorithm": "sha256-path-null-content",
   "ordering": "bytewise-path",
   "harnesses": ["claude", "codex", "gemini", "antigravity"],
-  "payload": ["skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "AGENTS.md", "README.md", "LICENSE", "evals"],
+  "payload": ["skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "AGENTS.md", "README.md", "LICENSE", "evals", "install.sh"],
   "exclusions": [".terraform", "__pycache__", ".pytest_cache", ".ruff_cache", "*.pyc", "*.pyo", "*.tfstate", "*.tfstate.*", "*.tfplan", "*.tfvars", "*wallet*", "*.pem", "*.key", "*.p12", "*.pfx", "terraform-provider-*"],
   "symlinks_allowed": false,
   "blinded_eval_exclusions": ["evals", "scripts/forward_eval.py", "scripts/forward_eval_contract.py"]
