@@ -6,6 +6,6 @@
     "gemini": {"adapter": "harness/gemini/GEMINI.md", "install_target": "gemini"},
     "antigravity": {"adapter": "harness/antigravity/AGENTS.md", "install_target": "antigravity"}
   },
-  "required_payload": ["skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "AGENTS.md", "README.md", "LICENSE", "evals"],
+  "required_payload": ["skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "AGENTS.md", "README.md", "LICENSE", "evals", "install.sh"],
   "forbidden_payload": [".terraform", "*.tfstate", "*.tfplan", "*.tfvars", "__pycache__", "*.pyc"]
 }

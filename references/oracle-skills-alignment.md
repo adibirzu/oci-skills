@@ -84,6 +84,10 @@ hand off the deep work:
   See [OCI Generative AI](https://docs.oracle.com/en-us/iaas/Content/generative-ai/overview.htm).
   In a [solution-authoring](solution-authoring.md) flow, this is the "build" step
   for a GenAI workload — design and guardrail it here, implement it there.
+  For availability questions, `/oci-administrator:genai-models <named-context>`
+  performs a read-only handoff to the upstream owner's live, region-scoped
+  catalog discovery. Results carry their context, region, and retrieval time;
+  this pack does not maintain a static model table.
 - **Inside the database.** Anything *within* an Oracle DB (SQL/PLSQL, RMAN,
   AWR/ASH, migrations, Data Guard internals) → `oracle/skills` `db/`. We handle
   the OCI services *around* the database (DBM, OPSI, Data Safe, ADB provisioning,

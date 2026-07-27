@@ -45,6 +45,20 @@ DRY_RUN=true ./install.sh
 ./install.sh antigravity
 ```
 
+To temporarily disable a copy-installed pack, move it out of the discoverable
+skill directory and start a new agent session. Run this from the clone or the
+installed bundle directory:
+
+```bash
+./install.sh --disable codex
+# Test without OCI Skills.
+./install.sh --enable codex
+```
+
+`--disable` preserves the payload in a sibling `disabled/` directory;
+`--enable` restores it. It applies only to copy installs. Disable marketplace
+plugins in their plugin manager.
+
 Upgrade a clone with `git pull --ff-only`, then rerun the target installer. A skill / copy install does not activate Claude plugin hooks. Marketplace plugin installs activate Claude commands and hooks; Codex/ChatGPT, Gemini, and Antigravity use their native adapters and the same in-script safety guard. Installation and local validation are offline and do not contact an OCI tenancy.
 
 ## Work by named context

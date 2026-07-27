@@ -69,6 +69,10 @@ Required flags the CLI will reject if omitted: `--display-name`,
 > **Visualizing these in Grafana** (OCI Metrics datasource, MQL panel queries,
 > dashboards-as-code, Loki/Promtail, Prometheus, alerting-as-code):
 > [grafana-dashboards.md](grafana-dashboards.md).
+>
+> **Prometheus host metrics in OCI Monitoring:** bounded PromQL-to-MQL
+> conversion and prepared Linux/Windows dashboard profiles live in
+> [prometheus-mql-host-dashboards.md](prometheus-mql-host-dashboards.md).
 
 ## Logging (log groups, service logs, custom logs, agents)
 

@@ -6,6 +6,8 @@
 #   ./install.sh                 # install into every harness that is present
 #   ./install.sh claude codex    # install into named harnesses only
 #   ./install.sh --list          # show install targets and exit
+#   ./install.sh --disable codex # reversibly disable a copy-installed pack
+#   ./install.sh --enable codex  # re-enable a disabled copy-installed pack
 #   DRY_RUN=true ./install.sh     # print actions, copy nothing
 #   OCI_SKILLS_BLINDED_EVAL=true ./install.sh codex  # omit grader material
 #
@@ -30,7 +32,7 @@ AGY_SKILLS_DIR="${AGY_SKILLS_DIR:-$HOME/.antigravity/skills}"
 # Canonical skills live under skills/<name>/SKILL.md (plugin-native layout). For
 # copy-install we also synthesize a bundle-root SKILL.md so single-skill harnesses
 # still find the router at the top of the installed directory.
-PAYLOAD=(skills references scripts schemas docs commands hooks AGENTS.md README.md LICENSE evals)
+PAYLOAD=(skills references scripts schemas docs commands hooks AGENTS.md README.md LICENSE evals install.sh)
 ROUTER_SRC="skills/oci-administrator/SKILL.md"
 
 say()  { printf '[install] %s\n' "$*"; }
@@ -56,9 +58,11 @@ copy_payload() {  # copy_payload <dest_dir>
         warn "refusing to package symlinks from $item"
         return 1
       fi
-      (
+      local archive
+      archive="$(mktemp "${TMPDIR:-/tmp}/oci-skills-payload.XXXXXX")"
+      if ! (
         cd "$REPO_DIR"
-        tar -cf - \
+        tar -cf "$archive" \
           --exclude='.terraform' --exclude='*/.terraform' --exclude='*/.terraform/*' \
           --exclude='__pycache__' --exclude='*/__pycache__' --exclude='*/__pycache__/*' \
           --exclude='.pytest_cache' --exclude='*/.pytest_cache' --exclude='*/.pytest_cache/*' \
@@ -67,7 +71,15 @@ copy_payload() {  # copy_payload <dest_dir>
           --exclude='*.tfplan' --exclude='*.tfvars' --exclude='*wallet*' \
           --exclude='*.pem' --exclude='*.key' --exclude='*.p12' --exclude='*.pfx' \
           --exclude='terraform-provider-*' "$item"
-      ) | (cd "$dest" && tar -xf -)
+      ); then
+        rm -f "$archive"
+        return 1
+      fi
+      if ! (cd "$dest" && tar -xf "$archive"); then
+        rm -f "$archive"
+        return 1
+      fi
+      rm -f "$archive"
     else
       cp "$REPO_DIR/$item" "$dest/$item"
     fi
@@ -87,6 +99,7 @@ copy_payload() {  # copy_payload <dest_dir>
     sed 's#\.\./\.\./#./#g' "$REPO_DIR/$ROUTER_SRC" > "$dest/SKILL.md"
   fi
   find "$dest/scripts" -name '*.sh' -exec chmod +x {} + 2>/dev/null || true
+  chmod +x "$dest/install.sh" 2>/dev/null || true
 }
 
 install_claude() {
@@ -126,6 +139,45 @@ install_antigravity() {
   fi
 }
 
+disable_copy_install() {  # disable_copy_install <harness> <dest_dir>
+  local harness="$1" dest="$2" skill_root disabled_root disabled
+  skill_root="${dest%/*}"
+  disabled_root="${skill_root%/*}/disabled"
+  disabled="$disabled_root/${dest##*/}"
+  if [[ -d "$disabled" && ! -e "$dest" ]]; then
+    say "$harness already disabled -> $disabled"
+    return 0
+  fi
+  [[ -d "$dest" ]] || { warn "$harness is not copy-installed at $dest"; return 1; }
+  [[ ! -e "$disabled" ]] || { warn "cannot disable $harness: $disabled already exists"; return 1; }
+  if [[ "${DRY_RUN:-}" == "true" ]]; then
+    say "DRY-RUN would disable $harness by moving $dest -> $disabled"
+    return 0
+  fi
+  mkdir -p "$disabled_root"
+  mv "$dest" "$disabled"
+  say "$harness disabled -> $disabled"
+}
+
+enable_copy_install() {  # enable_copy_install <harness> <dest_dir>
+  local harness="$1" dest="$2" skill_root disabled_root disabled
+  skill_root="${dest%/*}"
+  disabled_root="${skill_root%/*}/disabled"
+  disabled="$disabled_root/${dest##*/}"
+  if [[ -d "$dest" && ! -e "$disabled" ]]; then
+    say "$harness already enabled -> $dest"
+    return 0
+  fi
+  [[ -d "$disabled" ]] || { warn "$harness has no disabled copy-install at $disabled"; return 1; }
+  [[ ! -e "$dest" ]] || { warn "cannot enable $harness: $dest already exists"; return 1; }
+  if [[ "${DRY_RUN:-}" == "true" ]]; then
+    say "DRY-RUN would enable $harness by moving $disabled -> $dest"
+    return 0
+  fi
+  mv "$disabled" "$dest"
+  say "$harness enabled -> $dest"
+}
+
 harness_present() {  # heuristic: parent config dir exists
   case "$1" in
     claude)      [[ -d "$HOME/.claude" ]] ;;
@@ -137,26 +189,78 @@ harness_present() {  # heuristic: parent config dir exists
 }
 
 ALL=(claude codex gemini antigravity)
+MODE="install"
+TARGETS=()
 
-if [[ "${1:-}" == "--list" ]]; then
+while (( $# > 0 )); do
+  case "$1" in
+    --list)
+      [[ "$MODE" == "install" && ${#TARGETS[@]} -eq 0 ]] || { warn "--list cannot be combined with other arguments"; exit 2; }
+      MODE="list"
+      ;;
+    --disable)
+      [[ "$MODE" == "install" ]] || { warn "choose only one of --disable or --enable"; exit 2; }
+      MODE="disable"
+      ;;
+    --enable)
+      [[ "$MODE" == "install" ]] || { warn "choose only one of --disable or --enable"; exit 2; }
+      MODE="enable"
+      ;;
+    --help|-h)
+      sed -n '1,18p' "$0"
+      exit 0
+      ;;
+    --*) warn "unknown option: $1"; exit 2 ;;
+    *)
+      [[ "$MODE" != "list" ]] || { warn "--list cannot be combined with other arguments"; exit 2; }
+      TARGETS+=("$1")
+      ;;
+  esac
+  shift
+done
+
+if [[ "$MODE" == "list" ]]; then
   for h in "${ALL[@]}"; do
     if harness_present "$h"; then printf '  %-12s present\n' "$h"; else printf '  %-12s absent\n' "$h"; fi
   done
   exit 0
 fi
 
-TARGETS=("$@")
 if (( ${#TARGETS[@]} == 0 )); then
+  if [[ "$MODE" != "install" ]]; then
+    warn "$MODE requires at least one harness target (for example: ./install.sh --$MODE codex)"
+    exit 2
+  fi
   for h in "${ALL[@]}"; do harness_present "$h" && TARGETS+=("$h"); done
   (( ${#TARGETS[@]} > 0 )) || { warn "no known harness found; pass names explicitly, e.g. ./install.sh claude"; exit 1; }
 fi
 
 for h in "${TARGETS[@]}"; do
   case "$h" in
-    claude)      install_claude ;;
-    codex)       install_codex ;;
-    gemini)      install_gemini ;;
-    antigravity) install_antigravity ;;
+    claude)
+      case "$MODE" in
+        install) install_claude ;;
+        disable) disable_copy_install "Claude Code" "$CLAUDE_SKILLS_DIR/$SKILL_NAME" ;;
+        enable) enable_copy_install "Claude Code" "$CLAUDE_SKILLS_DIR/$SKILL_NAME" ;;
+      esac ;;
+    codex)
+      case "$MODE" in
+        install) install_codex ;;
+        disable) disable_copy_install "Codex" "$CODEX_SKILLS_DIR/$SKILL_NAME" ;;
+        enable) enable_copy_install "Codex" "$CODEX_SKILLS_DIR/$SKILL_NAME" ;;
+      esac ;;
+    gemini)
+      case "$MODE" in
+        install) install_gemini ;;
+        disable) disable_copy_install "Gemini CLI" "$GEMINI_EXT_DIR/$EXT_NAME" ;;
+        enable) enable_copy_install "Gemini CLI" "$GEMINI_EXT_DIR/$EXT_NAME" ;;
+      esac ;;
+    antigravity)
+      case "$MODE" in
+        install) install_antigravity ;;
+        disable) disable_copy_install "Antigravity" "$AGY_SKILLS_DIR/$SKILL_NAME" ;;
+        enable) enable_copy_install "Antigravity" "$AGY_SKILLS_DIR/$SKILL_NAME" ;;
+      esac ;;
     *) warn "unknown harness: $h (valid: ${ALL[*]})" ;;
   esac
 done

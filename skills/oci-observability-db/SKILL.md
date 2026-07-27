@@ -1,7 +1,7 @@
 ---
 name: oci-observability-db
 description: >-
-  Operate OCI Monitoring, Logging, APM, OpenTelemetry, Notifications, Service Connector Hub, service/custom logs, metrics, alarms, dashboards, agent traces, and Grafana integrations. Use for telemetry collection, queries, alerting, trace integrity, logging pipelines, or observability inventory. Route Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, and DBSNMP to oci-dbm-opsi; route Autonomous Database lifecycle to oci-autonomous-db.
+  Operate OCI Monitoring, Logging, APM, OpenTelemetry, Notifications, Service Connector Hub, service/custom logs, metrics, alarms, dashboards, agent traces, Grafana integrations, PromQL-to-MQL conversion, and Linux or Windows host dashboards. Use for telemetry collection, queries, alerting, trace integrity, logging pipelines, exporter metrics, or observability inventory. Route Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, and DBSNMP to oci-dbm-opsi; route Autonomous Database lifecycle to oci-autonomous-db.
 ---
 
 # OCI Observability
@@ -13,12 +13,17 @@ Preflight the named context, query current telemetry configuration, and search t
 | Intent | Owner |
 |---|---|
 | Metrics, alarms, Logging, APM, OTel, RUM, Notifications, connectors | This skill |
+| Prometheus metric queries → OCI MQL; node/windows exporter dashboards | This skill |
 | Log Analytics OCL/LQL sources/parsers/detections | **oci-log-analytics** |
 | DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP | **oci-dbm-opsi** |
 | ADB provision/scale/wallet/ACL | **oci-autonomous-db** |
 | Build GenAI agents/RAG/model endpoints | Official `oracle/skills` `oci/enterprise-ai` |
 
-Read [observability-db.md](../../references/observability-db.md) for command shapes and [grafana-dashboards.md](../../references/grafana-dashboards.md) for dashboards-as-code.
+Read [observability-db.md](../../references/observability-db.md) for command
+shapes, [grafana-dashboards.md](../../references/grafana-dashboards.md) for
+dashboards-as-code, and
+[prometheus-mql-host-dashboards.md](../../references/prometheus-mql-host-dashboards.md)
+for bounded PromQL conversion and prepared Linux/Windows profiles.
 
 ## Common multi-step flows
 
@@ -28,6 +33,8 @@ Read [observability-db.md](../../references/observability-db.md) for command sha
 | Missing traces | list APM domains → resolve correct domain/key without printing it → verify private OTLP endpoint → send test → re-query |
 | Service logs | list groups/logs → write source config to `0600` file → additive action → verify ingestion and retention |
 | Gate agent traces | query integrity score/state → identify missing spans/attributes → keep prompt capture off → re-score before promotion |
+| Convert PromQL to MQL | identify metric type + labels + units → convert only a supported shape with `promql_to_mql.py` → verify namespace/dimensions → compare live series with PromQL |
+| Build Linux or Windows host dashboard | identify exporter/version → list emitted metric definitions → render the matching profile → validate every MQL panel → additive provision/import → verify populated panels |
 
 ## Safety
 
@@ -35,6 +42,9 @@ Read [observability-db.md](../../references/observability-db.md) for command sha
 - Store nested configuration in `0600` `file://` payloads, not argv.
 - Treat empty results as inconclusive until region, subtree, time window, and permissions are checked.
 - Re-list after a `409` rather than retrying a create.
+- Treat converted MQL and rendered dashboards as candidates until every query
+  parses and returns the intended dimensions and units; reject unsupported
+  PromQL rather than guessing.
 
 ## Expected output
 

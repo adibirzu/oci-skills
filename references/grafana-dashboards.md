@@ -163,3 +163,7 @@ OCI API limits:
 
 OCI doc links are registered in [oracle-docs.md](oracle-docs.md). Grafana, Loki,
 Promtail, and Prometheus project docs live outside the Oracle-doc index.
+
+For PromQL-to-MQL conversion plus prepared OCI Metrics dashboards for
+Linux/node_exporter and Windows/windows_exporter, use
+[prometheus-mql-host-dashboards.md](prometheus-mql-host-dashboards.md).

@@ -17,6 +17,15 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 
+def test_installer_uses_a_portable_archive_instead_of_a_racy_tar_stream() -> None:
+    installer = (ROOT / "install.sh").read_text(encoding="utf-8")
+
+    assert "mktemp" in installer
+    assert 'tar -cf "$archive"' in installer
+    assert 'tar -xf "$archive"' in installer
+    assert '| (cd "$dest" && tar -xf -)' not in installer
+
+
 def test_public_docs_cover_plugin_and_skill_install_lifecycle() -> None:
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     quickstart = (ROOT / "docs" / "QUICKSTART.md").read_text(encoding="utf-8")
@@ -36,6 +45,8 @@ def test_public_docs_cover_plugin_and_skill_install_lifecycle() -> None:
         "./install.sh codex",
         "./install.sh gemini",
         "./install.sh antigravity",
+        "./install.sh --disable codex",
+        "./install.sh --enable codex",
     ):
         assert command in combined
 
@@ -69,6 +80,8 @@ def _assert_common_payload(dest: pathlib.Path) -> None:
     assert _skill_names(dest) == _skill_names(ROOT)
     for directory in ("references", "scripts", "schemas", "docs", "commands", "hooks", "evals"):
         assert (dest / directory).is_dir()
+    assert (dest / "install.sh").is_file()
+    assert os.access(dest / "install.sh", os.X_OK)
     for skill in _skill_names(ROOT):
         assert (dest / "skills" / skill / "agents" / "openai.yaml").is_file()
     assert (dest / "scripts" / "forward_eval.py").is_file()
@@ -150,6 +163,44 @@ def test_codex_blinded_eval_install_excludes_grader_material(tmp_path: pathlib.P
     assert not list(dest.rglob("__pycache__"))
     assert not list(dest.rglob("*.pyc"))
     assert not list(dest.rglob("*.pyo"))
+
+
+def test_copy_install_can_be_disabled_and_reenabled_without_deleting_payload(
+    tmp_path: pathlib.Path,
+) -> None:
+    codex_skills = tmp_path / "codex-skills"
+    env = os.environ.copy()
+    env["CODEX_SKILLS_DIR"] = str(codex_skills)
+    env.pop("DRY_RUN", None)
+
+    _run_install("codex", env)
+    active = codex_skills / "oci-administrator"
+    disabled = tmp_path / "disabled" / "oci-administrator"
+
+    disabled_result = subprocess.run(
+        ["bash", str(active / "install.sh"), "--disable", "codex"],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert "disabled" in disabled_result.stdout.lower()
+    assert not active.exists()
+    assert (disabled / "SKILL.md").is_file()
+    assert (disabled / "agents" / "openai.yaml").is_file()
+
+    enabled_result = subprocess.run(
+        ["bash", str(disabled / "install.sh"), "--enable", "codex"],
+        cwd=ROOT,
+        env=env,
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert "enabled" in enabled_result.stdout.lower()
+    assert (active / "SKILL.md").is_file()
+    assert not disabled.exists()
 
 
 def test_copy_install_excludes_terraform_runtime_and_sensitive_artifacts(
