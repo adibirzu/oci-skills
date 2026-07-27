@@ -48,6 +48,7 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
+.worktrees/
 .ruff_cache/
 .mypy_cache/
 .tox/
