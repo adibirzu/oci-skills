@@ -58,7 +58,7 @@ sequence a request instead of re-deriving the steps.
 | Terraform/HCL authoring, discovery, local validate/plan/apply/destroy, provider schema | `skills/oci-terraform-authoring/` · `references/terraform-authoring.md` |
 | DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery | `skills/oci-developer-services/` · `references/developer-services.md` |
 | product golden paths, platform bundles, runtime/ingress/data selection | `skills/oci-product-development/` · `references/product-development.md` |
-| application code, code review, debugging, reuse, plugin assessment, adaptive model measurement | `skills/oci-application-engineering/` · `skills/oci-application-engineering/references/workflow.md` |
+| application code, code review, debugging, reuse, plugin assessment, adaptive model measurement, or coding-agent harnesses | `skills/oci-application-engineering/` · `skills/oci-application-engineering/references/workflow.md` · `skills/oci-application-engineering/references/harness-engineering.md` |
 | landing zones, Cloud Adoption Framework, greenfield tenancy foundation, enterprise guardrails | `skills/oci-landing-zone/` · `references/landing-zone.md` |
 | whole-project bootstrap, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` |
 

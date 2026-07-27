@@ -287,7 +287,7 @@ def _validate_distribution(root: Path, distribution: dict[str, Any]) -> None:
     harnesses = distribution.get("harnesses")
     if set(harnesses or {}) != {"claude", "codex", "gemini", "antigravity"}:
         raise ContractError("distribution contract must cover four supported harnesses")
-    source_checkout = (root / "install.sh").is_file()
+    source_checkout = (root / ".claude-plugin" / "plugin.json").is_file()
     for name, item in harnesses.items():
         if not item.get("install_target") or not item.get("adapter"):
             raise ContractError(f"{name} has no install target")
@@ -409,7 +409,7 @@ def _validate_change_impact(root: Path, contract: dict[str, Any]) -> None:
     requirements = [entry.get("id") for entry in entries]
     if set(requirements) != OPERATIONAL_REQUIREMENTS or len(requirements) != len(set(requirements)):
         raise ContractError("change impact must cover REQ-23 through REQ-52 once")
-    source_checkout = (root / "install.sh").is_file()
+    source_checkout = (root / ".claude-plugin" / "plugin.json").is_file()
     for entry in entries:
         consumers = set(entry.get("consumers") or [])
         if not {"ci", "documentation"} <= consumers or not consumers <= SUPPORTED_CONSUMERS:

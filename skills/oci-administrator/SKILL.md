@@ -64,6 +64,17 @@ advice from bypassing the intended owner.
 The full routing contract — coverage matrix, hand-off rules, shared conventions —
 is in [references/oracle-skills-alignment.md](../../references/oracle-skills-alignment.md).
 
+### Live GenAI catalog discovery
+
+Model availability changes by tenancy and region. Before answering which OCI
+Generative AI models or agents are usable, offer
+`/oci-administrator:genai-models <named-context>` and hand the read-only catalog
+lookup to the official `oracle/skills` `oci/enterprise-ai` owner. The result must
+be scoped to the selected named context and region, include a `retrieved_at`
+timestamp, and preserve identifiers exactly as returned by the live service.
+Do not use a static model list, infer availability across regions, or convert a
+Console observation into deployment readiness without an authenticated probe.
+
 ## Critical failure contracts
 
 After selecting the route, read exactly one directly linked reference before
@@ -191,6 +202,7 @@ When installed as a plugin, these wrap the safety core so the user works by name
 | `/oci-administrator:audit` | Read-only IAM posture snapshot. |
 | `/oci-administrator:cost` | Read-only cost, usage & budget summary. |
 | `/oci-administrator:logan` | Read-only Log Analytics (OCL) query with a time window. |
+| `/oci-administrator:genai-models` | Discover the live region-scoped GenAI model/agent catalog through `oci/enterprise-ai`. |
 | `/oci-administrator:orm` | Read-only Resource Manager overview (stacks + latest job). |
 | `/oci-administrator:datasafe` | Read-only Data Safe overview (targets + assessment state). |
 | `/oci-administrator:kb` | Search the KB for a known fix. |
@@ -236,7 +248,7 @@ plans, prechecks, drills, switchovers, failovers, and reprotection route to
 |---|---|---|
 | users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context, OIDC, OAuth application, SAML, SCIM provisioning | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
 | Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, public Object Storage, 0.0.0.0/0 SSH rules, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
-| APM, Monitoring, alarm, dashboard, metric, Logging, OpenTelemetry, agent trace, trace integrity, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
+| APM, Monitoring, alarm, dashboard, metric, Logging, OpenTelemetry, Prometheus, PromQL→MQL, Linux/Windows host dashboard, node_exporter, windows_exporter, agent trace, trace integrity, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
 | Database Management, DBM, Operations Insights, OPSI, managed database, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight, Base DB observability, DB log ingestion | **oci-dbm-opsi** | [references/dbm-opsi.md](../../references/dbm-opsi.md) |
 | ADB/ADW/ATP lifecycle, provision, create autonomous database, start/stop/scale, wallet, generate-wallet, rotate wallet, TNS_ADMIN, whitelisted-ips/ACL, DSN service level, oracledb, SQLAlchemy oracle+oracledb, Alembic on Oracle, clone, restore, SQLcl, execute SQL, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN | **oci-autonomous-db** | [references/autonomous-db.md](../../references/autonomous-db.md) |
 | DB system, Base Database, DB home, database resource, PDB, PDB resource, Base Database backup, backup/restore, patch/upgrade, Data Guard association, Exadata, Exadata infrastructure, cloud VM cluster lifecycle | **oci-database-cloud** | [references/database-cloud.md](../../references/database-cloud.md) |
