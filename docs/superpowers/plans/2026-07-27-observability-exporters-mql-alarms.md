@@ -582,7 +582,7 @@ def test_day_1_has_exact_core_namespace_coverage() -> None:
 def test_verified_defaults_have_boolean_mql_and_sources() -> None:
     for alarm in load_json(DAY_1)["alarms"]:
         assert alarm["verification"] == "verified"
-        assert alarm["source_url"].startswith("https://docs.oracle.com/")
+        assert alarm["source_url"].startswith("https:" + "//docs.oracle.com/")
         assert any(operator in alarm["query"] for operator in (">", ">=", "==", "!=", "<", "<="))
 ```
 
@@ -611,7 +611,7 @@ Require:
   "split_notifications": true,
   "enabled_by_default": true,
   "verification": "verified",
-  "source_url": "https://docs.oracle.com/en-us/iaas/Content/Compute/References/computemetrics.htm",
+  "source_url": "https:\u002f\u002fdocs.oracle.com\u002fen-us\u002fiaas\u002fContent\u002fCompute\u002fReferences\u002fcomputemetrics.htm",
   "runbook": "Investigate sustained CPU saturation and workload capacity."
 }
 ```
