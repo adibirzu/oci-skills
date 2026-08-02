@@ -20,6 +20,11 @@ source that backs its claim.
 > opens (or comments on) a `doc-rot` issue and fails, so rot becomes a tracked
 > item instead of a silently-red cron run.
 
+## Quick navigation
+
+Use domain headings for authoritative OCI sources, Version coverage for
+release-sensitive claims, and Specific pages for KB citations.
+
 ## How to cite
 
 - **Most specific page wins.** Link the concept's own page (e.g. the Budgets
@@ -63,6 +68,9 @@ Safe), the upstream `db/` domain of
 | Audit | <https://docs.oracle.com/en-us/iaas/Content/Audit/home.htm> |
 | Security Zones | <https://docs.oracle.com/en-us/iaas/security-zone/home.htm> |
 | OCI DevOps dependency vulnerability audits (ADM; Maven) | <https://docs.oracle.com/en-us/iaas/Content/devops/using/scan-code.htm> |
+| Vulnerability Scanning | <https://docs.oracle.com/en-us/iaas/Content/scanning/home.htm> |
+| Vulnerability Scanning overview | <https://docs.oracle.com/en-us/iaas/Content/scanning/using/overview.htm> |
+| Container Registry image scanning | <https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registryscanningimagesforvulnerabilities.htm> |
 | CIS OCI Benchmark | <https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html> |
 
 ## Observability & database — `oci-observability-db`
@@ -82,6 +90,26 @@ Safe), the upstream `db/` domain of
 |---|---|
 | Database Management (DBM) | <https://docs.oracle.com/en-us/iaas/database-management/home.htm> |
 | Operations Insights (OPSI) | <https://docs.oracle.com/en-us/iaas/operations-insights/home.htm> |
+
+## Data platform — `oci-data-platform`
+
+| Topic | Canonical doc |
+|---|---|
+| Data Integration | <https://docs.oracle.com/en-us/iaas/Content/data-integration/home.htm> |
+| Data Integration overview | <https://docs.oracle.com/en-us/iaas/Content/data-integration/using/overview.htm> |
+| Data Flow | <https://docs.oracle.com/en-us/iaas/Content/data-flow/using/home.htm> |
+| Data Catalog | <https://docs.oracle.com/en-us/iaas/Content/data-catalog/home.htm> |
+| GoldenGate | <https://docs.oracle.com/en-us/iaas/goldengate/> |
+
+## OS Management Hub — `oci-os-management`
+
+| Topic | Canonical doc |
+|---|---|
+| OS Management Hub | <https://docs.oracle.com/en-us/iaas/osmh/doc/> |
+| Overview of OS Management Hub | <https://docs.oracle.com/en-us/iaas/osmh/doc/overview.htm> |
+| Getting Started with OS Management Hub | <https://docs.oracle.com/en-us/iaas/osmh/doc/getstarted.htm> |
+| Registering an OCI Instance | <https://docs.oracle.com/en-us/iaas/osmh/doc/register-oci-instance.htm> |
+| Managing Packages and Updates | <https://docs.oracle.com/en-us/iaas/osmh/doc/updates.htm> |
 
 ## Autonomous Database — `oci-autonomous-db`
 
@@ -215,6 +243,7 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | OCI DevOps overview | <https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_overview.htm> |
+| OCI DevOps build specifications | <https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm> |
 | DevOps deployment rollback | <https://docs.oracle.com/en-us/iaas/Content/devops/using/deployment_rollback.htm> |
 | API Gateway concepts | <https://docs.oracle.com/en-us/iaas/Content/APIGateway/Concepts/apigatewayconcepts.htm> |
 | Container Instances overview | <https://docs.oracle.com/en-us/iaas/Content/container-instances/overview-of-container-instances.htm> |

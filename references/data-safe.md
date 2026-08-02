@@ -12,6 +12,11 @@ credentials.
 > the database. It connects to the target through a Data Safe private endpoint (or
 > ADB managed connectivity) using a DB service account.
 
+## Quick navigation
+
+Select registration, DB privileges, assessments, auditing, discovery/masking,
+gotchas, or safety notes.
+
 ## Target registration
 
 Pass payloads as `file://` JSON so credentials never hit `argv`. Write the

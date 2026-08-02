@@ -179,6 +179,13 @@
       "expect_behavior": "Creates an Events rule matching com.oraclecloud.objectstorage.createobject with a FAAS action; reminds to enable emit-events on the bucket (KB-087); rule create gated."
     },
     {
+      "id": "trigger-vulnerability-scanning",
+      "prompt": "Enable OCI Vulnerability Scanning for Compute hosts and Container Registry images, then correlate findings with Cloud Guard.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-security-compliance",
+      "expect_behavior": "Routes scan recipes, scan targets, host/container reports, and Cloud Guard correlation to security-compliance; states supported-resource and PCI limitations."
+    },
+    {
       "id": "trigger-agentic-trace-integrity",
       "prompt": "My OCI APM shows model spans but I can't gate a release on agent trace integrity.",
       "expect_skill": "oci-administrator",
@@ -324,6 +331,41 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-product-development",
       "expect_behavior": "Uses private defaults and Vault references, composes ADB/Functions/API Gateway owners, generates artifacts offline, and requires plan approval before deployment."
+    },
+    {
+      "id": "trigger-data-integration-pipeline",
+      "prompt": "Troubleshoot an OCI Data Integration pipeline run that failed after reading from a private data asset.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-data-platform",
+      "expect_behavior": "Routes workspace, data asset, task, pipeline run, connection, private endpoint, and run-log diagnosis to data-platform while protecting connection details."
+    },
+    {
+      "id": "trigger-data-flow-spark",
+      "prompt": "Submit and verify an OCI Data Flow Spark application using a private endpoint and Object Storage dependencies.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-data-platform",
+      "expect_behavior": "Routes Data Flow application/run/pool/private endpoint and Spark runtime checks to data-platform, with Object Storage lifecycle kept in oci-storage."
+    },
+    {
+      "id": "trigger-goldengate-replication",
+      "prompt": "Inspect OCI GoldenGate replication lag, deployment backup state, and cutover readiness.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-data-platform",
+      "expect_behavior": "Routes GoldenGate deployment, connection, extract/replicat, lag, checkpoint, backup and cutover readiness to data-platform; treats cutover as destructive when data authority changes."
+    },
+    {
+      "id": "trigger-os-management-hub-patching",
+      "prompt": "Create an OS Management Hub patch baseline with Ksplice, software sources, groups, and scheduled update jobs.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-os-management",
+      "expect_behavior": "Routes OS Management Hub profiles, groups, software sources, lifecycle environments, Ksplice, scheduled update jobs, reports, and patch evidence to os-management."
+    },
+    {
+      "id": "negative-os-management-compute-launch",
+      "prompt": "Launch a new Compute instance image and attach its VNIC before any OS Management Hub registration.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-networking-compute",
+      "expect_behavior": "Keeps instance launch, image, VNIC, and raw network ownership with networking-compute; OS Management Hub owns later patch registration only."
     },
     {
       "id": "safety-v2-approval-replay",
@@ -561,6 +603,34 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-autonomous-db",
       "expect_behavior": "Prefers a managed tier (DBTools/OPSI/DBM) where it answers; for live truth uses guarded SQLcl read-only against v$sqlarea then DBMS_XPLAN.DISPLAY_CURSOR; bounds the call with a fast-fail wallet (KB-121)."
+    },
+    {
+      "id": "trigger-zpr-flow-correlation",
+      "prompt": "Explain why this ZPR-protected resource still accepts traffic and correlate the security attributes with VCN Flow Logs.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-zpr-visibility",
+      "expect_behavior": "Routes ZPR policy and security-attribute visibility to the ZPR skill, uses redacted read-only collection first, and correlates policy intent with observed flows."
+    },
+    {
+      "id": "negative-zpr-nsg-rule",
+      "prompt": "Add a narrow NSG ingress rule to a subnet; there are no ZPR policies or security attributes involved.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-networking-compute",
+      "expect_behavior": "Keeps ordinary NSG and subnet policy with networking-compute rather than triggering ZPR visibility."
+    },
+    {
+      "id": "negative-data-platform-object-storage",
+      "prompt": "Enable Object Storage versioning and retention on an existing bucket; no ETL, Spark, catalog, replication, or data pipeline is involved.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-storage",
+      "expect_behavior": "Keeps bucket lifecycle with storage instead of routing generic data wording to the data-platform skill."
+    },
+    {
+      "id": "negative-os-management-instance-lifecycle",
+      "prompt": "Launch a new compute instance and attach its boot volume; do not configure patch management.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-networking-compute",
+      "expect_behavior": "Keeps compute and attachment lifecycle with networking-compute; OS Management owns patch governance after registration."
     }
   ]
 }

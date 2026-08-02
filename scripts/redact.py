@@ -117,6 +117,17 @@ def _is_terraform_checksum(text: str, match: "re.Match[str]") -> bool:
     return bool(TERRAFORM_CHECKSUM_LINE.fullmatch(line))
 
 
+def _is_lowercase_url_path_token(text: str, match: "re.Match[str]") -> bool:
+    """Return true for a long lowercase token embedded in an HTTP URL path."""
+    token = match.group(0)
+    if not re.fullmatch(r"[a-z0-9-]+", token):
+        return False
+    token_start = match.start()
+    boundary = max(text.rfind(char, 0, token_start) for char in " \t\r\n<>()[]{}")
+    prefix = text[boundary + 1:token_start]
+    return bool(re.fullmatch(r"https?://[A-Za-z0-9._~:/-]*", prefix))
+
+
 def _b64_slash_is_secret(token: str) -> bool:
     """True if a 40+ char run containing "/" is a base64 secret, not a URL path.
 
@@ -206,6 +217,8 @@ def redact(
                 return token  # well-known non-sensitive address
             if _name == "email" and _email_is_safe(token):
                 return token  # documentation/example address, not PII
+            if _name == "secret_blob" and _is_lowercase_url_path_token(text, match):
+                return token  # long documentation URL slug, not a secret
             if _name == "secret_blob_slash" and not _b64_slash_is_secret(token):
                 return token  # URL/endpoint path, not a secret
             if (

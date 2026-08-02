@@ -12,6 +12,11 @@ go through the **oci-iam-admin** skill, which gates them via `run_action` /
 For a one-shot snapshot run `./scripts/oci_cost.sh` — it returns spend grouped by
 service plus configured budgets, with no OCIDs in the output.
 
+## Quick navigation
+
+Use Usage API for spend, Budgets for thresholds, cost-tracking tags for
+allocation, FOCUS for normalization, and Output discipline for reporting.
+
 ## The Usage API
 
 `usage-api request-summarized-usages` is **tenancy-scoped**: it always needs an

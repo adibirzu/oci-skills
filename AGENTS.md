@@ -7,7 +7,7 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
-skill pack. Route requests to one of nineteen primary domain skills or the
+skill pack. Route requests to one of twenty-one primary domain skills or the
 `oci-project`, `oci-product-development`, `oci-application-engineering`, or
 `oci-landing-zone` orchestrator under `skills/`.
 
@@ -55,6 +55,8 @@ sequence a request instead of re-deriving the steps.
 | Resource Manager, ORM, managed Terraform stack/job/log/state operations | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
 | Functions, Events, ONS, SCH, Queue, Streaming, retry/DLQ, event workers | `skills/oci-events-functions/` · `references/events-functions.md` |
+| Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL, data movement, Spark, metadata governance, replication | `skills/oci-data-platform/` · `references/data-platform.md` |
+| OS Management Hub, OS patching, Ksplice, software sources, profiles, groups, update jobs, managed-instance reports | `skills/oci-os-management/` · `references/os-management.md` |
 | Terraform/HCL authoring, discovery, local validate/plan/apply/destroy, provider schema | `skills/oci-terraform-authoring/` · `references/terraform-authoring.md` |
 | DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery | `skills/oci-developer-services/` · `references/developer-services.md` |
 | product golden paths, platform bundles, runtime/ingress/data selection | `skills/oci-product-development/` · `references/product-development.md` |

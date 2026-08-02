@@ -10,6 +10,11 @@ Performance Hub, and OCI-side AWR/ADDM/ASH enablement and troubleshooting.
 `oci-observability-db` receives the explicit handoff for Monitoring alarms, APM,
 Logging, and dashboards; it does not own DBM or OPSI lifecycle.
 
+## Quick navigation
+
+Start with response and discovery, then select enablement, OPSI, Performance
+Hub/AWR, failure diagnosis, log ingestion, or redaction.
+
 ## Response contract
 
 Start every response with: `Primary owner: oci-dbm-opsi.` Name

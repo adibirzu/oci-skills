@@ -63,3 +63,5 @@ KB:           <known KB applied, or new sanitized KB entry added>
 [OCI Documentation](https://docs.oracle.com/en-us/iaas/Content/home.htm) ·
 [Logging](https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm) ·
 [Log Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

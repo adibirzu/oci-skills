@@ -88,6 +88,17 @@ def test_keeps_endpoint_path_verbatim() -> None:
     assert path in out and "REDACTED" not in out
 
 
+def test_keeps_long_lowercase_documentation_url_slug() -> None:
+    slug = "registrypushingimagesusingthedockercli"
+    url = f"https://docs.example.com/Content/Registry/Tasks/{slug}.htm"
+    assert _clean(url) == url
+
+
+def test_long_lowercase_token_outside_url_is_still_flagged() -> None:
+    token = "a" * 48
+    assert "<SECRET-REDACTED>" in _clean(f"token={token}")
+
+
 # --- tenancy namespace in an OCIR path (account fingerprint) ---------------
 
 def test_masks_ocir_namespace() -> None:

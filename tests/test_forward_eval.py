@@ -260,7 +260,8 @@ def test_prepare_run_emits_only_raw_prompts_and_private_manifest(tmp_path: pathl
         run_id="forward-001",
         source_commit="deadbeef",
     )
-    assert len(manifest["trials"]) == 50
+    suite, _rubric = forward_eval.load_and_validate(SUITE, RUBRIC)
+    assert len(manifest["trials"]) == len(suite["prompts"]) * 2
     assert stat.S_IMODE(output.stat().st_mode) == 0o700
     assert stat.S_IMODE((output / "manifest.json").stat().st_mode) == 0o600
     assert not (output / "rubric.json").exists()

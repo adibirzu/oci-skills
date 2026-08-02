@@ -93,7 +93,7 @@ This is the repo-native traceability ledger. Merged history before v2 is the del
 | GAP-03 Landing zone plus Terraform/IAM depth | REQ-12 | GAP-01, GAP-02 | Implemented locally with synchronized documentation and capability contracts | not opened |
 | PROD-13 application workflow evidence | REQ-13 | APP-01 | Implemented locally: schema, PRD, application boundary, validation | not opened |
 | PROD-14 deterministic workflow evaluation | REQ-14 | APP-02, PROD-13 | Implemented locally: permission-safe evaluator and aggregate-only report | not opened |
-| PROD-15 capability catalog | REQ-15 | V2-09 | Implemented locally: 24-skill catalog and parity validation | not opened |
+| PROD-15 capability catalog | REQ-15 | V2-09 | Implemented locally: 26-skill catalog and parity validation | not opened |
 | PROD-16 routing precedence | REQ-16 | PROD-15 | Implemented locally: six positive/negative precedence rules | not opened |
 | PROD-17 evidence envelope | REQ-17 | V2-02 | Implemented locally: versioned secret-free schema | not opened |
 | PROD-18 architecture traceability | REQ-18 | PROD-13..PROD-17 | Implemented locally: traceability contract, validator, and CI wiring | not opened |
@@ -198,5 +198,5 @@ REQ-43 through REQ-52 close the consolidation boundary with change-set
 manifests, fail-closed exception and waiver handling, dependency integrity,
 deterministic output, offline performance budgets, network-isolated validation,
 version-control restore, reviewed rollback, and major-only end-of-life policy.
-Future work should improve the usability or correctness of the 24 skills rather
+Future work should improve the usability or correctness of the 26 skills rather
 than extend the PRD count without a demonstrated capability gap.

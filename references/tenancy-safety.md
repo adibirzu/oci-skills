@@ -9,6 +9,11 @@ before any operation that changes tenancy state.
 > maps the errors you will hit to cause + fix. This file is the
 > tenancy-targeting and redaction core they both build on.
 
+## Quick navigation
+
+Start with the one rule and auth modes, then select read-before-write, risk and
+approval, redaction, context isolation, limits, failures, or KB updates.
+
 ## The one rule that prevents disasters
 
 **Know which tenancy and compartment you are about to act on — every time.**

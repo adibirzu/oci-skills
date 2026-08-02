@@ -12,6 +12,11 @@ IPs, credentials, or tenancy names — use the `<PLACEHOLDER>` tokens above.
 > queries stays in `oci-observability-db`. Building/operating an OKE cluster that
 > hosts Grafana → `oci/oke`.
 
+## Quick navigation
+
+Select OCI Metrics, MQL panels, dashboard JSON, Loki, Prometheus, alerting,
+SDK collectors, or safety notes.
+
 ## 1. OCI Metrics datasource (no API keys)
 
 Provision the [`oci-metrics-datasource`](https://grafana.com/grafana/plugins/oci-metrics-datasource/)

@@ -39,7 +39,7 @@
   "interface": {
     "displayName": "OCI Administrator",
     "shortDescription": "Engineer and administer OCI through safe skills and artifacts.",
-    "longDescription": "OCI Skills v2 provides Codex and ChatGPT with 24 safety-gated skills for administration, storage, disaster recovery, Bastion, landing zones, exact OCI CLI plans, Terraform, Developer Services, product bundles, and project orchestration.",
+    "longDescription": "OCI Skills v2 provides Codex and ChatGPT with 26 safety-gated skills for administration, storage, disaster recovery, data platforms, OS Management Hub, Bastion, landing zones, exact OCI CLI plans, Terraform, Developer Services, product bundles, and project orchestration.",
     "developerName": "adibirzu",
     "category": "Developer Tools",
     "capabilities": [

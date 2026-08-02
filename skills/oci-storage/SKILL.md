@@ -67,3 +67,9 @@ reduction, or overwrite, rollback means recovery from a separately verified
 backup, replica, version, snapshot, or clone—not an assumed undo.
 
 Read [the storage reference](../../references/storage.md) before service-specific work.
+
+## Official documentation
+
+[Object Storage](https://docs.oracle.com/en-us/iaas/Content/Object/home.htm) · [File Storage](https://docs.oracle.com/en-us/iaas/Content/File/home.htm) · [Block Volume](https://docs.oracle.com/en-us/iaas/Content/Block/home.htm). Full list in the [storage reference](../../references/storage.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

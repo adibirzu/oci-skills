@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "oci-administrator",
-      "description": "OCI Skills v2 provides 24 safety-gated skills including storage, disaster recovery, Bastion, landing zones, exact CLI plans, Terraform, Developer Services, and product bundles.",
+      "description": "OCI Skills v2 provides 26 safety-gated skills including storage, disaster recovery, data platforms, OS Management Hub, Bastion, landing zones, exact CLI plans, Terraform, Developer Services, and product bundles.",
       "version": "2.0.0-rc.3",
       "author": {
         "name": "adibirzu"

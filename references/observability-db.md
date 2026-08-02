@@ -7,6 +7,11 @@ Insights (OPSI), and Autonomous Database admin. Every CLI call goes through
 Read `tenancy-safety.md` and `helper-conventions.md` first. Use `<PLACEHOLDER>`
 tokens — never inline real OCIDs, IPs, datakeys, APM keys, or namespaces.
 
+## Quick navigation
+
+Select Monitoring, Logging, Log Analytics, APM, Notifications, Service
+Connector Hub, database handoffs, discovery, or risks.
+
 ## Monitoring (metrics + alarms)
 
 Metrics live in a **namespace** (e.g. `oci_computeagent`, or a custom one). Query

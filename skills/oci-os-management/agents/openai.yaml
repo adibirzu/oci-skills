@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI OS Management"
+  short_description: "Operate OS Management Hub patch governance"
+  default_prompt: "Use $oci-os-management to plan or troubleshoot this OCI OS Management Hub workflow safely."
