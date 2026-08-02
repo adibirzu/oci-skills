@@ -7,7 +7,6 @@ import stat
 from pathlib import Path
 from typing import Any
 
-
 SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$")
 MAX_JSON_BYTES = 4 * 1024 * 1024
 

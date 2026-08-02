@@ -7,16 +7,15 @@ import re
 import sys
 from pathlib import Path
 
-
 BARE_OCI_RE = re.compile(r"(?:^|[;&|()]\s*|\$\(\s*)oci\s+[a-z]")
 MUTATION_RE = re.compile(
     r"\b(create|update|delete|terminate|destroy|apply|rotate|attach|detach|enable|disable|invoke|put|upload|mask)\b",
-    re.I,
+    re.IGNORECASE,
 )
-DESTRUCTIVE_RE = re.compile(r"\b(delete|terminate|destroy|purge)\b", re.I)
+DESTRUCTIVE_RE = re.compile(r"\b(delete|terminate|destroy|purge)\b", re.IGNORECASE)
 SECRET_ARG_RE = re.compile(
     r"\s(--(?:[A-Za-z0-9-]+-)?(?:password|credentials|auth-token|private-key|secret|secret-content|key-content|token))(?:\s+|=)(?!file://)(\S+)",
-    re.I,
+    re.IGNORECASE,
 )
 INLINE_JSON_RE = re.compile(r"\s(--[A-Za-z0-9-]+)(?:\s+|=)['\"]?(?:\{|\[)")
 INLINE_JSON_EXEMPT = {"--query", "--description", "--display-name"}

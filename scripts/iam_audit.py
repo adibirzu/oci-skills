@@ -28,7 +28,7 @@ except ImportError:  # pragma: no cover - import guard
     raise SystemExit(2)
 
 
-def build_identity_client(profile: str, auth: str) -> tuple["oci.identity.IdentityClient", str]:
+def build_identity_client(profile: str, auth: str) -> tuple[oci.identity.IdentityClient, str]:
     """Return (identity_client, tenancy_ocid) for the requested auth mode."""
     if auth == "instance_principal":
         signer = oci.auth.signers.InstancePrincipalsSecurityTokenSigner()
@@ -46,7 +46,7 @@ def list_all(list_fn: Any, **kwargs: Any) -> list[Any]:
     return oci.pagination.list_call_get_all_results(list_fn, **kwargs).data
 
 
-def audit(client: "oci.identity.IdentityClient", tenancy_id: str) -> dict[str, Any]:
+def audit(client: oci.identity.IdentityClient, tenancy_id: str) -> dict[str, Any]:
     compartments = list_all(
         client.list_compartments,
         compartment_id=tenancy_id,

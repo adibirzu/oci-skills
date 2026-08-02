@@ -12,7 +12,6 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-
 SECRET_TYPE_PARTS = ("secret", "auth_token", "api_key", "customer_secret_key")
 
 

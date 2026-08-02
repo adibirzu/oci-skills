@@ -11,7 +11,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "skills" / "oci-product-development" / "assets"
 STARTER = ROOT / "skills" / "oci-terraform-authoring" / "assets" / "starter"
@@ -187,9 +186,11 @@ def _command_plan(context: str, spec: dict[str, Any]) -> dict[str, Any]:
         "risk": "additive",
         "reads": [f"oci_cli {path} list --compartment-id <COMPARTMENT_OCID>"],
         "actions": [
-            "run_action --risk additive --compartment <COMPARTMENT_OCID> "
-            f"--description create-platform-component -- oci_cli {path} create "
-            "--from-json file://<TMP_0600_CREATE_JSON>"
+            (
+                "run_action --risk additive --compartment <COMPARTMENT_OCID> "
+                f"--description create-platform-component -- oci_cli {path} create "
+                "--from-json file://<TMP_0600_CREATE_JSON>"
+            )
         ],
         "verification": [f"oci_cli {path} list --compartment-id <COMPARTMENT_OCID>"],
         "rollback": [

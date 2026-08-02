@@ -22,7 +22,7 @@ import pathlib
 import re
 import sys
 from dataclasses import dataclass
-from typing import Pattern
+from re import Pattern
 
 
 @dataclass(frozen=True)
@@ -107,7 +107,7 @@ TERRAFORM_CHECKSUM_LINE = re.compile(
 )
 
 
-def _is_terraform_checksum(text: str, match: "re.Match[str]") -> bool:
+def _is_terraform_checksum(text: str, match: re.Match[str]) -> bool:
     """True only when a high-entropy match is an exact provider lock checksum."""
     line_start = text.rfind("\n", 0, match.start()) + 1
     line_end = text.find("\n", match.end())
@@ -117,7 +117,7 @@ def _is_terraform_checksum(text: str, match: "re.Match[str]") -> bool:
     return bool(TERRAFORM_CHECKSUM_LINE.fullmatch(line))
 
 
-def _is_lowercase_url_path_token(text: str, match: "re.Match[str]") -> bool:
+def _is_lowercase_url_path_token(text: str, match: re.Match[str]) -> bool:
     """Return true for a long lowercase token embedded in an HTTP URL path."""
     token = match.group(0)
     if not re.fullmatch(r"[a-z0-9-]+", token):
@@ -197,9 +197,7 @@ def _ip_is_safe(ip: str, strict: bool = False) -> bool:
         return True
     if a == 192 and b == 168:               # RFC1918
         return True
-    if (a, b, c) in ((192, 0, 2), (198, 51, 100), (203, 0, 113)):  # RFC5737 doc
-        return True
-    return False
+    return (a, b, c) in ((192, 0, 2), (198, 51, 100), (203, 0, 113))  # RFC5737 doc
 
 
 def redact(
@@ -210,21 +208,25 @@ def redact(
     """Return (redacted_text, {rule_name: count})."""
     counts: dict[str, int] = {}
     for rule in RULES:
-        def _sub(match: "re.Match[str]", _name: str = rule.name,
-                 _repl: str = rule.replacement) -> str:
+        def _sub(
+            match: re.Match[str],
+            _name: str = rule.name,
+            _repl: str = rule.replacement,
+            _text: str = text,
+        ) -> str:
             token = match.group(0)
             if _name == "ipv4" and _ip_is_safe(token, strict):
                 return token  # well-known non-sensitive address
             if _name == "email" and _email_is_safe(token):
                 return token  # documentation/example address, not PII
-            if _name == "secret_blob" and _is_lowercase_url_path_token(text, match):
+            if _name == "secret_blob" and _is_lowercase_url_path_token(_text, match):
                 return token  # long documentation URL slug, not a secret
             if _name == "secret_blob_slash" and not _b64_slash_is_secret(token):
                 return token  # URL/endpoint path, not a secret
             if (
                 allow_terraform_checksums
                 and _name in ("secret_blob", "secret_blob_slash")
-                and _is_terraform_checksum(text, match)
+                and _is_terraform_checksum(_text, match)
             ):
                 return token  # signed provider checksum, not credential material
             counts[_name] = counts.get(_name, 0) + 1
