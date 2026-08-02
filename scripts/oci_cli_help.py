@@ -49,7 +49,7 @@ def cli_version() -> str:
     if not shutil.which("oci"):
         return "unknown"
     try:
-        proc = subprocess.run(  # noqa: S603 — fixed argv, local version only
+        proc = subprocess.run(
             ["oci", "--version"], capture_output=True, text=True, timeout=10, check=False,
         )
     except (OSError, subprocess.SubprocessError):
@@ -68,7 +68,7 @@ def get_help(tokens: list[str], refresh: bool) -> tuple[str, str]:
     cache_file = _cache_file(tokens, version)
     if shutil.which("oci"):
         try:
-            proc = subprocess.run(  # noqa: S603 — fixed argv, no shell, --help only
+            proc = subprocess.run(
                 ["oci", *tokens, "--help"],
                 capture_output=True, text=True, timeout=30, check=False,
             )

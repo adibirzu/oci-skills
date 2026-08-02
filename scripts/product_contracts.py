@@ -10,7 +10,6 @@ import sys
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PRD_ROOT = Path("docs/product/prds")
 CONTRACT_ROOT = Path("docs/product/contracts")
