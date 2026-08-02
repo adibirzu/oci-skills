@@ -21,9 +21,10 @@ from forward_eval_contract import (
     SAFE_ID,
     ForwardEvalError,
     load_and_validate,
+)
+from forward_eval_contract import (
     read_json as _read_json,
 )
-
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SUITE = ROOT / "evals" / "forward" / "prompts.json"

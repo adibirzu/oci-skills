@@ -18,7 +18,6 @@ from typing import Any
 
 import oci_cli_help
 
-
 RISKS = {"additive", "in-place", "destructive", "credential"}
 MUTATION_RE = re.compile(
     r"\b(create|update|delete|terminate|destroy|apply|rotate|attach|detach|enable|disable|put|upload)\b"
