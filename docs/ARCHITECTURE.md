@@ -9,7 +9,7 @@ User / Claude / Codex / Gemini / Antigravity
                      |
      +---------------+----------------+
      |                                |
-19 primary domain skills         orchestrators
+21 primary domain skills         orchestrators
      |                       oci-project
      |                       oci-product-development
      |                       oci-application-engineering
@@ -26,8 +26,8 @@ User / Claude / Codex / Gemini / Antigravity
 The primary domains are IAM, security/compliance, observability, DBM/OPSI, ADB,
 Database Cloud, Storage, Full Stack Disaster Recovery, Bastion access,
 networking/compute/DNS/certificates, OKE, ZPR, cost, Log Analytics, Resource
-Manager, Data Safe, Events/Functions/Queue, Terraform authoring, and Developer
-Services. `oci-project` owns lifecycle composition; `oci-product-development`
+Manager, Data Safe, Events/Functions/Queue, data-platform services, OS
+Management Hub, Terraform authoring, and Developer Services. `oci-project` owns lifecycle composition; `oci-product-development`
 owns golden-path selection and bundle composition; `oci-application-engineering`
 owns application code workflow, reuse, review, and measurement;
 `oci-landing-zone` owns tenancy-foundation assessment/design and coordinates
@@ -96,7 +96,7 @@ Terraform, DNS, or application operators.
 
 ## Product contract plane
 
-The consolidated product plane covers **24 skills, 52 requirements, 40 detailed
+The consolidated product plane covers **26 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**.
 
 `docs/product/contracts/` is the machine-readable control plane for capability

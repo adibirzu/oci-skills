@@ -14,6 +14,11 @@ or SDK call fails instead of guessing; it complements the freeform
 > lists every status code and error key; service-specific pages are in
 > [oracle-docs.md](oracle-docs.md). Each section below links the page behind it.
 
+## Quick navigation
+
+Start with triage, then select authentication, authorization/404, conflict,
+throttling, validation, limits, concurrency, async, or database errors.
+
 ## Triage table (start here)
 
 | You see… | It almost always means | First move | KB |

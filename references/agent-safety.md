@@ -12,6 +12,11 @@ Modeled on the agent-safety patterns in the `db/` domain of
 [oracle/skills](https://github.com/oracle/skills) (`db/agent/`), adapted for
 OCI control-plane operations.
 
+## Quick navigation
+
+Use sections 1-2 for intent and read-only defaults, 2b for command grounding,
+3-4 for idempotency and risk, and 5-6 for stop conditions and reporting.
+
 ## 1. Disambiguate intent before acting
 
 A vague request is the most common cause of acting on the wrong resource. Resolve

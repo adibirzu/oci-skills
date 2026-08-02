@@ -9,6 +9,11 @@ by `run_action`. Read `tenancy-safety.md` and
 `helper-conventions.md` first. Use `<PLACEHOLDER>` tokens — never inline real
 OCIDs, OCIR namespaces, emails, or endpoints.
 
+## Quick navigation
+
+Select Functions, Events, Notifications, Service Connector Hub, Queue,
+Streaming, end-to-end patterns, or risks.
+
 ## Functions (OCI Functions / Fn)
 
 ```bash

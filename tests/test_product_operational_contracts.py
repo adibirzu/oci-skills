@@ -256,7 +256,7 @@ def test_validator_reports_expanded_contract_plane_deterministically() -> None:
         "requirements": 52,
         "new_prds": 40,
         "contracts": 37,
-        "capabilities": 24,
+        "capabilities": 26,
         "journeys": 30,
         "safety_cases": 8,
     }

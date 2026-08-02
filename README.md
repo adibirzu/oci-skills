@@ -4,11 +4,11 @@ OCI Skills v2 is a tenancy-agnostic engineering assistant for **OCI administrati
 
 It ships no tenancy data, OCIDs, IPs, keys, or credentials. Examples use `<PLACEHOLDER>` tokens resolved from your named context at runtime.
 
-Start with the [five-minute quickstart](docs/QUICKSTART.md), read the [architecture](docs/ARCHITECTURE.md), or inspect the [v2 PRD](docs/product/oci-skills-v2-prd.md).
+Start with the [five-minute quickstart](docs/QUICKSTART.md), pick a skill from the [OCI skill catalog](docs/SKILL_CATALOG.md), read the [architecture](docs/ARCHITECTURE.md), or inspect the [v2 PRD](docs/product/oci-skills-v2-prd.md).
 
 ## What it does
 
-- Safely inspect and administer OCI IAM, security, networking, storage, disaster recovery, databases, observability, cost, serverless, OKE, and related control-plane services.
+- Safely inspect and administer OCI IAM, security, networking, storage, disaster recovery, databases, observability, data platforms, OS patch governance, cost, serverless, OKE, and related control-plane services.
 - Generate exact `oci_cli` command plans with read, risk-classified action, verification, rollback, and official sources.
 - Scaffold, discover, validate, test, plan, inspect, apply, and destroy OCI Terraform while binding the applied plan to the reviewed bytes and context.
 - Compose five private-default platform golden paths as schema-v1 bundles: API + Functions, Container Instances, OKE applications, Queue/Streaming workers, and ADB-backed services.
@@ -18,7 +18,46 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 ## Skill topology
 
-The 24-skill pack contains a router selecting nineteen primary domains and four orchestrators:
+The 26-skill pack contains a router selecting twenty-one primary domains and four orchestrators:
+
+For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md).
+
+<!-- BEGIN OCI SKILLS -->
+- **Start here**
+  - [**OCI Administrator router**](./skills/oci-administrator) — route broad OCI requests to the right domain skill.
+  - [**OCI Project lifecycle**](./skills/oci-project) — bootstrap, inspect health, deploy, or tear down a whole project.
+  - [**OCI Product Development**](./skills/oci-product-development) — choose a golden path and compose a platform bundle.
+  - [**OCI Application Engineering**](./skills/oci-application-engineering) — review, debug, reuse, and evaluate application code without OCI mutation.
+  - [**OCI Landing Zone**](./skills/oci-landing-zone) — assess and design a tenancy foundation.
+- **Security and governance**
+  - [**OCI IAM Admin**](./skills/oci-iam-admin) — compartments, policies, users, groups, budgets, quotas, tags, and limits.
+  - [**OCI Security Compliance**](./skills/oci-security-compliance) — Cloud Guard, Vault, WAF, Vulnerability Scanning, CIS/ISO evidence, and DevSecOps gates.
+  - [**OCI ZPR Visibility**](./skills/oci-zpr-visibility) — Zero Trust Packet Routing attributes, policies, protected resources, and flow-log correlation.
+  - [**OCI Data Safe**](./skills/oci-data-safe) — database target registration, assessments, audit, discovery, and masking.
+- **Infrastructure and access**
+  - [**OCI Networking Compute**](./skills/oci-networking-compute) — VCN, NSG, routing, DNS, certificates, load balancers, compute, and attachments.
+  - [**OCI OKE Admin**](./skills/oci-oke-admin) — OKE application operations, ingress, TLS, OCIR pulls, and rollout troubleshooting.
+  - [**OCI Bastion Access**](./skills/oci-bastion-access) — Bastion sessions, Managed SSH, forwarding, and allowlist diagnosis.
+  - [**OCI Storage**](./skills/oci-storage) — Object, File, Block, and Boot storage lifecycle, retention, backup, and replication.
+  - [**OCI Disaster Recovery**](./skills/oci-disaster-recovery) — Full Stack DR groups, plans, prechecks, drills, switchovers, and failovers.
+  - [**OCI Terraform Authoring**](./skills/oci-terraform-authoring) — HCL authoring, schema lookup, discovery, validate, plan, apply, and destroy.
+  - [**OCI Resource Manager**](./skills/oci-resource-manager) — managed Terraform stacks, jobs, logs, state, and drift operations.
+  - [**OCI OS Management**](./skills/oci-os-management) — OS Management Hub registration, software sources, Ksplice, update jobs, and patch evidence.
+- **Data and databases**
+  - [**OCI Autonomous DB**](./skills/oci-autonomous-db) — ADB lifecycle, private endpoints, wallets, ACLs, scaling, and connectivity.
+  - [**OCI Database Cloud**](./skills/oci-database-cloud) — Base Database and Exadata lifecycle, backup, patching, and Data Guard.
+  - [**OCI DBM OPSI**](./skills/oci-dbm-opsi) — Database Management, Operations Insights, Performance Hub, AWR, ADDM, ASH, and DBSNMP.
+  - [**OCI Data Platform**](./skills/oci-data-platform) — Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL, movement, and replication.
+  - [**OCI Log Analytics**](./skills/oci-log-analytics) — OCL/LQL queries, sources, parsers, entities, detections, and content migration.
+- **Application delivery**
+  - [**OCI Events Functions**](./skills/oci-events-functions) — Functions, Events, ONS, Service Connector Hub, Queue, Streaming, and event workers.
+  - [**OCI Developer Services**](./skills/oci-developer-services) — DevOps, API Gateway, Container Instances, Artifact Registry, and OCIR delivery.
+- **Observe and optimize**
+  - [**OCI Observability DB**](./skills/oci-observability-db) — Monitoring, Logging, APM, OpenTelemetry, alarms, dashboards, and PromQL-to-MQL.
+  - [**OCI Cost**](./skills/oci-cost) — usage, spend, forecasts, budgets, and FinOps guardrails.
+<!-- END OCI SKILLS -->
+
+The canonical ownership table remains flat so install tooling and routing tests can treat every skill path consistently:
 
 | Skill | Primary ownership |
 |---|---|
@@ -39,6 +78,8 @@ The 24-skill pack contains a router selecting nineteen primary domains and four 
 | `oci-resource-manager` | Managed Terraform stacks/jobs/logs/state and drift operations |
 | `oci-data-safe` | Target registration, assessments, audit, discovery, masking |
 | `oci-events-functions` | Functions, Events, ONS, Service Connector Hub, Queue, Streaming, event workers |
+| `oci-data-platform` | Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL, data movement and replication |
+| `oci-os-management` | OS Management Hub registration, software sources, Ksplice, update jobs, and patch evidence |
 | `oci-terraform-authoring` | HCL, provider schema, discovery, local validation/plan/apply/destroy |
 | `oci-developer-services` | DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery |
 | `oci-project` | Project bootstrap/status/deploy/teardown lifecycle orchestration |
@@ -93,12 +134,12 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 
 ## Product contracts and readiness
 
-The consolidated release contains **24 skills, 52 requirements, 40 detailed
+The consolidated release contains **26 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic
-workflow evaluation, the 24-skill capability catalog, routing precedence,
+workflow evaluation, the 26-skill capability catalog, routing precedence,
 evidence envelopes, architecture traceability, distribution/redaction/release
 contracts, compatibility policy, user journeys, dependency and impact graphs,
 verification/provenance registries, an install manifest, safety cases, a release

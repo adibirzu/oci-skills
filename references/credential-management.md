@@ -11,6 +11,11 @@ you act on) and [named-contexts.md](named-contexts.md) (which covers *not pastin
 OCIDs*). All CLI here goes through `oci_cli` in [common.sh](../scripts/common.sh),
 which negotiates the mode below.
 
+## Quick navigation
+
+Select auth modes, progressive strategies, implementation practices, or
+rotation and troubleshooting runbooks.
+
 ## 1. Auth modes (pick the most platform-native one available)
 
 `common.sh` auto-detects; override with `OCI_AUTH_MODE`. **Prefer principal-based

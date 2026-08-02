@@ -15,6 +15,11 @@ decides *what* to build, grounded in Oracle's official architecture guidance.
 All identifiers in examples are `<PLACEHOLDER>` tokens — never inline a real
 OCID, IP, or tenancy namespace (see [tenancy-safety.md](tenancy-safety.md)).
 
+## Quick navigation
+
+Use How this fits and Workflow for routing, blueprint sections 1-6 for the
+deliverable, then implementations, examples, grounding, and sources.
+
 ## How this fits
 
 ```text

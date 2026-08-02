@@ -4,7 +4,7 @@ description: >-
   Default router for tenancy-agnostic Oracle Cloud Infrastructure engineering.
   Use for OCI administration, audit, security, IAM, Bastion, networking, compute,
   OKE, observability, storage, disaster recovery, Base Database, Exadata,
-  DBM/OPSI, ADB, cost, Log Analytics,
+  DBM/OPSI, ADB, data platforms, OS Management Hub, cost, Log Analytics,
   Resource Manager, Data Safe, Events, Functions, Queue, Terraform/HCL, landing
   zones, DevOps, API Gateway, Container Instances, Artifact Registry/OCIR, exact
   oci-cli commands, platform bundles, or project lifecycle requests. Routes to
@@ -17,8 +17,8 @@ description: >-
 
 # OCI Administrator
 
-Operate and engineer OCI safely. The pack exposes 24 skills: this router selects
-one of nineteen primary domain skills or the **oci-project**, **oci-product-development**,
+Operate and engineer OCI safely. The pack exposes 26 skills: this router selects
+one of twenty-one primary domain skills or the **oci-project**, **oci-product-development**,
 **oci-application-engineering**, and **oci-landing-zone** orchestrators,
 all sharing one tenancy-safety core.
 
@@ -244,10 +244,20 @@ persistent volumes remain OKE, and database-native backups remain database-owned
 plans, prechecks, drills, switchovers, failovers, and reprotection route to
 `oci-disaster-recovery`; Data Guard and storage replication retain their owners.
 
+**Data-platform operations beat generic application work:** Data Integration,
+Data Flow, Data Catalog, GoldenGate, NoSQL, Spark, metadata harvest, and data
+replication operations route to `oci-data-platform`; database lifecycle,
+storage lifecycle, and network reachability retain their owners.
+
+**OS patch governance beats generic compute:** OS Management Hub, Ksplice,
+software sources, lifecycle environments, profiles, groups, dynamic sets,
+update jobs, and patch compliance route to `oci-os-management`; instance launch,
+VNICs, images, and raw network reachability remain networking/compute.
+
 | Request mentions… | Plugin | Reference |
 |---|---|---|
 | users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context, OIDC, OAuth application, SAML, SCIM provisioning | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
-| Cloud Guard, Vault/KMS, Security Zones, WAF, CIS, public Object Storage, 0.0.0.0/0 SSH rules, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
+| Cloud Guard, Vault/KMS, Security Zones, WAF, Vulnerability Scanning, scan recipe, scan target, host scan, container image scan, CIS, public Object Storage, 0.0.0.0/0 SSH rules, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
 | APM, Monitoring, alarm, dashboard, metric, Logging, OpenTelemetry, Prometheus, PromQL→MQL, Linux/Windows host dashboard, node_exporter, windows_exporter, agent trace, trace integrity, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
 | Database Management, DBM, Operations Insights, OPSI, managed database, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight, Base DB observability, DB log ingestion | **oci-dbm-opsi** | [references/dbm-opsi.md](../../references/dbm-opsi.md) |
 | ADB/ADW/ATP lifecycle, provision, create autonomous database, start/stop/scale, wallet, generate-wallet, rotate wallet, TNS_ADMIN, whitelisted-ips/ACL, DSN service level, oracledb, SQLAlchemy oracle+oracledb, Alembic on Oracle, clone, restore, SQLcl, execute SQL, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN | **oci-autonomous-db** | [references/autonomous-db.md](../../references/autonomous-db.md) |
@@ -263,6 +273,8 @@ plans, prechecks, drills, switchovers, failovers, and reprotection route to
 | Resource Manager, ORM, RMS, managed Terraform stack, stack plan/apply/destroy job, stack logs, state retrieval | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
 | Function control plane, Functions, Events rule, object uploaded event, eventType, Notifications/ONS, Service Connector Hub, Queue or Streaming transport, queue-push/pull, DLQ, visibility timeout | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |
+| Data Integration, Data Flow, Spark, Data Catalog, harvest job, glossary, metastore, GoldenGate, replication, CDC, NoSQL table, data asset, data pipeline, ETL, ELT | **oci-data-platform** | [references/data-platform.md](../../references/data-platform.md) |
+| OS Management Hub, OSMH, OS patch, patching, Ksplice, managed instance, software source, lifecycle environment, update job, scheduled update, profile, dynamic set | **oci-os-management** | [references/os-management.md](../../references/os-management.md) |
 | write HCL, Terraform authoring, scaffold Terraform, provider schema, resource discovery, local validate/plan/apply/destroy, import, module, reviewed plan | **oci-terraform-authoring** | [references/terraform-authoring.md](../../references/terraform-authoring.md) |
 | OCI DevOps, build pipeline, deployment pipeline, code repository, source connection, trigger, artifact, Artifact Registry, OCIR delivery, API Gateway, Container Instances, canary, blue-green | **oci-developer-services** | [references/developer-services.md](../../references/developer-services.md) |
 | application platform, product golden path, OCI platform bundle, platform bundle, platform-bundle.yaml, API Gateway plus Functions, container application golden path, OKE application golden path, Queue or Streaming event worker, event worker bundle, ADB-backed Functions service, private ADB-backed Functions service | **oci-product-development** | [references/product-development.md](../../references/product-development.md) |
@@ -277,6 +289,8 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 and measurement; it never mutates OCI infrastructure.
 **oci-landing-zone** owns tenancy-foundation assessment/design and orchestrates
 deployment/upgrade validation without stealing domain or Terraform ownership.
+**oci-data-platform** owns data-platform control-plane operations; **oci-os-management**
+owns OS Management Hub patch governance.
 
 **Designing a *new* solution for a customer?** When the request is a *requirement*
 ("the customer needs a PCI-scoped 3-tier web app") rather than a service

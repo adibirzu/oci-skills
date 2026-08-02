@@ -1,5 +1,10 @@
 # OCI Terraform authoring reference
 
+## Quick navigation
+
+Use response and progress rules first, then select ownership, `oci_tf.sh`,
+state/artifacts, Resource Manager packaging, or authoritative sources.
+
 ## Authoring response contract
 
 Use `./scripts/oci_tf.sh scaffold <dir> --name <name>` to create the reviewed

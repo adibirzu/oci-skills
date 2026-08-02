@@ -175,6 +175,19 @@ jobs:
                   errors.append(f"{p}: description exceeds 1024 characters")
               if not (p.parent / "agents" / "openai.yaml").is_file():
                   errors.append(f"{p.parent}: missing agents/openai.yaml")
+              else:
+                  metadata_path = p.parent / "agents" / "openai.yaml"
+                  metadata = yaml.safe_load(metadata_path.read_text(encoding="utf-8")) or {}
+                  extras = sorted(set(metadata) - {"interface", "dependencies", "policy"})
+                  if extras:
+                      errors.append(f"{metadata_path}: unsupported top-level fields {extras}")
+                  interface = metadata.get("interface") or {}
+                  required = {"display_name", "short_description", "default_prompt"}
+                  missing = sorted(required - set(interface))
+                  if missing:
+                      errors.append(f"{metadata_path}: missing interface fields {missing}")
+                  if f"${data.get('name', '')}" not in str(interface.get("default_prompt", "")):
+                      errors.append(f"{metadata_path}: default_prompt must invoke the skill")
 
           def check_json(path):
               try:

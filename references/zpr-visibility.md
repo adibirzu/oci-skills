@@ -4,6 +4,11 @@ Reusable, sanitized workflow for OCI Zero Trust Packet Routing visibility. This
 reference is based on local ZPR visibility runbooks and keeps only portable
 patterns: no real OCIDs, IPs, security attribute names, namespaces, or topology.
 
+## Quick navigation
+
+Select operating model, IAM, collection, flow correlation, Log Analytics,
+failure modes, or source origins.
+
 ## Operating model
 
 - Run inventory collection frequently enough for operations, daily for audit.

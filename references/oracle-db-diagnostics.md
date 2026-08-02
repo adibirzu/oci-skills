@@ -20,6 +20,11 @@ OCIDs, DSNs, IPs, or wallet contents.
 
 ---
 
+## Quick navigation
+
+Use execution tiers first, then connection setup, the SQL library, workflow
+mapping, safety, expected output, or implementation status.
+
 ## 1. Tiered execution strategy (cheapest, safest first)
 
 Pick the lowest tier that answers the question. Drop to raw SQL only when a managed

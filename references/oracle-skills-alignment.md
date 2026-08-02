@@ -21,6 +21,11 @@ adapters, relationships, and publish flows (`oci/iot-platform`). This pack
 retains Functions control-plane integration with Events, Queue, Streaming,
 Service Connector Hub, tenancy safety, and product bundles.
 
+## Quick navigation
+
+Use Why two packs for scope, Coverage matrix for ownership, Hand-off rules for
+routing, Conventions for interoperability, and Using both together for setup.
+
 ## Why two packs
 
 They were built for different jobs and are **complementary**, not competing:

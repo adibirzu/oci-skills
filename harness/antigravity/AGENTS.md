@@ -21,6 +21,8 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 - `oci-resource-manager`: Resource Manager stacks/jobs.
 - `oci-data-safe`: Data Safe.
 - `oci-events-functions`: Functions, Events, Queue, Streaming, ONS, SCH.
+- `oci-data-platform`: Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL.
+- `oci-os-management`: OS Management Hub, Ksplice, update jobs, patch evidence.
 - `oci-terraform-authoring`: HCL, discovery, validation, local plan/apply/destroy.
 - `oci-developer-services`: DevOps, API Gateway, Container Instances, artifacts.
 - `oci-project`: lifecycle orchestration.

@@ -44,3 +44,9 @@ the components selected by the design.
 ## Expected output
 
 Report the owner of every component, quota/IAM/network/log checks, artifact identity, rollout strategy, exact verification, and rollback result. Do not expose endpoints, namespaces, image-pull tokens, or connection credentials.
+
+## Official documentation
+
+[OCI DevOps](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_overview.htm) · [DevOps build specifications](https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm) · [API Gateway](https://docs.oracle.com/en-us/iaas/Content/APIGateway/Concepts/apigatewayconcepts.htm) · [Container Instances](https://docs.oracle.com/en-us/iaas/Content/container-instances/overview-of-container-instances.htm) · [Container Registry](https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm). Full list in the [developer-services reference](../../references/developer-services.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

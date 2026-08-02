@@ -1,5 +1,10 @@
 # OCI product-development bundles
 
+## Quick navigation
+
+Start with scaffold and progress rules, then use Schema v1, Ownership matrix,
+and Golden-path acceptance.
+
 ## Scaffold response contract
 
 Use the bundled interface exactly—do not invent bundle-type, runtime, ingress,
