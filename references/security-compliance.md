@@ -12,6 +12,11 @@ goes through `oci_cli` (negotiates auth + region); every mutation goes through
 
 ---
 
+## Quick navigation
+
+Select Cloud Guard, Vulnerability Scanning, secure development, Vault/KMS,
+Security Zones, WAF, Audit, compliance, IAM review, secrets, or risks.
+
 ## Cloud Guard
 
 Detection plane: **targets** bind a compartment subtree to **detector recipes**
@@ -43,6 +48,45 @@ user-managed clone only for a reviewed customization. Prefer target-level rule
 scope over recipe-level changes, which affect every attached target. Include
 Container Security Config detectors for containerized workloads; inspect and
 triage before enabling automatic responders.
+
+---
+
+## Vulnerability Scanning
+
+OCI Vulnerability Scanning is the posture input for Compute host and Container
+Registry image vulnerabilities. It is regional, and Cloud Guard can surface the
+resulting problems in the global reporting region. Treat scan reports as
+findings for remediation, not as release approval by themselves.
+
+Minimum read sequence:
+
+```bash
+oci_cli vulnerability-scanning host scan target list --compartment-id "$COMPARTMENT_OCID" --all
+oci_cli vulnerability-scanning host scan recipe list --compartment-id "$COMPARTMENT_OCID" --all
+oci_cli vulnerability-scanning container scan target list --compartment-id "$COMPARTMENT_OCID" --all
+```
+
+Before changing scan recipes or targets, verify compartment scope, supported
+platform images, Cloud Agent state for host scans, OCIR repository coverage,
+service-gateway needs for private hosts, and Cloud Guard correlation. Target or
+recipe creation is additive; changing schedules or scope is in-place; deleting a
+target or suppressing findings is destructive unless a named exception owner has
+approved the impact.
+
+Coverage boundaries:
+
+- Host scans cover supported Compute instances. Do not use the service as proof
+  for unsupported images or database-system hosts.
+- Container image scans cover Container Registry repositories configured for
+  scanning; four existing recent images may be scanned when scanning is enabled.
+- The service is not a PCI-compliant scanner. State that limitation when the
+  request asks for PCI evidence.
+- Windows coverage differs from Linux. Do not claim complete package/CIS parity.
+
+Verification evidence is host/container scan report state, risk level counts,
+Cloud Guard problem correlation, affected owner handoff, and remediation status.
+Never persist hostnames, private IPs, repository namespaces, image tags,
+vulnerability details tied to a customer system, or OCIDs without redaction.
 
 ---
 

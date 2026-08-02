@@ -167,6 +167,10 @@ the registered MCP server for `llm_adaptive` (cheap-first) or `llm_fusion`
 live aliases participate. If the gateway is unavailable, continue with the
 primary agent rather than blocking the task.
 
+If you know the task but not the skill name, start with the
+[OCI skill catalog](SKILL_CATALOG.md). The table below is the compact routing
+view used by the quickstart.
+
 | Intent | Skill |
 |---|---|
 | IAM/tenancy | `oci-iam-admin` |
@@ -186,6 +190,8 @@ primary agent rather than blocking the task.
 | Resource Manager stacks/jobs | `oci-resource-manager` |
 | Data Safe | `oci-data-safe` |
 | Functions/Events/Queue/Streaming | `oci-events-functions` |
+| Data Integration/Data Flow/Data Catalog/GoldenGate/NoSQL | `oci-data-platform` |
+| OS Management Hub/patching/Ksplice/update jobs | `oci-os-management` |
 | HCL/local Terraform/discovery | `oci-terraform-authoring` |
 | DevOps/API Gateway/Container Instances/artifacts | `oci-developer-services` |
 | project lifecycle | `oci-project` |
@@ -207,7 +213,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **24 skills, 52 requirements, 37 contracts, and
+The installed pack exposes **26 skills, 52 requirements, 37 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 

@@ -46,3 +46,9 @@ Read [networking-compute.md](../../references/networking-compute.md) for exact c
 ## Expected output
 
 Report named resource, redacted evidence, owner/risk, exact wrapper-routed action, lifecycle or health verification, and rollback.
+
+## Official documentation
+
+[Networking](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm) · [Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm) · [Resource Search](https://docs.oracle.com/en-us/iaas/Content/Search/Concepts/queryoverview.htm). Full list in the [networking-compute reference](../../references/networking-compute.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

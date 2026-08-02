@@ -9,6 +9,11 @@ generation contact no tenancy. A generated MQL expression is a candidate until
 it parses and returns the expected metric streams in the project's actual
 namespace, compartment, region, time range, and exporter version.
 
+## Quick navigation
+
+Use Reuse boundary and Safe converter first, then select Linux/Windows
+conversions, dashboards, validation, or design sources.
+
 ## Reuse boundary
 
 [`adibirzu/oci-prometheus-otel-monitoring`](https://github.com/adibirzu/oci-prometheus-otel-monitoring)

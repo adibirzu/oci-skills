@@ -6,6 +6,8 @@ import pathlib
 import re
 import subprocess
 
+import yaml
+
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 EXPECTED_SKILLS = {
@@ -27,6 +29,8 @@ EXPECTED_SKILLS = {
     "oci-resource-manager",
     "oci-data-safe",
     "oci-events-functions",
+    "oci-data-platform",
+    "oci-os-management",
     "oci-developer-services",
     "oci-terraform-authoring",
     "oci-project",
@@ -43,9 +47,19 @@ def _frontmatter(path: pathlib.Path) -> str:
 def test_v2_skill_topology_and_codex_metadata() -> None:
     skills = {path.parent.name for path in ROOT.glob("skills/*/SKILL.md")}
     assert skills == EXPECTED_SKILLS
-    assert len(skills) == 24
+    assert len(skills) == 26
     for skill in skills:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
+
+
+def test_every_skill_has_semantically_valid_frontmatter() -> None:
+    for skill in EXPECTED_SKILLS:
+        path = ROOT / "skills" / skill / "SKILL.md"
+        data = yaml.safe_load(_frontmatter(path))
+        assert set(data) == {"name", "description"}
+        assert data["name"] == skill
+        assert isinstance(data["description"], str) and data["description"].strip()
+        assert len(data["description"]) <= 1024
 
 
 def test_skill_creator_progressive_disclosure_and_payload_shape() -> None:
@@ -56,15 +70,21 @@ def test_skill_creator_progressive_disclosure_and_payload_shape() -> None:
         assert {entry.name for entry in root.iterdir()} <= allowed_entries
 
 
+def test_long_references_have_quick_navigation() -> None:
+    navigation_headings = {"## Contents", "## Table of contents", "## Quick navigation"}
+    for path in sorted((ROOT / "references").glob("*.md")):
+        lines = path.read_text(encoding="utf-8").splitlines()
+        if len(lines) > 100:
+            assert navigation_headings.intersection(lines[:40]), path
+
+
 def test_openai_skill_metadata_is_human_facing_and_invocable() -> None:
     for skill in EXPECTED_SKILLS:
-        metadata = (ROOT / "skills" / skill / "agents" / "openai.yaml").read_text(encoding="utf-8")
-        values = {
-            key: match.group(1)
-            for key in ("display_name", "short_description", "default_prompt")
-            if (match := re.search(rf'^  {key}: "([^"]+)"$', metadata, re.MULTILINE))
-        }
-        assert set(values) == {"display_name", "short_description", "default_prompt"}
+        path = ROOT / "skills" / skill / "agents" / "openai.yaml"
+        metadata = yaml.safe_load(path.read_text(encoding="utf-8"))
+        assert set(metadata) <= {"interface", "dependencies", "policy"}
+        values = metadata["interface"]
+        assert {"display_name", "short_description", "default_prompt"} <= set(values)
         assert values["display_name"].startswith("OCI ")
         assert 25 <= len(values["short_description"]) <= 64
         assert f"${skill}" in values["default_prompt"]
@@ -255,6 +275,8 @@ def test_eval_routes_resolve_ownership_overlaps() -> None:
     assert by_id["trigger-terraform-authoring"]["expect_route"] == "oci-terraform-authoring"
     assert by_id["trigger-container-instance"]["expect_route"] == "oci-developer-services"
     assert by_id["trigger-product-api-functions"]["expect_route"] == "oci-product-development"
+    assert by_id["trigger-data-integration-pipeline"]["expect_route"] == "oci-data-platform"
+    assert by_id["trigger-os-management-hub-patching"]["expect_route"] == "oci-os-management"
     assert by_id["trigger-bastion-managed-ssh"]["expect_route"] == "oci-bastion-access"
     assert by_id["trigger-db-system-create"]["expect_route"] == "oci-database-cloud"
     assert by_id["trigger-landing-zone-design"]["expect_route"] == "oci-landing-zone"

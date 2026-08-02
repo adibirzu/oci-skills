@@ -22,6 +22,11 @@ distill the pattern, replace every tenant specific (OCIDs, IPs, namespaces, keys
 
 ---
 
+## Quick navigation
+
+Search by `KB-<n>`, symptom words, or domain tag. Entries cover CLI/auth, IAM,
+security, networking, OKE, observability, databases, analytics, events, and IaC.
+
 ## KB-001 — OKE kubectl Unauthorized right after create-kubeconfig (iam-oke)
 
 **Symptom:** `kubectl` returns `Unauthorized` / "asked for credentials" immediately

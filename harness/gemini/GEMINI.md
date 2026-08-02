@@ -25,6 +25,8 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 - `oci-resource-manager`: managed Terraform stacks and jobs.
 - `oci-data-safe`: target registration, assessment, audit, masking.
 - `oci-events-functions`: Functions, Events, ONS, SCH, Queue, Streaming.
+- `oci-data-platform`: Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL.
+- `oci-os-management`: OS Management Hub, Ksplice, update jobs, patch evidence.
 - `oci-terraform-authoring`: HCL, discovery, local validate/plan/apply/destroy.
 - `oci-developer-services`: DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery.
 - `oci-project`: project lifecycle orchestration.

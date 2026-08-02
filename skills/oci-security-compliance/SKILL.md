@@ -5,9 +5,10 @@ description: >-
   detector/responder recipes and problems; Vault/KMS key and secret create, read
   (base64-decode), rotation and the oci-vault:// env-resolver; Security Zones; WAF
   web-app-firewall policies with SQLi/XSS/rate-limit BLOCK rules attached to a load
-  balancer; Audit event queries; CIS / ISO-42001 / sovereignty / NIS2 compliance
-  scanning; IAM least-privilege policy review; and secrets redaction. Trigger for
-  oci-cli, Cloud Guard, Vault, KMS, WAF, Security Zones, Audit, CIS, compliance,
+  balancer; Vulnerability Scanning host and container image scan recipes,
+  targets and reports; Audit event queries; CIS / ISO-42001 / sovereignty / NIS2
+  compliance scanning; IAM least-privilege policy review; and secrets redaction. Use
+  for oci-cli, Cloud Guard, Vault, KMS, WAF, Vulnerability Scanning, Security Zones, Audit, CIS, compliance,
   secure software delivery, dependency vulnerability audits, DevSecOps, or
   secret-handling tasks in an OCI tenancy.
 ---
@@ -47,6 +48,7 @@ If the resolved tenancy/compartment name is not the one you expect, stop.
 | "Who changed what" | Audit `event list` over a window |
 | Score against a framework | Compliance scanner → normalize Findings |
 | Tighten over-broad grants | `scripts/iam_audit.py` |
+| Review host or image scan findings | Vulnerability Scanning -> host/container scan reports -> Cloud Guard correlation |
 | Stop secrets reaching git | `scripts/redact.py --check` |
 | Secure a build/release | DevSecOps release gate below; pipeline ownership → `oci-developer-services` |
 | Review an app/API | ASVS/API requirements → abuse cases → code/tests → independent verification |
@@ -62,6 +64,7 @@ If the resolved tenancy/compartment name is not the one you expect, stop.
 | Score against a framework | run the compliance scan (env carries auth) → `redact.py` the findings → prioritize CRITICAL/HIGH → remediate → re-scan |
 | Rotate a leaked secret | `secret-bundle get` to confirm current value (KB-005, base64) → `secret update-base64` (new *version*, never in place) → update consumers → `redact.py --check` before commit |
 | Secure a release | artifact provenance/SBOM → dependency audit → policy threshold → deploy canary → Cloud Guard + runtime verification → rollback on failure |
+| Enable Vulnerability Scanning | read recipes/targets → check host agent or OCIR repository coverage → gated target/recipe change → verify host/container reports and Cloud Guard problems |
 
 ## Secure development and DevSecOps release gate
 
@@ -153,6 +156,9 @@ python3 scripts/redact.py --check <file>   # exit 1 if OCID/IP/fingerprint/key/s
   user-managed clones for tuned rules; retain Oracle-managed defaults unless a
   reviewed exception requires a change. Include OCI Container Security Config
   detectors when container workloads are in scope.
+- Vulnerability Scanning covers Compute hosts and Container Registry images; do
+  not claim it scans unsupported images, database-system hosts, every OS, or PCI
+  compliance. Pair reports with Cloud Guard and workload-owner remediation.
 - A vulnerability audit is a release input, not proof that a workload is safe:
   pair it with image provenance, least-privilege runtime identity, private
   networking, Cloud Guard and post-deploy verification.
@@ -172,6 +178,6 @@ KB:           KB-004 (WAF policy not blocking after attach).
 
 ## Official documentation
 
-[Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm) · [Vault / KMS](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm) · [WAF](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm) · [OCI DevOps vulnerability audits](https://docs.oracle.com/en-us/iaas/Content/devops/using/scan-code.htm). Full list in the [security-compliance reference](../../references/security-compliance.md).
+[Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm) · [Vault / KMS](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm) · [WAF](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm) · [Vulnerability Scanning](https://docs.oracle.com/en-us/iaas/Content/scanning/home.htm) · [OCI DevOps vulnerability audits](https://docs.oracle.com/en-us/iaas/Content/devops/using/scan-code.htm). Full list in the [security-compliance reference](../../references/security-compliance.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

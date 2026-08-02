@@ -5,7 +5,10 @@ description: >-
   tenancy guardrails using Cloud Adoption Framework and Well-Architected
   guidance. Orchestrates IAM, security, networking, observability, cost,
   Terraform, and Resource Manager while preserving one IaC owner and the existing
-  Solution Blueprint. Ordinary project lifecycle remains with oci-project.
+  Solution Blueprint. Use when the request mentions a landing zone, greenfield
+  tenancy foundation, Cloud Adoption Framework, enterprise guardrails, or
+  landing-zone assessment and upgrade. Do not use for an ordinary workload or
+  project lifecycle; route that to oci-project.
 ---
 
 # OCI Landing Zone

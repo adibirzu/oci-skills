@@ -67,3 +67,9 @@ Read [terraform-authoring.md](../../references/terraform-authoring.md) for comma
 ## Expected output
 
 Report artifact paths, source/schema used, validation result, plan action counts, approval state, verification, and rollback. Never reproduce state or sensitive planned values.
+
+## Official documentation
+
+[OCI Terraform provider](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/) · [Resource discovery](https://docs.oracle.com/en-us/iaas/Content/terraform/resource-discovery.htm) · [Terraform on OCI](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm). Full list in the [terraform-authoring reference](../../references/terraform-authoring.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

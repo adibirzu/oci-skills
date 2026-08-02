@@ -64,3 +64,9 @@ safe, or incident recovery followed by reprotection and a new precheck. Never
 promise automatic failback or zero data loss.
 
 Read [the disaster-recovery reference](../../references/disaster-recovery.md) before service-specific work.
+
+## Official documentation
+
+[Full Stack Disaster Recovery](https://docs.oracle.com/en-us/iaas/disaster-recovery/index.html) · [Disaster-recovery design guidance](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/disaster-recovery.htm). Full list in the [disaster-recovery reference](../../references/disaster-recovery.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

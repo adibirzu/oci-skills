@@ -50,3 +50,9 @@ or scaffolding.
 ## Boundary
 
 Do not generate business handlers, domain models, UI, or application tests. Generate only platform/IaC, OpenAPI boundary, build/deploy specifications, IAM requirements, verification, and operations material.
+
+## Official documentation
+
+[Architecture Center](https://docs.oracle.com/en/solutions/) · [Cloud Adoption Framework](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) · [OCI DevOps](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_overview.htm). Full list in the [product-development reference](../../references/product-development.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

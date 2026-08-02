@@ -19,6 +19,8 @@
     {"skill": "oci-resource-manager", "owner": "resource-manager", "reference": "references/resource-manager.md"},
     {"skill": "oci-data-safe", "owner": "data-safe", "reference": "references/data-safe.md"},
     {"skill": "oci-events-functions", "owner": "events-functions", "reference": "references/events-functions.md"},
+    {"skill": "oci-data-platform", "owner": "data-platform", "reference": "references/data-platform.md"},
+    {"skill": "oci-os-management", "owner": "os-management", "reference": "references/os-management.md"},
     {"skill": "oci-terraform-authoring", "owner": "terraform-authoring", "reference": "references/terraform-authoring.md"},
     {"skill": "oci-developer-services", "owner": "developer-services", "reference": "references/developer-services.md"},
     {"skill": "oci-project", "owner": "project-lifecycle", "reference": "references/project-workflow.md"},

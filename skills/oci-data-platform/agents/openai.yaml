@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Data Platform"
+  short_description: "Operate OCI data processing and replication"
+  default_prompt: "Use $oci-data-platform to plan or troubleshoot this OCI data-platform workflow safely."

@@ -132,3 +132,5 @@ KB:           <known KB applied, or new sanitized KB entry added>
 [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm) ·
 [OCIR](https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm) ·
 [Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/home.htm)
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

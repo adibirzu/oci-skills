@@ -60,3 +60,9 @@ When opted in, use one capable model for routine, low-risk work. Use `auto` for 
 ## Boundary
 
 This skill performs no direct OCI mutation and emits no Terraform/service-resource implementation. It owns application-code workflow evidence only. Infrastructure, delivery controls, and security release authority remain with their named owners.
+
+## Official documentation
+
+[OCI Documentation](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [SDK and CLI configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm). Full source-grounding rules are in [oracle-docs.md](../../references/oracle-docs.md); application workflow boundaries are in [application-engineering.md](../../references/application-engineering.md).
+
+**Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.

@@ -12,6 +12,11 @@ For a read-only posture snapshot run `python3 scripts/iam_audit.py` — it pages
 compartment subtree, users, groups, dynamic groups, and policies without changing
 anything.
 
+## Quick navigation
+
+Select compartments, identities, dynamic groups, policies, Identity Domains,
+regions, budgets, quotas/limits, tags, common tasks, or risks.
+
 ## Compartments
 
 The compartment tree is the unit of isolation. Always traverse the subtree in one

@@ -73,7 +73,11 @@ def test_no_stale_domain_count_language_in_shipped_surfaces() -> None:
         files = [path] if path.is_file() else sorted(path.rglob("*"))
         for f in files:
             if f.is_file() and f.suffix in {"", ".md", ".py", ".sh", ".json", ".yaml", ".yml", ".toml"}:
-                for lineno, line in enumerate(f.read_text(encoding="utf-8").splitlines(), start=1):
+                try:
+                    text = f.read_text(encoding="utf-8")
+                except UnicodeDecodeError:
+                    continue
+                for lineno, line in enumerate(text.splitlines(), start=1):
                     if stale.search(line):
                         hits.append(f"{f.relative_to(ROOT)}:{lineno}: {line.strip()}")
     assert not hits, "stale domain-count language:\n" + "\n".join(hits)

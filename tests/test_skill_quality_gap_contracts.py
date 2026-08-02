@@ -86,20 +86,21 @@ def test_oke_mcp_safety_contract_is_documented() -> None:
     assert "mutations still use this pack's preflight" in combined
 
 
-def test_router_docs_catalog_and_evals_publish_the_24_skill_surface() -> None:
+def test_router_docs_catalog_and_evals_publish_the_26_skill_surface() -> None:
     catalog = json.loads(_text(ROOT / "docs" / "product" / "contracts" / "capability-catalog.json"))
     skills = {entry["skill"] for entry in catalog["capabilities"]}
     assert set(NEW_SKILLS) <= skills
-    assert len(skills) == 24
+    assert len(skills) == 26
+    assert {"oci-data-platform", "oci-os-management"} <= skills
 
     router = _text(ROOT / "skills" / "oci-administrator" / "SKILL.md")
     readme = _text(ROOT / "README.md")
     architecture = _text(ROOT / "docs" / "ARCHITECTURE.md")
     quickstart = _text(ROOT / "docs" / "QUICKSTART.md")
     for text in (router, readme, architecture, quickstart):
-        assert "24 skills" in text
-    assert "nineteen primary" in router.lower()
-    assert "nineteen primary" in readme.lower()
+        assert "26 skills" in text
+    assert "twenty-one primary" in router.lower()
+    assert "twenty-one primary" in readme.lower()
 
     cases = json.loads(_text(ROOT / "evals" / "evals.json"))["cases"]
     routes = {
@@ -112,6 +113,32 @@ def test_router_docs_catalog_and_evals_publish_the_24_skill_surface() -> None:
     assert routes["trigger-full-stack-dr"] == "oci-disaster-recovery"
     assert routes["negative-storage-volume-attachment"] == "oci-networking-compute"
     assert routes["negative-dr-data-guard"] == "oci-database-cloud"
+    assert routes["trigger-data-integration-pipeline"] == "oci-data-platform"
+    assert routes["trigger-os-management-hub-patching"] == "oci-os-management"
+    assert routes["trigger-zpr-flow-correlation"] == "oci-zpr-visibility"
+    assert routes["negative-zpr-nsg-rule"] == "oci-networking-compute"
+    assert routes["negative-data-platform-object-storage"] == "oci-storage"
+    assert routes["negative-os-management-instance-lifecycle"] == "oci-networking-compute"
+
+
+def test_undercovered_domains_have_forward_behavior_matrices() -> None:
+    prompts = json.loads(_text(ROOT / "evals" / "forward" / "prompts.json"))["prompts"]
+    rubric = json.loads(_text(ROOT / "evals" / "forward" / "rubric.json"))["cases"]
+    prompt_ids = {entry["id"] for entry in prompts}
+    rubric_ids = {entry["id"] for entry in rubric}
+    expected = {
+        "data-platform-inventory",
+        "data-platform-start-run",
+        "data-platform-storage-boundary",
+        "os-management-compliance",
+        "os-management-update-job",
+        "os-management-compute-boundary",
+        "zpr-visibility-correlation",
+        "zpr-policy-mutation",
+        "zpr-networking-boundary",
+    }
+    assert expected <= prompt_ids
+    assert expected <= rubric_ids
 
 
 def test_release_candidate_metadata_describes_the_current_surface() -> None:

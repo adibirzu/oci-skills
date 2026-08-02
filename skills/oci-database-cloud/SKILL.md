@@ -4,8 +4,10 @@ description: >-
   Operate OCI Base Database Service and Exadata Database Service control-plane
   lifecycle: DB systems, Exadata infrastructure and VM clusters, DB homes,
   databases and PDB resources, backups and restores, scaling, maintenance,
-  patching, upgrades, and Data Guard associations. Excludes Autonomous Database,
-  observability onboarding, and in-database SQL, RMAN, or tuning.
+  patching, upgrades, and Data Guard associations. Use when the request mentions
+  Base Database, Exadata, DB systems, DB homes, PDB lifecycle, cloud backups,
+  maintenance, or Data Guard associations. Do not use for Autonomous Database,
+  observability onboarding, or in-database SQL, RMAN, and tuning.
 ---
 
 # OCI Database Cloud

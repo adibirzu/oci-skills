@@ -23,6 +23,11 @@ inline a real gateway URL, JWT, or static token.
 
 ---
 
+## Quick navigation
+
+Read product status first, then select namespacing, authentication, or the
+gateway-versus-CLI decision.
+
 ## What the gateway is
 
 `oci-mcp-gateway` is a single FastMCP process (deployed on OKE) that proxies and

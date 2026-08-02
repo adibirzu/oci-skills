@@ -16,6 +16,11 @@ Mutations run through `run_action` (`scripts/common.sh`).
 
 ---
 
+## Quick navigation
+
+Select lifecycle, wallet/connectivity, network ACL, application integration,
+startup resilience, safety, or ORDS/Data Pump for the requested task.
+
 ## 1. Lifecycle (`oci db autonomous-database`)
 
 > `oci db autonomous-database list` has **no `--compartment-id-in-subtree`** flag.

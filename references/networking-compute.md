@@ -1,5 +1,10 @@
 # Networking & Compute Reference
 
+## Quick navigation
+
+Select DNS/certificates, VCNs, subnets, routes/gateways, security lists/NSGs,
+DRG/peering, load balancers, compute, handoffs, or risks.
+
 ## DNS, Traffic Management, Health Checks, and Certificates
 
 This domain owns public/private DNS zones and records, Traffic Management

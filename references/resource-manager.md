@@ -11,6 +11,11 @@ state for you, and records every plan/apply/destroy as an auditable **job**. The
 unit is a **stack** (a Terraform config + variables + state); you act on it with
 **jobs**.
 
+## Quick navigation
+
+Select stack/job lifecycle, job waiting, state/outputs/drift, variables,
+packaging, safety notes, or risks.
+
 ## Lifecycle (create → plan → apply → destroy)
 
 ```bash

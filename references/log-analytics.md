@@ -12,6 +12,11 @@ namespace, entity names, or tenant field values.
 > (`oci log-analytics namespace list --compartment-id <TENANCY_OCID>`) and reuse
 > it; it is a stable tenancy fingerprint, so keep it out of committed files.
 
+## Quick navigation
+
+Select OCL, query execution, sources/parsers, entities/log groups, detections,
+migration/ingestion/dashboards, reusable queries, or risks.
+
 ## OCL query language (cheat-sheet)
 
 OCL is **SEARCH-then-pipe**: a field/text filter, then `|`-separated commands.
