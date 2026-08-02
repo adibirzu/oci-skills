@@ -67,7 +67,7 @@ jobs:
 
       - name: unit tests + source-scoped branch coverage
         run: |
-          pip install pytest coverage
+          pip install pytest coverage pyyaml
           coverage erase
           coverage run -m pytest tests/ -q
           coverage report
