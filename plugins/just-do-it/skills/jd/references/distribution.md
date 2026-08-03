@@ -35,3 +35,13 @@ break-glass grant. Never copy secrets, local state, prompts, logs, or run ledger
 
 Release only when `assets/jd-release.json` records every gate as true: skill validation,
 contract tests, strict-config parsing, security scan, forward test, and distribution parity.
+
+For non-Codex clients, keep the canonical skill payload unchanged and use
+`scripts/install_harness_adapters.py`. It installs workspace-native discovery layouts for
+Antigravity, Cursor, Claude Code, Grok, Pi, and Cline, but does not install models, agents, hooks,
+MCP servers, credentials, or global configuration. See `references/harnesses.md` for capability
+negotiation and degraded-mode rules.
+
+Agent definitions are a separate opt-in surface. Use `scripts/create_agent_team.py` to validate
+and render the canonical `assets/agent-blueprints.json`. This separation prevents installing a
+skill from silently adding subagents, tools, models, or permission policy.
