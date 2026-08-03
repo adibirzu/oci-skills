@@ -15,7 +15,7 @@ import tomllib
 from datetime import UTC, datetime
 
 
-VERSION = "1.2.0"
+VERSION = "1.5.0"
 BEGIN = "# BEGIN JD MANAGED ROLES"
 END = "# END JD MANAGED ROLES"
 SKILL_ROOT = pathlib.Path(__file__).resolve().parents[1]
