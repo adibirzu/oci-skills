@@ -69,6 +69,14 @@ BLOCK_CASES = [
     # mutation must not exempt the mutation
     ("kubectl delete pod web-0 --dry-run=client && kubectl delete pod web-0", True),
     ("helm uninstall my-release --dry-run && helm uninstall my-release", True),
+    # a backslash-newline is a line continuation the shell joins into one
+    # command before execution — not a segment boundary
+    ("kubectl \\\ndelete pod web-0", True),
+    ("helm \\\nuninstall my-release", True),
+    ("kubectl replace -f pod.yaml \\\n--force", True),
+    # kubectl's --dry-run=none/=false mean "execute for real", not a preview
+    ("kubectl delete pod web-0 --dry-run=none", True),
+    ("kubectl delete pod web-0 --dry-run=false", True),
     # pre-existing OCI-family behavior, unrelated to the new terraform family:
     # oci_tf.sh matches the `oci_[a-z]+.sh` domain-helper shape, and its own
     # `destroy` subcommand argument is an OCI destructive verb — so this was
@@ -102,6 +110,8 @@ ALLOW_CASES = [
     ("helm template ./chart", False),
     ("helm upgrade my-release ./chart", False),
     ("helm uninstall my-release --dry-run", False),
+    # a continuation-formatted dry-run preview is still a single-segment preview
+    ("kubectl delete pod web-0 \\\n--dry-run=client", False),
     # terraform: plan (even `-destroy`, a preview) and any apply that isn't
     # auto-approved stay unblocked — the reviewed-plan flow this pack mandates
     ("terraform plan -destroy -out=reviewed.tfplan", False),

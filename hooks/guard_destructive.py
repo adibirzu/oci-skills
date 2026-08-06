@@ -66,8 +66,13 @@ DESTRUCTIVE = re.compile(
 # A `--dry-run` preview is a read, never a mutation, for either kubectl or
 # helm — always allow it. The exemption is scoped to the shell segment carrying
 # the destructive verb: `--dry-run` in one segment must not exempt a chained
-# real mutation in the next.
-DRY_RUN_FLAG = re.compile(r"--dry-run(=|\b)", re.IGNORECASE)
+# real mutation in the next. kubectl's `--dry-run=none`/`--dry-run=false`
+# values mean "execute for real" and never qualify as a preview.
+DRY_RUN_FLAG = re.compile(r"--dry-run(?!=(?:none|false)\b)(=|\b)", re.IGNORECASE)
+# The shell deletes a backslash-newline pair (line continuation) before
+# execution, joining the lines into one logical command — it is not a segment
+# boundary. Only an unescaped newline separates commands.
+LINE_CONTINUATION = re.compile(r"\\\r?\n")
 SEGMENT_SEPARATOR = re.compile(r"[;&|(`\n\r]")
 
 KUBECTL_INVOCATION = re.compile(r"\bkubectl\b", re.IGNORECASE)
@@ -126,6 +131,7 @@ def _classify(command: str) -> str | None:
     """
     if not command:
         return None
+    command = LINE_CONTINUATION.sub("", command)
     if OCI_INVOCATION.search(command) and DESTRUCTIVE.search(command):
         return "oci"
     for segment in SEGMENT_SEPARATOR.split(command):
