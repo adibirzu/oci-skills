@@ -73,10 +73,8 @@ below for the commit or PR backing each row). What is genuinely outstanding:
 
 ## Task cards
 
-Verified in this worktree against `main` (tip `06f3495`): `python3 -m pytest
-tests/ -q` → 355 passed; `python3 scripts/product_contracts.py validate` →
-`valid: true` (40 PRDs, 37 contracts, 30 journeys, 8 safety cases, 52
-requirements); `skills/oci-bastion-access/`, `skills/oci-database-cloud/`,
+Verified in this worktree against `main` (tip `06f3495`): `python3 -m pytest tests/ -q` → 355 passed;
+`python3 scripts/product_contracts.py validate` → `valid: true` (40 PRDs, 37 contracts, 30 journeys, 8 safety cases, 52 requirements); `skills/oci-bastion-access/`, `skills/oci-database-cloud/`,
 `skills/oci-landing-zone/`, and `skills/oci-application-engineering/` are all
 present on `main`. This backs the blanket "Implemented" (dropped "locally")
 and PR-column corrections below for rows without a more specific reference: no
