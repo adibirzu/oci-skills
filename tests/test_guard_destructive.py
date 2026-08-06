@@ -65,6 +65,15 @@ BLOCK_CASES = [
     ("cd envs/prod\nterraform destroy", True),
     # a multi-segment absolute path is still the terraform command token
     ("/usr/local/bin/terraform destroy", True),
+    # common wrapper prefixes still lead to the same terraform command token
+    ("sudo terraform destroy", True),
+    ("env terraform destroy -auto-approve", True),
+    ("env TF_LOG=debug terraform destroy", True),
+    ("timeout 300 terraform destroy", True),
+    ("command terraform apply -auto-approve", True),
+    ("nohup terraform destroy", True),
+    # a ~-prefixed path is still the terraform command token
+    ("~/bin/terraform destroy", True),
     # the dry-run exemption is per shell segment: a preview chained to the real
     # mutation must not exempt the mutation
     ("kubectl delete pod web-0 --dry-run=client && kubectl delete pod web-0", True),
@@ -77,6 +86,10 @@ BLOCK_CASES = [
     # kubectl's --dry-run=none/=false mean "execute for real", not a preview
     ("kubectl delete pod web-0 --dry-run=none", True),
     ("kubectl delete pod web-0 --dry-run=false", True),
+    # a --dry-run mentioned only in a trailing shell comment is dead text —
+    # the segment still runs a live mutation and keeps no exemption
+    ("kubectl delete pod web-0 # previewed with --dry-run=server", True),
+    ("helm uninstall my-release # --dry-run checked earlier", True),
     # pre-existing OCI-family behavior, unrelated to the new terraform family:
     # oci_tf.sh matches the `oci_[a-z]+.sh` domain-helper shape, and its own
     # `destroy` subcommand argument is an OCI destructive verb — so this was
@@ -101,6 +114,8 @@ ALLOW_CASES = [
     ("kubectl rollout status deployment/web", False),
     # a dry-run preview of an otherwise-destructive verb is still just a read
     ("kubectl delete pod web-0 --dry-run=client", False),
+    # a real dry-run preview keeps its exemption despite a trailing comment
+    ("kubectl delete pod web-0 --dry-run=client # preview only", False),
     # replace without --force is a routine update, not delete-then-recreate
     ("kubectl replace -f pod.yaml", False),
     # helm: routine release changes and read/preview commands stay unblocked
@@ -115,6 +130,8 @@ ALLOW_CASES = [
     # terraform: plan (even `-destroy`, a preview) and any apply that isn't
     # auto-approved stay unblocked — the reviewed-plan flow this pack mandates
     ("terraform plan -destroy -out=reviewed.tfplan", False),
+    # a wrapped plan preview is still just a preview (`-destroy` is the flag)
+    ("sudo terraform plan -destroy", False),
     ("terraform -chdir=envs/prod plan", False),
     ("terraform apply reviewed.tfplan", False),
     ("terraform validate", False),
