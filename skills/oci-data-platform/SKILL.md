@@ -17,6 +17,15 @@ without taking over database, storage, network, or application ownership. Keep
 datasets, schemas, connection details, endpoints, and replication topology
 redacted in all shared output.
 
+## First move
+
+```bash
+./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"
+python3 scripts/kb_lookup.py "<symptom>" data-platform
+```
+
+If the resolved tenancy/compartment does not match the intended target, stop.
+
 ## Routing
 
 | Intent | Owner |
@@ -66,7 +75,11 @@ exact command, payload, or runbook.
 - Data movement can duplicate, transform, or delete regulated records; capture
   source-of-truth, replay, rollback, and retention before changing pipelines.
 - GoldenGate cutover, destructive table changes, and purge operations require
-  destructive approval and independent recovery evidence.
+  destructive approval and independent recovery evidence. Every create, update,
+  connection-activation, or destructive call runs through `run_action --risk
+  <additive|in-place|credential|destructive> --compartment <COMPARTMENT_OCID>
+  --description "<...>" -- oci_cli ...` (honors `OCI_SKILLS_DRY_RUN=true` for a
+  no-op preview); destructive ops additionally require explicit `confirm`.
 - Use Vault-backed credentials, service/resource principals, and least privilege.
   Do not store connection secrets in task payloads, pipeline variables, logs, or
   committed artifacts.

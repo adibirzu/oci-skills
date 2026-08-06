@@ -49,10 +49,14 @@ blueprint, ownership, deployment, upgrade, validation, and rollback contracts.
 ## Safety boundaries
 
 - Assessment and blueprint authoring are read-only/offline. No preflight is
-  needed for a hypothetical design; a live existing-estate inventory uses a
-  named context and preflight when tenancy scope is ambiguous.
+  needed for a hypothetical design; a live existing-estate inventory runs
+  `./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"` first and stops if the
+  resolved tenancy/compartment does not match the intended target.
 - Terraform is the single owner of durable landing-zone resources. Choose local
-  Terraform or Resource Manager for a state/resource set, never both.
+  Terraform or Resource Manager for a state/resource set, never both. Deploy and
+  upgrade apply through that owning skill's `run_action`/reviewed-plan gate
+  (honors `OCI_SKILLS_DRY_RUN=true`); never issue a live plan/apply/destroy
+  directly from this skill without the same dry-run-then-confirm sequence.
 - Never apply unreviewed module updates or plan bytes. Module provenance,
   version constraints, lock metadata, state/backend, authentication context,
   realm support, and migration notes are part of review.

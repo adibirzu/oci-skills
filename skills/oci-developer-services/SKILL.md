@@ -10,7 +10,7 @@ Default API gateways, build runners, target environments, and workloads to priva
 
 ## Workflow
 
-1. Preflight the named context and read existing resources by display name.
+1. Preflight the named context (`./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"`) and read existing resources by display name. Stop if the resolved tenancy/compartment does not match the intended target.
 2. Check service limits, IAM for both operators and resource principals, subnet/NSG reachability, log availability, and target health.
 3. Author durable resources with **oci-terraform-authoring**. Use exact wrapper-routed CLI plans for inspection or unsupported/recovery operations.
 4. Keep source connection tokens, image-pull credentials, and deploy secrets in Vault; reference them from DevOps or runtime principals.
@@ -39,7 +39,10 @@ the components selected by the design.
 - Query installed command shapes with `../../scripts/oci_cli_help.py --json <path>`.
 - Store each read/action/verification/rollback plan as JSON and lint it with `../../scripts/oci_cli_lint.py`.
 - Put nested payloads and credentials in a temporary `0600` file, pass `file://...`, and delete it in a trap/finally block.
-- Run mutations through `run_action` with the matching risk and compartment.
+- Run mutations through `run_action --risk <additive|in-place|credential|destructive>
+  --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
+  (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview). Deployment triggers,
+  rollbacks, and any resource deletion additionally require explicit `confirm`.
 
 ## Expected output
 

@@ -8,6 +8,15 @@ description: >-
 
 Preflight the named context, query current telemetry configuration, and search the KB before changing an alarm, log, connector, or APM resource. Run every CLI through `oci_cli`, every mutation through risk-classified `run_action`, and every shared output through redaction.
 
+## First move
+
+```bash
+./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"
+```
+
+If the resolved tenancy/compartment does not match the intended target, stop
+before changing an alarm, log, connector, or APM resource.
+
 ## Routing
 
 | Intent | Owner |
@@ -33,7 +42,7 @@ for bounded PromQL conversion and prepared Linux/Windows profiles.
 | Missing traces | list APM domains → resolve correct domain/key without printing it → verify private OTLP endpoint → send test → re-query |
 | Service logs | list groups/logs → write source config to `0600` file → additive action → verify ingestion and retention |
 | Gate agent traces | query integrity score/state → identify missing spans/attributes → keep prompt capture off → re-score before promotion |
-| Convert PromQL to MQL | identify metric type + labels + units → convert only a supported shape with `promql_to_mql.py` → verify namespace/dimensions → compare live series with PromQL |
+| Convert PromQL to MQL | identify metric type + labels + units → convert only a supported shape with `python3 skills/oci-observability-db/scripts/promql_to_mql.py` → verify namespace/dimensions → compare live series with PromQL |
 | Build Linux or Windows host dashboard | identify exporter/version → list emitted metric definitions → render the matching profile → validate every MQL panel → additive provision/import → verify populated panels |
 
 ## Safety
@@ -42,6 +51,10 @@ for bounded PromQL conversion and prepared Linux/Windows profiles.
 - Store nested configuration in `0600` `file://` payloads, not argv.
 - Treat empty results as inconclusive until region, subtree, time window, and permissions are checked.
 - Re-list after a `409` rather than retrying a create.
+- Every mutation runs through `run_action --risk <additive|in-place>
+  --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
+  (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview); get explicit user
+  confirmation before applying an alarm, connector, or APM change.
 - Treat converted MQL and rendered dashboards as candidates until every query
   parses and returns the intended dimensions and units; reject unsupported
   PromQL rather than guessing.

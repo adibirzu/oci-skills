@@ -15,6 +15,15 @@ Read the bastion, target, allowlist, session, and plugin state before proposing 
 change. Every OCI CLI call goes through `oci_cli`; every mutation goes through
 the complete `run_action` envelope after a matching preflight.
 
+## First move
+
+```bash
+./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"
+```
+
+If the resolved tenancy/compartment does not match the intended target, stop
+before creating a session.
+
 ## Routing
 
 | Intent | Owner |
@@ -51,6 +60,10 @@ credential handling, verification, rollback, and official sources.
   command documents with a trap.
 - Bastion creation is additive; allowlist or TTL changes are in-place; session
   or bastion removal is destructive. Never broaden an allowlist as a diagnostic.
+- Every mutation runs through `run_action --risk <additive|in-place|credential|destructive>
+  --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
+  (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview); session/bastion
+  removal additionally requires explicit `confirm`.
 - Managed SSH requires target prerequisites. Port forwarding is the fallback
   when the target or plugin does not satisfy Managed SSH requirements.
 - Do not invent command flags. Validate each exact path with
