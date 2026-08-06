@@ -85,9 +85,12 @@ Use these exact stop conditions in chat and automation plans:
 ### The destructive-command hook fails open — by design, but loudly
 
 The Claude Code plugin wires a `PreToolUse` hook (`hooks/guard_destructive.py`)
-that blocks destructive `oci` / `oci_cli` / `oci_<domain>.sh` commands until they
-are preflighted and confirmed. It is **defense-in-depth, not a hard wall** — it
-fails *open* in three cases, so it can never wedge the agent loop:
+that blocks destructive `oci` / `oci_cli` / `oci_<domain>.sh` commands, and
+destructive `kubectl` (`delete`/`drain`/`cordon`/forced `replace`), `helm`
+(`uninstall`/its `delete` alias/`rollback`), and `terraform` (`destroy`, or
+`apply -auto-approve`) commands, until they are previewed/preflighted and
+confirmed. It is **defense-in-depth, not a hard wall** — it fails *open* in
+three cases, so it can never wedge the agent loop:
 
 1. **Guard script not locatable** (`CLAUDE_PLUGIN_ROOT` unset in a copy-install)
    — the hook prints `destructive guard not found … running UNGUARDED` to stderr

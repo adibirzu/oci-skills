@@ -81,3 +81,4 @@ coverage/
 *.swp
 *.swo
 *~
+.tools/

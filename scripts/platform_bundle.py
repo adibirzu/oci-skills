@@ -1,5 +1,12 @@
 #!/usr/bin/env python3
-"""Create and validate OCI platform-bundle.yaml schema version 1 artifacts."""
+"""Create and validate OCI platform-bundle.yaml schema version 1 artifacts.
+
+Requires the `jsonschema` package (`pip install jsonschema`) for `validate`/
+`validate_file`, which check a parsed manifest against
+schemas/platform-bundle.schema.json — the single source of truth for the
+bundle's structural shape (required/unknown keys, enums, patterns, and the
+golden-path exclusion pairs). `scaffold` does not need it.
+"""
 from __future__ import annotations
 
 import argparse
@@ -11,9 +18,15 @@ import sys
 from pathlib import Path
 from typing import Any
 
+try:
+    import jsonschema
+except ImportError:  # pragma: no cover - import guard
+    jsonschema = None  # type: ignore[assignment]
+
 ROOT = Path(__file__).resolve().parent.parent
 ASSETS = ROOT / "skills" / "oci-product-development" / "assets"
 STARTER = ROOT / "skills" / "oci-terraform-authoring" / "assets" / "starter"
+SCHEMA_PATH = ROOT / "schemas" / "platform-bundle.schema.json"
 SAFE_STARTER_ASSETS = (
     ".gitignore",
     ".terraform.lock.hcl",
@@ -27,10 +40,6 @@ SAFE_STARTER_ASSETS = (
     "tests",
 )
 NAME_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
-TOP_LEVEL = {
-    "schema_version", "name", "context", "runtime", "ingress", "data",
-    "delivery", "iac", "verification",
-}
 GOLDEN_PATHS: dict[str, dict[str, Any]] = {
     "api-functions": {
         "runtime": "functions", "ingress": "api-gateway", "data": "none",
@@ -103,43 +112,66 @@ def parse_manifest(text: str) -> tuple[dict[str, Any], list[str]]:
     return data, errors
 
 
-def validate(data: dict[str, Any]) -> list[str]:
-    errors: list[str] = []
-    unknown = sorted(set(data) - TOP_LEVEL)
-    missing = sorted(TOP_LEVEL - set(data))
-    if unknown:
-        errors.append("unknown top-level keys: " + ", ".join(unknown))
-    if missing:
-        errors.append("missing top-level keys: " + ", ".join(missing))
-    if data.get("schema_version") != 1:
-        errors.append("schema_version must be 1")
-    for field in ("name", "context"):
-        if not isinstance(data.get(field), str) or not NAME_RE.fullmatch(data[field]):
-            errors.append(f"{field} must be a safe 1-64 character name")
-    if data.get("runtime") not in {"functions", "container-instances", "oke"}:
-        errors.append("runtime must be functions, container-instances, or oke")
-    if data.get("ingress") not in {"api-gateway", "load-balancer", "event"}:
-        errors.append("ingress must be api-gateway, load-balancer, or event")
-    if data.get("data") not in {"adb", "object-storage", "none"}:
-        errors.append("data must be adb, object-storage, or none")
-    if data.get("delivery") != "oci-devops":
-        errors.append("delivery must be oci-devops")
-    iac = data.get("iac")
-    if not isinstance(iac, dict) or set(iac) != {"owner", "path"}:
-        errors.append("iac must contain exactly owner and path")
-    else:
-        if iac.get("owner") != "terraform":
-            errors.append("iac.owner must be terraform")
-        if iac.get("path") != "terraform/":
-            errors.append("iac.path must be terraform/")
-    checks = data.get("verification")
-    if not isinstance(checks, list) or not checks or not all(isinstance(item, str) and NAME_RE.fullmatch(item) for item in checks):
-        errors.append("verification must be a non-empty list of safe named checks")
-    if data.get("runtime") == "functions" and data.get("ingress") == "load-balancer":
-        errors.append("functions runtime must use api-gateway or event ingress")
-    if data.get("runtime") == "container-instances" and data.get("ingress") == "event":
-        errors.append("container-instances event ingress is not a supported golden path")
-    return errors
+_SCHEMA_CACHE: dict[str, Any] | None = None
+
+
+def _schema() -> dict[str, Any]:
+    """Load and cache schemas/platform-bundle.schema.json (the single source of truth)."""
+    global _SCHEMA_CACHE
+    if _SCHEMA_CACHE is None:
+        _SCHEMA_CACHE = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    return _SCHEMA_CACHE
+
+
+def _format_schema_error(error: Any) -> str:
+    """Render a jsonschema ValidationError as one path-prefixed line.
+
+    `additionalProperties`/`required` get a friendlier rendering (naming the
+    exact extra/missing keys); everything else falls back to jsonschema's own
+    message, still prefixed with the offending path so e.g. an `iac.owner`
+    const mismatch reads as "iac.owner: ..." rather than a bare "...".
+    """
+    path = ".".join(str(part) for part in error.path) or "<root>"
+    if error.validator == "additionalProperties" and isinstance(error.instance, dict):
+        allowed = set((error.schema or {}).get("properties", {}) or {})
+        extra = sorted(set(error.instance) - allowed)
+        if extra:
+            return f"{path}: unknown key(s): {', '.join(extra)}"
+    if error.validator == "required" and isinstance(error.instance, dict):
+        missing = sorted(set(error.validator_value) - set(error.instance))
+        if missing:
+            return f"{path}: missing key(s): {', '.join(missing)}"
+    if error.validator == "not":
+        # One of the two golden-path exclusion pairs in the schema's `allOf`
+        # (e.g. functions+load-balancer). Read the forbidden combo straight
+        # out of the failing sub-schema so the message can't drift from it.
+        props = (error.validator_value or {}).get("properties", {})
+        pairs = [
+            f"{key}={value['const']}" for key, value in props.items()
+            if isinstance(value, dict) and "const" in value
+        ]
+        if pairs:
+            return f"{path or '<root>'}: forbidden combination ({', '.join(pairs)})"
+    return f"{path}: {error.message}"
+
+
+def validate(data: Any) -> list[str]:
+    """Validate a parsed bundle manifest against schemas/platform-bundle.schema.json.
+
+    JSON Schema (via `jsonschema`) enforces every structural rule the schema
+    file expresses: required/unknown top-level keys, the `schema_version`/
+    `delivery` consts, `name`/`context`/`verification` patterns, the
+    `runtime`/`ingress`/`data` enums, the `iac` object shape, and the two
+    golden-path exclusion pairs (functions+load-balancer,
+    container-instances+event). Nothing here duplicates what the schema
+    already expresses — see `parse_manifest` for the one thing it can't do
+    (turning YAML-subset text into a dict) and `validate_file` for the
+    filesystem checks (symlink/regular-file) it also can't express.
+    """
+    if jsonschema is None:
+        return ["the 'jsonschema' package is required for validation (pip install jsonschema)"]
+    validator = jsonschema.Draft202012Validator(_schema())
+    return sorted({_format_schema_error(error) for error in validator.iter_errors(data)})
 
 
 def validate_file(path: Path) -> list[str]:
