@@ -31,8 +31,10 @@ exact command or patching runbook.
 
 ## Workflow
 
-1. Confirm named context, compartment, operating-system family, support
-   eligibility, network path, update window, reboot policy, and rollback owner.
+1. Confirm named context with `./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"`;
+   stop if the resolved tenancy/compartment does not match the intended target.
+   Also confirm operating-system family, support eligibility, network path,
+   update window, reboot policy, and rollback owner.
 2. Read managed instances, profiles, groups, dynamic sets, lifecycle
    environments, software sources, scheduled jobs, events, reports, and agent
    plugin state.
@@ -62,6 +64,10 @@ exact command or patching runbook.
   customer, management-station endpoints, install keys, or support identifiers.
 - Update jobs can reboot or destabilize workloads; require a maintenance window,
   owner approval, rollback plan, and post-update health checks.
+- Every mutation runs through `run_action --risk <additive|in-place|credential|destructive>
+  --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
+  (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview); an update job that can
+  reboot or disrupt workloads additionally requires explicit `confirm`.
 - MACS install keys and comparable registration secrets are credential risk and
   must use `0600` files or Vault-backed handling.
 - Do not use OS Management Hub against unsupported platforms as proof of patch

@@ -30,7 +30,9 @@ change. Use Terraform as the default owner for durable storage resources.
 
 ## Workflow
 
-1. Confirm named context, region, compartment, data classification, owner, and recovery objectives.
+1. Confirm named context with `./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"`;
+   stop if the resolved tenancy/compartment does not match the intended target.
+   Also confirm region, data classification, owner, and recovery objectives.
 2. Read the resource, encryption, public-access, retention, versioning, replication, backup, and work-request state.
 3. Treat empty results as inconclusive until region, namespace, compartment, permissions, and pagination are verified.
 4. Prefer Terraform for durable configuration. Ground every exceptional CLI shape with installed help before rendering it.

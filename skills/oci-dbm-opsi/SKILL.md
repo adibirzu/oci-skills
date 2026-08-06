@@ -49,6 +49,12 @@ for broader Monitoring/APM/DB observability context.
 - DBM enabled does not prove OPSI enabled. Validate each service separately.
 - Database grants can have licensing implications; call that out before applying
   Performance Hub, AWR, ADDM, or SQL Tuning privileges.
+- Enabling DBM/OPSI, creating an OPSI insight, granting DBSNMP privileges, and
+  wiring Log Analytics associations are mutations — run them through `run_action
+  --risk <additive|in-place> --compartment <COMPARTMENT_OCID> --description
+  "<...>" -- oci_cli ...` (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview)
+  and get explicit user confirmation before applying a grant or enabling a
+  service.
 
 ## Expected output
 

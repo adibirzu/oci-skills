@@ -15,6 +15,16 @@ Operate Full Stack Disaster Recovery as an orchestration owner, not as a
 substitute for provisioning protected resources. A protection group is ready
 only when dependencies, plans, prechecks, recovery evidence, and owners agree.
 
+## First move
+
+```bash
+./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"
+python3 scripts/kb_lookup.py "<symptom>" disaster-recovery
+```
+
+If the resolved tenancy, compartment, or region does not match the intended
+target, stop before reading or touching any protection group.
+
 ## Routing
 
 | Intent | Owner |
@@ -52,6 +62,10 @@ only when dependencies, plans, prechecks, recovery evidence, and owners agree.
 - Never expose OCIDs, addresses, DNS answers, secret references, or application topology.
 - A precheck is evidence, not approval for a later transition.
 - Drill, switchover, and failover plans can disrupt service or change data authority; treat execution as destructive.
+- Every drill, switchover, failover, or reprotection call runs through
+  `run_action --risk destructive --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli disaster-recovery ...`
+  (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview) and requires explicit
+  `confirm` from the user before it executes for real.
 - Never run a failover merely because a health signal is absent or inconsistent. Confirm scope, permissions, time window, region, and source telemetry.
 - Keep Terraform ownership for protected resources; DR orchestration does not silently take ownership.
 

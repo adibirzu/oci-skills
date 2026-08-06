@@ -30,7 +30,11 @@ All paths compose IAM, networking, security, observability, cost, Terraform, and
 2. Validate `platform-bundle.yaml` and inspect the generated ownership metadata.
 3. Have each owning domain materialize its component in `terraform/`; keep application code outside the bundle.
 4. Validate Terraform and the CLI alternative; review IAM, quota, network, logging, public exposure, and secrets.
-5. Preflight, plan, approve, apply, and verify. Record named checks in the runbook.
+5. Preflight (`./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"`; stop if the
+   resolved tenancy/compartment does not match the intended target), plan,
+   get explicit user approval of the reviewed plan (honors
+   `OCI_SKILLS_DRY_RUN=true` for a no-op preview), apply, and verify. Record
+   named checks in the runbook.
 6. Roll back through DevOps or the reviewed Terraform plan. Reconcile any break-glass CLI mutation.
 
 If a context, provider, or approval is not available, still complete steps 1–2

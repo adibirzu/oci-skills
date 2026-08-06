@@ -16,6 +16,16 @@ Manage the OCI control plane around Base Database and Exadata deployments. Read
 the complete dependency graph and maintenance/backup posture before mutation;
 keep database credentials out of argv and output.
 
+## First move
+
+```bash
+./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"
+python3 scripts/kb_lookup.py "<symptom>" database-cloud
+```
+
+If the resolved tenancy/compartment does not match the intended target, stop
+before reading DB-system or Exadata state.
+
 ## Routing
 
 | Intent | Owner |

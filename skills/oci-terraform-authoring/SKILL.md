@@ -20,7 +20,9 @@ Create reviewable infrastructure artifacts without contacting OCI. Contact OCI o
 3. Resolve resource fields from `terraform providers schema -json` after `terraform init`, or from the current official OCI provider docs. Never invent a field.
 4. Keep credentials out of HCL and variable files. Use provider config, environment variables, workload/resource principals, or Vault references.
 5. Validate with `oci_tf.sh validate <dir>` and run `.tftest.hcl` tests with mocked providers where possible. If a local prerequisite is missing, deliver the scaffold and the exact next local command rather than stopping the workflow.
-6. Preflight the named context only before creating a binary reviewed plan with `oci_tf.sh plan`.
+6. Preflight the named context (`./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"`)
+   only before creating a binary reviewed plan with `oci_tf.sh plan`; stop if
+   the resolved tenancy/compartment does not match the intended target.
 7. Inspect the metadata-only plan summary. Stop on unexpected replacement/deletion, public exposure, or secret-bearing resources.
 8. Apply the unchanged plan with `oci_tf.sh apply`; use `destroy` only with a separately reviewed destroy plan and destructive approval.
 9. Verify resource state and reconcile any prior CLI break-glass change.
