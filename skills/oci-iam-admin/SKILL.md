@@ -2,14 +2,16 @@
 name: oci-iam-admin
 description: >-
   IAM and tenancy administration for any OCI tenancy via oci-cli: users, groups,
-  group memberships, dynamic groups (matching rules), policies (least-privilege
-  review, detect tenancy-wide manage-all grants), compartments (create, move,
-  delete, subtree traversal), budgets and alert rules, quotas, service limits /
-  resource-availability pre-checks, tags (namespaces, defined, freeform,
-  cost-tracking), regions, and Identity Domains vs legacy IAM. Use whenever a
-  request mentions OCI IAM, OCID, compartment, policy, tenancy, dynamic group,
-  budget, quota, service limit, tag namespace, auth token, generic OIDC/OAuth
-  or SAML application integration, claims/scopes, or SCIM provisioning.
+  group memberships, dynamic groups (matching rules), policies (author/scope a
+  statement with least privilege, detect and rewrite tenancy-wide manage-all
+  grants), compartments (create, move, delete, subtree traversal), budgets and
+  alert rules, quotas, service limits / resource-availability pre-checks, tags
+  (namespaces, defined, freeform, cost-tracking), regions, and Identity Domains
+  vs legacy IAM. Use whenever a request mentions OCI IAM, OCID, compartment,
+  policy, tenancy, dynamic group, budget, quota, service limit, tag namespace,
+  auth token, generic OIDC/OAuth or SAML application integration, claims/scopes,
+  or SCIM provisioning. A standalone compliance/CIS-style policy audit sweep
+  (no authoring) is oci-security-compliance.
 ---
 
 # OCI IAM & Tenancy Admin
