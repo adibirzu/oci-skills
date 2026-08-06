@@ -44,6 +44,17 @@ def _b64_with_slash() -> str:      # 50 chars incl one '/', mixed entropy
     return "aB3dE5fG7hJ9kL1mN3pQ5rS7tU9" + "vW1xY3zA5bC7dE/9fGhJ2kL"
 
 
+def _jwt() -> str:
+    # base64url (uses "-"/"_", not "+"/"/") — a synthetic 3-segment token,
+    # never a real credential. Each segment is itself assembled from sub-40-char
+    # fragments so no single line here trips the static `secret_blob` rule
+    # (the payload segment alone is 51 plain-alnum chars).
+    header = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"  # 36 chars
+    payload = "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6" + "IkpvaG4gRG9lIn0"
+    signature = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+    return ".".join([header, payload, signature])
+
+
 def _clean(text: str, strict: bool = False) -> str:
     return redact.redact(text, strict=strict)[0]
 
@@ -70,6 +81,24 @@ def test_masks_private_key_block() -> None:
 
 def test_masks_slash_free_base64_secret() -> None:
     assert "<SECRET-REDACTED>" in _clean(f"token={_b64_no_slash()}")
+
+
+# --- JWT / OAuth access token (base64url, not base64) -----------------------
+
+def test_masks_jwt_despite_base64url_alphabet() -> None:
+    # base64url uses "-"/"_" instead of "+"/"/" and the header segment alone
+    # is short — neither is covered by the base64 secret_blob rules, so a
+    # pasted JWT (e.g. from Identity Domains OAuth/OIDC) needs its own rule.
+    token = _jwt()
+    out = _clean(f"Authorization: Bearer {token}")
+    assert "<JWT-REDACTED>" in out and token not in out
+
+
+def test_keeps_ordinary_hyphenated_identifier_verbatim() -> None:
+    # Must not fire on everyday kebab-case identifiers just because they're
+    # long and contain "-"/"_" — only an eyJ-prefixed three-segment shape does.
+    identifier = "a-very-long-kebab-case-example-identifier-that-is-not-a-secret"
+    assert _clean(identifier) == identifier
 
 
 # --- NW-02 regression: base64 WITH a slash ---------------------------------
