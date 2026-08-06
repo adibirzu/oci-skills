@@ -12,6 +12,8 @@ import json
 import pathlib
 import re
 
+import yaml
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ROUTER = ROOT / "skills" / "oci-administrator" / "SKILL.md"
 AGENTS = ROOT / "AGENTS.md"
@@ -50,6 +52,21 @@ def test_user_facing_domain_lists_include_all_domains() -> None:
             if domain not in text:
                 missing.append(f"{doc.relative_to(ROOT)} missing {domain}")
     assert not missing, "domain-list drift:\n" + "\n".join(missing)
+
+
+def test_codex_adapter_routing_maps_exactly_the_real_domains() -> None:
+    """openai.yaml is machine-consumed: parse it and assert the routing mapping
+    itself, not the raw text (a domain name in a comment must not count)."""
+    adapter = ROOT / "harness" / "codex" / "agents" / "openai.yaml"
+    routing = yaml.safe_load(adapter.read_text(encoding="utf-8"))["routing"]
+    routed = set(routing)
+    domains = _domains()
+    missing = sorted(domains - routed)
+    unknown = sorted(routed - domains)
+    assert not missing, f"openai.yaml routing missing domains: {missing}"
+    assert not unknown, f"openai.yaml routing lists unknown domains: {unknown}"
+    empty = sorted(k for k, v in routing.items() if not (isinstance(v, str) and v.strip()))
+    assert not empty, f"openai.yaml routing entries without a description: {empty}"
 
 
 def test_no_stale_domain_count_language_in_shipped_surfaces() -> None:

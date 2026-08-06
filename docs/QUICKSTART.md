@@ -4,7 +4,7 @@ This guide distinguishes offline artifact generation, read-only inspection, and 
 
 ## Install and prerequisites
 
-Use Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI. Terraform 1.5+ supports HCL validation/execution; 1.7+ runs the native `.tftest.hcl` tests.
+Use Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI. Terraform 1.5+ supports HCL validation/execution; 1.7+ runs the native `.tftest.hcl` tests. `pip install jsonschema` is required for `scripts/platform_bundle.py validate`.
 
 ### Plugin install
 

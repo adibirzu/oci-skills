@@ -82,10 +82,11 @@ kubectl -n "<NAMESPACE>" rollout status deployment/"<APP>" --timeout=240s
 
 This avoids strategic-merge conflicts where a previously patched env var leaves
 both `value` and `valueFrom` on the same entry. `kubectl apply`/`set image` are
-not wrapped by `run_action` (which only covers `oci_cli`) and are not matched
-by the destructive-command hook (which only matches `oci` invocations) — the
-dry-run-then-confirm sequence above is the only gate they get, so never skip
-it.
+not wrapped by `run_action` (which only covers `oci_cli`), and — unlike
+`kubectl delete`/`drain`/`cordon`/forced `replace`, which the destructive-command
+hook now blocks mechanically — they are routine updates the hook does not treat
+as destructive, so the dry-run-then-confirm sequence above is their only gate.
+Never skip it.
 
 ## Ingress-first exposure
 
