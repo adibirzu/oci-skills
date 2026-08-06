@@ -7,10 +7,12 @@ description: >-
   web-app-firewall policies with SQLi/XSS/rate-limit BLOCK rules attached to a load
   balancer; Vulnerability Scanning host and container image scan recipes,
   targets and reports; Audit event queries; CIS / ISO-42001 / sovereignty / NIS2
-  compliance scanning; IAM least-privilege policy review; and secrets redaction. Use
-  for oci-cli, Cloud Guard, Vault, KMS, WAF, Vulnerability Scanning, Security Zones, Audit, CIS, compliance,
-  secure software delivery, dependency vulnerability audits, DevSecOps, or
-  secret-handling tasks in an OCI tenancy.
+  compliance scanning; IAM least-privilege policy review as part of a broader
+  compliance/audit sweep; and secrets redaction. Use for oci-cli, Cloud Guard,
+  Vault, KMS, WAF, Vulnerability Scanning, Security Zones, Audit, CIS,
+  compliance, secure software delivery, dependency vulnerability audits,
+  DevSecOps, or secret-handling tasks in an OCI tenancy. Authoring or rewriting
+  a specific IAM policy statement is oci-iam-admin.
 ---
 
 # OCI Security & Compliance
