@@ -61,6 +61,14 @@ BLOCK_CASES = [
     ("terraform apply -auto-approve reviewed.tfplan", True),
     # chained invocation: terraform is still the leading token of its segment
     ("cd envs/prod && terraform destroy", True),
+    # a newline is a segment separator too — routine in multi-line agent output
+    ("cd envs/prod\nterraform destroy", True),
+    # a multi-segment absolute path is still the terraform command token
+    ("/usr/local/bin/terraform destroy", True),
+    # the dry-run exemption is per shell segment: a preview chained to the real
+    # mutation must not exempt the mutation
+    ("kubectl delete pod web-0 --dry-run=client && kubectl delete pod web-0", True),
+    ("helm uninstall my-release --dry-run && helm uninstall my-release", True),
     # pre-existing OCI-family behavior, unrelated to the new terraform family:
     # oci_tf.sh matches the `oci_[a-z]+.sh` domain-helper shape, and its own
     # `destroy` subcommand argument is an OCI destructive verb — so this was
