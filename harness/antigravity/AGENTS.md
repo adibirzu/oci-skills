@@ -26,7 +26,7 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 - `oci-terraform-authoring`: HCL, discovery, validation, local plan/apply/destroy.
 - `oci-developer-services`: DevOps, API Gateway, Container Instances, artifacts.
 - `oci-project`: lifecycle orchestration.
-- `oci-product-development`: platform-bundle golden paths.
+- `oci-product-development`: five platform-bundle golden paths.
 - `oci-application-engineering`: application code workflow, reuse, review, and measurement; no OCI mutation.
 - `oci-landing-zone`: landing-zone assessment, design, deployment, upgrade, and validation.
 
