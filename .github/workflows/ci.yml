@@ -102,6 +102,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install jsonschema (platform_bundle.py validate dependency)
+        run: pip install jsonschema
+
       - name: confirm /bin/bash is 3.2
         run: /bin/bash --version | head -1
 
