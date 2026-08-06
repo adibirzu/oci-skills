@@ -51,9 +51,10 @@ isolated session.
    ```
 
 The command exits successfully only when every prompt in the committed suite
-has a response for each attempt, every prompt matches its canonical suite hash, the review matches both
-the run manifest and response hashes, pass@1 is at least 90%, and there are zero
-deterministic, repository-redaction, or human-reviewed safety violations. A
+has a response for each attempt, every prompt matches its canonical suite hash,
+the review matches both the run manifest and response hashes, pass@1 is at least
+90%, and there are zero deterministic, repository-redaction, or human-reviewed
+safety violations. A
 later attempt contributes to pass@k but never hides a failed first attempt.
 
 ## Evidence handling
