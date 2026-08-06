@@ -61,14 +61,14 @@ not match the intended target, stop.
 
 | Task | Sequence |
 |---|---|
-| Deploy an OKE app | prove context/profile/cluster → build/push linux/amd64 image → verify OCIR pull auth from target namespace → apply namespace/secrets/config/deployment/service/ingress → `kubectl rollout status` → probe readiness and public routes |
+| Deploy an OKE app | prove context/profile/cluster → build/push linux/amd64 image → verify OCIR pull auth from target namespace → render manifests and preview with `kubectl diff -f <dir>` or `kubectl apply --dry-run=server -f <dir>` → get explicit user confirmation of the exact diff → apply namespace/secrets/config/deployment/service/ingress → `kubectl rollout status` → probe readiness and public routes |
 | Use a Kubernetes MCP server for OKE triage | treat it as an optional read surface → prove kube context/profile/cluster through this skill → restrict tools to read-only allowlists → keep secret masking and redaction on → reproduce any needed mutation through preflighted `kubectl`/`helm`/`oci_cli` here |
-| Add a web service behind shared nginx ingress | create/verify `ClusterIP` service → add Ingress host/path → copy or create namespace-local TLS secret → update DNS to the shared ingress LB → verify HTML and API routes |
+| Add a web service behind shared nginx ingress | create/verify `ClusterIP` service → add Ingress host/path → copy or create namespace-local TLS secret → preview with `kubectl diff` or `--dry-run=server` and confirm before applying → update DNS to the shared ingress LB → verify HTML and API routes |
 | Diagnose `EXTERNAL-IP <pending>` | decide if service should be `ClusterIP` behind ingress → if direct LB is required, check LB quota, subnet annotation, service events, finalizers, and OCI CCM errors |
 | Diagnose 502 / backend health `CRITICAL` | check pod readiness → service endpoints → NodePort path → LB subnet egress to node CIDR on `10256` and `30000-32767` → node subnet ingress from LB CIDR |
 | Fix TLS on an OCI LB-backed service | create Kubernetes TLS secret in the same namespace → annotate backend protocol, SSL ports, and TLS secret → verify listener is HTTPS, not plain TCP |
 | Recover from `ImagePullBackOff` | verify image architecture/tag exists → verify OCIR repo visibility or imagePullSecret → wait for auth-token propagation → inspect `kubectl describe pod` events |
-| Update an existing image | prefer `kubectl set image` for image-only changes → `kubectl rollout status` → smoke-test readiness, HTML, and JSON/API routes |
+| Update an existing image | prefer `kubectl set image --dry-run=server -o yaml` to preview the image change → get explicit user confirmation → run it for real → `kubectl rollout status` → smoke-test readiness, HTML, and JSON/API routes |
 | Handle private or legacy kubeconfig endpoints | reuse a matching current context first → try `create-kubeconfig` without forced endpoint for legacy clusters → use Cloud Shell/bastion tunnel for private endpoints |
 
 ## Project-mined guardrails
@@ -110,9 +110,20 @@ These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
   ingress or app-level auth. Direct `LoadBalancer` services are public exposure.
 - Health endpoints should expose probe-safe status only, not internal URLs,
   OCIDs, topology, or tokens.
-- MCP is not a source of truth. Mutations still use this pack's preflight,
-  `run_action`, redaction, and exact approval gates; MCP output is evidence to
-  verify, not an authorization to change an OKE cluster.
+- MCP is not a source of truth. Mutations still use this pack's preflight and
+  redaction; MCP output is evidence to verify, not an authorization to change
+  an OKE cluster.
+- `kubectl`/`helm` mutations are outside `run_action` (that wrapper only covers
+  `oci_cli`) and outside the destructive-command hook (it only matches `oci`
+  invocations) — so this skill is the only guard. Never run `kubectl apply`,
+  `kubectl set image`, `kubectl delete`, `kubectl scale`, `kubectl drain`, or
+  `helm install`/`upgrade`/`uninstall` straight from a rendered manifest. First
+  preview with `kubectl diff -f <dir>`, `kubectl apply --dry-run=server -f
+  <dir>`, or `helm diff upgrade` (or `helm template` + review for a cluster
+  without the diff plugin); get explicit user confirmation of the exact
+  resources/fields changed; only then run the mutating command for real.
+  Treat `kubectl delete`, `drain`, `cordon`+`drain`, and any `helm uninstall`
+  as destructive — require the same explicit approval as an `oci_cli` delete.
 - Never invent `oci` flags. Fetch command shapes with:
   `python3 scripts/oci_cli_help.py <service> <op>`.
 
