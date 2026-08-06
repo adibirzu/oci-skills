@@ -69,6 +69,12 @@ DESTRUCTIVE = re.compile(
 # real mutation in the next. kubectl's `--dry-run=none`/`--dry-run=false`
 # values mean "execute for real" and never qualify as a preview.
 DRY_RUN_FLAG = re.compile(r"--dry-run(?!=(?:none|false)\b)(=|\b)", re.IGNORECASE)
+# `#` opens a shell comment only at the start of a word. The comment is dead
+# text the shell never runs, so it must not earn the segment a dry-run
+# exemption (`kubectl delete pod x # previewed with --dry-run=server` still
+# runs a live delete). A `#` inside a quoted argument is over-stripped by this
+# regex, which only errs toward blocking.
+TRAILING_COMMENT = re.compile(r"(?:^|\s)#.*")
 # The shell deletes a backslash-newline pair (line continuation) before
 # execution, joining the lines into one logical command — it is not a segment
 # boundary. Only an unescaped newline separates commands.
@@ -99,17 +105,22 @@ HELM_DESTRUCTIVE = re.compile(r"\b(uninstall|rollback|delete)\b", re.IGNORECASE)
 #
 # Unlike OCI_INVOCATION, this one is anchored to the *leading* command token of
 # a shell segment (start of string, or right after `;`/`&`/`|`/`(`/backtick/
-# newline, with optional `VAR=val` env prefixes and an optional path prefix
-# like `/usr/local/bin/`). A plain substring match would also fire on `terraform` as
-# a bare *argument* — e.g. `-chdir=./terraform` or `./scripts/oci_tf.sh destroy
-# ./terraform ...` — which this pack's own schema (`iac.path: terraform/`) and
-# README/QUICKSTART examples use as the conventional directory name. Without
-# the anchor, oci_tf.sh's own already-gated `destroy` subcommand would falsely
-# trip this guard on its own directory argument.
+# newline, with optional `VAR=val` env prefixes, an optional run of common
+# wrapper commands — `sudo`, `command`, `nohup`, `env` with its own VAR=val
+# args, `timeout` with its duration — and an optional path prefix like
+# `/usr/local/bin/` or `~/bin/`). A plain substring match would also fire on
+# `terraform` as a bare *argument* — e.g. `-chdir=./terraform` or
+# `./scripts/oci_tf.sh destroy ./terraform ...` — which this pack's own schema
+# (`iac.path: terraform/`) and README/QUICKSTART examples use as the
+# conventional directory name. Without the anchor, oci_tf.sh's own
+# already-gated `destroy` subcommand would falsely trip this guard on its own
+# directory argument. Quoted payloads (`bash -c 'terraform destroy'`) remain a
+# known limit of a regex guard.
 TERRAFORM_INVOCATION = re.compile(
     r"(?:^|[;&|(`\n\r]\s*)"        # start of a shell command segment
     r"(?:[A-Za-z_]\w*=\S*\s+)*"    # optional leading VAR=val env assignments
-    r"(?:[./\w-]*/)?"              # optional path prefix ending in `/`
+    r"(?:(?:sudo|command|nohup|env(?:\s+[A-Za-z_]\w*=\S*)*|timeout\s+[\d.]+[smhd]?)\s+)*"
+    r"(?:~?[./\w-]*/)?"            # optional path prefix ending in `/`
     r"terraform(?![\w.-])",
     re.IGNORECASE,
 )
@@ -135,7 +146,7 @@ def _classify(command: str) -> str | None:
     if OCI_INVOCATION.search(command) and DESTRUCTIVE.search(command):
         return "oci"
     for segment in SEGMENT_SEPARATOR.split(command):
-        if DRY_RUN_FLAG.search(segment):
+        if DRY_RUN_FLAG.search(TRAILING_COMMENT.sub("", segment)):
             continue
         if KUBECTL_INVOCATION.search(segment) and (
             KUBECTL_DESTRUCTIVE.search(segment) or KUBECTL_REPLACE_FORCE.search(segment)
