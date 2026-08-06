@@ -52,8 +52,16 @@ Recommended order for a portable OKE workload:
 1. Resolve profile, region, compartment, cluster, and namespace.
 2. Build and push a `linux/amd64` image when targeting OCI-managed amd64 nodes.
 3. Verify the target namespace can pull from OCIR.
-4. Apply namespace, service account, RBAC, configmaps, secrets/ExternalSecrets,
-   deployment, service, ingress, and network policies.
+4. Preview namespace, service account, RBAC, configmaps, secrets/ExternalSecrets,
+   deployment, service, ingress, and network policy changes, get explicit user
+   confirmation of the diff, then apply:
+
+```bash
+kubectl diff -f <manifest-dir>/ || true          # or: kubectl apply --dry-run=server -f <manifest-dir>/
+# ^ review the printed diff with the user before proceeding
+kubectl apply -f <manifest-dir>/
+```
+
 5. Wait for rollout and inspect events:
 
 ```bash
@@ -63,15 +71,21 @@ kubectl -n "<NAMESPACE>" describe deployment "<APP>"
 kubectl -n "<NAMESPACE>" describe svc "<SERVICE>"
 ```
 
-For image-only updates, prefer:
+For image-only updates, preview the exact change, confirm, then apply:
 
 ```bash
+kubectl -n "<NAMESPACE>" set image deployment/"<APP>" app="<IMAGE>:<TAG>" --dry-run=server -o yaml
+# ^ show this to the user before running it for real
 kubectl -n "<NAMESPACE>" set image deployment/"<APP>" app="<IMAGE>:<TAG>"
 kubectl -n "<NAMESPACE>" rollout status deployment/"<APP>" --timeout=240s
 ```
 
 This avoids strategic-merge conflicts where a previously patched env var leaves
-both `value` and `valueFrom` on the same entry.
+both `value` and `valueFrom` on the same entry. `kubectl apply`/`set image` are
+not wrapped by `run_action` (which only covers `oci_cli`) and are not matched
+by the destructive-command hook (which only matches `oci` invocations) — the
+dry-run-then-confirm sequence above is the only gate they get, so never skip
+it.
 
 ## Ingress-first exposure
 
