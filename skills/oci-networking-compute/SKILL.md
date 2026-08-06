@@ -14,6 +14,15 @@ description: >-
 
 Preflight the context, read existing topology by name, then choose the narrowest convergent change. Use `oci_cli` and risk-classified `run_action`; never print addresses or OCIDs.
 
+## First move
+
+```bash
+./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"
+```
+
+If the resolved tenancy/compartment does not match the intended target, stop
+before touching any network or compute resource.
+
 ## Routing
 
 | Intent | Owner |
@@ -42,6 +51,10 @@ Read [networking-compute.md](../../references/networking-compute.md) for exact c
 - Set boot-volume preservation explicitly for termination.
 - Network rule adds append; list first to avoid duplicates and broader shadow rules.
 - Check service limits and AD capacity before provisioning.
+- Every mutation runs through `run_action --risk <additive|in-place|destructive>
+  --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
+  (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview); teardown/detach/delete
+  additionally requires explicit `confirm`.
 
 ## Expected output
 
