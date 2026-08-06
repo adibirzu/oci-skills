@@ -114,16 +114,19 @@ These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
   redaction; MCP output is evidence to verify, not an authorization to change
   an OKE cluster.
 - `kubectl`/`helm` mutations are outside `run_action` (that wrapper only covers
-  `oci_cli`) and outside the destructive-command hook (it only matches `oci`
-  invocations) — so this skill is the only guard. Never run `kubectl apply`,
-  `kubectl set image`, `kubectl delete`, `kubectl scale`, `kubectl drain`, or
-  `helm install`/`upgrade`/`uninstall` straight from a rendered manifest. First
-  preview with `kubectl diff -f <dir>`, `kubectl apply --dry-run=server -f
-  <dir>`, or `helm diff upgrade` (or `helm template` + review for a cluster
-  without the diff plugin); get explicit user confirmation of the exact
-  resources/fields changed; only then run the mutating command for real.
-  Treat `kubectl delete`, `drain`, `cordon`+`drain`, and any `helm uninstall`
-  as destructive — require the same explicit approval as an `oci_cli` delete.
+  `oci_cli`). The destructive-command hook now mechanically blocks `kubectl
+  delete`/`drain`/`cordon`/forced `replace` and `helm uninstall`/its `delete`
+  alias/`rollback` — but `kubectl apply`, `kubectl set image`, and `helm
+  install`/`upgrade` are routine updates it does not treat as destructive, so
+  this skill's own discipline is still their only guard. Never run any of
+  these straight from a rendered manifest. First preview with `kubectl diff -f
+  <dir>`, `kubectl apply --dry-run=server -f <dir>`, or `helm diff upgrade`
+  (or `helm template` + review for a cluster without the diff plugin); get
+  explicit user confirmation of the exact resources/fields changed; only then
+  run the mutating command for real. Treat `kubectl delete`, `drain`,
+  `cordon`+`drain`, and any `helm uninstall` as destructive — require the same
+  explicit approval as an `oci_cli` delete, and never bypass the mechanical
+  guard with `OCI_SKILLS_FORCE=true` without that same approval first.
 - Never invent `oci` flags. Fetch command shapes with:
   `python3 scripts/oci_cli_help.py <service> <op>`.
 

@@ -1596,3 +1596,28 @@ and use a supported alternate in-VCN observability path; do not expose SSH or a
 private API endpoint as a workaround.
 **See:** [Run commands on instances](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm)
 **Status:** unresolved; requires OCI agent-service remediation when repeated.
+
+## KB-162 — Destructive-command guard did not cover kubectl/helm/terraform (oke-admin)
+
+**Symptom:** `oci-oke-admin`'s Safety notes claimed its own dry-run-then-confirm
+discipline was "the only guard" on `kubectl`/`helm` mutations, and Terraform's
+`destroy`/unreviewed `apply` had no mechanical guard either — both were purely
+instructional; nothing stopped an agent from typing the bare destructive
+command directly.
+**Root cause:** `hooks/guard_destructive.py` recognized only `oci`/`oci_cli`/
+`oci_<domain>.sh` invocations. This was a deliberate, narrower scope at the
+time (see `tests/test_guard_destructive.py`'s prior `ALLOW_CASES`, which pinned
+`kubectl delete pod web-0` as intentionally unblocked).
+**Fix:** Broadened the guard with per-tool invocation + destructive-verb
+regexes, mirroring the existing `OCI_INVOCATION`/`DESTRUCTIVE` split: `kubectl`
+(`delete`/`drain`/`cordon`/forced `replace`), `helm` (`uninstall`/its `delete`
+alias/`rollback`), and `terraform` (`destroy`, or `apply -auto-approve`). Kept
+routine reads/previews unblocked (`kubectl get`/`describe`/`diff`/`--dry-run`,
+`helm list`/`status`/`diff upgrade`/`upgrade`, `terraform plan`/`validate`/
+`apply` without `-auto-approve`). The terraform invocation regex is anchored to
+the leading command token of a shell segment (not a bare substring match) so
+this pack's own `./terraform` directory convention (`schemas/platform-bundle
+.schema.json`'s `iac.path`, `oci_tf.sh`'s own arguments) is never misread as
+the `terraform` command itself.
+**See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.

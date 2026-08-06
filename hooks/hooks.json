@@ -28,7 +28,7 @@
           {
             "type": "command",
             "command": "sh -c 'script=\"${CLAUDE_PLUGIN_ROOT:-$(pwd)}/hooks/guard_destructive.py\"; if [ ! -f \"$script\" ]; then echo \"[oci-administrator] destructive guard not found at $script — Bash commands run UNGUARDED\" >&2; exit 0; fi; python3 \"$script\"'",
-            "description": "Block destructive OCI CLI commands until preflighted and confirmed. Fails open (with a stderr notice) if the guard script cannot be located; also fails open on malformed payloads and when OCI_SKILLS_FORCE=true — see references/tenancy-safety.md."
+            "description": "Block destructive OCI CLI, kubectl, helm, and terraform commands until previewed/preflighted and confirmed. Fails open (with a stderr notice) if the guard script cannot be located; also fails open on malformed payloads and when OCI_SKILLS_FORCE=true — see references/tenancy-safety.md."
           }
         ]
       }

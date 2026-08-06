@@ -152,3 +152,35 @@ def test_invalid_scaffold_inputs_and_cli_error(tmp_path: pathlib.Path, capsys) -
     bad.write_text("schema_version: 2\n", encoding="utf-8")
     assert platform_bundle.main(["validate", str(bad)]) == 1
     assert "error" in capsys.readouterr().err.lower()
+
+
+def test_validate_is_wired_to_the_real_schema_file(tmp_path: pathlib.Path, monkeypatch) -> None:
+    """`validate` must consult schemas/platform-bundle.schema.json itself, not a
+    hand-rolled copy of its rules — editing the on-disk schema changes what
+    `validate` accepts, with no code change required.
+    """
+    import json
+
+    schema = json.loads(platform_bundle.SCHEMA_PATH.read_text(encoding="utf-8"))
+    schema["properties"]["runtime"]["enum"].append("vm")
+    patched = tmp_path / "platform-bundle.schema.json"
+    patched.write_text(json.dumps(schema), encoding="utf-8")
+    monkeypatch.setattr(platform_bundle, "SCHEMA_PATH", patched)
+    monkeypatch.setattr(platform_bundle, "_SCHEMA_CACHE", None)
+
+    valid = {
+        "schema_version": 1, "name": "n", "context": "dev", "runtime": "vm",
+        "ingress": "api-gateway", "data": "none", "delivery": "oci-devops",
+        "iac": {"owner": "terraform", "path": "terraform/"},
+        "verification": ["health"],
+    }
+    # Only valid because the patched schema (not the real one) now allows "vm".
+    assert platform_bundle.validate(valid) == []
+
+
+def test_validate_reports_a_clear_error_without_the_jsonschema_dependency(monkeypatch) -> None:
+    monkeypatch.setattr(platform_bundle, "jsonschema", None)
+    errors = platform_bundle.validate({"schema_version": 1})
+    assert len(errors) == 1
+    assert "jsonschema" in errors[0]
+    assert "pip install" in errors[0]

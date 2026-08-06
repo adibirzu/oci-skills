@@ -42,6 +42,7 @@ def test_user_facing_domain_lists_include_all_domains() -> None:
         ROOT / "docs" / "QUICKSTART.md",
         ROOT / "harness" / "gemini" / "GEMINI.md",
         ROOT / "harness" / "antigravity" / "AGENTS.md",
+        ROOT / "harness" / "codex" / "agents" / "openai.yaml",
     ]
     missing = []
     for doc in docs:
