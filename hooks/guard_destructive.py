@@ -64,8 +64,11 @@ DESTRUCTIVE = re.compile(
 # radius per tool, so one shared verb list would either over- or under-block.
 #
 # A `--dry-run` preview is a read, never a mutation, for either kubectl or
-# helm — always allow it regardless of verb.
+# helm — always allow it. The exemption is scoped to the shell segment carrying
+# the destructive verb: `--dry-run` in one segment must not exempt a chained
+# real mutation in the next.
 DRY_RUN_FLAG = re.compile(r"--dry-run(=|\b)", re.IGNORECASE)
+SEGMENT_SEPARATOR = re.compile(r"[;&|(`\n\r]")
 
 KUBECTL_INVOCATION = re.compile(r"\bkubectl\b", re.IGNORECASE)
 # `delete`/`drain`/`cordon` are always destructive (drain evicts every pod on a
@@ -90,18 +93,18 @@ HELM_DESTRUCTIVE = re.compile(r"\b(uninstall|rollback|delete)\b", re.IGNORECASE)
 # negative lookbehind excludes anything immediately preceded by `-`).
 #
 # Unlike OCI_INVOCATION, this one is anchored to the *leading* command token of
-# a shell segment (start of string, or right after `;`/`&`/`|`/`(`/backtick,
-# with optional `VAR=val` env prefixes and an optional path prefix like
-# `/usr/local/bin/`). A plain substring match would also fire on `terraform` as
+# a shell segment (start of string, or right after `;`/`&`/`|`/`(`/backtick/
+# newline, with optional `VAR=val` env prefixes and an optional path prefix
+# like `/usr/local/bin/`). A plain substring match would also fire on `terraform` as
 # a bare *argument* — e.g. `-chdir=./terraform` or `./scripts/oci_tf.sh destroy
 # ./terraform ...` — which this pack's own schema (`iac.path: terraform/`) and
 # README/QUICKSTART examples use as the conventional directory name. Without
 # the anchor, oci_tf.sh's own already-gated `destroy` subcommand would falsely
 # trip this guard on its own directory argument.
 TERRAFORM_INVOCATION = re.compile(
-    r"(?:^|[;&|(`]\s*)"            # start of a shell command segment
+    r"(?:^|[;&|(`\n\r]\s*)"        # start of a shell command segment
     r"(?:[A-Za-z_]\w*=\S*\s+)*"    # optional leading VAR=val env assignments
-    r"(?:[.\w-]*/)?"               # optional path prefix ending in `/`
+    r"(?:[./\w-]*/)?"              # optional path prefix ending in `/`
     r"terraform(?![\w.-])",
     re.IGNORECASE,
 )
@@ -125,13 +128,15 @@ def _classify(command: str) -> str | None:
         return None
     if OCI_INVOCATION.search(command) and DESTRUCTIVE.search(command):
         return "oci"
-    dry_run = DRY_RUN_FLAG.search(command)
-    if KUBECTL_INVOCATION.search(command) and not dry_run and (
-        KUBECTL_DESTRUCTIVE.search(command) or KUBECTL_REPLACE_FORCE.search(command)
-    ):
-        return "kubectl"
-    if HELM_INVOCATION.search(command) and not dry_run and HELM_DESTRUCTIVE.search(command):
-        return "helm"
+    for segment in SEGMENT_SEPARATOR.split(command):
+        if DRY_RUN_FLAG.search(segment):
+            continue
+        if KUBECTL_INVOCATION.search(segment) and (
+            KUBECTL_DESTRUCTIVE.search(segment) or KUBECTL_REPLACE_FORCE.search(segment)
+        ):
+            return "kubectl"
+        if HELM_INVOCATION.search(segment) and HELM_DESTRUCTIVE.search(segment):
+            return "helm"
     if TERRAFORM_INVOCATION.search(command) and (
         TERRAFORM_DESTROY.search(command) or TERRAFORM_AUTO_APPROVE_APPLY.search(command)
     ):
