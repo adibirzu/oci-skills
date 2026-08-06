@@ -67,7 +67,7 @@ jobs:
 
       - name: unit tests + source-scoped branch coverage
         run: |
-          pip install pytest coverage pyyaml
+          pip install pytest coverage pyyaml jsonschema
           coverage erase
           coverage run -m pytest tests/ -q
           coverage report
@@ -101,6 +101,13 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install jsonschema (platform_bundle.py validate dependency)
+        run: pip install jsonschema
 
       - name: confirm /bin/bash is 3.2
         run: /bin/bash --version | head -1
@@ -221,6 +228,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install jsonschema (platform_bundle.py validate dependency)
+        run: pip install jsonschema
 
       - uses: hashicorp/setup-terraform@v3
         with:

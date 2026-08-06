@@ -37,6 +37,10 @@ gitleaks detect --config .gitleaks.toml --no-banner
 shellcheck scripts/*.sh
 ruff check scripts/*.py
 python3 -m py_compile scripts/*.py
+
+# Platform-bundle schema validation needs jsonschema
+pip install jsonschema
+python3 -m pytest tests/test_platform_bundle.py -q
 ```
 
 CI runs the same checks on every PR.

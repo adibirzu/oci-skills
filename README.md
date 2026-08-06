@@ -275,6 +275,7 @@ The installer moves the bundle from the harness's `skills/` or `extensions/` dir
 
 - Bash 3.2+, Python 3.10+, `tar`, `jq`, and the OCI CLI for administration helpers.
 - Terraform 1.5+ for authoring/execution; 1.7+ for native `.tftest.hcl` tests.
+- The `jsonschema` package (`pip install jsonschema`) to validate platform bundles against `schemas/platform-bundle.schema.json` via `scripts/platform_bundle.py validate`.
 - A configured OCI profile or supported principal mode only for live reads/plans/actions.
 - No OCI credentials for scaffolding, schema validation, routing tests, docs, or bundle generation.
 
