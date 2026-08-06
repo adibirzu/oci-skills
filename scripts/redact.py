@@ -79,6 +79,20 @@ RULES: tuple[Rule, ...] = (
         re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b"),
         "<EMAIL-REDACTED>",
     ),
+    # JWTs/OAuth access tokens (e.g. from Identity Domains OAuth/OIDC) use
+    # base64URL, not base64: "-"/"_" instead of "+"/"/". Neither `secret_blob`
+    # rule's char class includes them, and a JWT header segment is often under
+    # 40 chars on its own — so a pasted JWT could partially or fully evade both
+    # base64 rules below. Anchor on the near-universal `eyJ` header prefix
+    # (base64url of `{"`, which every JSON JWT header starts with) plus the
+    # full three-segment dotted shape, so this stays high-precision and won't
+    # fire on ordinary hyphenated/underscored identifiers. Kept before the
+    # generic base64 rules so the whole token is masked as one unit.
+    Rule(
+        "jwt",
+        re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"),
+        "<JWT-REDACTED>",
+    ),
     # Long hex/base64-ish blobs (datakeys, auth tokens). Kept last so it does not
     # eat OCIDs or fingerprints, which are masked above. The char class excludes
     # "/" so slash-separated API paths (e.g. versioned endpoint paths) are not
