@@ -108,6 +108,24 @@ def test_mermaid_survives_hostile_ids_groups_and_labels(tmp_path: pathlib.Path) 
     assert "%% oci-node: n1 = a.b:c (oci-service: custom)" in source
 
 
+def test_mermaid_validator_accepts_hand_authored_shape_text(tmp_path: pathlib.Path) -> None:
+    path = tmp_path / "imported.mmd"
+    path.write_text(
+        "flowchart TD\n"
+        "  subgraph s1 [Region: eu-frankfurt-1]\n"
+        "    A[end]\n"
+        "    B{Decision?}\n"
+        "    C[read/write]\n"
+        "    D((Order: shipped))\n"
+        "  end\n"
+        "  A --> B\n"
+        "  B -- read/write --> C\n"
+        "  C -.->|retry| D\n",
+        encoding="utf-8",
+    )
+    assert diagram.validate_mermaid(path) == []
+
+
 def test_mermaid_validator_rejects_unparseable_flowchart(tmp_path: pathlib.Path) -> None:
     path = tmp_path / "broken.mmd"
     path.write_text(

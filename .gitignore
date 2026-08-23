@@ -92,6 +92,8 @@ coverage/
 /docs/comics/
 /docs/superpowers/plans/*comic*.md
 /docs/superpowers/specs/*comic*.md
+/docs/superpowers/plans/*visual-summary*.md
+/docs/superpowers/specs/*visual-summary*.md
 /tests/test_comic_*.py
 /tests/test_oci_*comic*.py
 /tmp/pdfs/

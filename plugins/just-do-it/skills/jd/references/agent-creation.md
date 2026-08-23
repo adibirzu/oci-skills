@@ -48,9 +48,26 @@ copying prompts by hand. The generator validates it before rendering.
 | Cursor | `.cursor/commands/jd-<role>.md` | Reusable command role, not a claimed isolated native subagent. |
 | Pi | `.pi/prompts/jd-<role>.md` | Reusable prompt template; isolation must be supplied by the coordinator/runtime. |
 | Cline | `.clinerules/workflows/jd-<role>.md` | Reusable workflow role; Plan/Act and permissions remain client controls. |
+| Codex | `${CODEX_HOME:-$HOME/.codex}/agents/<role>.toml` plus the global `[agents]` table | Native named roles, installed separately by `scripts/install_codex_roles.py`. |
 
 Cursor, Pi, and Cline outputs deliberately say `ROLE ADAPTER`, not `native subagent`. Do not
 misrepresent prompt separation as process, workspace, model, or permission isolation.
+
+## Two generators, two sources of truth
+
+Codex is not a `create_agent_team.py --harness` target and the six-harness generator does not
+produce Codex roles. The two paths are deliberately separate because Codex roles are global
+runtime configuration, not workspace files:
+
+| Path | Source of truth | Roles | Install / check |
+|---|---|---|---|
+| Portable workspace teams (AGY, Claude, Grok, Cursor, Pi, Cline) | `assets/agent-blueprints.json` | planner, scout, test-writer, maker, checker, security-checker | `python3 scripts/create_agent_team.py install\|check --harness all --target-root <repo>` |
+| Codex named roles | `assets/roles/*.toml` registered in `assets/roles/agents.toml` | prd-planner, implementation-worker, test-worker, integration-worker, sol-reviewer, sol-security-reviewer, jd-elevated-worker | `python3 scripts/install_codex_roles.py check` then, only after explicit approval, `install` |
+
+Edit the structured source for the path you are changing; never hand-copy a role prompt from one
+source into the other. Codex installs touch global configuration, so always run `check` first and
+follow [distribution.md](distribution.md) for the approval, backup, strict-config validation, and
+rollback contract.
 
 ## Agent acceptance checklist
 
