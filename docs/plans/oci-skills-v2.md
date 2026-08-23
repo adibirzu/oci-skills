@@ -103,7 +103,7 @@ PR was ever opened for this work — it was committed straight to `main` — so
 | GAP-03 Landing zone plus Terraform/IAM depth | REQ-12 | GAP-01, GAP-02 | Implemented with synchronized documentation and capability contracts | merged directly to main (no PR) |
 | PROD-13 application workflow evidence | REQ-13 | APP-01 | Implemented: schema, PRD, application boundary, validation | merged directly to main (no PR) |
 | PROD-14 deterministic workflow evaluation | REQ-14 | APP-02, PROD-13 | Implemented: permission-safe evaluator and aggregate-only report | merged directly to main (no PR) |
-| PROD-15 capability catalog | REQ-15 | V2-09 | Implemented: 26-skill catalog and parity validation | merged directly to main (no PR) |
+| PROD-15 capability catalog | REQ-15 | V2-09 | Implemented: 27-skill catalog and parity validation | merged directly to main (no PR) |
 | PROD-16 routing precedence | REQ-16 | PROD-15 | Implemented: six positive/negative precedence rules | merged directly to main (no PR) |
 | PROD-17 evidence envelope | REQ-17 | V2-02 | Implemented: versioned secret-free schema | merged directly to main (no PR) |
 | PROD-18 architecture traceability | REQ-18 | PROD-13..PROD-17 | Implemented: traceability contract, validator, and CI wiring | merged directly to main (no PR) |
@@ -128,7 +128,7 @@ PR was ever opened for this work — it was committed straight to `main` — so
 | PROD-37 environment parity | REQ-37 | PROD-19, PROD-29 | Implemented: four-harness invariant contract | merged directly to main (no PR) |
 | PROD-38 recovery playbooks | REQ-38 | PROD-26, PROD-30 | Implemented: tested containment and recovery records | merged directly to main (no PR) |
 | PROD-39 architecture invariants | REQ-39 | PROD-18, PROD-31 | Implemented: five enforced cross-plane invariants | merged directly to main (no PR) |
-| PROD-40 documentation freshness | REQ-40 | PROD-27, PROD-28 | Implemented: source review and link failure policy; orphaned-reference/script CI guard extended to all 26 skills | commit 35b5347 |
+| PROD-40 documentation freshness | REQ-40 | PROD-27, PROD-28 | Implemented: source review and link failure policy; orphaned-reference/script CI guard extended to all 27 skills | commit 35b5347 |
 | PROD-41 release attestation | REQ-41 | PROD-30, PROD-36 | Implemented: external signature over hash-only evidence | merged directly to main (no PR) |
 | PROD-42 maintenance policy | REQ-42 | PROD-35, PROD-38, PROD-40, PROD-41 | Implemented: critical and stale-owner release blocks | merged directly to main (no PR) |
 | PROD-43 change-set manifest | REQ-43 | PROD-42 | Implemented: versioned fail-closed contract and validation | merged directly to main (no PR) |
@@ -198,5 +198,5 @@ REQ-43 through REQ-52 close the consolidation boundary with change-set
 manifests, fail-closed exception and waiver handling, dependency integrity,
 deterministic output, offline performance budgets, network-isolated validation,
 version-control restore, reviewed rollback, and major-only end-of-life policy.
-Future work should improve the usability or correctness of the 26 skills rather
+Future work should improve the usability or correctness of the 27 skills rather
 than extend the PRD count without a demonstrated capability gap.

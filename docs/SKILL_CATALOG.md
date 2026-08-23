@@ -17,6 +17,11 @@ or mutations still follow the router safety gates in [AGENTS.md](../AGENTS.md).
 | "Choose a platform pattern and generate bundle artifacts." | [OCI Product Development](../skills/oci-product-development/) |
 | "Review, debug, reuse, or evaluate application code." | [OCI Application Engineering](../skills/oci-application-engineering/) |
 | "Design or validate a greenfield tenancy foundation." | [OCI Landing Zone](../skills/oci-landing-zone/) |
+| "Create an OCI architecture diagram in Draw.io, Excalidraw, or Mermaid." | [OCI Diagramming](../skills/oci-diagramming/) |
+
+New to the pack? The [core services starter](oci-core-services-starter.md) walks
+through the seven foundational service domains and how work hands off between
+them before you pick a skill from the tables below.
 
 ## Security and Governance
 

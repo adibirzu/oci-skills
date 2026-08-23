@@ -73,6 +73,28 @@ def test_no_orphaned_reference_docs() -> None:
     assert not orphans, f"reference doc(s) not linked from any skill/command/doc entrypoint: {orphans}"
 
 
+def test_no_orphaned_docs_pages() -> None:
+    """Every top-level docs/*.md must be linked from another entrypoint, so a
+    new operator guide cannot land unreachable from README, the catalog, the
+    quickstart, or a skill."""
+    orphans: list[str] = []
+    for page in sorted((ROOT / "docs").glob("*.md")):
+        linked = False
+        for pattern in ("skills/*/SKILL.md", "skills/*/references/*.md",
+                        "commands/*.md", "docs/*.md", "README.md", "AGENTS.md"):
+            for candidate in ROOT.glob(pattern):
+                if candidate == page:
+                    continue
+                if page.name in candidate.read_text(encoding="utf-8"):
+                    linked = True
+                    break
+            if linked:
+                break
+        if not linked:
+            orphans.append(page.name)
+    assert not orphans, f"docs page(s) not linked from any entrypoint: {orphans}"
+
+
 def test_no_orphaned_top_level_scripts() -> None:
     """Every top-level scripts/*.sh|py must be mentioned somewhere outside
     its own file (a skill, command, test, CI workflow, install.sh, or another
