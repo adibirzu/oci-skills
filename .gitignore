@@ -81,3 +81,26 @@ coverage/
 *.swp
 *.swo
 *~
+
+# OCI comic development assets - local/private, never public skill inputs
+/assets/oci-skills-comic/
+/assets/oci-skills-illustrations/
+/output/
+/docs/comics/
+/docs/superpowers/plans/*comic*.md
+/docs/superpowers/specs/*comic*.md
+/tests/test_comic_*.py
+/tests/test_oci_*comic*.py
+/tmp/pdfs/
+/tmp/video/
+/.research-private/
+/.presentation-private/
+/.comic-runs/
+docs/comics/**/prompts-private/
+docs/comics/**/*.transcript.txt
+docs/comics/**/*.narration.wav
+docs/comics/**/*.narration.mp3
+
+# Public comic shelf - finished PDFs only
+/published/comics/*
+!/published/comics/*.pdf

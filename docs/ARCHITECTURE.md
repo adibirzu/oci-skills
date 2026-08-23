@@ -96,7 +96,7 @@ Terraform, DNS, or application operators.
 
 ## Product contract plane
 
-The consolidated product plane covers **26 skills, 52 requirements, 40 detailed
+The consolidated product plane covers **27 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**.
 
 `docs/product/contracts/` is the machine-readable control plane for capability
