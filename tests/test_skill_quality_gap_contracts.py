@@ -86,11 +86,11 @@ def test_oke_mcp_safety_contract_is_documented() -> None:
     assert "mutations still use this pack's preflight" in combined
 
 
-def test_router_docs_catalog_and_evals_publish_the_26_skill_surface() -> None:
+def test_router_docs_catalog_and_evals_publish_the_27_skill_surface() -> None:
     catalog = json.loads(_text(ROOT / "docs" / "product" / "contracts" / "capability-catalog.json"))
     skills = {entry["skill"] for entry in catalog["capabilities"]}
     assert set(NEW_SKILLS) <= skills
-    assert len(skills) == 26
+    assert len(skills) == 27
     assert {"oci-data-platform", "oci-os-management"} <= skills
 
     router = _text(ROOT / "skills" / "oci-administrator" / "SKILL.md")
@@ -98,7 +98,7 @@ def test_router_docs_catalog_and_evals_publish_the_26_skill_surface() -> None:
     architecture = _text(ROOT / "docs" / "ARCHITECTURE.md")
     quickstart = _text(ROOT / "docs" / "QUICKSTART.md")
     for text in (router, readme, architecture, quickstart):
-        assert "26 skills" in text
+        assert "27 skills" in text
     assert "twenty-one primary" in router.lower()
     assert "twenty-one primary" in readme.lower()
 

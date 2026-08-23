@@ -1,6 +1,6 @@
 {
   "name": "jd",
-  "version": "1.2.0",
+  "version": "1.5.0",
   "status": "production-ready",
   "gates": {
     "skill_validation": true,
@@ -10,5 +10,5 @@
     "forward_test": true,
     "distribution_parity": true
   },
-  "notes": "Validated with skill checks, JD contract/scenario and role-installer tests, OCI Skills regressions, strict Codex config parsing, plugin validation, gitleaks, and byte-for-byte distribution parity. Forward coverage is deterministic scenario validation; no production system was contacted."
+  "notes": "Validated with skill checks, JD contract/scenario, role-installer, multi-harness adapter, and agent-team generator tests, OCI Skills regressions, strict Codex config parsing, plugin validation, secret patterns, and byte-for-byte skill parity. Continuity is file-backed; no daemon, forge mutation, global harness configuration, or production system was contacted."
 }
