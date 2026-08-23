@@ -66,6 +66,18 @@ def test_jd_role_installer_round_trip(tmp_path: pathlib.Path) -> None:
     assert check.returncode == 0, check.stdout + check.stderr
 
 
+def test_jd_role_installer_help_is_available_without_loading_toml() -> None:
+    script = SKILL / "scripts" / "install_codex_roles.py"
+    result = subprocess.run(
+        [sys.executable, str(script), "--help"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "--codex-home" in result.stdout
+
+
 def test_jd_harness_adapter_round_trip(tmp_path: pathlib.Path) -> None:
     script = SKILL / "scripts" / "install_harness_adapters.py"
     install = subprocess.run(
