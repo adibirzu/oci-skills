@@ -3,6 +3,8 @@ from __future__ import annotations
 import importlib.util
 import json
 import pathlib
+import subprocess
+import sys
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -67,3 +69,70 @@ def test_output_requires_explicit_overwrite(tmp_path: pathlib.Path) -> None:
     else:
         raise AssertionError("existing output accepted without --force")
 
+
+def test_generate_defaults_missing_edges_and_returns_json_error_for_invalid_edge(
+    tmp_path: pathlib.Path,
+) -> None:
+    minimal = tmp_path / "minimal.json"
+    minimal.write_text(json.dumps({"nodes": [{"id": "source"}]}), encoding="utf-8")
+    output = tmp_path / "minimal.mmd"
+    result = subprocess.run(
+        [sys.executable, str(MODULE_PATH), "generate", "--format", "mermaid", "--spec", str(minimal), "--output", str(output)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["status"] == "generated"
+
+    invalid = tmp_path / "invalid.json"
+    invalid.write_text(
+        json.dumps({"nodes": [{"id": "source"}], "edges": [{"from": "source", "to": "source", "label": {"secret": "x"}}]}),
+        encoding="utf-8",
+    )
+    rejected = subprocess.run(
+        [sys.executable, str(MODULE_PATH), "generate", "--format", "drawio", "--spec", str(invalid), "--output", str(tmp_path / "bad.drawio")],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert rejected.returncode == 1
+    assert json.loads(rejected.stderr)["status"] == "error"
+
+
+def test_generated_ids_cannot_collide_with_user_node_ids(tmp_path: pathlib.Path) -> None:
+    spec_path = tmp_path / "collision.json"
+    spec_path.write_text(
+        json.dumps(
+            {
+                "nodes": [{"id": "x"}, {"id": "label-x"}, {"id": "edge-1"}],
+                "edges": [{"from": "x", "to": "label-x"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    spec = diagram.load_spec(spec_path)
+    drawio_path = tmp_path / "collision.drawio"
+    drawio_path.write_text(diagram.drawio(spec), encoding="utf-8")
+    excalidraw_path = tmp_path / "collision.excalidraw"
+    excalidraw_path.write_text(diagram.excalidraw(spec), encoding="utf-8")
+    assert diagram.validate_drawio(drawio_path) == []
+    assert diagram.validate_excalidraw(excalidraw_path) == []
+
+
+def test_drawio_rejects_unknown_service_and_duplicate_object_ids(
+    tmp_path: pathlib.Path,
+) -> None:
+    path = tmp_path / "invalid.drawio"
+    path.write_text(
+        """<mxfile><diagram><mxGraphModel><root>
+<mxCell id="0"/><mxCell id="1" parent="0"/>
+<mxCell id="security" value="Security"/><mxCell id="observability" value="Observability"/>
+<UserObject id="node" ociService="not-oci"><mxCell id="cell-a" style="shape=mxgraph.aws4.lambda;"/></UserObject>
+<UserObject id="node"><mxCell id="cell-b"/></UserObject>
+</root></mxGraphModel></diagram></mxfile>""",
+        encoding="utf-8",
+    )
+    issues = diagram.validate_drawio(path)
+    assert any("unknown OCI stencil" in issue for issue in issues)
+    assert any("duplicate diagram IDs" in issue for issue in issues)

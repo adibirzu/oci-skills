@@ -32,7 +32,7 @@
       }
     },
     {
-      "id": "label-sources",
+      "id": "__oci_label_sources",
       "type": "text",
       "x": 92,
       "y": 203,
@@ -92,7 +92,7 @@
       }
     },
     {
-      "id": "label-collect",
+      "id": "__oci_label_collect",
       "type": "text",
       "x": 342,
       "y": 203,
@@ -152,7 +152,7 @@
       }
     },
     {
-      "id": "label-stream",
+      "id": "__oci_label_stream",
       "type": "text",
       "x": 592,
       "y": 203,
@@ -212,7 +212,7 @@
       }
     },
     {
-      "id": "label-process",
+      "id": "__oci_label_process",
       "type": "text",
       "x": 842,
       "y": 203,
@@ -272,7 +272,7 @@
       }
     },
     {
-      "id": "label-apm",
+      "id": "__oci_label_apm",
       "type": "text",
       "x": 1092,
       "y": 103,
@@ -332,7 +332,7 @@
       }
     },
     {
-      "id": "label-logan",
+      "id": "__oci_label_logan",
       "type": "text",
       "x": 1092,
       "y": 203,
@@ -392,7 +392,7 @@
       }
     },
     {
-      "id": "label-monitor",
+      "id": "__oci_label_monitor",
       "type": "text",
       "x": 1092,
       "y": 303,
@@ -452,7 +452,7 @@
       }
     },
     {
-      "id": "label-archive",
+      "id": "__oci_label_archive",
       "type": "text",
       "x": 1092,
       "y": 403,
@@ -512,7 +512,7 @@
       }
     },
     {
-      "id": "label-notify",
+      "id": "__oci_label_notify",
       "type": "text",
       "x": 1342,
       "y": 203,
@@ -572,7 +572,7 @@
       }
     },
     {
-      "id": "label-customer",
+      "id": "__oci_label_customer",
       "type": "text",
       "x": 1342,
       "y": 373,
@@ -604,7 +604,7 @@
       "lineHeight": 1.25
     },
     {
-      "id": "edge-1",
+      "id": "__oci_edge_1",
       "type": "arrow",
       "x": 270,
       "y": 218,
@@ -647,7 +647,7 @@
       }
     },
     {
-      "id": "edge-2",
+      "id": "__oci_edge_2",
       "type": "arrow",
       "x": 520,
       "y": 218,
@@ -690,7 +690,7 @@
       }
     },
     {
-      "id": "edge-3",
+      "id": "__oci_edge_3",
       "type": "arrow",
       "x": 770,
       "y": 218,
@@ -733,7 +733,7 @@
       }
     },
     {
-      "id": "edge-4",
+      "id": "__oci_edge_4",
       "type": "arrow",
       "x": 1020,
       "y": 218,
@@ -776,7 +776,7 @@
       }
     },
     {
-      "id": "edge-5",
+      "id": "__oci_edge_5",
       "type": "arrow",
       "x": 1020,
       "y": 218,
@@ -819,7 +819,7 @@
       }
     },
     {
-      "id": "edge-6",
+      "id": "__oci_edge_6",
       "type": "arrow",
       "x": 1020,
       "y": 218,
@@ -862,7 +862,7 @@
       }
     },
     {
-      "id": "edge-7",
+      "id": "__oci_edge_7",
       "type": "arrow",
       "x": 1020,
       "y": 218,
@@ -905,7 +905,7 @@
       }
     },
     {
-      "id": "edge-8",
+      "id": "__oci_edge_8",
       "type": "arrow",
       "x": 1270,
       "y": 318,
@@ -948,7 +948,7 @@
       }
     },
     {
-      "id": "edge-9",
+      "id": "__oci_edge_9",
       "type": "arrow",
       "x": 1270,
       "y": 218,
@@ -991,7 +991,7 @@
       }
     },
     {
-      "id": "edge-10",
+      "id": "__oci_edge_10",
       "type": "arrow",
       "x": 1020,
       "y": 218,

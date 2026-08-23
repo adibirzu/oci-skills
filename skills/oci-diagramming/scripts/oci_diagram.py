@@ -96,6 +96,10 @@ def load_spec(path: pathlib.Path) -> dict[str, Any]:
         raise DiagramError("nodes and edges must be arrays")
     if not (1 <= len(nodes) <= MAX_NODES) or len(edges) > MAX_EDGES:
         raise DiagramError(f"node/edge limits are {MAX_NODES}/{MAX_EDGES}")
+    if "title" in spec and (
+        not isinstance(spec["title"], str) or len(spec["title"]) > 160
+    ):
+        raise DiagramError("title must be a short string")
     ids: set[str] = set()
     for i, node in enumerate(nodes):
         if not isinstance(node, dict) or not SAFE_ID.fullmatch(str(node.get("id", ""))):
@@ -113,8 +117,16 @@ def load_spec(path: pathlib.Path) -> dict[str, Any]:
     for i, edge in enumerate(edges):
         if not isinstance(edge, dict) or edge.get("from") not in ids or edge.get("to") not in ids:
             raise DiagramError(f"edges[{i}] has an unknown endpoint")
+        for key in ("from", "to", "label", "type"):
+            if key in edge and (
+                not isinstance(edge[key], str) or len(edge[key]) > 160
+            ):
+                raise DiagramError(f"edges[{i}].{key} must be a short string")
         if edge.get("type", "data") not in {"data", "control", "telemetry", "replication", "response", "trust"}:
             raise DiagramError(f"edges[{i}].type is invalid")
+    spec = dict(spec)
+    spec["nodes"] = nodes
+    spec["edges"] = edges
     return spec
 
 
@@ -138,7 +150,7 @@ def drawio(spec: dict[str, Any]) -> str:
     nodes, edges = spec["nodes"], spec["edges"]
     pos = positions(nodes)
     layers = ["Boundaries", "Network", "Workloads", "Observability", "Security", "Annotations"]
-    layer_ids = {name: f"layer-{i + 2}" for i, name in enumerate(layers)}
+    layer_ids = {name: f"__oci_layer_{i + 2}" for i, name in enumerate(layers)}
     cells = ['<mxCell id="0"/>', '<mxCell id="1" parent="0"/>']
     for name in layers:
         cells.append(f'<mxCell id="{layer_ids[name]}" value="{name}" parent="0"/>')
@@ -174,7 +186,7 @@ def drawio(spec: dict[str, Any]) -> str:
         label = edge.get("label", "")
         style = "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" + edge_styles[etype]
         cells.append(
-            f'<mxCell id="edge-{i + 1}" value="{xml_attr(label)}" edge="1" '
+            f'<mxCell id="__oci_edge_{i + 1}" value="{xml_attr(label)}" edge="1" '
             f'parent="{layer_ids["Annotations"]}" source="{xml_attr(edge["from"])}" target="{xml_attr(edge["to"])}" '
             f'style="{xml_attr(style)}"><mxGeometry relative="1" as="geometry"/></mxCell>'
         )
@@ -197,7 +209,7 @@ def excalidraw(spec: dict[str, Any]) -> str:
                          "version": 1, "versionNonce": seed + 1, "isDeleted": False, "boundElements": None,
                          "updated": 1, "link": None, "locked": False, "customData": {"ociService": node.get("service"), "layer": node.get("layer", "Workloads")}})
         seed += 2
-        elements.append({"id": f"label-{node['id']}", "type": "text", "x": x + 12, "y": y + 23,
+        elements.append({"id": f"__oci_label_{node['id']}", "type": "text", "x": x + 12, "y": y + 23,
                          "width": 166, "height": 25, "angle": 0, "strokeColor": "#312D2A", "backgroundColor": "transparent",
                          "fillStyle": "solid", "strokeWidth": 1, "strokeStyle": "solid", "roughness": 0, "opacity": 100,
                          "seed": seed, "version": 1, "versionNonce": seed + 1, "isDeleted": False, "boundElements": None,
@@ -206,9 +218,10 @@ def excalidraw(spec: dict[str, Any]) -> str:
                          "containerId": None, "originalText": node.get("label", node["id"]), "lineHeight": 1.25})
         seed += 2
     for i, edge in enumerate(edges):
-        sx, sy = pos[edge["from"]]; tx, ty = pos[edge["to"]]
+        sx, sy = pos[edge["from"]]
+        tx, ty = pos[edge["to"]]
         style = "dashed" if edge.get("type") in {"control", "telemetry", "response", "trust"} else "solid"
-        elements.append({"id": f"edge-{i+1}", "type": "arrow", "x": sx + 190, "y": sy + 38,
+        elements.append({"id": f"__oci_edge_{i+1}", "type": "arrow", "x": sx + 190, "y": sy + 38,
                          "width": tx - sx - 190, "height": ty - sy, "angle": 0, "strokeColor": "#C74634" if edge.get("type") == "telemetry" else "#312D2A",
                          "backgroundColor": "transparent", "fillStyle": "solid", "strokeWidth": 2, "strokeStyle": style,
                          "roughness": 1, "opacity": 100, "seed": seed, "version": 1, "versionNonce": seed + 1,
@@ -287,19 +300,25 @@ def validate_drawio(path: pathlib.Path) -> list[str]:
         return [f"invalid or unsafe XML: {exc}"]
     if root_tag != ["mxfile"]:
         issues.append("root must be mxfile")
-    ids = [c.get("id") for c in cells if c.get("id")]
-    duplicates = [v for v, count in Counter(ids).items() if count > 1]
+    cell_ids = [c.get("id") for c in cells if c.get("id")]
+    object_ids = [u.get("id") for u in objects if u.get("id")]
+    all_ids = cell_ids + object_ids
+    duplicates = [v for v, count in Counter(all_ids).items() if count > 1]
     if duplicates:
-        issues.append("duplicate mxCell IDs: " + ", ".join(duplicates[:10]))
-    known = set(ids) | {u.get("id") for u in objects if u.get("id")}
+        issues.append("duplicate diagram IDs: " + ", ".join(duplicates[:10]))
+    known = set(all_ids)
     for cell in cells:
         if cell.get("edge") == "1" and (cell.get("source") not in known or cell.get("target") not in known):
             issues.append(f"dangling edge: {cell.get('id')}")
     for obj in objects:
         service = obj.get("ociService")
         cell = object_cells.get(obj.get("id", ""))
-        if service and cell is not None and OCI_STENCIL_STYLES.get(service, "") not in cell.get("style", ""):
-            issues.append(f"OCI service {service} lacks its official stencil style: {obj.get('id')}")
+        if service:
+            expected_style = OCI_STENCIL_STYLES.get(service)
+            if expected_style is None:
+                issues.append(f"unknown OCI stencil service key: {service}")
+            elif cell is None or expected_style not in cell.get("style", ""):
+                issues.append(f"OCI service {service} lacks its official stencil style: {obj.get('id')}")
     if not any(c.get("value") == "Security" for c in cells):
         issues.append("missing named Security layer")
     if not any(c.get("value") == "Observability" for c in cells):

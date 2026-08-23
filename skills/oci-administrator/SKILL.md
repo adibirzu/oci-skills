@@ -20,7 +20,7 @@ description: >-
 
 Operate and engineer OCI safely. The pack exposes 27 skills: this router selects
 one of twenty-one primary domain skills or the **oci-project**, **oci-product-development**,
-**oci-application-engineering**, and **oci-landing-zone** orchestrators,
+**oci-application-engineering**, **oci-landing-zone**, and **oci-diagramming** orchestrators,
 all sharing one tenancy-safety core.
 
 **Scope:** this pack is the **default entry point for OCI tenancy

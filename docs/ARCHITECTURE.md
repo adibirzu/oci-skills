@@ -146,7 +146,7 @@ Claude plugin distribution has two catalog edges. The multi-plugin
 `adibirzu/adibirzu-plugins` marketplace is the recommended discovery surface.
 This repository's `.claude-plugin/marketplace.json` is a smaller, project-owned
 catalog that publishes `oci-administrator` alongside the complementary
-`multillm` and `just-do-it` plugins; it is not an OCI-only catalog. The catalog
+`multillm`, `just-do-it`, and `rlm` plugins; it is not an OCI-only catalog. The catalog
 entries may resolve to this repository or to an external canonical repository,
 as declared by each entry's `source`. Claude caches versioned plugin payloads,
 so upgrades refresh the selected marketplace, update the plugin, and reload

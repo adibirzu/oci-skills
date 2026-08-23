@@ -211,7 +211,18 @@ def test_copy_install_excludes_terraform_runtime_and_sensitive_artifacts(
         ROOT,
         source,
         ignore=shutil.ignore_patterns(
-            ".git", ".terraform", "__pycache__", ".pytest_cache", ".ruff_cache", "*.pyc", "*.pyo",
+            ".git",
+            ".terraform",
+            ".tmp",
+            ".worktrees",
+            "tmp",
+            "published",
+            "comics",
+            "__pycache__",
+            ".pytest_cache",
+            ".ruff_cache",
+            "*.pyc",
+            "*.pyo",
         ),
     )
     starter = source / "skills" / "oci-terraform-authoring" / "assets" / "starter"
