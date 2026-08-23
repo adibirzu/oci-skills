@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "roles": [
+    {
+      "name": "planner",
+      "description": "Inspect the repository and turn the goal into bounded, dependency-aware work packets.",
+      "capabilities": ["read", "search"],
+      "model_tier": "strong",
+      "deliverable": "A synthesized plan with scope, dependencies, risks, file boundaries, and verification commands."
+    },
+    {
+      "name": "scout",
+      "description": "Investigate one question without changing repository files.",
+      "capabilities": ["read", "search"],
+      "model_tier": "standard",
+      "deliverable": "Evidence-backed findings with file references, reproduction steps, uncertainty, and no edits."
+    },
+    {
+      "name": "test-writer",
+      "description": "Create a focused failing contract for one bounded behavior change.",
+      "capabilities": ["read", "search", "write", "test"],
+      "model_tier": "standard",
+      "deliverable": "Owned test changes, the RED command and result, and any contract ambiguity."
+    },
+    {
+      "name": "maker",
+      "description": "Implement one bounded task against an existing failing contract.",
+      "capabilities": ["read", "search", "write", "test"],
+      "model_tier": "standard",
+      "deliverable": "Changed files, implementation summary, GREEN evidence, and known risks."
+    },
+    {
+      "name": "checker",
+      "description": "Independently review a change for correctness, regressions, and missing tests without editing it.",
+      "capabilities": ["read", "search", "test"],
+      "model_tier": "strong",
+      "deliverable": "Prioritized findings with file/line evidence, verification results, and pass or fail verdict."
+    },
+    {
+      "name": "security-checker",
+      "description": "Independently review changed trust boundaries, authorization, secrets, egress, and isolation.",
+      "capabilities": ["read", "search", "test"],
+      "model_tier": "strong",
+      "deliverable": "Threat-boundary findings, negative-test evidence, scan results, and pass or fail verdict."
+    }
+  ]
+}

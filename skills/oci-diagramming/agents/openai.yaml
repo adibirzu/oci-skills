@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Diagramming"
+  short_description: "Secure editable OCI Draw.io, Excalidraw, and Mermaid diagrams"
+  default_prompt: "Use $oci-diagramming to create an editable, OCI-stencil-aware architecture diagram and validate it offline."

@@ -34,14 +34,28 @@
     },
     {
       "name": "just-do-it",
-      "description": "Turn one goal into reviewed PRDs and model-tiered agent tasks with strict isolation, durable recovery, and an auditable scoped break-glass mode.",
-      "version": "1.2.0",
+      "description": "Turn one goal into reviewed PRDs and clean least-privilege agent teams across Codex, Claude, AGY, Cursor, Grok, Pi, and Cline.",
+      "version": "1.5.0",
       "author": {
         "name": "adibirzu"
       },
       "source": "./plugins/just-do-it",
       "category": "development",
       "homepage": "https://github.com/adibirzu/oci-skills"
+    },
+    {
+      "name": "rlm",
+      "description": "Budgeted recursive analysis for large repositories and document sets with evidence ledgers, selective verification, and safe capability fallbacks.",
+      "version": "3.2.0",
+      "author": {
+        "name": "adibirzu"
+      },
+      "source": {
+        "source": "github",
+        "repo": "adibirzu/rlm-plugin"
+      },
+      "category": "development",
+      "homepage": "https://github.com/adibirzu/rlm-plugin"
     }
   ]
 }

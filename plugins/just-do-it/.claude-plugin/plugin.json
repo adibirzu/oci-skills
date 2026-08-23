@@ -1,7 +1,7 @@
 {
   "name": "just-do-it",
-  "version": "1.2.0",
-  "description": "Secure autonomous PRD delivery with model-tiered agents and scoped break glass.",
+  "version": "1.5.0",
+  "description": "Portable PRD delivery and clean least-privilege agent-team generation for Codex, Claude, AGY, Cursor, Grok, Pi, and Cline.",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"

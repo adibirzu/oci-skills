@@ -96,7 +96,7 @@ Terraform, DNS, or application operators.
 
 ## Product contract plane
 
-The consolidated product plane covers **26 skills, 52 requirements, 40 detailed
+The consolidated product plane covers **27 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**.
 
 `docs/product/contracts/` is the machine-readable control plane for capability
@@ -142,12 +142,15 @@ contract stabilizes named contexts, risk values, schema-v1 platform bundles,
 skill names, and Terraform ownership. `run_mutating` remains a deprecated
 additive alias for `run_action` until a future major release.
 
-Claude plugin distribution has two catalog edges that resolve to the same
-canonical repository and version: the multi-plugin `adibirzu/adibirzu-plugins`
-marketplace is the recommended discovery surface, while this repository's
-`.claude-plugin/marketplace.json` remains the OCI-only source. Claude caches the
-versioned plugin payload, so upgrades refresh the selected marketplace, update
-the plugin, and reload plugins. Copy installation is a separate adapter path:
+Claude plugin distribution has two catalog edges. The multi-plugin
+`adibirzu/adibirzu-plugins` marketplace is the recommended discovery surface.
+This repository's `.claude-plugin/marketplace.json` is a smaller, project-owned
+catalog that publishes `oci-administrator` alongside the complementary
+`multillm`, `just-do-it`, and `rlm` plugins; it is not an OCI-only catalog. The catalog
+entries may resolve to this repository or to an external canonical repository,
+as declared by each entry's `source`. Claude caches versioned plugin payloads,
+so upgrades refresh the selected marketplace, update the plugin, and reload
+plugins. Copy installation is a separate adapter path:
 `install.sh` materializes the portable payload for Claude, Codex, Gemini, or
 Antigravity, but it does not activate Claude-only commands or hooks.
 
