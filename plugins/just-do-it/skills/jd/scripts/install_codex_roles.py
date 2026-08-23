@@ -11,8 +11,8 @@ import pathlib
 import shutil
 import sys
 import tempfile
-import tomllib
-from datetime import UTC, datetime
+from datetime import datetime, timezone
+from types import ModuleType
 
 
 VERSION = "1.5.0"
@@ -25,6 +25,22 @@ REGISTRATION_SOURCE = ROLE_SOURCE / "agents.toml"
 
 class InstallError(RuntimeError):
     pass
+
+
+def _toml_parser() -> ModuleType:
+    try:
+        import tomllib
+
+        return tomllib
+    except ModuleNotFoundError:
+        try:
+            import tomli
+
+            return tomli
+        except ModuleNotFoundError as error:
+            raise InstallError(
+                "TOML parsing requires Python 3.11+ or the 'tomli' package on older Python"
+            ) from error
 
 
 def _digest(data: bytes) -> str:
@@ -52,8 +68,9 @@ def _refuse_symlink(path: pathlib.Path, label: str) -> None:
 
 
 def _sources() -> tuple[dict[str, dict[str, str]], dict[pathlib.Path, bytes]]:
+    toml = _toml_parser()
     _refuse_symlink(ROLE_SOURCE, "role source directory")
-    registrations = tomllib.loads(REGISTRATION_SOURCE.read_text(encoding="utf-8"))["agents"]
+    registrations = toml.loads(REGISTRATION_SOURCE.read_text(encoding="utf-8"))["agents"]
     roles: dict[pathlib.Path, bytes] = {}
     for name, registration in registrations.items():
         relative = pathlib.PurePosixPath(registration["config_file"])
@@ -62,7 +79,7 @@ def _sources() -> tuple[dict[str, dict[str, str]], dict[pathlib.Path, bytes]]:
         source = ROLE_SOURCE / relative.name
         _refuse_symlink(source, f"role source {name}")
         data = source.read_bytes()
-        parsed = tomllib.loads(data.decode("utf-8"))
+        parsed = toml.loads(data.decode("utf-8"))
         if parsed.get("name") != name:
             raise InstallError(f"role name mismatch: {source.name}")
         roles[pathlib.Path(*relative.parts)] = data
@@ -144,6 +161,7 @@ def _check(home: pathlib.Path) -> int:
 
 
 def _install(home: pathlib.Path) -> int:
+    toml = _toml_parser()
     _refuse_symlink(home, "Codex home")
     registrations, roles = _sources()
     config_path = home / "config.toml"
@@ -168,8 +186,8 @@ def _install(home: pathlib.Path) -> int:
 
     existing_config = config_path.read_text(encoding="utf-8") if config_path.exists() else ""
     try:
-        parsed = tomllib.loads(existing_config) if existing_config.strip() else {}
-    except tomllib.TOMLDecodeError as error:
+        parsed = toml.loads(existing_config) if existing_config.strip() else {}
+    except toml.TOMLDecodeError as error:
         raise InstallError(f"existing config.toml is invalid: {error}") from error
     expected_block = _config_block(registrations)
     managed = _managed_slice(existing_config)
@@ -186,15 +204,15 @@ def _install(home: pathlib.Path) -> int:
         separator = "" if not existing_config or existing_config.endswith("\n\n") else "\n"
         new_config = existing_config + separator + expected_block
     try:
-        tomllib.loads(new_config)
-    except tomllib.TOMLDecodeError as error:
+        toml.loads(new_config)
+    except toml.TOMLDecodeError as error:
         raise InstallError(f"generated config.toml is invalid: {error}") from error
 
     changes = config_path.read_bytes() != new_config.encode() if config_path.exists() else True
     role_changes = [(relative, data) for relative, data in roles.items() if not (home / relative).exists() or (home / relative).read_bytes() != data]
     backup_dir: pathlib.Path | None = None
     if changes or role_changes:
-        stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S.%fZ")
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S.%fZ")
         backup_dir = home / "backups" / "jd" / stamp
         backup_dir.mkdir(parents=True, mode=0o700)
         os.chmod(backup_dir, 0o700)
@@ -221,7 +239,7 @@ def _install(home: pathlib.Path) -> int:
         "managed_roles": sorted(registrations),
         "role_hashes": {str(relative): _digest(data) for relative, data in roles.items()},
         "config_block_sha256": _digest(expected_block.encode()),
-        "installed_at": datetime.now(UTC).isoformat(),
+        "installed_at": datetime.now(timezone.utc).isoformat(),
         "backup": str(backup_dir.relative_to(home)) if backup_dir else None,
     }
     _atomic_write(manifest_path, (json.dumps(manifest, indent=2, sort_keys=True) + "\n").encode())
