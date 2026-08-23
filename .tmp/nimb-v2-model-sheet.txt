@@ -1,0 +1,21 @@
+A 1:1 square character reference sheet for a recurring Oracle Cloud Infrastructure editorial mascot, on a plain warm-stone paper background — no scene, no props, no labels, no text, no logo, no wordmark.
+
+REDESIGN THE PROVIDED SIMPLE NIMB REFERENCE into a richer but repeatable character called "Nimb, the OCI region pod." Preserve only its calm two-dot deadpan identity and compact proportions; make the cloud infrastructure concept immediately legible.
+
+LOCKED CHARACTER DESIGN:
+- ONE strong silhouette: a wide, compact rounded-square infrastructure pod whose upper third is a soft THREE-LOBED CLOUD CROWN integrated into the body; the lower two-thirds form a sturdy rounded data-center chassis. The cloud crown and chassis are one continuous body, not separate objects.
+- A single inset charcoal ARCH-SHAPED RACK CORE centered on the lower torso, clearly separated from the outer body by a cream gutter. Inside the rack core are exactly THREE short horizontal cream slots, evenly stacked, suggesting compute, storage, and database capacity. This rack core is a permanent locked body feature, not a prop.
+- FACE: exactly two small charcoal dot eyes placed high on the cream cloud crown, blank deadpan, no eyebrows, no mouth, no nose, no cheeks, no other facial marks.
+- ACCENT CARRIER: exactly ONE Oracle-red rounded REGION BEACON arch rising behind the center cloud lobe, like a small protective signal halo. It is the ONLY Oracle-red part. It must not resemble or reproduce the Oracle corporate wordmark or OCI logo.
+- LIMBS: two short dark-charcoal segmented cable arms ending in simple cream rounded paddle hands; two short cream feet on dark-charcoal soles. Exactly two arms, two hands, two legs, two feet.
+- Small scale-worthy infrastructure detailing is limited to the single rack core and its three slots. No extra panels, buttons, bolts, vents, wires, antennae, clothing, tools, text, logos, symbols, or accessories.
+
+POSE: one large clean front-facing full-body view, centered, occupying about 68% of the frame, standing neutral, arms slightly away from the chassis so every limb is visible, feet fully visible.
+
+LINE LANGUAGE: ONE bold, even-weight, softly-rounded outline across the whole character, with confident Redwood-like geometric curves. No thin scratchy lines.
+
+STYLE: refined risograph editorial print — controlled grainy halftone, slight ink-layer offset, faint warm paper texture, flat fills, no gradients, no soft shadows, no glossy 3D, no corporate stock-vector look.
+
+ORACLE REDWOOD PALETTE: warm-stone paper #FBF9F8; warm charcoal structure ink #2A2F2F; cream body #F3F0ED; Oracle red #C74634 ONLY on the single region-beacon arch. The charcoal rack core remains subordinate to the cream cloud body. No blue, pink, orange, or extra colors.
+
+The result should read at a glance as a friendly cloud region fused with a small data-center pod: cloud + infrastructure + operator. It must be distinctive and richer than the simple capsule reference while remaining reproducible across many scenes.

@@ -101,7 +101,7 @@ OCI Skills v2 is a multi-harness OCI engineering assistant for safe administrati
     validates cross-domain guardrails without duplicating domain operations.
 11. An application workflow can emit a schema-valid metadata record and optional
     aggregate evaluation without preserving raw content or requiring a provider.
-12. A maintainer can validate all 52 requirements, 26 skills, routing precedence,
+12. A maintainer can validate all 52 requirements, 27 skills, routing precedence,
     harness distribution, redaction scope, release evidence, and compatibility
     from one deterministic offline contract command.
 13. A malformed contract, dependency cycle, unsafe verification command, unknown

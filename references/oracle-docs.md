@@ -218,6 +218,16 @@ Safe), the upstream `db/` domain of
 | Well-Architected OCI Landing Zones | <https://docs.oracle.com/en/solutions/oci-best-practices/simplify-provisioning-oci-landing-zones1.html> |
 | Resource Manager and Terraform | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resource-manager-and-terraform.htm> |
 
+## Architecture diagramming — `oci-diagramming`
+
+| Topic | Canonical doc |
+|---|---|
+| OCI architecture icons and diagrams | <https://docs.oracle.com/en-us/iaas/Content/General/Reference/graphicsfordiagrams.htm> |
+| Network Firewall examples | <https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/whitepapers/learn-oci-network-firewall-with-examples.pdf> |
+| IAM OAuth and OIDC flows | <https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/whitepapers/oci-iam-oauth-flows-best-practices.pdf> |
+| Hybrid disaster recovery | <https://docs.oracle.com/en/solutions/design-dr/implement-dr-using-hybrid-deployment1.html> |
+| Redis reference architecture | <https://docs.oracle.com/en/solutions/deploy-redis-cluster/> |
+
 ## Data Safe — `oci-data-safe`
 
 | Topic | Canonical doc |

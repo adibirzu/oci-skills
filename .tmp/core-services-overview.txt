@@ -1,0 +1,20 @@
+A 16:9 horizontal editorial explainer illustration showing ONE idea: "OCI foundations work when identity, networking, storage, data, and observability are operated as connected controls."
+
+Composition (explainer — system slice): a hand-built risograph sketch-diagram of five connected physical cloud-service stations across one horizontal route, with generous quiet paper space. From left to right: an Identity gate with a narrow key slot; a private Network bridge with a small compute pod crossing it; a Storage vault shelf holding a sealed container; a Data engine with a simple database cylinder; and an Observability lantern that watches the route. Nimb, the OCI region pod, is a WORKING PART of the structure: standing on the private bridge, pressing a small routing lever with one cream paddle hand to direct the single flow safely from the identity gate into the service route. The main direction moves left to right with simple hand-drawn arrows in the flow color. A single small charcoal guardrail marker beside the route represents security and governance; a small charcoal tally bead on the route represents cost awareness. No title, no border, no grid, no legend, no formal flowchart boxes. The structure spans roughly 60% of the frame with at least 35% quiet paper.
+
+CHARACTER (locked, keep exactly on the reference model): the recurring mascot — one wide rounded cream infrastructure pod with an integrated three-lobed cloud crown above a sturdy data-center chassis; one charcoal arch-shaped rack core centered on the lower torso with exactly three short cream slots; exactly two charcoal dot eyes high on the cloud crown, blank deadpan (no eyebrows, no mouth, no other facial marks); two short charcoal segmented cable arms ending in simple cream paddle hands and two short cream feet with charcoal soles; the ONLY accent-colored part is one Oracle-red rounded region-beacon arch rising behind the center cloud lobe. It MUST perform the move, not decorate. The rack core is a locked body feature, never a prop; no extra panels, buttons, vents, wires, logos, symbols, or text. The mascot is solid and opaque in front of the scene; lines stop at its silhouette.
+
+INTERACTION GEOMETRY:
+- Active contact: Nimb's right cream paddle hand presses the small routing lever beside the bridge to direct the route.
+- Support contact: both short feet stand on the private bridge below the body.
+- Inactive parts: left segmented arm and cream paddle hand stay low at Nimb's side and touch nothing.
+- Protected regions: only the two dot eyes appear inside the face interior; all route and prop strokes stay outside it.
+- Occlusion: the bridge and arrows stop at Nimb's silhouette and resume only beyond it.
+
+LINE LANGUAGE: draw EVERYTHING — mascot, objects, arrows — in ONE bold, even-weight, softly-rounded outline, not thin scratchy sketch lines.
+
+STYLE: risograph print — grainy halftone texture, slight ink-layer offset, faint paper grain, flat fills, no gradients, no soft shadows.
+
+PALETTE: Oracle Redwood warm-stone paper #FBF9F8. Warm-charcoal structure ink #2A2F2F for linework, forms, rack core, arms, soles, and text. Oracle-red accent #C74634 used sparingly — Nimb's region-beacon arch and the main flow arrows only. No secondary color. Semantic roles: flow arrows use Oracle red; the guardrail marker and cost tally bead use warm charcoal.
+
+CALLOUTS: exactly 6 short hand-lettered English callouts — "Identity", "Network + Compute", "Storage", "Data", "Observe", "Guardrails" — each appearing exactly once on bare paper near its station. No other text, numbers, color codes, or logos anywhere in the image.

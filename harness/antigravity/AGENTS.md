@@ -7,6 +7,7 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 - `oci-iam-admin`: IAM and tenancy guardrails.
 - `oci-security-compliance`: OCI posture plus AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates.
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms.
+- `oci-diagramming`: editable OCI Draw.io, Excalidraw, and Mermaid diagrams with offline validation.
 - `oci-dbm-opsi`: DBM/OPSI and database performance control plane.
 - `oci-autonomous-db`: ADB lifecycle/connectivity.
 - `oci-database-cloud`: Base Database and Exadata control-plane lifecycle.

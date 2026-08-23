@@ -37,6 +37,7 @@ EXPECTED_SKILLS = {
     "oci-product-development",
     "oci-application-engineering",
     "oci-landing-zone",
+    "oci-diagramming",
 }
 
 
@@ -47,7 +48,7 @@ def _frontmatter(path: pathlib.Path) -> str:
 def test_v2_skill_topology_and_codex_metadata() -> None:
     skills = {path.parent.name for path in ROOT.glob("skills/*/SKILL.md")}
     assert skills == EXPECTED_SKILLS
-    assert len(skills) == 26
+    assert len(skills) == 27
     for skill in skills:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
 
