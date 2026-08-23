@@ -21,6 +21,9 @@ Build application code around OCI without taking ownership of OCI control-plane 
 
 ## Optional RLM analysis
 
+For provenance, installation, research grounding, and the bounded operating
+contract, read [`references/rlm-analysis.md`](references/rlm-analysis.md).
+
 Use the external `rlm` skill when the user requests a repository-wide review,
 the relevant evidence exceeds one practical context window, or conclusions
 require cross-file synthesis across independently reviewable surfaces. RLM is

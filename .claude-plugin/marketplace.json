@@ -42,6 +42,20 @@
       "source": "./plugins/just-do-it",
       "category": "development",
       "homepage": "https://github.com/adibirzu/oci-skills"
+    },
+    {
+      "name": "rlm",
+      "description": "Budgeted recursive analysis for large repositories and document sets with evidence ledgers, selective verification, and safe capability fallbacks.",
+      "version": "3.2.0",
+      "author": {
+        "name": "adibirzu"
+      },
+      "source": {
+        "source": "github",
+        "repo": "adibirzu/rlm-plugin"
+      },
+      "category": "development",
+      "homepage": "https://github.com/adibirzu/rlm-plugin"
     }
   ]
 }

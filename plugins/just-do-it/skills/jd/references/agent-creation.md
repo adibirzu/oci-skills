@@ -26,8 +26,9 @@ copying prompts by hand. The generator validates it before rendering.
 
 1. Give every agent one purpose, one bounded deliverable, and an explicit capability list.
 2. Keep planner and scout read-only. Give writes only to test-writer and maker.
-3. Keep checker and security-checker read-only and independent from maker context. They may run
-   verification but may not repair their own findings.
+3. Keep checker and security-checker read-only and independent from maker context. Their generated
+   definitions have no command runner: they review supplied evidence and return verification
+   commands and evidence requirements to the coordinator, which executes approved checks.
 4. Give agents self-contained packets: goal slice, repository facts, owned paths, constraints,
    verification commands, evidence, and output schema. Do not say only "use the prior findings."
 5. Allow only the coordinator to assign work, reconcile state, obtain authority, and communicate

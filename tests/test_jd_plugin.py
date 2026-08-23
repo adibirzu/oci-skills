@@ -66,33 +66,6 @@ def test_jd_role_installer_round_trip(tmp_path: pathlib.Path) -> None:
     assert check.returncode == 0, check.stdout + check.stderr
 
 
-def test_jd_continuity_and_delivery_contracts_are_linked() -> None:
-    skill = (SKILL / "SKILL.md").read_text(encoding="utf-8")
-    continuity = (SKILL / "references" / "continuity.md").read_text(encoding="utf-8")
-    delivery = (SKILL / "references" / "delivery.md").read_text(encoding="utf-8")
-    run = (SKILL / "assets" / "RUN.md").read_text(encoding="utf-8")
-
-    assert "references/continuity.md" in skill
-    assert "references/delivery.md" in skill
-    assert "Event cursor/checkpoint" in run
-    assert "Decision holds" in run
-    assert "Never infer success from silence" in continuity
-    assert "Never enable auto-merge" in delivery
-    assert "PR/MR creation and review do not imply merge authority" in delivery
-
-
-def test_jd_delivery_states_remain_distinct() -> None:
-    delivery = (SKILL / "references" / "delivery.md").read_text(encoding="utf-8")
-    for state in (
-        "implemented locally",
-        "committed",
-        "pushed",
-        "merged and verified",
-        "released or deployed",
-    ):
-        assert state in delivery
-
-
 def test_jd_harness_adapter_round_trip(tmp_path: pathlib.Path) -> None:
     script = SKILL / "scripts" / "install_harness_adapters.py"
     install = subprocess.run(

@@ -42,4 +42,5 @@ routing:
   oci-project: project lifecycle orchestration.
   oci-product-development: five platform-bundle golden paths.
   oci-application-engineering: application code workflow, reuse, review, and measurement; no OCI mutation.
+  oci-diagramming: offline OCI architecture generation and security/quality validation for Draw.io, Excalidraw, and Mermaid.
   oci-landing-zone: landing-zone assessment, design, deployment, upgrade, and validation.

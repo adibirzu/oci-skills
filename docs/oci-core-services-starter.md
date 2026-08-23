@@ -2,8 +2,6 @@
 
 This starter set is an operator map, not a deployment runbook. It covers the first seven foundational skill domains in this pack. All examples are offline guidance until a named tenancy, region, compartment, and owner are confirmed.
 
-![Nimb, OCI foundation map](../assets/oci-skills-illustrations/02-core-services-foundation-map-v2.png)
-
 ## How to use this guide
 
 Start by identifying the service domain that owns the resource. Use the matching skill for its read-first workflow, then hand work across domains instead of using one broad, unsafe command path. For live work, confirm the target context first and keep durable changes under Terraform ownership where applicable.
