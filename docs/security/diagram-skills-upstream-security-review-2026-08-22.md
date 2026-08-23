@@ -6,13 +6,13 @@ Static, local review of pinned upstream snapshots. No upstream code was installe
 no remote renderer was called, and no OCI tenancy was contacted. Evidence class:
 **locally verified static analysis**, not dynamic exploit proof or provider review.
 
-| Upstream | Pinned commit |
+| Upstream | Pinned revision |
 |---|---|
-| Agents365 Draw.io | `4d9b31166022ad4c299180038792372d3f5bcc95` |
-| Agents365 Excalidraw | `00606e9fcb072e9644cbfbb3d49a9dafe8b98c25` |
-| Agents365 Mermaid | `659484635feb2f56e11694c91ddd60261de65f33` |
-| JasperPWang lab-codex-skills | `1d21aed7db904a5844d106b22d65340666537e89` |
-| drawio-rethinked-oci | `d367e91980c35a34169cdc639fdac4280796af25` |
+| Agents365 Draw.io | `4d9b31166022` |
+| Agents365 Excalidraw | `00606e9fcb07` |
+| Agents365 Mermaid | `659484635feb` |
+| JasperPWang lab-codex-skills | `1d21aed7db90` |
+| drawio-rethinked-oci | `d367e91980c3` |
 
 Tools: Gitleaks secret scan, Bandit Python SAST, targeted pattern review, license
 inventory, and manual source-to-sink review. Gitleaks found no secrets in the
@@ -52,4 +52,3 @@ existing directory, rejects symlinks, and preserves evidence/provenance metadata
   that the topology matches a live tenancy.
 - Rendering with external binaries or services is outside the trusted core and
   needs separate dependency, privacy, and active-content review.
-
