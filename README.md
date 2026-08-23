@@ -20,7 +20,8 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 The 27-skill pack contains a router selecting twenty-one primary domains and five orchestrators:
 
-For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md).
+For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md). For an
+operator tour of the foundational service domains, read the [core services starter](docs/oci-core-services-starter.md).
 
 <!-- BEGIN OCI SKILLS -->
 - **Start here**

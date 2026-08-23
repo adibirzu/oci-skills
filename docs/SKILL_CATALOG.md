@@ -19,6 +19,10 @@ or mutations still follow the router safety gates in [AGENTS.md](../AGENTS.md).
 | "Design or validate a greenfield tenancy foundation." | [OCI Landing Zone](../skills/oci-landing-zone/) |
 | "Create an OCI architecture diagram in Draw.io, Excalidraw, or Mermaid." | [OCI Diagramming](../skills/oci-diagramming/) |
 
+New to the pack? The [core services starter](oci-core-services-starter.md) walks
+through the seven foundational service domains and how work hands off between
+them before you pick a skill from the tables below.
+
 ## Security and Governance
 
 | User intent | Use this skill |
