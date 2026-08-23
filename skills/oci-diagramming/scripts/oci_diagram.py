@@ -24,6 +24,21 @@ MAX_EDGES = 500
 SAFE_ID = re.compile(r"^[A-Za-z][A-Za-z0-9_.:-]{0,79}$")
 FORBIDDEN_XML = re.compile(br"<!DOCTYPE|<!ENTITY|<\?xml-stylesheet", re.I)
 FORBIDDEN_MERMAID = re.compile(r"%%\{\s*init|<script|javascript:|click\s+\S+\s+(?:href|call)", re.I)
+MERMAID_UNSAFE_TEXT = re.compile(r"[|\[\]{}<>#`\\]|[\x00-\x1f]")
+MERMAID_UNSAFE_ID = re.compile(r"[^A-Za-z0-9_.-]")
+MERMAID_RESERVED_IDS = {
+    "end", "graph", "subgraph", "flowchart", "class", "classdef", "click",
+    "style", "linkstyle", "direction",
+}
+MERMAID_DECLARATION = re.compile(
+    r"(?m)^\s*(flowchart|sequenceDiagram|classDiagram|erDiagram|stateDiagram-v2|architecture-beta)\b"
+)
+MERMAID_KEYWORD_LINE = re.compile(
+    r"^(flowchart|graph|classDef|class|style|linkStyle|click|direction|subgraph)\b"
+)
+MERMAID_SEPARATORS = re.compile(
+    r'"[^"]*"|-\.->|-\.-|={2,}>|-{2,}>|-{3,}|~{3,}|:::|[\[\](){}|&,;]'
+)
 
 OCI_STENCIL_STYLES = {
     "monitoring": "shape=mxgraph.oci.monitoring;",
@@ -235,26 +250,39 @@ def excalidraw(spec: dict[str, Any]) -> str:
     return json.dumps(scene, indent=2, ensure_ascii=False) + "\n"
 
 
+def mermaid_text(value: Any) -> str:
+    text = MERMAID_UNSAFE_TEXT.sub(" ", str(value).replace('"', "'"))
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def mermaid_aliases(nodes: list[dict[str, Any]]) -> dict[str, str]:
+    return {node["id"]: f"n{i}" for i, node in enumerate(nodes, 1)}
+
+
 def mermaid(spec: dict[str, Any]) -> str:
-    lines = ["%% OCI diagram: service nodes retain oci-service metadata in comments", "flowchart LR"]
+    spec_nodes = spec["nodes"]
+    alias = mermaid_aliases(spec_nodes)
+    lines = ["%% OCI diagram: node aliases and oci-service metadata are recorded in comments", "flowchart LR"]
     groups: dict[str, list[dict[str, Any]]] = {}
-    for node in spec["nodes"]:
+    for node in spec_nodes:
         groups.setdefault(node.get("group", "OCI workload"), []).append(node)
     for gi, (group, nodes) in enumerate(groups.items(), 1):
-        lines.append(f'  subgraph G{gi}["{group.replace(chr(34), chr(39))}"]')
+        lines.append(f'  subgraph G{gi}["{mermaid_text(group) or "OCI workload"}"]')
         for node in nodes:
-            label = node.get("label", node["id"]).replace('"', "'")
+            nid = node["id"]
+            label = mermaid_text(node.get("label", nid)) or mermaid_text(nid) or alias[nid]
             service = node.get("service", "custom")
-            lines.append(f"    %% oci-service: {service}")
-            lines.append(f'    {node["id"]}["{label}"]')
+            lines.append(f"    %% oci-node: {alias[nid]} = {nid} (oci-service: {service})")
+            lines.append(f'    {alias[nid]}["{label}"]')
         lines.append("  end")
     arrows = {"data": "-->", "control": "-.->", "telemetry": "-.->", "replication": "==>", "response": "-.->", "trust": "-.-"}
     for edge in spec["edges"]:
-        label = edge.get("label", "").replace('"', "'")
+        label = mermaid_text(edge.get("label", ""))
         token = arrows[edge.get("type", "data")]
-        lines.append(f'  {edge["from"]} {token}|"{label}"| {edge["to"]}' if label else f'  {edge["from"]} {token} {edge["to"]}')
+        source, target = alias[edge["from"]], alias[edge["to"]]
+        lines.append(f'  {source} {token}|"{label}"| {target}' if label else f"  {source} {token} {target}")
     lines.extend(["  classDef oci fill:#FFF3E0,stroke:#C74634,color:#312D2A,stroke-width:2px;",
-                  "  class " + ",".join(n["id"] for n in spec["nodes"]) + " oci;"])
+                  "  class " + ",".join(alias[n["id"]] for n in spec_nodes) + " oci;"])
     return "\n".join(lines) + "\n"
 
 
@@ -345,6 +373,47 @@ def validate_excalidraw(path: pathlib.Path) -> list[str]:
     return issues
 
 
+def mermaid_statements(text: str) -> list[str]:
+    return [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("%%")]
+
+
+def mermaid_identifiers(line: str) -> list[str]:
+    if line.startswith("subgraph"):
+        line = line[len("subgraph"):]
+    elif MERMAID_KEYWORD_LINE.match(line):
+        return []
+    return [token for token in MERMAID_SEPARATORS.sub(" ", line).split() if token]
+
+
+def validate_mermaid_flowchart(statements: list[str]) -> list[str]:
+    issues: list[str] = []
+    depth = 0
+    for line in statements:
+        if line == "end":
+            depth -= 1
+            if depth < 0:
+                issues.append("subgraph block closed without a matching subgraph")
+                depth = 0
+            continue
+        if line.startswith("subgraph"):
+            depth += 1
+        segments = line.split("|")
+        if len(segments) % 2 == 0:
+            issues.append(f"unbalanced edge label delimiter: {line}")
+        else:
+            for segment in segments[1::2]:
+                if segment.count('"') % 2:
+                    issues.append(f"unbalanced edge label quoting: {line}")
+        for identifier in mermaid_identifiers(line):
+            if identifier.lower() in MERMAID_RESERVED_IDS:
+                issues.append(f"reserved Mermaid keyword used as an identifier: {identifier}")
+            if MERMAID_UNSAFE_ID.search(identifier):
+                issues.append(f"identifier is not renderer-safe: {identifier}")
+    if depth > 0:
+        issues.append("subgraph block is never closed")
+    return issues
+
+
 def validate_mermaid(path: pathlib.Path) -> list[str]:
     try:
         text = read_bounded(path).decode("utf-8")
@@ -353,8 +422,11 @@ def validate_mermaid(path: pathlib.Path) -> list[str]:
     issues: list[str] = []
     if FORBIDDEN_MERMAID.search(text):
         issues.append("unsafe Mermaid directive, script, or click action")
-    if not re.search(r"(?m)^\s*(flowchart|sequenceDiagram|classDiagram|erDiagram|stateDiagram-v2|architecture-beta)\b", text):
+    declaration = MERMAID_DECLARATION.search(text)
+    if declaration is None:
         issues.append("no supported Mermaid diagram declaration found")
+    elif declaration.group(1) == "flowchart":
+        issues.extend(validate_mermaid_flowchart(mermaid_statements(text)))
     return issues
 
 
