@@ -126,6 +126,39 @@ def test_mermaid_validator_accepts_hand_authored_shape_text(tmp_path: pathlib.Pa
     assert diagram.validate_mermaid(path) == []
 
 
+def test_mermaid_validator_accepts_graph_alias_and_quoted_pipes(tmp_path: pathlib.Path) -> None:
+    path = tmp_path / "legacy.mmd"
+    path.write_text(
+        "graph TD\n"
+        '  A["read|write"] --> B["ok"]\n'
+        "  B --> C\n"
+        "  A-->D;subgraph s1;D-->E;end;\n",
+        encoding="utf-8",
+    )
+    assert diagram.validate_mermaid(path) == []
+
+
+def test_mermaid_validator_applies_flowchart_rules_to_graph_alias(tmp_path: pathlib.Path) -> None:
+    path = tmp_path / "legacy-broken.mmd"
+    path.write_text('graph TD\n  subgraph s1["g"]\n    end["writer"]\n  end\n', encoding="utf-8")
+    issues = diagram.validate_mermaid(path)
+    assert any("reserved Mermaid keyword" in issue for issue in issues)
+
+
+def test_mermaid_validator_checks_every_node_in_a_chained_edge(tmp_path: pathlib.Path) -> None:
+    reserved = tmp_path / "chained-reserved.mmd"
+    reserved.write_text('flowchart TD\n  subgraph s1["g"]\n    A --> end --> C\n  end\n', encoding="utf-8")
+    assert any("reserved Mermaid keyword" in issue for issue in diagram.validate_mermaid(reserved))
+
+    unsafe = tmp_path / "chained-unsafe.mmd"
+    unsafe.write_text("flowchart TD\n  A --> b#x --> C\n", encoding="utf-8")
+    assert any("identifier is not renderer-safe: b#x" in issue for issue in diagram.validate_mermaid(unsafe))
+
+    inline = tmp_path / "chained-inline-text.mmd"
+    inline.write_text("flowchart TD\n  A -- read/write --> B -- Order: shipped --> C\n", encoding="utf-8")
+    assert diagram.validate_mermaid(inline) == []
+
+
 def test_mermaid_validator_rejects_unparseable_flowchart(tmp_path: pathlib.Path) -> None:
     path = tmp_path / "broken.mmd"
     path.write_text(
