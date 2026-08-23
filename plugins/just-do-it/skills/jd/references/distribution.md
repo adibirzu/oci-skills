@@ -4,6 +4,9 @@ JD is a portable skill, but its preferred named Codex roles are runtime configur
 skill metadata. Distributions include inert role templates under `assets/roles/`. Installing the
 skill must not silently modify a user's global Codex configuration.
 
+The role installer uses Python 3.11+'s standard-library TOML parser. On Python 3.10 and older,
+install `tomli` in the selected Python environment before running `check` or `install`.
+
 For the full model-tiered workflow, inspect the current state first:
 
 ```text
