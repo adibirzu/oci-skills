@@ -2,6 +2,9 @@
 
 This guide distinguishes offline artifact generation, read-only inspection, and live mutation. Start offline; no OCI credential is needed until a preflighted read/plan/action.
 
+For editable OCI architecture diagrams, use `oci-diagramming`. Its Draw.io,
+Excalidraw, and Mermaid generator/validator is offline and contacts no tenancy.
+
 ## Install and prerequisites
 
 Use Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI. Terraform 1.5+ supports HCL validation/execution; 1.7+ runs the native `.tftest.hcl` tests.
@@ -213,7 +216,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **26 skills, 52 requirements, 37 contracts, and
+The installed pack exposes **27 skills, 52 requirements, 37 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 

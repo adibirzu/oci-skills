@@ -7,7 +7,8 @@ description: >-
   DBM/OPSI, ADB, data platforms, OS Management Hub, cost, Log Analytics,
   Resource Manager, Data Safe, Events, Functions, Queue, Terraform/HCL, landing
   zones, DevOps, API Gateway, Container Instances, Artifact Registry/OCIR, exact
-  oci-cli commands, platform bundles, or project lifecycle requests. Routes to
+  oci-cli commands, platform bundles, OCI diagrams, Draw.io, Excalidraw,
+  Mermaid, or project lifecycle requests. Routes to
   distinct domain skills and the oci-project, oci-product-development,
   oci-application-engineering, or oci-landing-zone orchestrator while enforcing named
   contexts, preflight receipts, redaction, and risk-specific approval. Routes
@@ -17,7 +18,7 @@ description: >-
 
 # OCI Administrator
 
-Operate and engineer OCI safely. The pack exposes 26 skills: this router selects
+Operate and engineer OCI safely. The pack exposes 27 skills: this router selects
 one of twenty-one primary domain skills or the **oci-project**, **oci-product-development**,
 **oci-application-engineering**, and **oci-landing-zone** orchestrators,
 all sharing one tenancy-safety core.
@@ -279,6 +280,7 @@ VNICs, images, and raw network reachability remain networking/compute.
 | OCI DevOps, build pipeline, deployment pipeline, code repository, source connection, trigger, artifact, Artifact Registry, OCIR delivery, API Gateway, Container Instances, canary, blue-green | **oci-developer-services** | [references/developer-services.md](../../references/developer-services.md) |
 | application platform, product golden path, OCI platform bundle, platform bundle, platform-bundle.yaml, API Gateway plus Functions, container application golden path, OKE application golden path, Queue or Streaming event worker, event worker bundle, ADB-backed Functions service, private ADB-backed Functions service | **oci-product-development** | [references/product-development.md](../../references/product-development.md) |
 | application code, application engineering, existing-code review, code review, debugging application, module reuse, plugin selection, skill evaluation, adaptive MultiLLM, model-efficiency measurement | **oci-application-engineering** | [references/application-engineering.md](../../references/application-engineering.md) |
+| OCI architecture diagram, Draw.io, Excalidraw, Mermaid, OCI stencil, observability pipeline diagram, security architecture diagram | **oci-diagramming** | [references/oci-architecture-conventions.md](../../references/oci-architecture-conventions.md) |
 | landing zone, Cloud Adoption Framework, greenfield tenancy, enterprise guardrails, existing estate, existing OCI estate, adoption backlog, deploy landing zone, deploy and later upgrade, upgrade an OCI landing zone, upgrade landing zone, landing-zone assessment, landing-zone deployment, landing-zone upgrade | **oci-landing-zone** | [references/landing-zone.md](../../references/landing-zone.md) |
 | new project, bootstrap, scaffold, set up a project, project status, project health, deploy a project, tear down, decommission, project guardrails, project lifecycle | **oci-project** | [references/project-workflow.md](../../references/project-workflow.md) |
 
@@ -287,6 +289,8 @@ Each domain skill lives in `skills/<name>/SKILL.md` and leans on this shared cor
 **oci-product-development** composes the five platform-bundle golden paths.
 **oci-application-engineering** owns application-code workflow, reuse, review,
 and measurement; it never mutates OCI infrastructure.
+**oci-diagramming** owns offline editable architecture sources and diagram
+security/quality validation; it never infers or contacts live topology.
 **oci-landing-zone** owns tenancy-foundation assessment/design and orchestrates
 deployment/upgrade validation without stealing domain or Terraform ownership.
 **oci-data-platform** owns data-platform control-plane operations; **oci-os-management**
