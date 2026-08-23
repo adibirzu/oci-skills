@@ -10,7 +10,7 @@ description: >-
   oci-cli commands, platform bundles, OCI diagrams, Draw.io, Excalidraw,
   Mermaid, or project lifecycle requests. Routes to
   distinct domain skills and the oci-project, oci-product-development,
-  oci-application-engineering, or oci-landing-zone orchestrator while enforcing named
+  oci-application-engineering, oci-landing-zone, or oci-diagramming orchestrator while enforcing named
   contexts, preflight receipts, redaction, and risk-specific approval. Routes
   deep GenAI, in-database work, specialist OKE, and Fusion work to official
   Oracle skills or documentation.

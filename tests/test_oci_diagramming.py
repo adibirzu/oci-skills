@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import pathlib
+import re
 import subprocess
 import sys
 
@@ -40,6 +41,87 @@ def test_mermaid_rejects_active_actions(tmp_path: pathlib.Path) -> None:
     path = tmp_path / "bad.mmd"
     path.write_text("flowchart LR\n A-->B\n click A href \"javascript:alert(1)\"\n", encoding="utf-8")
     assert diagram.validate_mermaid(path)
+
+
+def _mermaid_model(text: str) -> dict[str, object]:
+    """Normalized flowchart model: alias -> label, subgraph nesting, and edges.
+
+    No offline Mermaid parser ships with this repository, so the emitted source
+    is parsed into the semantic model a renderer would build and asserted on.
+    """
+    nodes: dict[str, str] = {}
+    edges: list[tuple[str, str, str]] = []
+    depth = 0
+    max_depth = 0
+    node_re = re.compile(r'^(?P<id>[A-Za-z][A-Za-z0-9_-]*)\["(?P<label>[^"]*)"\]$')
+    edge_re = re.compile(
+        r'^(?P<from>[A-Za-z][A-Za-z0-9_-]*)\s+(?P<token>-->|-\.->|==>|-\.-)'
+        r'(?:\|"(?P<label>[^"|]*)"\|)?\s+(?P<to>[A-Za-z][A-Za-z0-9_-]*)$'
+    )
+    for line in diagram.mermaid_statements(text):
+        if line == "end":
+            depth -= 1
+            assert depth >= 0, f"unbalanced subgraph block at: {line}"
+            continue
+        if line.startswith("subgraph"):
+            depth += 1
+            max_depth = max(max_depth, depth)
+            continue
+        if line.startswith(("flowchart", "classDef", "class ")):
+            continue
+        node = node_re.match(line)
+        if node:
+            assert node.group("id") not in nodes, f"duplicate node alias: {line}"
+            nodes[node.group("id")] = node.group("label")
+            continue
+        edge = edge_re.match(line)
+        assert edge, f"statement is not parseable Mermaid: {line}"
+        edges.append((edge.group("from"), edge.group("label") or "", edge.group("to")))
+    assert depth == 0, "subgraph block is never closed"
+    return {"nodes": nodes, "edges": edges, "max_depth": max_depth}
+
+
+def test_mermaid_survives_hostile_ids_groups_and_labels(tmp_path: pathlib.Path) -> None:
+    spec_path = tmp_path / "hostile.json"
+    spec_path.write_text(
+        json.dumps(
+            {
+                "nodes": [
+                    {"id": "a.b:c", "label": "reader", "group": "G[x]"},
+                    {"id": "end", "label": "writer"},
+                ],
+                "edges": [{"from": "a.b:c", "to": "end", "label": "x|y"}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    spec = diagram.load_spec(spec_path)
+    path = tmp_path / "hostile.mmd"
+    path.write_text(diagram.mermaid(spec), encoding="utf-8")
+
+    assert diagram.validate_mermaid(path) == []
+    model = _mermaid_model(path.read_text(encoding="utf-8"))
+    assert model["nodes"] == {"n1": "reader", "n2": "writer"}
+    assert model["edges"] == [("n1", "x y", "n2")]
+    assert model["max_depth"] == 1
+    source = path.read_text(encoding="utf-8")
+    assert "%% oci-node: n1 = a.b:c (oci-service: custom)" in source
+
+
+def test_mermaid_validator_rejects_unparseable_flowchart(tmp_path: pathlib.Path) -> None:
+    path = tmp_path / "broken.mmd"
+    path.write_text(
+        'flowchart LR\n'
+        '  subgraph G1["OCI workload"]\n'
+        '    end["writer"]\n'
+        '  end\n'
+        '  a.b:c -->|"x|y"| end\n',
+        encoding="utf-8",
+    )
+    issues = diagram.validate_mermaid(path)
+    assert any("reserved Mermaid keyword" in issue for issue in issues)
+    assert any("unbalanced edge label" in issue for issue in issues)
+    assert any("identifier is not renderer-safe" in issue for issue in issues)
 
 
 def test_excalidraw_rejects_embeds(tmp_path: pathlib.Path) -> None:
