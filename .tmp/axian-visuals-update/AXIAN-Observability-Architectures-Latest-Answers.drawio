@@ -1,0 +1,176 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-08-03T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="obs-e2e" name="01 - OCI Observability Architecture">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" page="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="AXIAN — OCI Observability Evidence Architecture (Scoped)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=26;fontStyle=1;fontColor=#312D2A;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="25" width="1480" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="src" value="&lt;b&gt;TELEMETRY SOURCES&lt;/b&gt;&lt;br&gt;Applications • APIs&lt;br&gt;Customer-managed Kubernetes&lt;br&gt;OCI service/custom logs • hybrid hosts&lt;br&gt;&lt;i&gt;Product-team owned&lt;/i&gt;" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="180" width="260" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="collect" value="&lt;b&gt;MANUAL / OPEN COLLECTION&lt;/b&gt;&lt;br&gt;K8s Helm/manifests&lt;br&gt;OpenTelemetry&lt;br&gt;Management Agent/Gateway&lt;br&gt;Filtering • source identity • health" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="390" y="180" width="270" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="plane" value="&lt;b&gt;OCI OBSERVABILITY DATA PLANE&lt;/b&gt;&lt;br&gt;Monitoring&lt;br&gt;Logging + Connector Hub&lt;br&gt;Log Analytics active/archive&lt;br&gt;APM + synthetics&lt;br&gt;Notifications" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#2D6A4F;fillColor=#EAF6EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="730" y="150" width="310" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="outcome" value="&lt;b&gt;OPERATOR OUTCOMES&lt;/b&gt;&lt;br&gt;Dashboards • alarms • evidence links&lt;br&gt;K8s cluster/workload/node/pod views&lt;br&gt;Trace topology • journey health&lt;br&gt;LoganAI-assisted investigation" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="180" width="300" height="260" as="geometry" />
+        </mxCell>
+        <mxCell id="genai" value="&lt;b&gt;OPTIONAL GENAI CORRELATION&lt;/b&gt;&lt;br&gt;External OCI AI Team scope&lt;br&gt;Read-only curated evidence&lt;br&gt;Citations • confidence • human review" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#C74634;fillColor=#FFF1EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="760" y="570" width="280" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="owners" value="&lt;b&gt;PRODUCT TEAMS&lt;/b&gt;&lt;br&gt;Approve access • instrument&lt;br&gt;Diagnose • remediate • verify • rollback" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#777777;fillColor=#F2F2F2;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="570" width="270" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="boundary" value="&lt;b&gt;EXTERNAL PRODUCT BOUNDARY&lt;/b&gt;&lt;br&gt;Assurance • ITSM • database tooling&lt;br&gt;Networking/security foundation&lt;br&gt;Not included in this BOM" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#777777;fillColor=#F2F2F2;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="70" y="570" width="590" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="logs • metrics • traces • object state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="src" target="collect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="supported ingest / documented APIs" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="collect" target="plane">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="queries • dashboards • alarms" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="plane" target="outcome">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="curated evidence only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="plane" target="genai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="advisory package" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="genai" target="owners">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" value="evidence + notification" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="outcome" target="owners">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="k8s-manual" name="02 - Manual Kubernetes Monitoring">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" page="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Customer-Managed Kubernetes — Manual Log Analytics Monitoring Deployment" style="text;html=1;strokeColor=none;fillColor=none;fontSize=26;fontStyle=1;fontColor=#312D2A;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="25" width="1480" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="k8s" value="&lt;b&gt;KUBERNETES CLUSTER&lt;/b&gt;&lt;br&gt;Supported distribution/version&lt;br&gt;Namespaces • nodes • workloads&lt;br&gt;Platform-team ownership" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="80" y="180" width="270" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="deploy" value="&lt;b&gt;MANUAL DEPLOYMENT&lt;/b&gt;&lt;br&gt;Documented Helm/manifests&lt;br&gt;RBAC • namespace scope&lt;br&gt;Proxy/private egress • certificates&lt;br&gt;Resource requests/limits" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#C74634;fillColor=#FFF1EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="430" y="150" width="300" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="collect2" value="&lt;b&gt;COLLECTION&lt;/b&gt;&lt;br&gt;Selected logs + metrics&lt;br&gt;Kubernetes object state&lt;br&gt;Stable cluster/source identity&lt;br&gt;Management Agent/Gateway where needed" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="810" y="150" width="300" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="la" value="&lt;b&gt;OCI LOG ANALYTICS&lt;/b&gt;&lt;br&gt;Kubernetes Monitoring Solution&lt;br&gt;Cluster • workload • node • pod views&lt;br&gt;Parsers • dashboards • alerts" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#2D6A4F;fillColor=#EAF6EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="180" width="290" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="accept" value="&lt;b&gt;ACCEPTANCE&lt;/b&gt;&lt;br&gt;Completeness • latency • loss&lt;br&gt;Collector/gateway health&lt;br&gt;Upgrade • reconnect • rollback&lt;br&gt;Data residency and retention" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#777777;fillColor=#F2F2F2;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="620" y="570" width="420" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="k1" value="cluster access" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="k8s" target="deploy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k2" value="install + configure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="deploy" target="collect2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k3" value="logs • metrics • object state" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="collect2" target="la">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k4" value="evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="la" target="accept">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="k5" value="validated lifecycle" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="accept" target="deploy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="apm" name="03 - APM and Commercial Assumption">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" page="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="OCI APM — Telemetry Flow and 300 GB Active-Storage Presumption" style="text;html=1;strokeColor=none;fillColor=none;fontSize=26;fontStyle=1;fontColor=#312D2A;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="25" width="1480" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="apps" value="&lt;b&gt;PRIORITY APPS + APIs&lt;/b&gt;&lt;br&gt;Java • .NET • PHP • middleware&lt;br&gt;Browser and synthetic journeys&lt;br&gt;Application-team ownership" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="190" width="280" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="otel" value="&lt;b&gt;INSTRUMENTATION&lt;/b&gt;&lt;br&gt;APM agents + OpenTelemetry&lt;br&gt;Service/resource attributes&lt;br&gt;Trace propagation • sampling&lt;br&gt;Sensitive-field controls" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="470" y="170" width="290" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="apm2" value="&lt;b&gt;OCI APM&lt;/b&gt;&lt;br&gt;Traces • service maps&lt;br&gt;Browser • synthetics • topology&lt;br&gt;SLO indicators and alarms" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#2D6A4F;fillColor=#EAF6EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="850" y="190" width="280" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="price" value="&lt;b&gt;COMMERCIAL WORKING PRESUMPTION&lt;/b&gt;&lt;br&gt;300 GB APM active storage = 1 × B95634&lt;br&gt;First public USD PAYG tier: $372/unit-month&lt;br&gt;Final Oracle quote/rate card governs" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#C74634;fillColor=#FFF1EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1210" y="160" width="310" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="measure" value="&lt;b&gt;SIZING EVIDENCE&lt;/b&gt;&lt;br&gt;Spans • sessions • synthetics&lt;br&gt;Sampling • active retention&lt;br&gt;Non-production/DR • regions&lt;br&gt;Measured before production commitment" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#777777;fillColor=#F2F2F2;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="600" y="590" width="420" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="a1" value="instrument" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="apps" target="otel">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a2" value="OTLP/APM telemetry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="otel" target="apm2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a3" value="active-storage consumption" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="apm2" target="price">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a4" value="observed volumes" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="apm2" target="measure">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a5" value="quote validation" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="measure" target="price">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="genai" name="04 - Optional GenAI Boundary">
+    <mxGraphModel dx="1600" dy="1000" grid="1" gridSize="10" page="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Optional GenAI Correlation — External AI-Team Dependency" style="text;html=1;strokeColor=none;fillColor=none;fontSize=26;fontStyle=1;fontColor=#312D2A;align=left;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="60" y="25" width="1480" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="evidence" value="&lt;b&gt;CURATED OCI OBSERVABILITY EVIDENCE&lt;/b&gt;&lt;br&gt;Monitoring • Logging • Log Analytics • APM&lt;br&gt;Source IDs • timestamps • evidence links" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#2D6A4F;fillColor=#EAF6EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="210" width="340" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;DOCUMENTED / ALLOWLISTED APIS&lt;/b&gt;&lt;br&gt;Least privilege • read-only by default&lt;br&gt;Redaction • timeout • audit • provenance" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="520" y="210" width="330" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="ai" value="&lt;b&gt;OPTIONAL GENAI COORDINATOR&lt;/b&gt;&lt;br&gt;OCI AI Team (Alex Negrea)&lt;br&gt;Cited timeline • hypotheses • confidence&lt;br&gt;Evaluation and human review required" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#C74634;fillColor=#FFF1EF;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="930" y="180" width="350" height="300" as="geometry" />
+        </mxCell>
+        <mxCell id="owner" value="&lt;b&gt;PRODUCT OWNER&lt;/b&gt;&lt;br&gt;Accept/reject recommendation&lt;br&gt;Diagnose • remediate • verify • rollback" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#777777;fillColor=#F2F2F2;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="210" width="230" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="logan" value="&lt;b&gt;LOGANAI&lt;/b&gt;&lt;br&gt;Analyst assistance inside Log Analytics&lt;br&gt;Not an agentic incident commander" style="rounded=1;whiteSpace=wrap;html=1;strokeWidth=2;strokeColor=#00688B;fillColor=#EAF5F8;fontColor=#312D2A;fontSize=16;align=center;verticalAlign=middle;spacing=8;" vertex="1" parent="1">
+          <mxGeometry x="620" y="590" width="360" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="g1" value="approved evidence" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="evidence" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g2" value="bounded retrieval" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="api" target="ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g3" value="advisory package" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="ai" target="owner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g4" value="logs/metrics for analysis" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;" edge="1" parent="1" source="evidence" target="logan">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="g5" value="reviewed evidence only" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#00688B;dashed=1;strokeColor=#C74634;" edge="1" parent="1" source="logan" target="ai">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

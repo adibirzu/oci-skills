@@ -1,0 +1,5 @@
+Edit the provided OCI core-services foundation illustration. Preserve the exact composition, character pose, stations, arrows, labels, linework, texture, spacing, and 16:9 aspect ratio.
+
+Correct ONLY Nimb's working hand and the routing lever beside it: Nimb's right paddle hand must be warm cream with a warm-charcoal outline, exactly matching the left paddle hand. The routing lever handle and knob must be warm charcoal. Remove every Oracle-red fill or mark from that hand, wrist, lever, and knob.
+
+Oracle red remains ONLY on Nimb's single region-beacon arch and the route arrows. Preserve the six existing labels exactly as spelled: Identity, Network + Compute, Storage, Data, Observe, Guardrails. Add no new text, symbols, objects, or colors.

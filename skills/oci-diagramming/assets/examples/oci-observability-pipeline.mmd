@@ -1,0 +1,50 @@
+%% OCI diagram: service nodes retain oci-service metadata in comments
+flowchart LR
+  subgraph G1["Sources"]
+    %% oci-service: custom
+    sources["AI, OKE, GPU, network and audit sources"]
+  end
+  subgraph G2["Collect"]
+    %% oci-service: custom
+    collect["OpenTelemetry Collector"]
+  end
+  subgraph G3["Buffer"]
+    %% oci-service: streaming
+    stream["OCI Streaming"]
+  end
+  subgraph G4["Process"]
+    %% oci-service: custom
+    process["Parse · redact · normalize · enrich · sample"]
+  end
+  subgraph G5["OCI operational plane"]
+    %% oci-service: apm
+    apm["OCI APM"]
+    %% oci-service: log-analytics
+    logan["OCI Logging Analytics"]
+    %% oci-service: monitoring
+    monitor["OCI Monitoring"]
+  end
+  subgraph G6["Retention"]
+    %% oci-service: object-storage
+    archive["OCI Object Storage"]
+  end
+  subgraph G7["Respond"]
+    %% oci-service: notifications
+    notify["OCI Notifications"]
+  end
+  subgraph G8["Customer-managed destinations"]
+    %% oci-service: custom
+    customer["Customer SIEM / observability tenant"]
+  end
+  sources -.->|"OTLP · metrics · logs"| collect
+  collect -.->|"buffer"| stream
+  stream -.->|"bounded pipeline"| process
+  process -.->|"traces"| apm
+  process -.->|"logs"| logan
+  process -.->|"metrics"| monitor
+  process ==>|"retention"| archive
+  monitor -.->|"alarms"| notify
+  logan -.->|"detections"| notify
+  process -.->|"policy-routed export"| customer
+  classDef oci fill:#FFF3E0,stroke:#C74634,color:#312D2A,stroke-width:2px;
+  class sources,collect,stream,process,apm,logan,monitor,archive,notify,customer oci;
