@@ -18,9 +18,10 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 ## Skill topology
 
-The 26-skill pack contains a router selecting twenty-one primary domains and four orchestrators:
+The 27-skill pack contains a router selecting twenty-one primary domains and five orchestrators:
 
-For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md).
+For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md). For an
+operator tour of the foundational service domains, read the [core services starter](docs/oci-core-services-starter.md).
 
 <!-- BEGIN OCI SKILLS -->
 - **Start here**
@@ -55,6 +56,7 @@ For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md).
 - **Observe and optimize**
   - [**OCI Observability DB**](./skills/oci-observability-db) — Monitoring, Logging, APM, OpenTelemetry, alarms, dashboards, and PromQL-to-MQL.
   - [**OCI Cost**](./skills/oci-cost) — usage, spend, forecasts, budgets, and FinOps guardrails.
+  - [**OCI Diagramming**](./skills/oci-diagramming) — secure editable Draw.io, Excalidraw, and Mermaid architecture sources with OCI stencil conventions.
 <!-- END OCI SKILLS -->
 
 The canonical ownership table remains flat so install tooling and routing tests can treat every skill path consistently:
@@ -86,6 +88,7 @@ The canonical ownership table remains flat so install tooling and routing tests 
 | `oci-product-development` | Golden-path intake and `platform-bundle.yaml` composition |
 | `oci-application-engineering` | Application workflow, reuse, review, and adaptive evaluation (no OCI mutation) |
 | `oci-landing-zone` | Landing-zone assessment, design, deployment, upgrade, and validation orchestration |
+| `oci-diagramming` | OCI architecture diagrams, stencil conventions, structural/security validation, and visual-QA workflow |
 
 `oci-application-engineering` can optionally use a locally configured MultiLLM gateway for model comparison, adaptive cheap-first routing, Fusion synthesis, and sanitized cost/latency traces. It is not enabled or required by this pack: ask for the user's choice, keep restricted code local unless separately approved, and continue normally when the gateway is absent.
 
@@ -134,12 +137,12 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 
 ## Product contracts and readiness
 
-The consolidated release contains **26 skills, 52 requirements, 40 detailed
+The consolidated release contains **27 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic
-workflow evaluation, the 26-skill capability catalog, routing precedence,
+workflow evaluation, the 27-skill capability catalog, routing precedence,
 evidence envelopes, architecture traceability, distribution/redaction/release
 contracts, compatibility policy, user journeys, dependency and impact graphs,
 verification/provenance registries, an install manifest, safety cases, a release
@@ -224,7 +227,9 @@ The recommended public catalog is the adibirzu LLM marketplace:
 /reload-plugins
 ```
 
-For an OCI-only catalog, install directly from this repository:
+You can also install from this repository's smaller project-owned catalog. It
+includes OCI Administrator and complementary agent plugins; see the
+[catalog-scope contract](docs/ARCHITECTURE.md#compatibility-and-distribution-plane):
 
 ```text
 /plugin marketplace add adibirzu/oci-skills

@@ -19,6 +19,30 @@ Build application code around OCI without taking ownership of OCI control-plane 
 6. Implement, run allowlisted checks, and give independent reviewers the artifact rather than the author’s conclusion.
 7. Record verification, rework, and the measurement result. If a MultiLLM/provider gate is unavailable, continue with the primary agent and record the skipped gate.
 
+## Optional RLM analysis
+
+For provenance, installation, research grounding, and the bounded operating
+contract, read [`references/rlm-analysis.md`](references/rlm-analysis.md).
+
+Use the external `rlm` skill when the user requests a repository-wide review,
+the relevant evidence exceeds one practical context window, or conclusions
+require cross-file synthesis across independently reviewable surfaces. RLM is
+an optional analysis workflow, not a prerequisite for ordinary OCI work.
+
+Start with direct source lookup. For recursive work, define the scope,
+completion criteria, partition/sub-call ceiling, and stop conditions; default
+to one recursive layer. Pilot one representative partition before scaling a
+deep audit, and independently verify uncertain high-impact claims. Preserve a
+compact claim-to-source ledger and state deferred coverage.
+
+RLM may inspect code, Terraform, policies, runbooks, tests, and sanitized local
+evidence. It does not grant permission to contact a tenancy, run repository
+scripts, install dependencies, disclose sensitive context, or mutate files.
+Apply the normal OCI preflight and approval gates separately for any live work.
+Treat RLM output as analysis evidence, not provider verification or release
+acceptance. If the plugin is absent, run the same bounded worklist sequentially
+with available tools rather than blocking the request.
+
 ## Agent Harness Engineering
 
 When a repository needs more reliable work across coding-agent sessions, read
@@ -54,6 +78,7 @@ When opted in, use one capable model for routine, low-risk work. Use `auto` for 
 | New application feature | classification → local knowledge → reuse ranking → TDD → implementation → independent review → verify → measure |
 | Existing-code review | classification → local knowledge → static/test evidence → independent code and security review → handoff findings |
 | Plugin selection | local reuse search → read-only plugin discovery → provenance/permission review → recommendation; explicit approval required to install |
+| Large repository or document analysis | direct lookup → bounded RLM worklist when needed → pilot partition → evidence validation → synthesis with deferred scope |
 | Agent reliability across sessions | inspect existing instructions/state/gates → add minimal durable harness → verify structure and real commands → record handoff |
 | OCI platform request | application boundary → **oci-product-development** bundle selection → service/domain owners materialize infrastructure |
 

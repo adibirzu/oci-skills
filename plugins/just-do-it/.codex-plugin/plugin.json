@@ -1,7 +1,7 @@
 {
   "name": "just-do-it",
-  "version": "1.2.0",
-  "description": "Secure autonomous PRD delivery with model-tiered Codex agents, durable recovery, and scoped break glass.",
+  "version": "1.5.0",
+  "description": "Portable PRD delivery with validated least-privilege agent teams, restart-safe continuity, and explicit forge gates.",
   "author": {
     "name": "adibirzu",
     "url": "https://github.com/adibirzu"
@@ -12,8 +12,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Just Do It",
-    "shortDescription": "Delegate, review, recover, and finish complex work safely.",
-    "longDescription": "JD turns one goal into PRDs and bounded model-tiered tasks, enforces independent review, reconciles durable state, and offers a scoped, expiring break-glass capability grant.",
+    "shortDescription": "Delegate, reconcile, review, and deliver complex work safely.",
+    "longDescription": "JD turns one goal into PRDs and bounded model-tiered tasks, reconciles durable event checkpoints, enforces independent review and explicit forge authority, and offers a scoped, expiring break-glass capability grant.",
     "developerName": "adibirzu",
     "category": "Developer Tools",
     "capabilities": [

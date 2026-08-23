@@ -10,7 +10,7 @@ import tomllib
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 PLUGIN = ROOT / "plugins" / "just-do-it"
 SKILL = PLUGIN / "skills" / "jd"
-VERSION = "1.2.0"
+VERSION = "1.5.0"
 
 
 def test_jd_marketplace_and_plugin_manifests_are_consistent() -> None:
@@ -64,3 +64,274 @@ def test_jd_role_installer_round_trip(tmp_path: pathlib.Path) -> None:
         check=False,
     )
     assert check.returncode == 0, check.stdout + check.stderr
+
+
+def test_jd_harness_adapter_round_trip(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    install = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "install",
+            "--harness",
+            "all",
+            "--target-root",
+            str(tmp_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert install.returncode == 0, install.stdout + install.stderr
+    expected = {
+        "agy": ".agents/skills/jd",
+        "claude": ".claude/skills/jd",
+        "grok": ".grok/skills/jd",
+        "pi": ".pi/skills/jd",
+        "cline": ".cline/skills/jd",
+        "cursor": ".cursor/skills/jd",
+    }
+    for harness, relative in expected.items():
+        root = tmp_path / relative
+        assert (root / "SKILL.md").is_file()
+        receipt = json.loads((root / ".jd-distribution.json").read_text(encoding="utf-8"))
+        assert receipt["harness"] == harness
+        assert receipt["version"] == VERSION
+    assert (tmp_path / ".cursor/rules/jd.mdc").is_file()
+
+    update = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "install",
+            "--harness",
+            "all",
+            "--target-root",
+            str(tmp_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert update.returncode == 0, update.stdout + update.stderr
+
+    check = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "check",
+            "--harness",
+            "all",
+            "--target-root",
+            str(tmp_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert check.returncode == 0, check.stdout + check.stderr
+    assert check.stdout.count("managed") == len(expected)
+
+
+def test_jd_cursor_check_fails_without_the_managed_rule_bridge(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    command = [
+        sys.executable,
+        str(script),
+        "check",
+        "--harness",
+        "cursor",
+        "--target-root",
+        str(tmp_path),
+    ]
+    install = subprocess.run(
+        command[:2] + ["install"] + command[3:],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert install.returncode == 0, install.stdout + install.stderr
+
+    rule = tmp_path / ".cursor/rules/jd.mdc"
+    rule.unlink()
+    missing = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert missing.returncode == 1, missing.stdout + missing.stderr
+    assert "missing-rule" in missing.stdout
+
+    rule.write_text("---\nalwaysApply: true\n---\nhand written\n", encoding="utf-8")
+    unmanaged = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert unmanaged.returncode == 1, unmanaged.stdout + unmanaged.stderr
+    assert "unmanaged-rule" in unmanaged.stdout
+
+
+def test_jd_harness_adapter_refuses_unmanaged_collision(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    collision = tmp_path / ".pi/skills/jd"
+    collision.mkdir(parents=True)
+    (collision / "SKILL.md").write_text("unmanaged\n", encoding="utf-8")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "install",
+            "--harness",
+            "pi",
+            "--target-root",
+            str(tmp_path),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "unmanaged destination exists" in result.stderr
+
+
+def test_jd_cursor_rule_keeps_frontmatter_at_byte_zero(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    for _ in range(2):
+        result = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "install",
+                "--harness",
+                "cursor",
+                "--target-root",
+                str(tmp_path),
+            ],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stdout + result.stderr
+
+    rule = (tmp_path / ".cursor/rules/jd.mdc").read_text(encoding="utf-8")
+    assert rule.startswith("---\n# Managed by JD workspace adapter\n")
+    frontmatter = rule.split("---\n")[1]
+    assert "description:" in frontmatter
+    assert "alwaysApply: false" in frontmatter
+
+
+def test_jd_harness_adapter_rejects_symlinked_parent_without_creating_it(
+    tmp_path: pathlib.Path,
+) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    workspace = tmp_path / "workspace"
+    workspace.mkdir()
+    (workspace / ".claude").symlink_to(outside, target_is_directory=True)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(script),
+            "install",
+            "--harness",
+            "claude",
+            "--target-root",
+            str(workspace),
+        ],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "refusing symlink path" in result.stderr
+    assert list(outside.iterdir()) == []
+
+
+def test_jd_harness_adapter_restores_sole_stale_backup(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    command = [
+        sys.executable,
+        str(script),
+        "install",
+        "--harness",
+        "pi",
+        "--target-root",
+        str(tmp_path),
+    ]
+    first = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert first.returncode == 0, first.stdout + first.stderr
+
+    destination = tmp_path / ".pi/skills/jd"
+    backup = destination.with_name("jd.jd-old")
+    destination.rename(backup)
+
+    recovered = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert recovered.returncode == 0, recovered.stdout + recovered.stderr
+    assert (destination / "SKILL.md").is_file()
+    assert not backup.exists()
+
+    destination.rename(backup)
+    destination.mkdir()
+    ambiguous = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert ambiguous.returncode == 2
+    assert "stale backup blocks install" in ambiguous.stderr
+
+
+def test_jd_agent_team_generator_round_trip(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "create_agent_team.py"
+    install = subprocess.run(
+        [sys.executable, str(script), "install", "--harness", "all", "--target-root", str(tmp_path)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert install.returncode == 0, install.stdout + install.stderr
+
+    role_names = {"planner", "scout", "test-writer", "maker", "checker", "security-checker"}
+    for role in role_names:
+        assert (tmp_path / f".agents/agents/jd-{role}.md").is_file()
+        assert (tmp_path / f".claude/agents/jd-{role}.md").is_file()
+        assert (tmp_path / f".cursor/commands/jd-{role}.md").is_file()
+        assert (tmp_path / f".pi/prompts/jd-{role}.md").is_file()
+        assert (tmp_path / f".clinerules/workflows/jd-{role}.md").is_file()
+
+    agy_checker = (tmp_path / ".agents/agents/jd-checker.md").read_text(encoding="utf-8")
+    agy_maker = (tmp_path / ".agents/agents/jd-maker.md").read_text(encoding="utf-8")
+    assert "replace_file_content" not in agy_checker
+    assert "run_command" not in agy_checker
+    assert "commandExecutionPolicy: off" in agy_checker
+    assert "replace_file_content" in agy_maker
+    assert "run_command" in agy_maker
+    claude_checker = (tmp_path / ".claude/agents/jd-checker.md").read_text(encoding="utf-8")
+    assert "tools: Read, Grep, Glob\n" in claude_checker
+    assert "Bash" not in claude_checker
+    cursor_checker = (tmp_path / ".cursor/commands/jd-checker.md").read_text(encoding="utf-8")
+    assert "ROLE ADAPTER, not a native isolated subagent" in cursor_checker
+
+    check = subprocess.run(
+        [sys.executable, str(script), "check", "--harness", "all", "--target-root", str(tmp_path)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert check.returncode == 0, check.stdout + check.stderr
+    assert check.stdout.count("valid") == len(role_names) * 6
+
+
+def test_jd_agent_team_refuses_unmanaged_definition(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "create_agent_team.py"
+    collision = tmp_path / ".agents/agents/jd-maker.md"
+    collision.parent.mkdir(parents=True)
+    collision.write_text("unmanaged\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(script), "install", "--harness", "agy", "--target-root", str(tmp_path)],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "unmanaged agent definition exists" in result.stderr
+
+
+def test_jd_agent_blueprints_preserve_maker_checker_independence() -> None:
+    data = json.loads((SKILL / "assets" / "agent-blueprints.json").read_text(encoding="utf-8"))
+    roles = {role["name"]: role for role in data["roles"]}
+    assert "write" in roles["maker"]["capabilities"]
+    assert "write" not in roles["checker"]["capabilities"]
+    assert "write" not in roles["security-checker"]["capabilities"]
+    assert roles["checker"]["model_tier"] == "strong"

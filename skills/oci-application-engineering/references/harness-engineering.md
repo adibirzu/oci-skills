@@ -71,3 +71,13 @@ Before saying the harness work is complete, provide:
 
 For a multi-session task, leave the next agent a single concrete next action.
 Avoid dumping transcripts or raw command output into the tracked handoff.
+
+## Large-context harness audits
+
+When auditing a harness spans many services, instruction layers, CI workflows,
+or historical state artifacts, the optional `rlm` skill can structure the
+review. Keep the five durable subsystems as the top-level partitions, pilot one
+subsystem before expanding, and use depth 1 by default. Each partition returns
+reviewed/deferred scope, source locations, verification, counterevidence, and
+proof gaps. Recursive analysis does not make a structural score, prompt match,
+or local test into evidence of agent effectiveness or live OCI acceptance.

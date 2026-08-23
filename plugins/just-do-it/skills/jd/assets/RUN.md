@@ -9,6 +9,9 @@
 - Required evidence: <tests, coverage, security, docs>
 - Execution budgets: 7 PRDs; 4 writable workers; 3 attempts/task; 2 reviews/PRD
 - Data policy: digests and redacted summaries only; no credentials/private content/topology
+- Execution mode: <strict | supervised | break-glass>
+- Delivery mode: <local-only | change-request | landed>
+- Event cursor/checkpoint: <sequence / UTC / digest>
 
 ## Assumptions
 
@@ -30,6 +33,24 @@
 
 - <sequence>: <redacted decision summary or digest, authority source, impact>
 
+## Decision holds
+
+| Hold | Owner | Affected tasks | Options/impact | Status |
+|---|---|---|---|---|
+| <ID> | <user/coordinator> | <IDs> | <redacted summary> | open |
+
+## Dependency and time gates
+
+| Task | Dependencies | Not before | Fresh evidence | State |
+|---|---|---|---|---|
+| <ID> | <IDs> | <UTC or none> | <digest/time> | blocked/ready |
+
+## Event checkpoint
+
+| Sequence | UTC | Task | Event | Evidence digest |
+|---|---|---|---|---|
+| <n> | <time> | <ID> | <type> | <digest> |
+
 ## Verification ledger
 
 - <task/PRD>: <command> — <result>
@@ -47,3 +68,5 @@
 - Coverage: pending
 - Security: pending
 - Aggregate Sol review: pending
+- Delivery state: local changes only
+- Landed verification: not authorized
