@@ -36,9 +36,11 @@ MERMAID_DECLARATION = re.compile(
 MERMAID_KEYWORD_LINE = re.compile(
     r"^(flowchart|graph|classDef|class|style|linkStyle|click|direction|subgraph)\b"
 )
-MERMAID_SEPARATORS = re.compile(
-    r'"[^"]*"|-\.->|-\.-|={2,}>|-{2,}>|-{3,}|~{3,}|:::|[\[\](){}|&,;]'
+MERMAID_LABEL_SPAN = re.compile(
+    r'"[^"]*"|\[[^\[\]]*\]|\([^()]*\)|\{[^{}]*\}|>[^>\[\]]*\]|\|[^|]*\|'
 )
+MERMAID_LINK = re.compile(r"<?(?:-\.+-|-{2,}|={2,}|~{3,})[>ox]?")
+MERMAID_TOKEN_SEPARATORS = re.compile(r":::|[|&,;]")
 
 OCI_STENCIL_STYLES = {
     "monitoring": "shape=mxgraph.oci.monitoring;",
@@ -377,12 +379,31 @@ def mermaid_statements(text: str) -> list[str]:
     return [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("%%")]
 
 
+def mermaid_strip_labels(text: str) -> str:
+    for _ in range(4):
+        stripped = MERMAID_LABEL_SPAN.sub(" ", text)
+        if stripped == text:
+            break
+        text = stripped
+    return text
+
+
+def mermaid_tokens(text: str) -> list[str]:
+    return [token for token in MERMAID_TOKEN_SEPARATORS.sub(" ", text).split() if token]
+
+
 def mermaid_identifiers(line: str) -> list[str]:
     if line.startswith("subgraph"):
-        line = line[len("subgraph"):]
-    elif MERMAID_KEYWORD_LINE.match(line):
+        return mermaid_tokens(mermaid_strip_labels(line[len("subgraph"):]))[:1]
+    if MERMAID_KEYWORD_LINE.match(line):
         return []
-    return [token for token in MERMAID_SEPARATORS.sub(" ", line).split() if token]
+    stripped = mermaid_strip_labels(line)
+    links = list(MERMAID_LINK.finditer(stripped))
+    if not links:
+        return mermaid_tokens(stripped)[:1]
+    head = mermaid_tokens(stripped[: links[0].start()])
+    tail = mermaid_tokens(stripped[links[-1].end():])
+    return head + tail
 
 
 def validate_mermaid_flowchart(statements: list[str]) -> list[str]:

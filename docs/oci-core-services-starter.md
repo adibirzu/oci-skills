@@ -104,7 +104,7 @@ The commands above are only target discovery and knowledge lookup; they do not p
 
 ## Next core wave
 
-After these foundations, extend the series into Kubernetes/OKE, Resource Manager/Terraform, developer services, events/functions, landing zones, disaster recovery, Data Safe, Log Analytics, ZPR, DBM/OPSI, and data-platform operations. Each should retain Nimb as the active reference character and make the mascot perform one operator decision rather than decorate a service icon.
+After these foundations, extend the series into Kubernetes/OKE, Resource Manager/Terraform, developer services, events/functions, landing zones, disaster recovery, Data Safe, Log Analytics, ZPR, DBM/OPSI, and data-platform operations. Each entry should keep the same shape as the sections above: when to use the skill, why it is core, how to use it, a typical read-first flow, and the key details that change operator decisions.
 
 ## Evidence boundary
 
