@@ -64,6 +64,7 @@ evals/forward/runs/
 # Node / misc
 node_modules/
 /.tmp/
+/oci-instance-pool-self-healing/
 .npm/
 .pnpm-store/
 .yarn/cache/
