@@ -49,6 +49,9 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | IAM (users, groups, policies, compartments) | <https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm> |
+| IAM policies | <https://docs.oracle.com/en-us/iaas/Content/Identity/Concepts/policies.htm> |
+| Compartments | <https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingcompartments.htm> |
+| IAM user credentials | <https://docs.oracle.com/en-us/iaas/Content/Identity/Concepts/usercredentials.htm> |
 | Identity Domains | <https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm> |
 | Identity Domains applications, SSO, and provisioning | <https://docs.oracle.com/en-us/iaas/Content/identity-domains/identity-domains.htm> |
 | Identity Domains REST API and SCIM 2.0 | <https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/api-get-started.htm> |
@@ -72,6 +75,14 @@ Safe), the upstream `db/` domain of
 | Vulnerability Scanning overview | <https://docs.oracle.com/en-us/iaas/Content/scanning/using/overview.htm> |
 | Container Registry image scanning | <https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registryscanningimagesforvulnerabilities.htm> |
 | CIS OCI Benchmark | <https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html> |
+| OCI security features | <https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_features.htm> |
+| Cloud Adoption Framework security architecture | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security-architecture.htm> |
+| Cloud Adoption Framework monitoring, visibility, and audit | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/monitoring-visibility-audit.htm> |
+| Generative AI model permissions | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/model-permissions.htm> |
+| Generative AI private endpoints | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/private-endpoint.htm> |
+| Generative AI guardrails | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/guardrails.htm> |
+| Generative AI Agents IAM policies | <https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm> |
+| Multicloud overview | <https://docs.oracle.com/en-us/iaas/Content/multicloud/overview.htm> |
 
 ## Observability & database — `oci-observability-db`
 
@@ -217,6 +228,16 @@ Safe), the upstream `db/` domain of
 | OCI Core Landing Zone | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/oci-core-landing-zone.htm> |
 | Well-Architected OCI Landing Zones | <https://docs.oracle.com/en/solutions/oci-best-practices/simplify-provisioning-oci-landing-zones1.html> |
 | Resource Manager and Terraform | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Concepts/resource-manager-and-terraform.htm> |
+
+## Architecture diagramming — `oci-diagramming`
+
+| Topic | Canonical doc |
+|---|---|
+| OCI architecture icons and diagrams | <https://docs.oracle.com/en-us/iaas/Content/General/Reference/graphicsfordiagrams.htm> |
+| Network Firewall examples | <https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/whitepapers/learn-oci-network-firewall-with-examples.pdf> |
+| IAM OAuth and OIDC flows | <https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/whitepapers/oci-iam-oauth-flows-best-practices.pdf> |
+| Hybrid disaster recovery | <https://docs.oracle.com/en/solutions/design-dr/implement-dr-using-hybrid-deployment1.html> |
+| Redis reference architecture | <https://docs.oracle.com/en/solutions/deploy-redis-cluster/> |
 
 ## Data Safe — `oci-data-safe`
 

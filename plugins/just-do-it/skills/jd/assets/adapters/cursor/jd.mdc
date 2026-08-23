@@ -1,0 +1,15 @@
+---
+description: Run complex product or engineering goals through the JD PRD, test, implementation, independent-review, continuity, and delivery-gate workflow.
+globs:
+alwaysApply: false
+---
+
+# Just Do It
+
+When the user invokes JD or asks you to autonomously finish a complex multi-phase goal, read and
+follow `.cursor/skills/jd/SKILL.md`. Treat its linked references as part of the contract.
+
+Inventory Cursor's available agent, sandbox, review, and resume capabilities before delegation.
+Do not claim named Codex roles, durable background supervision, independent review, or external
+delivery unless the current Cursor runtime proves them. Preserve JD's authority envelope,
+test-first loop, redacted ledger, explicit delivery modes, and no-auto-merge rule.

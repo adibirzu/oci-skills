@@ -63,6 +63,7 @@ evals/forward/runs/
 
 # Node / misc
 node_modules/
+/.tmp/
 .npm/
 .pnpm-store/
 .yarn/cache/
@@ -82,3 +83,25 @@ coverage/
 *.swo
 *~
 .tools/
+
+# OCI comic development assets - local/private, never public skill inputs
+/assets/oci-skills-comic/
+/assets/oci-skills-illustrations/
+/output/
+/docs/comics/
+/docs/superpowers/plans/*comic*.md
+/docs/superpowers/specs/*comic*.md
+/tests/test_comic_*.py
+/tests/test_oci_*comic*.py
+/tmp/pdfs/
+/tmp/video/
+/.research-private/
+/.presentation-private/
+/.comic-runs/
+docs/comics/**/prompts-private/
+docs/comics/**/*.transcript.txt
+docs/comics/**/*.narration.wav
+docs/comics/**/*.narration.mp3
+
+# Public comic shelf - generated PDFs are published as release artifacts
+/published/comics/*

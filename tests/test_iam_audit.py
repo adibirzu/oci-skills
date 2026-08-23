@@ -32,6 +32,10 @@ _exc.InvalidConfig = type("InvalidConfig", (Exception,), {})
 _pag.list_call_get_all_results = lambda fn, **kw: types.SimpleNamespace(data=fn(**kw))
 _fake.pagination = _pag
 _fake.exceptions = _exc
+_original_oci_modules = {
+    name: sys.modules.get(name)
+    for name in ("oci", "oci.pagination", "oci.exceptions")
+}
 sys.modules["oci"] = _fake
 sys.modules["oci.pagination"] = _pag
 sys.modules["oci.exceptions"] = _exc
@@ -39,6 +43,12 @@ sys.modules["oci.exceptions"] = _exc
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts"))
 
 import iam_audit  # noqa: E402
+
+for _name, _module in _original_oci_modules.items():
+    if _module is None:
+        sys.modules.pop(_name, None)
+    else:
+        sys.modules[_name] = _module
 
 
 class _Pol:
