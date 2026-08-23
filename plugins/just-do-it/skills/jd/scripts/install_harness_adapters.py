@@ -24,6 +24,7 @@ HARNESSES = {
     "cline": pathlib.Path(".cline/skills/jd"),
     "cursor": pathlib.Path(".cursor/skills/jd"),
 }
+CURSOR_RULE_PATH = pathlib.Path(".cursor/rules/jd.mdc")
 RECEIPT = ".jd-distribution.json"
 FRONTMATTER_FENCE = b"---\n"
 CURSOR_MARKER = b"# Managed by JD workspace adapter\n"
@@ -113,8 +114,19 @@ def render_cursor_rule(content: bytes) -> bytes:
     return CURSOR_MANAGED_PREFIX + content[len(FRONTMATTER_FENCE) :]
 
 
+def cursor_rule_state(root: pathlib.Path) -> str:
+    rule = root / CURSOR_RULE_PATH
+    if rule.is_symlink() or (rule.exists() and not rule.is_file()):
+        return "unmanaged-rule"
+    if not rule.exists():
+        return "missing-rule"
+    if not rule.read_bytes().startswith(CURSOR_MANAGED_PREFIX):
+        return "unmanaged-rule"
+    return "managed"
+
+
 def write_cursor_rule(root: pathlib.Path) -> None:
-    destination = root / ".cursor/rules/jd.mdc"
+    destination = root / CURSOR_RULE_PATH
     temporary = destination.with_name(destination.name + ".tmp")
     reject_symlink_path(destination, root)
     reject_symlink_path(temporary, root)
@@ -134,6 +146,7 @@ def check(root: pathlib.Path, harnesses: list[str]) -> int:
     failed = False
     for harness in harnesses:
         destination = root / HARNESSES[harness]
+        reported = destination
         state = "missing"
         if destination.exists():
             state = "managed" if managed(destination, harness) else "collision"
@@ -141,8 +154,13 @@ def check(root: pathlib.Path, harnesses: list[str]) -> int:
             receipt = json.loads((destination / RECEIPT).read_text(encoding="utf-8"))
             if digest_tree(destination) != receipt["payload_sha256"]:
                 state = "modified"
-        print(f"{harness}: {state}: {destination}")
-        failed |= state in {"collision", "modified"}
+        if harness == "cursor" and state == "managed":
+            rule_state = cursor_rule_state(root)
+            if rule_state != "managed":
+                state = rule_state
+                reported = root / CURSOR_RULE_PATH
+        print(f"{harness}: {state}: {reported}")
+        failed |= state in {"collision", "modified", "missing-rule", "unmanaged-rule"}
     return 1 if failed else 0
 
 
