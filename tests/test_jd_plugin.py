@@ -133,6 +133,37 @@ def test_jd_harness_adapter_round_trip(tmp_path: pathlib.Path) -> None:
     assert check.stdout.count("managed") == len(expected)
 
 
+def test_jd_cursor_check_fails_without_the_managed_rule_bridge(tmp_path: pathlib.Path) -> None:
+    script = SKILL / "scripts" / "install_harness_adapters.py"
+    command = [
+        sys.executable,
+        str(script),
+        "check",
+        "--harness",
+        "cursor",
+        "--target-root",
+        str(tmp_path),
+    ]
+    install = subprocess.run(
+        command[:2] + ["install"] + command[3:],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+    assert install.returncode == 0, install.stdout + install.stderr
+
+    rule = tmp_path / ".cursor/rules/jd.mdc"
+    rule.unlink()
+    missing = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert missing.returncode == 1, missing.stdout + missing.stderr
+    assert "missing-rule" in missing.stdout
+
+    rule.write_text("---\nalwaysApply: true\n---\nhand written\n", encoding="utf-8")
+    unmanaged = subprocess.run(command, text=True, capture_output=True, check=False)
+    assert unmanaged.returncode == 1, unmanaged.stdout + unmanaged.stderr
+    assert "unmanaged-rule" in unmanaged.stdout
+
+
 def test_jd_harness_adapter_refuses_unmanaged_collision(tmp_path: pathlib.Path) -> None:
     script = SKILL / "scripts" / "install_harness_adapters.py"
     collision = tmp_path / ".pi/skills/jd"

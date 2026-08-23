@@ -31,15 +31,18 @@ MERMAID_RESERVED_IDS = {
     "style", "linkstyle", "direction",
 }
 MERMAID_DECLARATION = re.compile(
-    r"(?m)^\s*(flowchart|sequenceDiagram|classDiagram|erDiagram|stateDiagram-v2|architecture-beta)\b"
+    r"(?m)^\s*(flowchart|graph|sequenceDiagram|classDiagram|erDiagram|stateDiagram-v2|architecture-beta)\b"
 )
+MERMAID_FLOWCHART_DECLARATIONS = {"flowchart", "graph"}
 MERMAID_KEYWORD_LINE = re.compile(
     r"^(flowchart|graph|classDef|class|style|linkStyle|click|direction|subgraph)\b"
 )
+MERMAID_SHAPE_SPAN = re.compile(r'\[[^\[\]]*\]|\([^()]*\)|\{[^{}]*\}|>[^>\[\]]*\]')
 MERMAID_LABEL_SPAN = re.compile(
     r'"[^"]*"|\[[^\[\]]*\]|\([^()]*\)|\{[^{}]*\}|>[^>\[\]]*\]|\|[^|]*\|'
 )
 MERMAID_LINK = re.compile(r"<?(?:-\.+-|-{2,}|={2,}|~{3,})[>ox]?")
+MERMAID_LINK_TERMINATORS = (">", "o", "x")
 MERMAID_TOKEN_SEPARATORS = re.compile(r":::|[|&,;]")
 
 OCI_STENCIL_STYLES = {
@@ -375,17 +378,52 @@ def validate_excalidraw(path: pathlib.Path) -> list[str]:
     return issues
 
 
+def mermaid_split_statements(line: str) -> list[str]:
+    statements: list[str] = []
+    current: list[str] = []
+    quoted = False
+    depth = 0
+    for char in line:
+        if char == '"':
+            quoted = not quoted
+        elif not quoted and char in "[({":
+            depth += 1
+        elif not quoted and char in "])}":
+            depth = max(0, depth - 1)
+        elif char == ";" and not quoted and depth == 0:
+            statements.append("".join(current).strip())
+            current = []
+            continue
+        current.append(char)
+    statements.append("".join(current).strip())
+    return [statement for statement in statements if statement]
+
+
 def mermaid_statements(text: str) -> list[str]:
-    return [line.strip() for line in text.splitlines() if line.strip() and not line.strip().startswith("%%")]
+    statements: list[str] = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("%%"):
+            continue
+        statements.extend(mermaid_split_statements(line))
+    return statements
 
 
-def mermaid_strip_labels(text: str) -> str:
+def mermaid_strip_spans(pattern: re.Pattern[str], text: str) -> str:
     for _ in range(4):
-        stripped = MERMAID_LABEL_SPAN.sub(" ", text)
+        stripped = pattern.sub(" ", text)
         if stripped == text:
             break
         text = stripped
     return text
+
+
+def mermaid_strip_labels(text: str) -> str:
+    return mermaid_strip_spans(MERMAID_LABEL_SPAN, text)
+
+
+def mermaid_strip_shapes(text: str) -> str:
+    return mermaid_strip_spans(MERMAID_SHAPE_SPAN, text)
 
 
 def mermaid_tokens(text: str) -> list[str]:
@@ -401,9 +439,13 @@ def mermaid_identifiers(line: str) -> list[str]:
     links = list(MERMAID_LINK.finditer(stripped))
     if not links:
         return mermaid_tokens(stripped)[:1]
-    head = mermaid_tokens(stripped[: links[0].start()])
-    tail = mermaid_tokens(stripped[links[-1].end():])
-    return head + tail
+    identifiers = mermaid_tokens(stripped[: links[0].start()])
+    for index, link in enumerate(links):
+        last = index + 1 == len(links)
+        boundary = len(stripped) if last else links[index + 1].start()
+        if last or link.group().endswith(MERMAID_LINK_TERMINATORS):
+            identifiers.extend(mermaid_tokens(stripped[link.end():boundary]))
+    return identifiers
 
 
 def validate_mermaid_flowchart(statements: list[str]) -> list[str]:
@@ -418,7 +460,7 @@ def validate_mermaid_flowchart(statements: list[str]) -> list[str]:
             continue
         if line.startswith("subgraph"):
             depth += 1
-        segments = line.split("|")
+        segments = mermaid_strip_shapes(line).split("|")
         if len(segments) % 2 == 0:
             issues.append(f"unbalanced edge label delimiter: {line}")
         else:
@@ -446,7 +488,7 @@ def validate_mermaid(path: pathlib.Path) -> list[str]:
     declaration = MERMAID_DECLARATION.search(text)
     if declaration is None:
         issues.append("no supported Mermaid diagram declaration found")
-    elif declaration.group(1) == "flowchart":
+    elif declaration.group(1) in MERMAID_FLOWCHART_DECLARATIONS:
         issues.extend(validate_mermaid_flowchart(mermaid_statements(text)))
     return issues
 
