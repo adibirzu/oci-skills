@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import pathlib
 import re
+import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 INDEX = ROOT / "references" / "oracle-docs.md"
@@ -41,12 +42,17 @@ RETIRED_URLS = {
 
 
 def _scan_files() -> list[pathlib.Path]:
-    files: list[pathlib.Path] = []
-    for sub in ("references", "skills", "docs"):
-        files += sorted((ROOT / sub).rglob("*.md"))
-    files.append(ROOT / "README.md")
-    files.append(ROOT / "AGENTS.md")
-    return [f for f in files if f.is_file()]
+    result = subprocess.run(
+        ["git", "ls-files", "-z", "--", "references/*.md", "skills/*.md", "docs/*.md", "README.md", "AGENTS.md"],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+    )
+    return sorted(
+        ROOT / raw.decode("utf-8")
+        for raw in result.stdout.split(b"\0")
+        if raw and raw.decode("utf-8").endswith(".md")
+    )
 
 
 def _urls_in(text: str) -> list[str]:

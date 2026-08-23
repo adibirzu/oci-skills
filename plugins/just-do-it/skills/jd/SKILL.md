@@ -1,6 +1,6 @@
 ---
 name: jd
-description: Turn one product or engineering goal into an ordered PRD program, delegate bounded tasks to model-tiered Codex agents, enforce test-first implementation and independent Sol review, and continue automatically until the agreed goal is complete or genuine user authority is required. Use for complex features, refactors, audits, migrations, or multi-phase project work where the user wants one initial prompt instead of repeatedly asking for the next task.
+description: Turn one product or engineering goal into an ordered PRD program, delegate bounded tasks to model-tiered agents the current harness actually provides (Codex roles when available, otherwise Claude Code, Antigravity, Cursor, Grok, Pi, or Cline equivalents), enforce test-first implementation and independent review, and continue automatically until the agreed goal is complete or genuine user authority is required. Use for complex features, refactors, audits, migrations, or multi-phase project work where the user wants one initial prompt instead of repeatedly asking for the next task.
 ---
 
 # Just Do It
@@ -21,8 +21,18 @@ Read [references/capability-grants.md](references/capability-grants.md) before r
 network, credential, destructive, external-write, or sandbox-elevated capability. Read
 [references/recovery.md](references/recovery.md) when a worker stalls, loops, or loses context.
 See [references/features.md](references/features.md) for the feature inventory and provenance.
+Read [references/continuity.md](references/continuity.md) for restart reconciliation, event
+checkpoints, decisions, and dependency/time gates. Read
+[references/delivery.md](references/delivery.md) before promoting scout work, opening a change
+request, merging, or verifying that delivered work landed.
 For portable installation and role-template behavior, read
 [references/distribution.md](references/distribution.md).
+For Antigravity (`agy`), Cursor, Claude Code, Grok, Pi, and Cline discovery paths and
+capability fallbacks, read [references/harnesses.md](references/harnesses.md). Use
+`scripts/install_harness_adapters.py` to check or install a collision-safe workspace adapter.
+When creating reusable planner, scout, test, maker, checker, or security-checker agents, read
+[references/agent-creation.md](references/agent-creation.md) and use
+`scripts/create_agent_team.py`; never hand-copy divergent role prompts across harnesses.
 
 When the user's initial invocation explicitly says to start a persistent goal, finish without
 next-task prompts, or continue until complete, create an active Codex Goal when that capability
@@ -63,6 +73,11 @@ Select one execution mode and record it in the private ledger:
 Do not interpret phrases such as "do whatever it takes", "full access", or `+yolo` as a valid
 break-glass receipt. The coordinator must show the exact grant and receive the prescribed
 confirmation. Return automatically to strict mode when the grant is consumed or expires.
+
+Select a separate delivery mode and record it in the ledger: `local-only` (default),
+`change-request` (commit/push and PR/MR creation only when authorized), or `landed` (merge only
+under an explicit merge grant). Delivery mode never broadens the authority envelope. A request
+to implement does not imply commit, push, PR/MR, or merge authority.
 
 Before decomposing a large program, run a read-only execution preflight: verify repository and
 writable-root scope, unrelated dirty changes, available agent slots, configured roles, toolchain
@@ -106,6 +121,10 @@ Classify tasks as **ship** (produce a bounded repository change) or **scout** (r
 investigation with a report). Never give a scout write authority. For concurrent ship tasks,
 prefer isolated worktrees when repository policy, disk capacity, and merge authority permit;
 otherwise enforce canonical path leases and serialize shared outputs.
+
+Represent unresolved outcome-changing questions as decision holds instead of repeatedly asking
+or silently guessing. Continue every task that does not depend on the held decision. Track
+dependency and `not-before` gates explicitly; elapsed time alone never proves completion.
 
 ## 3. Expand PRDs into bounded tasks
 
@@ -199,6 +218,11 @@ ready but never started. Reopen work whose evidence is missing or stale. Never i
 from silence. Apply the bounded recovery ladder in `references/recovery.md` before declaring a
 worker failed.
 
+At each reconciliation, consume only events newer than the recorded event cursor, reduce them
+into current task state, and record a new checkpoint. Treat event history as evidence, not current
+truth: live diffs, agent state, and fresh tests win conflicts. Follow the startup digest and
+freshness rules in `references/continuity.md`.
+
 When the user asks `$jd status`, `JD status`, "bearings", or "where did I leave off", produce a
 read-mostly status report using `assets/STATUS.md`. Do not dispatch, merge, terminate, or mutate
 task state as a side effect of reporting status.
@@ -206,6 +230,10 @@ task state as a side effect of reporting status.
 When an agent needs user input, it sends the packet defined in the protocol to the coordinator.
 Only the coordinator talks to the user. Consolidate related questions into one short request,
 record the answer, then resume the queue automatically.
+
+Translate internal activity into outcome-first updates: what changed, what evidence passed, what
+is blocked, and what decision or authority is required. Do not expose agent chatter, topology, or
+raw event logs unless the user explicitly requests diagnostic detail.
 
 ## 7. Close the program
 
@@ -215,6 +243,11 @@ regression plus at least 80% on changed/new code; only the user can approve a we
 Include unit, integration, and critical E2E evidence. Run security
 and secret checks appropriate to the changed trust boundaries. Review the final aggregate diff
 with `sol-reviewer`.
+
+When delivery beyond local changes is authorized, follow `references/delivery.md`: preserve
+scout evidence when promoting an investigation to ship work, require a clean reviewed diff before
+opening a PR/MR, never enable auto-merge, and verify the landed commit and required checks after
+an authorized merge. PR/MR readiness is not merge authority.
 
 Report completed PRDs, tests and coverage, security results, assumptions, unresolved risks, and
 any actions intentionally not taken. Include execution mode, capability grants consumed,

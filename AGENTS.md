@@ -9,7 +9,7 @@ gets the same operating contract.
 A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
 skill pack. Route requests to one of twenty-one primary domain skills or the
 `oci-project`, `oci-product-development`, `oci-application-engineering`, or
-`oci-landing-zone` orchestrator under `skills/`.
+`oci-landing-zone` or `oci-diagramming` orchestrator under `skills/`.
 
 ## Before live OCI control-plane work
 
@@ -61,6 +61,7 @@ sequence a request instead of re-deriving the steps.
 | DevOps, API Gateway, Container Instances, Artifact Registry/OCIR delivery | `skills/oci-developer-services/` · `references/developer-services.md` |
 | product golden paths, platform bundles, runtime/ingress/data selection | `skills/oci-product-development/` · `references/product-development.md` |
 | application code, code review, debugging, reuse, plugin assessment, adaptive model measurement, or coding-agent harnesses | `skills/oci-application-engineering/` · `skills/oci-application-engineering/references/workflow.md` · `skills/oci-application-engineering/references/harness-engineering.md` |
+| OCI architecture diagrams, Draw.io, Excalidraw, Mermaid, OCI stencils, observability/security workflows | `skills/oci-diagramming/` · `skills/oci-diagramming/references/oci-architecture-conventions.md` |
 | landing zones, Cloud Adoption Framework, greenfield tenancy foundation, enterprise guardrails | `skills/oci-landing-zone/` · `references/landing-zone.md` |
 | whole-project bootstrap, status/health, deploy/release, teardown/decommission | `skills/oci-project/` · `references/project-workflow.md` |
 

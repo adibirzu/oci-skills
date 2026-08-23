@@ -1,0 +1,28 @@
+{
+  "title": "OCI Observability Pipeline",
+  "nodes": [
+    {"id": "sources", "label": "AI, OKE, GPU, network and audit sources", "kind": "compute", "group": "Sources", "layer": "Workloads", "x": 80, "y": 180},
+    {"id": "collect", "label": "OpenTelemetry Collector", "kind": "observability", "group": "Collect", "layer": "Observability", "x": 330, "y": 180},
+    {"id": "stream", "label": "OCI Streaming", "service": "streaming", "kind": "observability", "group": "Buffer", "layer": "Observability", "x": 580, "y": 180},
+    {"id": "process", "label": "Parse · redact · normalize · enrich · sample", "kind": "observability", "group": "Process", "layer": "Observability", "x": 830, "y": 180},
+    {"id": "apm", "label": "OCI APM", "service": "apm", "kind": "observability", "group": "OCI operational plane", "layer": "Observability", "x": 1080, "y": 80},
+    {"id": "logan", "label": "OCI Logging Analytics", "service": "log-analytics", "kind": "observability", "group": "OCI operational plane", "layer": "Observability", "x": 1080, "y": 180},
+    {"id": "monitor", "label": "OCI Monitoring", "service": "monitoring", "kind": "observability", "group": "OCI operational plane", "layer": "Observability", "x": 1080, "y": 280},
+    {"id": "archive", "label": "OCI Object Storage", "service": "object-storage", "kind": "data", "group": "Retention", "layer": "Workloads", "x": 1080, "y": 380},
+    {"id": "notify", "label": "OCI Notifications", "service": "notifications", "kind": "observability", "group": "Respond", "layer": "Observability", "x": 1330, "y": 180},
+    {"id": "customer", "label": "Customer SIEM / observability tenant", "kind": "security", "group": "Customer-managed destinations", "layer": "Security", "x": 1330, "y": 350}
+  ],
+  "edges": [
+    {"from": "sources", "to": "collect", "type": "telemetry", "label": "OTLP · metrics · logs"},
+    {"from": "collect", "to": "stream", "type": "telemetry", "label": "buffer"},
+    {"from": "stream", "to": "process", "type": "telemetry", "label": "bounded pipeline"},
+    {"from": "process", "to": "apm", "type": "telemetry", "label": "traces"},
+    {"from": "process", "to": "logan", "type": "telemetry", "label": "logs"},
+    {"from": "process", "to": "monitor", "type": "telemetry", "label": "metrics"},
+    {"from": "process", "to": "archive", "type": "replication", "label": "retention"},
+    {"from": "monitor", "to": "notify", "type": "control", "label": "alarms"},
+    {"from": "logan", "to": "notify", "type": "control", "label": "detections"},
+    {"from": "process", "to": "customer", "type": "telemetry", "label": "policy-routed export"}
+  ]
+}
+
