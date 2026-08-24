@@ -14,7 +14,10 @@ tenancy. Prefer **Draw.io** for official OCI stencils and precise architecture,
 **Excalidraw** for editable workshop/whiteboard views, and **Mermaid** for source-
 controlled diagrams-as-code. Read [format guidance](references/formats.md) when
 selecting a format and [OCI conventions](references/oci-architecture-conventions.md)
-before drawing OCI services.
+before drawing OCI services. For original editorial companion art, covers, or
+non-authoritative visual summaries, use the shared
+[`references/image-generation-prompts.md`](../../references/image-generation-prompts.md)
+library; generated rasters never replace editable diagram source.
 
 ## Safety contract
 
@@ -31,6 +34,8 @@ before drawing OCI services.
   official Oracle OCI icon download or OCI shapes already installed in Draw.io.
 - Never add OCIDs, customer names, private IPs, secrets, incident data, or live
   topology unless the user explicitly supplied sanitized content for that purpose.
+- Keep technical labels, icons, service names, evidence qualifiers, and source
+  citations in the editable diagram or final layout, not inside generated art.
 
 ## Workflow
 
@@ -89,4 +94,3 @@ Return the editable source, any preview, validation result, source/provenance li
 evidence class, and limitations. Say explicitly when a stencil alias still needs
 confirmation against the installed official OCI library or when visual rendering
 was not locally verified.
-
