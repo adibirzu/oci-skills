@@ -57,6 +57,7 @@ operator tour of the foundational service domains, read the [core services start
   - [**OCI Observability DB**](./skills/oci-observability-db) — Monitoring, Logging, APM, OpenTelemetry, alarms, dashboards, and PromQL-to-MQL.
   - [**OCI Cost**](./skills/oci-cost) — usage, spend, forecasts, budgets, and FinOps guardrails.
   - [**OCI Diagramming**](./skills/oci-diagramming) — secure editable Draw.io, Excalidraw, and Mermaid architecture sources with OCI stencil conventions.
+  - [**Image-generation prompt library**](./references/image-generation-prompts.md) — evidence-aware original visual, comic, storyboard, and transparent-asset prompts; generated art never replaces editable OCI diagrams.
 <!-- END OCI SKILLS -->
 
 The canonical ownership table remains flat so install tooling and routing tests can treat every skill path consistently:
