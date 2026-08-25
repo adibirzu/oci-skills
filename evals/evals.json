@@ -631,6 +631,20 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-networking-compute",
       "expect_behavior": "Keeps compute and attachment lifecycle with networking-compute; OS Management owns patch governance after registration."
+    },
+    {
+      "id": "trigger-visual-summary",
+      "prompt": "Create a one-page at-a-glance visual summary of this OCI project.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-visual-summary",
+      "expect_behavior": "Builds a grounded narrative project summary from bounded local Git evidence and optional reconciled DevVisualization context; does not contact OCI or infer live architecture."
+    },
+    {
+      "id": "negative-visual-summary-topology",
+      "prompt": "Create an editable VCN topology in Draw.io.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-diagramming",
+      "expect_behavior": "Keeps editable technical topology with diagramming rather than routing it to the narrative visual-summary skill."
     }
   ]
 }

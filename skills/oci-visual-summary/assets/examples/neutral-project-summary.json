@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "title": "Community garden refresh",
+  "takeaway": "Plan the season together, make work visible, and review what improved.",
+  "audience": "Volunteer coordinators",
+  "purpose": "Explain a fictional community project without vendor terminology.",
+  "domain": "mixed",
+  "evidence_class": "design",
+  "archetype": "journey",
+  "visual_direction": {
+    "concept": "sketchnote-story-map-v1",
+    "dominant_path": "plan-to-review route",
+    "mascot_mode": "none"
+  },
+  "anchors": [
+    {
+      "title": "Listen",
+      "detail": "Collect fictional volunteer ideas for the next planting season.",
+      "evidence_class": "design",
+      "source_ids": ["https://example.com/community-garden-brief"]
+    },
+    {
+      "title": "Plan",
+      "detail": "Turn the ideas into a small, shared seasonal plan.",
+      "evidence_class": "design",
+      "source_ids": ["https://example.com/community-garden-brief"]
+    },
+    {
+      "title": "Care",
+      "detail": "Assign visible, rotating tasks for planting and watering.",
+      "evidence_class": "design",
+      "source_ids": ["https://example.com/community-garden-brief"]
+    },
+    {
+      "title": "Reflect",
+      "detail": "Review the fictional season and choose one improvement.",
+      "evidence_class": "design",
+      "source_ids": ["https://example.com/community-garden-brief"]
+    }
+  ],
+  "sources": [
+    {
+      "title": "Fictional public project brief",
+      "url": "https://example.com/community-garden-brief",
+      "claim_ids": ["fictional-project-brief"],
+      "accessed": "2026-08-23",
+      "classification": "public"
+    }
+  ],
+  "privacy": {
+    "classification": "public",
+    "redactions": ["Fictional example; no personal data included."],
+    "public_eligible": true
+  },
+  "outputs": {
+    "formats": ["png", "pdf", "pptx", "docx"],
+    "aspect_ratio": "16:9"
+  },
+  "accessibility": {
+    "reading_order": ["title", "takeaway", "anchors", "sources"],
+    "alt_text": "A fictional community garden project moving from listening to reflection."
+  }
+}

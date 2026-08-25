@@ -9,11 +9,12 @@ User / Claude / Codex / Gemini / Antigravity
                      |
      +---------------+----------------+
      |                                |
-21 primary domain skills         orchestrators
+21 primary domain skills         orchestrators + narrative publishing
      |                       oci-project
      |                       oci-product-development
      |                       oci-application-engineering
      |                       oci-landing-zone
+     |                       oci-visual-summary (offline)
      +---------------+----------------+
                      |
   artifacts (Terraform / CLI plan / platform-bundle.yaml)
@@ -31,7 +32,10 @@ Management Hub, Terraform authoring, and Developer Services. `oci-project` owns 
 owns golden-path selection and bundle composition; `oci-application-engineering`
 owns application code workflow, reuse, review, and measurement;
 `oci-landing-zone` owns tenancy-foundation assessment/design and coordinates
-deployment/upgrade validation. No orchestrator steals service ownership.
+deployment/upgrade validation. `oci-visual-summary` owns grounded narrative
+communication pages and portable repository capability images; it does not
+replace technical topology or infer live project state. No orchestrator steals
+service ownership.
 
 Claude's plugin hook invokes the shared router exactly once for OCI prompts and blocks model-initiated domain-skill chains; the routed agent reads one directly linked reference instead. Direct user skill invocation is unaffected. This keeps shared safety rules in force while avoiding duplicated context and multi-skill latency. Other harnesses use their native skill descriptions and adapter instructions.
 
@@ -96,7 +100,7 @@ Terraform, DNS, or application operators.
 
 ## Product contract plane
 
-The consolidated product plane covers **27 skills, 52 requirements, 40 detailed
+The consolidated product plane covers **28 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**.
 
 `docs/product/contracts/` is the machine-readable control plane for capability

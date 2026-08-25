@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oracle.example/oci-visual-summary/storyboard-spec.schema.json",
+  "title": "Private Illo storyboard specification",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "classification", "coverage", "project_thesis", "units", "audience_sequence"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "classification": {"const": "private-generation-input"},
+    "coverage": {"const": "hero-workflow-scenes-service-map-summary"},
+    "project_thesis": {"type": "string", "minLength": 1},
+    "units": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/unit"}},
+    "audience_sequence": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "unit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "summary_anchor_id", "artifact_job", "thesis", "register", "staging", "physical_move", "objects", "character_action", "interaction_geometry", "cast_role", "service_ids", "service_context", "source_ids", "evidence_class", "text_policy", "alt_text"],
+      "properties": {
+        "id": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_.:-]{0,79}$"},
+        "summary_anchor_id": {"type": "string", "pattern": "^anchor-[1-8]$"},
+        "artifact_job": {"type": "string", "minLength": 1},
+        "thesis": {"type": "string", "minLength": 1},
+        "register": {"type": "string", "enum": ["editorial", "explainer", "mini-comic"]},
+        "staging": {"type": "string", "minLength": 1},
+        "physical_move": {"type": "string", "minLength": 1},
+        "objects": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "character_action": {"type": "string", "minLength": 1},
+        "interaction_geometry": {"anyOf": [{"type": "string", "minLength": 1}, {"type": "object", "minProperties": 1}]},
+        "cast_role": {"type": "string", "minLength": 1},
+        "service_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "service_context": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/service_context"}},
+        "source_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "evidence_class": {"type": "string", "enum": ["design", "code-backed", "configured", "locally-verified", "provider-verified", "release-accepted", "unverified", "unavailable"]},
+        "text_policy": {"const": "deterministic-outside-art"},
+        "alt_text": {"type": "string", "minLength": 1}
+      }
+    },
+    "service_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonical_service_id", "display_name"],
+      "properties": {
+        "canonical_service_id": {"type": "string", "minLength": 1},
+        "display_name": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

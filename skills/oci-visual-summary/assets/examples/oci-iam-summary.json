@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "title": "Fictional team access route",
+  "takeaway": "Define a scope, grant only needed access, then review the evidence.",
+  "audience": "Platform operators",
+  "purpose": "Explain a fictional least-privilege access pattern.",
+  "domain": "iam",
+  "evidence_class": "design",
+  "archetype": "journey",
+  "visual_direction": {
+    "concept": "sketchnote-story-map-v1",
+    "dominant_path": "scope-to-review route",
+    "mascot_mode": "nimb-operator",
+    "doodle_density": "lively",
+    "stroke_style": "marker",
+    "style_variant": "doodle-at-a-glance",
+    "editable_targets": ["svg", "drawio", "excalidraw", "pptx"]
+  },
+  "artwork": {
+    "mode": "hybrid",
+    "generation_policy": "active-llm",
+    "style_register": "explainer",
+    "slots": [
+      {
+        "id": "iam-route-scene",
+        "anchor_id": "anchor-1",
+        "role": "scene",
+        "alt_text": "An operator traces a verified access route through a gate.",
+        "prompt_hint": "Loose marker cutout with a warm-white background."
+      }
+    ]
+  },
+  "anchors": [
+    {
+      "title": "Choose scope",
+      "detail": "Use a fictional project boundary before assigning access.",
+      "evidence_class": "design",
+      "source_ids": ["https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm"]
+    },
+    {
+      "title": "Name a group",
+      "detail": "Represent a job function rather than an individual person.",
+      "evidence_class": "design",
+      "source_ids": ["https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm"]
+    },
+    {
+      "title": "Grant the minimum",
+      "detail": "Describe only the access that the fictional task needs.",
+      "evidence_class": "design",
+      "source_ids": ["https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm"]
+    },
+    {
+      "title": "Review evidence",
+      "detail": "Keep the design label until a separate validation proves it.",
+      "evidence_class": "design",
+      "source_ids": ["https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm"]
+    }
+  ],
+  "sources": [
+    {
+      "title": "OCI Identity and Access Management",
+      "url": "https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm",
+      "claim_ids": ["iam-design-reference"],
+      "accessed": "2026-08-23",
+      "classification": "public"
+    }
+  ],
+  "privacy": {
+    "classification": "public",
+    "redactions": ["No customer or tenancy data used."],
+    "public_eligible": true
+  },
+  "outputs": {
+    "formats": ["svg", "png", "pdf", "drawio", "excalidraw", "pptx", "docx"],
+    "aspect_ratio": "16:9"
+  },
+  "accessibility": {
+    "reading_order": ["title", "takeaway", "anchors", "sources"],
+    "alt_text": "A fictional access journey from scope selection through review."
+  }
+}

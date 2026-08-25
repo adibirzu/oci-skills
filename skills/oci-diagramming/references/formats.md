@@ -5,6 +5,7 @@
 | Official OCI service stencils, multi-page/layered architecture | Draw.io | Canonical customer architecture source |
 | Workshop sketch, incident flow, collaborative explanation | Excalidraw | Editable primitives; use `roughness: 1` intentionally |
 | Git/Markdown, sequence, ER, state, compact flow | Mermaid | No official OCI stencil fidelity; attach OCI service metadata in comments |
+| Narrative at-a-glance story map | Draw.io or Excalidraw via `oci-visual-summary` | Essential text remains editable; generated art is a bounded embedded asset |
 
 ## Capability coverage
 
@@ -23,4 +24,7 @@ party parsers/binaries, can disclose data, or can produce active content.
 - Never use Kroki or community-library URLs without explicit disclosure approval.
 - SVG/HTML are active-content-capable formats: inspect them before delivery.
 - An exported PNG/PDF is a view, not the editable source or proof of correctness.
-
+- A Draw.io PNG/SVG/PDF with an embedded diagram can be convenient for local
+  handoff, but the `.drawio` source remains canonical. Use only a locally
+  resolved Draw.io executable, preserve the source beside the export, and run
+  validation again after any import or targeted edit.

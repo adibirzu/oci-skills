@@ -18,7 +18,8 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 ## Skill topology
 
-The 27-skill pack contains a router selecting twenty-one primary domains and five orchestrators:
+The 28-skill pack contains a router selecting twenty-one primary domains, five
+orchestrators, and an offline narrative-publishing skill:
 
 For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md).
 
@@ -29,6 +30,7 @@ For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md).
   - [**OCI Product Development**](./skills/oci-product-development) — choose a golden path and compose a platform bundle.
   - [**OCI Application Engineering**](./skills/oci-application-engineering) — review, debug, reuse, and evaluate application code without OCI mutation.
   - [**OCI Landing Zone**](./skills/oci-landing-zone) — assess and design a tenancy foundation.
+  - [**OCI Visual Summary**](./skills/oci-visual-summary) — create grounded at-a-glance maps, humanized `illo-storyboard` sequences, and portable project capability images with OCI stencil provenance gates.
 - **Security and governance**
   - [**OCI IAM Admin**](./skills/oci-iam-admin) — compartments, policies, users, groups, budgets, quotas, tags, and limits.
   - [**OCI Security Compliance**](./skills/oci-security-compliance) — Cloud Guard, Vault, WAF, Vulnerability Scanning, CIS/ISO evidence, and DevSecOps gates.
@@ -87,6 +89,7 @@ The canonical ownership table remains flat so install tooling and routing tests 
 | `oci-product-development` | Golden-path intake and `platform-bundle.yaml` composition |
 | `oci-application-engineering` | Application workflow, reuse, review, and adaptive evaluation (no OCI mutation) |
 | `oci-landing-zone` | Landing-zone assessment, design, deployment, upgrade, and validation orchestration |
+| `oci-visual-summary` | Grounded narrative at-a-glance maps, executive briefings, and portable repository capability images |
 | `oci-diagramming` | OCI architecture diagrams, stencil conventions, structural/security validation, and visual-QA workflow |
 
 `oci-application-engineering` can optionally use a locally configured MultiLLM gateway for model comparison, adaptive cheap-first routing, Fusion synthesis, and sanitized cost/latency traces. It is not enabled or required by this pack: ask for the user's choice, keep restricted code local unless separately approved, and continue normally when the gateway is absent.
@@ -136,12 +139,12 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 
 ## Product contracts and readiness
 
-The consolidated release contains **27 skills, 52 requirements, 40 detailed
+The consolidated release contains **28 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic
-workflow evaluation, the 27-skill capability catalog, routing precedence,
+workflow evaluation, the 28-skill capability catalog, routing precedence,
 evidence envelopes, architecture traceability, distribution/redaction/release
 contracts, compatibility policy, user journeys, dependency and impact graphs,
 verification/provenance registries, an install manifest, safety cases, a release
@@ -302,3 +305,7 @@ hooks/           Claude-only router, skill-chain, and destructive guards
 ```
 
 License: MIT.
+
+<!-- oci-visual-summary:project-capabilities:start -->
+![Capability summary for OCI Visual Summary.](docs/images/project-capabilities.svg)
+<!-- oci-visual-summary:project-capabilities:end -->
