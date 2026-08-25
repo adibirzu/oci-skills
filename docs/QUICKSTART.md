@@ -4,6 +4,8 @@ This guide distinguishes offline artifact generation, read-only inspection, and 
 
 For editable OCI architecture diagrams, use `oci-diagramming`. Its Draw.io,
 Excalidraw, and Mermaid generator/validator is offline and contacts no tenancy.
+For a grounded narrative at-a-glance page, use `oci-visual-summary`; it is not
+a substitute for editable technical topology.
 
 ## Install and prerequisites
 
@@ -201,6 +203,8 @@ view used by the quickstart.
 | golden-path platform bundle | `oci-product-development` |
 | application code/review/reuse/model evaluation | `oci-application-engineering` |
 | landing-zone/greenfield tenancy guardrails | `oci-landing-zone` |
+| narrative at-a-glance summary, executive map, or project capability image | `oci-visual-summary` |
+| editable technical topology/Draw.io/Excalidraw/Mermaid | `oci-diagramming` |
 
 ## External handoffs and troubleshooting
 
@@ -216,7 +220,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **27 skills, 52 requirements, 37 contracts, and
+The installed pack exposes **28 skills, 52 requirements, 37 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 

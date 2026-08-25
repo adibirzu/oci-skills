@@ -155,7 +155,7 @@ def test_product_contract_validator_and_report_are_deterministic() -> None:
     assert first["valid"] is True
     assert first["requirements"] == 52
     assert first["contracts"] == 37
-    assert first["capabilities"] == 27
+    assert first["capabilities"] == 28
     report = validator.build_report(ROOT)
     assert report["external_evidence_complete"] is False
     assert report["self_certified"] is False

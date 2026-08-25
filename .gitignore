@@ -104,3 +104,23 @@ docs/comics/**/*.narration.mp3
 # Public comic shelf - finished PDFs only
 /published/comics/*
 !/published/comics/*.pdf
+
+# Visual summary private build inputs and QA
+/.visual-summary-private/
+/.visual-summary-private/icon-cache/
+**/.visual-summary-private/
+/tmp/
+/tmp/visual-summaries/
+visual-summary-*.source.json
+visual-summary-*.handoff.json
+visual-summary-*.qa.json
+visual-summary-*.evidence.json
+visual-summary-*.synthesis.json
+project-evidence.json
+synthesis-request.json
+artwork-request.json
+artwork-manifest.json
+visual-summary-*.artwork.json
+visual-summary-generated-art/
+summary.spec.json
+summary.handoff.json

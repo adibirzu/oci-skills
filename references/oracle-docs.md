@@ -73,6 +73,21 @@ Safe), the upstream `db/` domain of
 | Container Registry image scanning | <https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registryscanningimagesforvulnerabilities.htm> |
 | CIS OCI Benchmark | <https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html> |
 
+## Generative AI and AI security
+
+| Topic | Canonical doc |
+|---|---|
+| Generative AI guardrails | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/guardrails.htm> |
+| Generative AI private endpoints | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/private-endpoint.htm> |
+| Generative AI security attributes for ZPR | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/manage-security-attributes.htm> |
+| Generative AI Agents IAM policies | <https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm> |
+| Data Science model catalog | <https://docs.oracle.com/en-us/iaas/Content/data-science/using/models-about.htm> |
+
+The [OWASP AI Exchange AI Security Overview](https://owaspai.org/docs/ai_security_overview/)
+is supplemental public research. It can help organize threats, controls, and
+engineering lifecycle ideas, but it is not Oracle documentation and must not
+be used as proof of an OCI service capability.
+
 ## Observability & database — `oci-observability-db`
 
 | Topic | Canonical doc |

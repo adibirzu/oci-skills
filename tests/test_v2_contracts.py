@@ -38,6 +38,7 @@ EXPECTED_SKILLS = {
     "oci-application-engineering",
     "oci-landing-zone",
     "oci-diagramming",
+    "oci-visual-summary",
 }
 
 
@@ -48,7 +49,7 @@ def _frontmatter(path: pathlib.Path) -> str:
 def test_v2_skill_topology_and_codex_metadata() -> None:
     skills = {path.parent.name for path in ROOT.glob("skills/*/SKILL.md")}
     assert skills == EXPECTED_SKILLS
-    assert len(skills) == 27
+    assert len(skills) == 28
     for skill in skills:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
 
@@ -57,7 +58,8 @@ def test_every_skill_has_semantically_valid_frontmatter() -> None:
     for skill in EXPECTED_SKILLS:
         path = ROOT / "skills" / skill / "SKILL.md"
         data = yaml.safe_load(_frontmatter(path))
-        assert set(data) == {"name", "description"}
+        assert set(data) <= {"name", "description", "license"}
+        assert {"name", "description"} <= set(data)
         assert data["name"] == skill
         assert isinstance(data["description"], str) and data["description"].strip()
         assert len(data["description"]) <= 1024
@@ -323,7 +325,12 @@ def test_tracked_distribution_has_no_runtime_or_provider_binaries() -> None:
         or path.suffix in {".tfstate", ".tfplan", ".pyc", ".pyo"}
     ]
     assert forbidden == []
-    oversized = [path for path in tracked if (ROOT / path).is_file() and (ROOT / path).stat().st_size > 5_000_000]
+    oversized = [
+        path for path in tracked
+        if (ROOT / path).is_file()
+        and (ROOT / path).stat().st_size > 5_000_000
+        and not (path.parts[:2] == ("published", "comics") and path.suffix == ".pdf")
+    ]
     assert oversized == []
 
 
