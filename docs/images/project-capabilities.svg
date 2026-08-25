@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="summary-title summary-desc">
+<title id="summary-title">OCI Skills Capabilities at a Glance — project visual summary</title>
+<desc id="summary-desc">OCI Visual Summary packages reusable capabilities with code-backed repository evidence. A journey story map with 4 grounded capability scenes and an evidence footer.</desc>
+<rect width="1920" height="1080" fill="#FFFDF8"/>
+<g data-story-layer="headline" aria-label="Summary headline and takeaway">
+<path d="M 38.4 108.0 C 326.4 32.4 652.8 162.0 998.4 86.4 S 1612.8 32.4 1881.6 118.8" fill="none" stroke="#6C5AA7" stroke-width="26" opacity=".14" stroke-linecap="round"/>
+<path d="M 96.0 407.4 Q 652.8 353.4 1190.4 407.4" fill="none" stroke="#6C5AA7" stroke-width="4" opacity=".45"/>
+<path data-ribbon-kind="takeaway" d="M 134.4 402.0 q 153.6 21.6 364.8 0 q 153.6 -19.4 326.4 0" fill="none" stroke="#C74634" stroke-width="7" stroke-linecap="round"/>
+<path d="M 114.8 232.2 q 115.2 -19.4 230.4 0 l 192.0 0 q 57.6 0 57.6 19.4 q -38.4 19.4 -76.8 19.4 l -345.6 0 q -115.2 0 -57.6 -19.4 Z" fill="#6C5AA7" opacity=".16"/>
+<text x="134.0" y="131.8" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="62.6" font-weight="700" fill="#18202B"><tspan x="134.0" dy="0.0">OCI Skills Capabilities at a</tspan><tspan x="134.0" dy="76.4">Glance</tspan></text>
+<text x="134.0" y="255.2" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="25.9" font-weight="400" fill="#3C4655"><tspan x="134.0" dy="0.0">OCI Visual Summary packages reusable capabilities with</tspan><tspan x="134.0" dy="31.6">code-backed repository evidence.</tspan></text>
+<rect x="137.8" y="326.4" width="422.4" height="37.8" rx="17.0" fill="#6C5AA7" opacity=".16"/><text x="188.5" y="351.8" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="16.6" font-weight="700" fill="#C74634"><tspan x="188.5" dy="0.0">Repository Capability Route</tspan></text>
+<path d="M 134 364.2 q 115.2 13.0 268.8 0" fill="none" stroke="#C74634" stroke-width="5" stroke-linecap="round"/>
+<circle cx="748.4" cy="124.2" r="19.4" fill="#6C5AA7" opacity=".24"/>
+<circle cx="825.2" cy="162.0" r="10.8" fill="#C74634" opacity=".34"/>
+</g>
+<g data-story-layer="journey" aria-label="Dominant repository capability route">
+<path d="M 230 670 Q 717 583 960.0 669.5 Q 1203 756 1446.5 686.0 T 1690 616" fill="none" stroke="#C74634" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" opacity=".84"/>
+<g data-stage-marker="1" aria-hidden="true">
+<circle cx="230" cy="670" r="11.9" fill="#FFFDF8" stroke="#C74634" stroke-width="6"/>
+<circle cx="230" cy="670" r="18.4" fill="none" stroke="#6C5AA7" stroke-width="3" opacity=".50"/>
+</g>
+<g data-stage-marker="2" aria-hidden="true">
+<circle cx="717" cy="583" r="11.9" fill="#FFFDF8" stroke="#C74634" stroke-width="6"/>
+<circle cx="717" cy="583" r="18.4" fill="none" stroke="#6C5AA7" stroke-width="3" opacity=".50"/>
+</g>
+<g data-stage-marker="3" aria-hidden="true">
+<circle cx="1203" cy="756" r="11.9" fill="#FFFDF8" stroke="#C74634" stroke-width="6"/>
+<circle cx="1203" cy="756" r="18.4" fill="none" stroke="#6C5AA7" stroke-width="3" opacity=".50"/>
+</g>
+<g data-stage-marker="4" aria-hidden="true">
+<circle cx="1690" cy="616" r="11.9" fill="#FFFDF8" stroke="#C74634" stroke-width="6"/>
+<circle cx="1690" cy="616" r="18.4" fill="none" stroke="#6C5AA7" stroke-width="3" opacity=".50"/>
+</g>
+</g>
+<g data-story-layer="scene" data-anchor-id="anchor-1" aria-label="Scene 1: Reusable Skill Catalog">
+<path d="M 120.7 590.1 L 120.7 458.2 Q 346.2 349.6 584.8 458.2 L 584.8 590.1 Z" fill="#FFFDF8" stroke="#C74634" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M 169.4 442.7 q 44.2 -17.5 97.2 -7.8" fill="none" stroke="#6C5AA7" stroke-width="4" opacity=".40" stroke-linecap="round"/>
+<circle cx="160.5" cy="425.2" r="19.4" fill="#C74634"/>
+<text x="155.2" y="428.1" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="700" fill="#FFFDF8"><tspan x="155.2" dy="0.0">1</tspan></text>
+<rect x="204.7" y="410.7" width="137.0" height="23.3" rx="10.5" fill="#6C5AA7" opacity=".16"/><text x="221.2" y="426.3" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="10.2" font-weight="700" fill="#C74634"><tspan x="221.2" dy="0.0">CATALOG</tspan></text>
+<text x="182.6" y="464.0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="25.9" font-weight="700" fill="#18202B"><tspan x="182.6" dy="0.0">Reusable Skill</tspan><tspan x="182.6" dy="31.6">Catalog</tspan></text>
+<text x="182.6" y="508.6" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="400" fill="#3C4655"><tspan x="182.6" dy="0.0">Tracked skills, routers, and</tspan><tspan x="182.6" dy="21.1">catalog pages expose reusable</tspan><tspan x="182.6" dy="21.1">OCI workflows across the</tspan><tspan x="182.6" dy="21.1">repository.</tspan></text>
+<rect x="399.2" y="561.0" width="101.7" height="19.4" rx="8.7" fill="#C74634" opacity=".16"/><text x="411.4" y="574.0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="8.5" font-weight="700" fill="#18202B"><tspan x="411.4" dy="0.0">CODE-BACKED</tspan></text>
+<g data-doodle="flag" aria-hidden="true"><path d="M 443.4 446.6 q 26.5 -15.5 53.0 0 q -13.3 13.6 -53.0 0" fill="none" stroke="#6C5AA7" stroke-width="4" stroke-linecap="round" opacity=".9"/><path d="M 425.7 466.0 q 22.1 -11.6 44.2 0" fill="none" stroke="#6C5AA7" stroke-width="3" stroke-linecap="round" opacity=".5"/><text x="439.0" y="481.5" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="2.3" font-weight="700" fill="#6C5AA7"><tspan x="439.0" dy="0.0">FLAG</tspan></text><circle cx="514.1" cy="442.7" r="1.9" fill="#6C5AA7" opacity=".28"/></g>
+<path data-callout-shape="ribbon" d="M 452.2 547.4 q 35.4 -15.5 79.6 0" fill="none" stroke="#C74634" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g data-story-layer="scene" data-anchor-id="anchor-2" aria-label="Scene 2: Operator Guidance">
+<path d="M 601.5 882.5 Q 550.4 796.0 616.1 754.5 Q 751.2 678.4 919.1 744.1 Q 966.5 796.0 941.0 872.2 Q 751.2 903.3 601.5 882.5 Z" fill="#FFFDF8" stroke="#C74634" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M 605.2 751.1 q 36.5 -15.6 80.3 -6.9" fill="none" stroke="#6C5AA7" stroke-width="4" opacity=".40" stroke-linecap="round"/>
+<circle cx="597.9" cy="735.5" r="19.4" fill="#C74634"/>
+<text x="593.5" y="738.1" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="700" fill="#FFFDF8"><tspan x="593.5" dy="0.0">2</tspan></text>
+<rect x="634.4" y="722.5" width="113.2" height="20.8" rx="9.3" fill="#6C5AA7" opacity=".16"/><text x="648.0" y="736.4" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="9.1" font-weight="700" fill="#C74634"><tspan x="648.0" dy="0.0">DOCUMENTATION</tspan></text>
+<text x="616.1" y="770.1" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="25.9" font-weight="700" fill="#18202B"><tspan x="616.1" dy="0.0">Operator Guidance</tspan></text>
+<text x="616.1" y="809.9" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="400" fill="#3C4655"><tspan x="616.1" dy="0.0">README, quickstart,</tspan><tspan x="616.1" dy="21.1">architecture, and operator</tspan><tspan x="616.1" dy="21.1">docs explain how to use the</tspan><tspan x="616.1" dy="21.1">repository safely.</tspan></text>
+<rect x="795.0" y="856.6" width="84.0" height="17.3" rx="7.8" fill="#C74634" opacity=".16"/><text x="805.1" y="868.2" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="7.6" font-weight="700" fill="#18202B"><tspan x="805.1" dy="0.0">CODE-BACKED</tspan></text>
+<g data-doodle="flag" aria-hidden="true"><path d="M 831.5 754.5 q 21.9 -13.8 43.8 0 q -10.9 12.1 -43.8 0" fill="none" stroke="#6C5AA7" stroke-width="4" stroke-linecap="round" opacity=".9"/><path d="M 816.9 771.8 q 18.2 -10.4 36.5 0" fill="none" stroke="#6C5AA7" stroke-width="3" stroke-linecap="round" opacity=".5"/><text x="827.9" y="785.7" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="2.1" font-weight="700" fill="#6C5AA7"><tspan x="827.9" dy="0.0">FLAG</tspan></text><circle cx="889.9" cy="751.1" r="1.7" fill="#6C5AA7" opacity=".28"/></g>
+<path data-callout-shape="speech-tail" d="M 838.8 844.5 l 29.2 19.0 l 18.2 -20.8" fill="none" stroke="#C74634" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g data-story-layer="scene" data-anchor-id="anchor-3" aria-label="Scene 3: Operational Automation">
+<path d="M 1210.2 364.4 Q 1457.7 401.3 1448.8 487.4 Q 1440.0 610.4 1210.2 598.1 Q 975.9 606.3 984.7 487.4 Q 993.6 397.2 1210.2 364.4 Z" fill="#FFFDF8" stroke="#C74634" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M 1033.4 434.1 q 44.2 -18.4 97.2 -8.2" fill="none" stroke="#6C5AA7" stroke-width="4" opacity=".40" stroke-linecap="round"/>
+<circle cx="1024.5" cy="415.6" r="19.4" fill="#C74634"/>
+<text x="1019.2" y="418.7" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="700" fill="#FFFDF8"><tspan x="1019.2" dy="0.0">3</tspan></text>
+<rect x="1068.7" y="400.3" width="137.0" height="24.6" rx="11.1" fill="#6C5AA7" opacity=".16"/><text x="1085.2" y="416.8" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="10.8" font-weight="700" fill="#C74634"><tspan x="1085.2" dy="0.0">AUTOMATION</tspan></text>
+<text x="1046.6" y="456.6" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="25.9" font-weight="700" fill="#18202B"><tspan x="1046.6" dy="0.0">Operational</tspan><tspan x="1046.6" dy="31.6">Automation</tspan></text>
+<text x="1046.6" y="503.8" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="400" fill="#3C4655"><tspan x="1046.6" dy="0.0">Tracked scripts, Make</tspan><tspan x="1046.6" dy="21.1">targets, and workflow files</tspan><tspan x="1046.6" dy="21.1">automate install, validation,</tspan><tspan x="1046.6" dy="21.1">and generation tasks.</tspan></text>
+<rect x="1263.2" y="559.1" width="101.7" height="20.5" rx="9.2" fill="#C74634" opacity=".16"/><text x="1275.4" y="572.9" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="9.0" font-weight="700" fill="#18202B"><tspan x="1275.4" dy="0.0">CODE-BACKED</tspan></text>
+<g data-doodle="flag" aria-hidden="true"><path d="M 1307.4 438.2 q 26.5 -16.4 53.0 0 q -13.3 14.4 -53.0 0" fill="none" stroke="#6C5AA7" stroke-width="4" stroke-linecap="round" opacity=".9"/><path d="M 1289.7 458.7 q 22.1 -12.3 44.2 0" fill="none" stroke="#6C5AA7" stroke-width="3" stroke-linecap="round" opacity=".5"/><text x="1303.0" y="475.1" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="2.5" font-weight="700" fill="#6C5AA7"><tspan x="1303.0" dy="0.0">FLAG</tspan></text><circle cx="1378.1" cy="434.1" r="2.0" fill="#6C5AA7" opacity=".28"/></g>
+<path data-callout-shape="torn-note" d="M 1316.2 544.8 l 22.1 -12.3 l 22.1 12.3 l 22.1 -12.3" fill="none" stroke="#C74634" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g data-story-layer="scene" data-anchor-id="anchor-4" aria-label="Scene 4: Security Guardrails">
+<path d="M 1429.6 673.7 L 1751.4 673.7 L 1792.9 706.8 L 1751.4 740.0 L 1792.9 839.3 L 1457.3 839.3 Q 1422.7 747.3 1429.6 673.7 Z" fill="#FFFDF8" stroke="#C74634" stroke-width="3.5" stroke-linejoin="round"/>
+<path d="M 1467.7 699.5 q 34.6 -16.6 76.1 -7.4" fill="none" stroke="#6C5AA7" stroke-width="4" opacity=".40" stroke-linecap="round"/>
+<circle cx="1460.8" cy="682.9" r="19.4" fill="#C74634"/>
+<text x="1456.6" y="685.7" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="700" fill="#FFFDF8"><tspan x="1456.6" dy="0.0">4</tspan></text>
+<rect x="1495.4" y="669.1" width="107.3" height="22.1" rx="9.9" fill="#6C5AA7" opacity=".16"/><text x="1508.2" y="683.9" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="9.7" font-weight="700" fill="#C74634"><tspan x="1508.2" dy="0.0">SECURITY</tspan></text>
+<text x="1478.1" y="719.7" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="25.9" font-weight="700" fill="#18202B"><tspan x="1478.1" dy="0.0">Security</tspan><tspan x="1478.1" dy="31.6">Guardrails</tspan></text>
+<text x="1478.1" y="762.0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="17.3" font-weight="400" fill="#3C4655"><tspan x="1478.1" dy="0.0">Security and redaction</tspan><tspan x="1478.1" dy="21.1">guidance define what must be</tspan><tspan x="1478.1" dy="21.1">protected before publication</tspan><tspan x="1478.1" dy="21.1">or live OCI work.</tspan></text>
+<rect x="1647.6" y="811.7" width="79.6" height="18.4" rx="8.3" fill="#C74634" opacity=".16"/><text x="1657.1" y="824.0" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="8.1" font-weight="700" fill="#18202B"><tspan x="1657.1" dy="0.0">CODE-BACKED</tspan></text>
+<g data-doodle="flag" aria-hidden="true"><path d="M 1682.2 703.2 q 20.8 -14.7 41.5 0 q -10.4 12.9 -41.5 0" fill="none" stroke="#6C5AA7" stroke-width="4" stroke-linecap="round" opacity=".9"/><path d="M 1668.4 721.6 q 17.3 -11.0 34.6 0" fill="none" stroke="#6C5AA7" stroke-width="3" stroke-linecap="round" opacity=".5"/><text x="1678.7" y="736.3" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="2.2" font-weight="700" fill="#6C5AA7"><tspan x="1678.7" dy="0.0">FLAG</tspan></text><circle cx="1737.6" cy="699.5" r="1.8" fill="#6C5AA7" opacity=".28"/></g>
+<path data-callout-shape="bracket" d="M 1689.1 798.8 l 20.8 0 l 0 22.1 l 20.8 0" fill="none" stroke="#C74634" stroke-width="4" stroke-linecap="round"/>
+</g>
+<g data-story-layer="evidence" aria-label="Evidence sources">
+<path d="M 115.2 982.8 q 230.4 -21.6 460.8 0 l 422.4 0 q 76.8 0 57.6 21.6 q -38.4 32.4 -96.0 32.4 l -806.4 0 q -57.6 0 -38.4 -32.4 Z" fill="#6C5AA7" opacity=".12"/>
+<text x="144.0" y="1020.6" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif" font-size="15.1" font-weight="400" fill="#53606E"><tspan x="144.0" dy="0.0">Evidence: Makefile, Readme, Architecture Decision Records, Security &amp;</tspan><tspan x="144.0" dy="18.4">Compliance</tspan></text>
+</g>
+</svg>

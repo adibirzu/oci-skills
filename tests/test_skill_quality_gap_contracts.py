@@ -86,11 +86,12 @@ def test_oke_mcp_safety_contract_is_documented() -> None:
     assert "mutations still use this pack's preflight" in combined
 
 
-def test_router_docs_catalog_and_evals_publish_the_27_skill_surface() -> None:
+def test_router_docs_catalog_and_evals_publish_the_28_skill_surface() -> None:
     catalog = json.loads(_text(ROOT / "docs" / "product" / "contracts" / "capability-catalog.json"))
     skills = {entry["skill"] for entry in catalog["capabilities"]}
     assert set(NEW_SKILLS) <= skills
-    assert len(skills) == 27
+    assert "oci-visual-summary" in skills
+    assert len(skills) == 28
     assert {"oci-data-platform", "oci-os-management"} <= skills
 
     router = _text(ROOT / "skills" / "oci-administrator" / "SKILL.md")
@@ -98,7 +99,7 @@ def test_router_docs_catalog_and_evals_publish_the_27_skill_surface() -> None:
     architecture = _text(ROOT / "docs" / "ARCHITECTURE.md")
     quickstart = _text(ROOT / "docs" / "QUICKSTART.md")
     for text in (router, readme, architecture, quickstart):
-        assert "27 skills" in text
+        assert "28 skills" in text
     assert "twenty-one primary" in router.lower()
     assert "twenty-one primary" in readme.lower()
 
@@ -119,6 +120,33 @@ def test_router_docs_catalog_and_evals_publish_the_27_skill_surface() -> None:
     assert routes["negative-zpr-nsg-rule"] == "oci-networking-compute"
     assert routes["negative-data-platform-object-storage"] == "oci-storage"
     assert routes["negative-os-management-instance-lifecycle"] == "oci-networking-compute"
+    assert routes["trigger-visual-summary"] == "oci-visual-summary"
+    assert routes["negative-visual-summary-topology"] == "oci-diagramming"
+
+
+def test_visual_summary_and_diagramming_boundaries_are_explicit() -> None:
+    visual = _text(ROOT / "skills" / "oci-visual-summary" / "SKILL.md").lower()
+    diagram = _text(ROOT / "skills" / "oci-diagramming" / "SKILL.md").lower()
+    project = _text(ROOT / "skills" / "oci-project" / "SKILL.md").lower()
+    assert "narrative" in visual and "at a glance" in visual
+    assert "technical topology" in diagram and "oci-visual-summary" in diagram
+    assert "communicate" in project and "oci-visual-summary" in project
+
+
+def test_visual_summary_illo_storyboard_and_private_boundaries_are_documented() -> None:
+    skill = _text(ROOT / "skills" / "oci-visual-summary" / "SKILL.md").lower()
+    illo = _text(ROOT / "skills" / "oci-visual-summary" / "references" / "illo-storyboard.md").lower()
+    axm = _text(ROOT / "skills" / "oci-visual-summary" / "references" / "axm-icons.md").lower()
+    ignored = _text(ROOT / ".gitignore")
+
+    for term in ("illo-storyboard", "references/illo-storyboard.md", "references/axm-icons.md", "canvas-story-map"):
+        assert term in skill
+    for term in ("thesis lock", "artifact job", "register gate", "physical move", "interaction geometry", "mixed cast", "model sheet", "style anchor", "audience sequence"):
+        assert term in illo
+    for term in ("attached", "internal-only", "runtime cataloging", "exact mapping", "conceptual mapping", "public deliverables", "native service text"):
+        assert term in axm
+    assert "/.visual-summary-private/" in ignored
+    assert "*.potx" not in ignored
 
 
 def test_undercovered_domains_have_forward_behavior_matrices() -> None:

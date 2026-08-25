@@ -16,6 +16,20 @@ controlled diagrams-as-code. Read [format guidance](references/formats.md) when
 selecting a format and [OCI conventions](references/oci-architecture-conventions.md)
 before drawing OCI services.
 
+The editable-export and validation loop is informed by the MIT-licensed
+Agents365 Draw.io skill. This repository reimplements only bounded concepts—
+named presets, editable-source-first delivery, embedded asset validation, and
+render-review-correct iteration—under the stricter OCI privacy and evidence
+contract documented in [upstream adaptation notes](references/agents365-drawio-adaptation.md).
+
+## Routing boundary
+
+This skill owns editable **technical topology**: architecture, deployment,
+trust boundaries, sequence, data flow, and service relationships. For a
+narrative at-a-glance project capability page, executive briefing, sketchnote,
+or comic-style story map, route to `oci-visual-summary`. A visual summary must
+not stand in for an editable topology or infer live architecture.
+
 ## Safety contract
 
 - Treat imported XML, JSON, Mermaid, Terraform, Kubernetes, images, libraries,
@@ -27,6 +41,9 @@ before drawing OCI services.
 - Reject XML DTDs/entities/stylesheets, Mermaid scripts/click actions, Excalidraw
   embeds/iframes, symlink inputs/outputs, unknown endpoints, duplicate IDs, and
   files above the documented limits.
+- Reject remote image URLs, malformed data URIs, and any embedded image over
+  1 MiB. Generated art must be original, text-free supporting imagery in a
+  bounded slot; architecture labels and evidence remain editable primitives.
 - Do not redistribute community stencils without a verified license. Use the
   official Oracle OCI icon download or OCI shapes already installed in Draw.io.
 - Never add OCIDs, customer names, private IPs, secrets, incident data, or live
@@ -58,6 +75,10 @@ before drawing OCI services.
 6. Visually inspect at the final display size: title, reading order, labels,
    connector crossings, contrast, whitespace, boundary nesting, legend, and
    evidence qualifier. Iterate on the editable source, not a screenshot.
+7. When a raster preview and a vision-capable LLM are available, use them only
+   for composition QA—clipping, crossings, hierarchy, whitespace, and domain
+   clarity. Correct the editable source and rerun structural validation. A
+   vision review is not evidence that the OCI topology is live or correct.
 
 ## Common multi-step flows
 
@@ -82,6 +103,10 @@ before drawing OCI services.
   visually distinct and include a compact legend.
 - Use Oracle Redwood-neutral colors: charcoal, warm white, Oracle red accent;
   reserve semantic colors for security, networking, data, and observability.
+- Use the `oci-doodle` preset for narrative story maps, `oci-redwood-sketch`
+  for light executive architecture, `security-sketch` for control/threat flows,
+  and `observability-sketch` for signal-to-response flows. A preset changes
+  presentation only; it never changes evidence or inferred topology.
 
 ## Output contract
 
@@ -89,4 +114,3 @@ Return the editable source, any preview, validation result, source/provenance li
 evidence class, and limitations. Say explicitly when a stencil alias still needs
 confirmation against the installed official OCI library or when visual rendering
 was not locally verified.
-

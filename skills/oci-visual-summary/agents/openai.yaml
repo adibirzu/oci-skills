@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Visual Summary"
+  short_description: "Create grounded at-a-glance OCI visual summaries"
+  default_prompt: "Use $oci-visual-summary to create an original, evidence-grounded sketchnote-style visual summary. Whenever named OCI services appear, use approved OCI stencils as editable overlays and apply the public/internal provenance gate."

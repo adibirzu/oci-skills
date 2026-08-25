@@ -197,6 +197,84 @@ twice unless the user requests a repeated orientation aid.
 
 ## Project integration
 
+### Portable project intake and LLM synthesis
+
+The skill must work from any Git project, not only from this OCI skill pack.
+Project mode starts with a read-only evidence inventory and then uses the active
+LLM to synthesize the communication job and candidate summary specification.
+The deterministic renderer never calls an unconfigured model endpoint and no
+provider credential is required by the skill. Instead, the skill gives the
+active agent a bounded evidence packet and an exact JSON output contract. The
+LLM may compress, group, title, and choose an archetype; it may not invent a
+capability, verification result, dependency, service, owner, or maturity claim.
+
+Discovery follows this precedence:
+
+1. Use an available DevVisualization project scope or KAG surface for bounded
+   project detail, provenance, lifecycle, and cross-project context.
+2. Reconcile that result with the current working tree, Git metadata, project
+   instructions, manifests, documentation, tests, and generated contracts.
+3. When DevVisualization is absent, unreachable, stale, or does not know the
+   project, continue from the local repository and label the missing or stale
+   external context explicitly.
+
+DevVisualization is an optional evidence source, never a hard runtime
+dependency or a maturity oracle. Heuristic relations and activity/test counts
+may help prioritize reading, but do not prove technical dependency, production
+readiness, provider verification, or release acceptance. The intake records a
+content hash or revision, observed timestamp, source path or endpoint, and
+freshness decision for every source. A conflicting or older DevVisualization
+record cannot override newer repository evidence.
+
+Project mode is explicit and local-first:
+
+- Accept caller-supplied sanitized DevVisualization JSON and/or an explicitly
+  configured loopback REST base URL. Never guess a background service,
+  installation path, or non-loopback endpoint.
+- `/api/kag/scopes` search results are discovery hints, not public evidence.
+  Prefer compact scope detail and curated reference surfaces when they are
+  available; graph-first enrichment is optional and must degrade safely when a
+  checked-out DevVisualization repository advertises more capability than the
+  active runtime exposes.
+- Reconcile `freshness.last_scanned`, `freshness.stale`, and
+  `lifecycle.repository.last_commit` against the current local branch and HEAD.
+  A stale or divergent DevVisualization record may be reported but never
+  preferred over current repository evidence.
+- Strip contributor identities, absolute paths, health scores, activity values,
+  and file/test counts from any public or LLM-facing packet unless they are
+  explicitly labeled as non-capability diagnostics.
+
+The portable intake produces an ignored `project-evidence.json` packet and an
+LLM-ready `synthesis-request.json`; the active LLM returns a schema-v1 summary
+specification that is validated by the existing source/privacy gates before any
+rendering. Raw source excerpts, prompts, model responses, repository paths, and
+DevVisualization payloads remain private build inputs.
+
+### Repository capability image
+
+Project mode can emit a public, repository-ready capability image such as
+`docs/images/project-capabilities.png` plus a Markdown insertion snippet. The
+image uses the same one-page story-map contract, contains only public or
+explicitly approved project facts, and is readable at common repository page
+widths. A companion SVG may be requested for accessibility or maintenance, but
+the default tracked/public artifact is the final image, not the private evidence
+packet, LLM prompt, handoff, QA render, or model response.
+
+Updating a README or another tracked page is an explicit output choice. The
+skill must preserve existing content, insert one stable marked block, and avoid
+duplicate images on repeated runs. It does not commit, push, or publish the
+change.
+
+Repository-image mode is fail-closed:
+
+- Every visible anchor must cite local source IDs that survive schema/source
+  validation without relying on raw source bodies in the artifact.
+- Filenames may suggest what to inspect, but capabilities must be justified by
+  bounded file facts, manifest content, or verified repository metadata before
+  they become public claims.
+- Privacy findings in local or DevVisualization evidence block a public image
+  until the affected claims are removed or explicitly reclassified.
+
 Extend `oci-project` with an optional **Communicate** deliverable after design,
 status, deployment evidence, or teardown planning. Generate a visual summary by
 default when the user requests a project report, briefing, comic, presentation,
@@ -277,6 +355,10 @@ skill instructions, tests, and intentionally published final artifacts.
 - domain-to-archetype and domain-to-art-direction routing
 - anchor and text-budget limits
 - public/private eligibility and redaction failure
+- DevVisualization-first project discovery with local fallback
+- freshness, provenance, conflict, and evidence-class preservation
+- bounded LLM synthesis request and schema-valid response handling
+- idempotent repository-image Markdown insertion
 
 ### Artifact tests
 
@@ -312,6 +394,8 @@ in publishable directories.
 - Extend `.gitignore` with private visual-summary build paths.
 - Add focused skill, schema, artifact, insertion, privacy, and routing tests.
 - Add one sanitized OCI example and one sanitized neutral-project example.
+- Add portable project-intake, optional DevVisualization adapter, and
+  repository-image generation support.
 
 Existing comic build scripts remain private implementation inputs. The new skill
 may replace their duplicated at-a-glance composition logic after compatibility
@@ -327,6 +411,7 @@ official references, and visual quality.
 - Exposing generation prompts or private source extraction
 - Claiming that a rendered visual proves live service behavior
 - Building a general-purpose desktop design application
+- Requiring DevVisualization or a separately configured model provider to run
 
 ## Acceptance criteria
 
@@ -346,3 +431,6 @@ The implementation is complete when:
    OCID, IP address, credential, or customer identifier appears in tracked or
    published output.
 7. No commit, push, deployment, or publication occurs without its own authority.
+8. From an arbitrary Git repository, the skill can build a provenance-bearing
+   evidence packet, use available LLM reasoning to create a grounded summary,
+   and generate an idempotently embeddable public capability image.

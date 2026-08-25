@@ -111,6 +111,17 @@ exempt):
 | status, health, posture, "what's the state", drift, what exists | **Status** | `oci_project.sh status` |
 | deploy, release, promote, ship, roll out | **Deploy** | → oci-terraform-authoring / oci-resource-manager / owning runtime skill |
 | tear down, decommission, clean up, delete the project | **Teardown** | `oci_project.sh teardown` (plan) |
+| report, briefing, comic, presentation, document, at-a-glance visual summary | **Communicate** | → `oci-visual-summary` |
+
+### Communicate (offline, on request)
+
+Use `oci-visual-summary` only when the user asks to **communicate** a project
+through a report, briefing, comic, presentation, document, or at-a-glance
+visual summary. It is portable across Git repositories: it prefers a current,
+reconciled DevVisualization view when one is available and otherwise uses
+bounded local Git evidence. It does not run for routine project status, create
+OCI resources, or upgrade evidence classes. Route editable technical topology,
+deployment, trust-boundary, and data-flow diagrams to `oci-diagramming`.
 
 ## The four stages
 

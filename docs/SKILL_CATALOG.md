@@ -17,6 +17,7 @@ or mutations still follow the router safety gates in [AGENTS.md](../AGENTS.md).
 | "Choose a platform pattern and generate bundle artifacts." | [OCI Product Development](../skills/oci-product-development/) |
 | "Review, debug, reuse, or evaluate application code." | [OCI Application Engineering](../skills/oci-application-engineering/) |
 | "Design or validate a greenfield tenancy foundation." | [OCI Landing Zone](../skills/oci-landing-zone/) |
+| "Create a grounded one-page at-a-glance project summary, humanized storyboard, or executive map." | [OCI Visual Summary](../skills/oci-visual-summary/) |
 | "Create an OCI architecture diagram in Draw.io, Excalidraw, or Mermaid." | [OCI Diagramming](../skills/oci-diagramming/) |
 
 ## Security and Governance

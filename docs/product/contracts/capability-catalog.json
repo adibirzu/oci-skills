@@ -27,6 +27,7 @@
     {"skill": "oci-product-development", "owner": "product-bundles", "reference": "references/product-development.md"},
     {"skill": "oci-application-engineering", "owner": "application-workflow", "reference": "references/application-engineering.md"},
     {"skill": "oci-landing-zone", "owner": "landing-zone", "reference": "references/landing-zone.md"},
-    {"skill": "oci-diagramming", "owner": "architecture-diagramming", "reference": "references/oci-architecture-conventions.md"}
+    {"skill": "oci-diagramming", "owner": "architecture-diagramming", "reference": "references/oci-architecture-conventions.md"},
+    {"skill": "oci-visual-summary", "owner": "narrative-visual-summary", "reference": "skills/oci-visual-summary/references/content-contract.md"}
   ]
 }
