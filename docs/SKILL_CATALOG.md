@@ -37,7 +37,7 @@ them before you pick a skill from the tables below.
 | User intent | Use this skill |
 |---|---|
 | VCNs, subnets, NSGs, routing, DNS, certificates, load balancers, compute, VNICs, volume attachments | [OCI Networking Compute](../skills/oci-networking-compute/) |
-| OKE clusters, applications, kubeconfig, ingress, TLS, OCIR pulls, rollouts | [OCI OKE Admin](../skills/oci-oke-admin/) |
+| OKE clusters, applications, kubeconfig, ingress, TLS, OCIR pulls, rollouts, control-plane reachability, Workload Identity / instance-principal app access, Network Path Analyzer, Node Doctor, upgrades | [OCI OKE Admin](../skills/oci-oke-admin/) |
 | Bastion sessions, Managed SSH, fixed or dynamic forwarding, allowlists, plugin diagnosis | [OCI Bastion Access](../skills/oci-bastion-access/) |
 | Object, File, Block, Boot storage, retention, backup, replication | [OCI Storage](../skills/oci-storage/) |
 | Full Stack DR protection groups, plans, prechecks, drills, switchovers, failovers | [OCI Disaster Recovery](../skills/oci-disaster-recovery/) |
@@ -53,7 +53,7 @@ them before you pick a skill from the tables below.
 | Base Database and Exadata lifecycle, PDB, backup, patching, Data Guard | [OCI Database Cloud](../skills/oci-database-cloud/) |
 | Database Management, Operations Insights, Performance Hub, AWR, ADDM, ASH, DBSNMP | [OCI DBM OPSI](../skills/oci-dbm-opsi/) |
 | Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL, data movement, replication | [OCI Data Platform](../skills/oci-data-platform/) |
-| Log Analytics, Logan, OCL/LQL queries, sources, parsers, entities, detections | [OCI Log Analytics](../skills/oci-log-analytics/) |
+| Log Analytics, Logan, OCL/LQL queries, sources, parsers, entities, detections, VCN Flow Logs, source-IP connection investigations | [OCI Log Analytics](../skills/oci-log-analytics/) |
 
 ## Application Delivery
 
@@ -67,6 +67,7 @@ them before you pick a skill from the tables below.
 | User intent | Use this skill |
 |---|---|
 | Monitoring, Logging, APM, OpenTelemetry, alarms, dashboards, PromQL-to-MQL | [OCI Observability DB](../skills/oci-observability-db/) |
+| OCI AIOps agents, Langfuse score lineage, evaluator eligibility, calibration datasets, tool grounding, and autonomous-decision quality | [OCI AIOps Agent Evaluation](../skills/oci-aiops-agent-evaluation/) |
 | Cost, usage, spend, forecasts, budgets, FinOps guardrails | [OCI Cost](../skills/oci-cost/) |
 
 ## When to Hand Off
@@ -99,6 +100,48 @@ Validate the schema and list required IAM policies, but do not deploy.
 ```text
 Plan an OKE ingress TLS rollout. Give exact read commands, risk classification,
 verification, rollback, and required approval gates before any action.
+```
+
+```text
+Troubleshoot an OKE customer-demo app where the agent says "A privileged role is required".
+Separate browser authorization, Kubernetes RBAC, Workload Identity / instance principal,
+and OCI IAM policy evidence before proposing a fix.
+```
+
+```text
+Prove an OKE app agent's runtime-principal readiness after login. Check
+Deployment serviceAccountName, ServiceAccount metadata, namespace RBAC, in-pod
+instance-principal reads, OCI Audit rows, and least-privilege policy scope.
+```
+
+```text
+Retry a MELTS investigation that exceeded its response-time budget. Prove Flow Log
+ingestion, source-IP rows, trace, metric, and security-provider source status
+before making a reachability conclusion.
+```
+
+```text
+The OKE Security capability is unavailable after login. Check OKE API readiness,
+namespace RBAC, runtime principal, and security-provider read paths independently;
+keep privileged actions role-gated.
+```
+
+```text
+The control-plane host for my OKE demo is blocked. Continue with OCI APIs and
+Cloud Shell/Bastion/Run Command evidence, and do not infer app readiness from
+SSH failure alone.
+```
+
+```text
+Investigate high-volume connection errors from a source IP. Prove VCN Flow Log
+ingestion first, then correlate rule attribution, Load Balancer logs, Cloud Guard,
+traces, and OCI Monitoring without changing NSGs or route tables.
+```
+
+```text
+Wire a customer-demo app to a shared ATP/ADW. Prove ADB lifecycle, ACL posture,
+wallet secret presence, app-schema migration head, and one redacted score
+write/readback without using ADMIN as the runtime user.
 ```
 
 ```text

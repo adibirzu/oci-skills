@@ -7,7 +7,7 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
-skill pack. Route requests to one of twenty-one primary domain skills or the
+skill pack. Route requests to one of twenty-two primary domain skills or the
 `oci-project`, `oci-product-development`, `oci-application-engineering`, or
 `oci-landing-zone` or `oci-diagramming` orchestrator under `skills/`.
 
@@ -27,7 +27,11 @@ all safe preparation and verification work.
 
 1. `./scripts/oci_preflight.sh -c <COMPARTMENT_OCID>` — confirm the tenancy before a mutation; use it for live reads when tenancy scope is ambiguous.
 2. `python3 ./scripts/kb_lookup.py "symptom words"` — check known fixes.
-3. Read `references/tenancy-safety.md` once per session. For *how to reason*
+3. For demo app privilege, runtime-principal readiness, degraded Connections data,
+   shared ADB/ATP/ADW readiness, or blocked control-plane/SSH lanes, generate a
+   redacted offline plan with
+   `python3 scripts/oci_oke_demo_troubleshoot.py all --context "<NAMED_CONTEXT>" --pretty`.
+4. Read `references/tenancy-safety.md` once per session. For *how to reason*
    before acting, read `references/agent-safety.md`; when a call fails, map the
    error in `references/oci-error-catalog.md`.
 
@@ -41,6 +45,7 @@ sequence a request instead of re-deriving the steps.
 | IAM, policies, compartments, budgets, quotas, tags | `skills/oci-iam-admin/` · `references/iam-tenancy.md` |
 | Cloud Guard, Vault, WAF, CIS/ISO-42001, audit, DevSecOps release gates | `skills/oci-security-compliance/` · `references/security-compliance.md` |
 | APM, Monitoring, Logging, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |
+| OCI AIOps agent evaluation, Langfuse score lineage, evaluator eligibility, calibration datasets, tool grounding, autonomous decisions | `skills/oci-aiops-agent-evaluation/` · `references/aiops-agent-evaluation.md` |
 | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP | `skills/oci-dbm-opsi/` · `references/dbm-opsi.md` |
 | Autonomous DB lifecycle, wallet, scale, ACL, connect (oracledb/SQLAlchemy/Alembic) | `skills/oci-autonomous-db/` · `references/autonomous-db.md` |
 | Base Database and Exadata DB system/home/database/PDB/backup/patch/Data Guard lifecycle | `skills/oci-database-cloud/` · `references/database-cloud.md` |
@@ -49,9 +54,11 @@ sequence a request instead of re-deriving the steps.
 | Bastion, Managed SSH, fixed/dynamic forwarding, allowlists, Bastion plugin | `skills/oci-bastion-access/` · `references/bastion-access.md` |
 | VCN, NSG, LB, DNS, Traffic Management, Health Checks, Certificates, compute, VNIC, volume attachment | `skills/oci-networking-compute/` · `references/networking-compute.md` |
 | OKE deploy, kubectl, ingress-nginx, LoadBalancer services, TLS certs, OCIR pulls, rollout troubleshooting | `skills/oci-oke-admin/` · `references/oke-operations.md` |
+| OKE control-plane reachability, namespace RBAC, Workload Identity / instance-principal app access, OKE demo evaluator jobs | `skills/oci-oke-admin/` · `references/oke-operations.md` |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, flow-log correlation | `skills/oci-zpr-visibility/` · `references/zpr-visibility.md` |
 | cost, usage, spend, budget, forecast, billing, FinOps | `skills/oci-cost/` · `references/cost-management.md` (read-only; `scripts/oci_cost.sh`) |
 | Log Analytics, Logan, OCL/LQL query, source, parser, entity, log group, detection, Sigma→OCI | `skills/oci-log-analytics/` · `references/log-analytics.md` (read-only query: `scripts/oci_logan.sh`) |
+| VCN Flow Logs, capture filters, Logging-to-Log-Analytics connectors, source-IP connection correlation | `skills/oci-log-analytics/` · `references/log-analytics.md` + `skills/oci-networking-compute/` |
 | Resource Manager, ORM, managed Terraform stack/job/log/state operations | `skills/oci-resource-manager/` · `references/resource-manager.md` |
 | Data Safe, target registration, security/user assessment, audit, masking | `skills/oci-data-safe/` · `references/data-safe.md` |
 | Functions, Events, ONS, SCH, Queue, Streaming, retry/DLQ, event workers | `skills/oci-events-functions/` · `references/events-functions.md` |
@@ -88,6 +95,12 @@ source of truth — see `references/mcp-gateway.md`.
   with `scripts/redact.py`; use `<PLACEHOLDER>` tokens in docs.
 - Add a `KB-<n>` entry after fixing any new operational error — sanitize by
   construction per `references/kb-ingestion.md` before it lands in `KB.md`.
+- For demo/runtime OCI access, prefer OKE Workload Identity or instance
+  principals over copied user config, browser state, or local API keys. Keep
+  signed-in user routes separate from privileged mutation/security routes.
+- For demo persistence, prefer approved shared ADB/ATP/ADW targets over creating
+  a dedicated database; keep ADMIN setup, app schema grants, wallet/ACL changes,
+  migrations, and runtime readiness as separate evidence gates.
 - Final-release agent evidence uses `scripts/forward_eval.py`; never expose
   `evals/forward/rubric.json` to the fresh session or commit raw responses. Use
   `OCI_SKILLS_BLINDED_EVAL=true` when installing the candidate under test.

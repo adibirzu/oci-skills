@@ -59,6 +59,20 @@
       "expect_behavior": "Finds KB-001; distinguishes IAM token mint from in-cluster RBAC binding."
     },
     {
+      "id": "trigger-oke-demo-agent-privilege-error",
+      "prompt": "My OKE customer demo app is signed in, but the agent says: Error: A privileged role is required.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-oke-admin",
+      "expect_behavior": "Routes to OKE app-agent recovery; separates browser authorization, app route gating, Kubernetes RBAC, service account identity, Workload Identity or instance principal, dynamic group membership, and least-privilege OCI IAM policy before proposing any fix."
+    },
+    {
+      "id": "trigger-oke-runtime-principal-readiness",
+      "prompt": "The website login works, but the OKE app agent cannot query OCI data. Prove instance principal or Workload Identity readiness before changing policies.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-oke-admin",
+      "expect_behavior": "Generates the runtime-principal readiness ladder; proves OKE /readyz, Deployment serviceAccountName, ServiceAccount metadata, namespace RBAC, in-pod OCI provider read, OCI Audit principal rows, and least-privilege read policy scope; never treats browser login, OCIR imagePullSecret, or copied user credentials as runtime OCI authorization."
+    },
+    {
       "id": "trigger-nsg",
       "prompt": "List the security rules on my OCI network security group.",
       "expect_skill": "oci-administrator",
@@ -114,6 +128,34 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-log-analytics",
       "expect_behavior": "Diagnoses field typing first (string-typed 'Event ID' must be quoted = '4625'), then time window and compartment subtree; treats empty result as inconclusive, not absence."
+    },
+    {
+      "id": "trigger-connection-source-degraded",
+      "prompt": "Connection sources are degraded for a source-IP investigation; correlate VCN flow logs, traces, OCI metrics, and security activity without changing traffic controls.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-log-analytics",
+      "expect_behavior": "Proves OCI VCN Flow Logs ingestion first, verifies the Logging-to-Log-Analytics connector/source/parser, preserves the one 100% ALL/INCLUDE capture-filter pattern and five 30-day OKE subnet Flow Logs, then correlates source IP, action, port, rule attribution, Load Balancer logs, Cloud Guard, traces, and metrics; reports coverage gaps separately and does not change NSGs, Security Lists, route tables, or app traffic."
+    },
+    {
+      "id": "trigger-oke-control-plane-ssh-blocked",
+      "prompt": "control-plane-oci SSH is blocked during my OKE demo validation. Continue with OCI APIs and do not infer application readiness from SSH failure.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-oke-admin",
+      "expect_behavior": "Classifies SSH as a degraded operator-access lane, continues with API-first evidence through ce cluster get, Resource Search, work requests, Cloud Shell, Bastion, or OCI Run Command, and keeps OKE API, Kubernetes RBAC, app rollout, and Log Analytics ingestion as separate gates."
+    },
+    {
+      "id": "trigger-melts-investigate-timeout",
+      "prompt": "MELTS investigate exceeded its response-time budget before it could answer. Retry with real OCI evidence and do not infer a reachability conclusion from missing sources.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-log-analytics",
+      "expect_behavior": "Routes to Log Analytics / OCI incident troubleshooting; proves VCN Flow Log ingestion and source-IP rows first, records trace, Monitoring, and Cloud Guard source status in an incident troubleshooting receipt, increases budget only after source/query limits are measured, and never turns a timeout or cached receipt into provider_verified evidence."
+    },
+    {
+      "id": "trigger-oke-security-unavailable",
+      "prompt": "The app says the OKE Security control plane is unavailable after login. Check why without opening privileged mutations to demo users.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-oke-admin",
+      "expect_behavior": "Separates app route authorization, OKE API readiness, Kubernetes RBAC, runtime-principal identity, and Cloud Guard/WAF/VSS/Audit read availability; repairs only missing read-only runtime-principal policy or namespace RBAC after proof, while privileged mutations and security execution remain role-gated."
     },
     {
       "id": "trigger-dbm-opsi-enable",
@@ -247,6 +289,13 @@
       "expect_skill": "oci-administrator",
       "expect_route": "oci-autonomous-db",
       "expect_behavior": "Uses oracle+oracledb:// (not cx_oracle, KB-120) with wallet via connect_args + TNS_ADMIN, pool_pre_ping/pool_recycle; runs Alembic against the ADB, warns on Oracle-vs-SQLite migration differences."
+    },
+    {
+      "id": "trigger-shared-demo-adb",
+      "prompt": "This is a demo app; reuse the shared ATP/ADW instead of creating a dedicated ADB and make sure migrations and score persistence work.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-autonomous-db",
+      "expect_behavior": "Routes to the shared demo ADB pattern; reuses an existing AVAILABLE ADB/ATP/ADW, creates or repairs a least-privilege application schema/user, applies migrations there, preserves ACL keepers, keeps wallets/passwords out of logs and git, and verifies read/write plus migration-head readiness."
     },
     {
       "id": "trigger-adb-provision",

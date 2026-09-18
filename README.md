@@ -13,12 +13,14 @@ Start with the [five-minute quickstart](docs/QUICKSTART.md), pick a skill from t
 - Scaffold, discover, validate, test, plan, inspect, apply, and destroy OCI Terraform while binding the applied plan to the reviewed bytes and context.
 - Compose five private-default platform golden paths as schema-v1 bundles: API + Functions, Container Instances, OKE applications, Queue/Streaming workers, and ADB-backed services.
 - Run local Terraform or OCI Resource Manager with one declared state owner—never dual ownership.
+- Triage customer-demo OCI app incidents with an evidence ladder: OKE control-plane reachability, Kubernetes RBAC, runtime principals, Log Analytics / VCN Flow Log ingestion, Cloud Guard, traces, metrics, and shared ADB readiness are separate gates.
+- Generate redacted offline OKE demo troubleshooting plans with `scripts/oci_oke_demo_troubleshoot.py` for app-agent privilege errors, runtime-principal readiness, degraded Connections data, blocked control-plane/SSH lanes, MELTS investigation timeouts, OKE Security provider unavailability, and shared ADB/ATP/ADW readiness.
 
 Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/deploy specs, verification, and runbooks. They intentionally contain no business application logic.
 
 ## Skill topology
 
-The 27-skill pack contains a router selecting twenty-one primary domains and five orchestrators:
+The 28-skill pack contains a router selecting twenty-two primary domains and five orchestrators:
 
 For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md). For an
 operator tour of the foundational service domains, read the [core services starter](docs/oci-core-services-starter.md).
@@ -29,6 +31,7 @@ operator tour of the foundational service domains, read the [core services start
   - [**OCI Project lifecycle**](./skills/oci-project) — bootstrap, inspect health, deploy, or tear down a whole project.
   - [**OCI Product Development**](./skills/oci-product-development) — choose a golden path and compose a platform bundle.
   - [**OCI Application Engineering**](./skills/oci-application-engineering) — review, debug, reuse, and evaluate application code without OCI mutation.
+  - [**OCI AIOps Agent Evaluation**](./skills/oci-aiops-agent-evaluation) — curate safe operational-agent datasets, evaluator lineage, and calibration evidence without remote changes.
   - [**OCI Landing Zone**](./skills/oci-landing-zone) — assess and design a tenancy foundation.
 - **Security and governance**
   - [**OCI IAM Admin**](./skills/oci-iam-admin) — compartments, policies, users, groups, budgets, quotas, tags, and limits.
@@ -37,7 +40,7 @@ operator tour of the foundational service domains, read the [core services start
   - [**OCI Data Safe**](./skills/oci-data-safe) — database target registration, assessments, audit, discovery, and masking.
 - **Infrastructure and access**
   - [**OCI Networking Compute**](./skills/oci-networking-compute) — VCN, NSG, routing, DNS, certificates, load balancers, compute, and attachments.
-  - [**OCI OKE Admin**](./skills/oci-oke-admin) — OKE application operations, ingress, TLS, OCIR pulls, and rollout troubleshooting.
+  - [**OCI OKE Admin**](./skills/oci-oke-admin) — OKE application operations, control-plane/RBAC readiness, runtime-principal access, ingress, TLS, OCIR pulls, and rollout troubleshooting.
   - [**OCI Bastion Access**](./skills/oci-bastion-access) — Bastion sessions, Managed SSH, forwarding, and allowlist diagnosis.
   - [**OCI Storage**](./skills/oci-storage) — Object, File, Block, and Boot storage lifecycle, retention, backup, and replication.
   - [**OCI Disaster Recovery**](./skills/oci-disaster-recovery) — Full Stack DR groups, plans, prechecks, drills, switchovers, and failovers.
@@ -45,16 +48,17 @@ operator tour of the foundational service domains, read the [core services start
   - [**OCI Resource Manager**](./skills/oci-resource-manager) — managed Terraform stacks, jobs, logs, state, and drift operations.
   - [**OCI OS Management**](./skills/oci-os-management) — OS Management Hub registration, software sources, Ksplice, update jobs, and patch evidence.
 - **Data and databases**
-  - [**OCI Autonomous DB**](./skills/oci-autonomous-db) — ADB lifecycle, private endpoints, wallets, ACLs, scaling, and connectivity.
+  - [**OCI Autonomous DB**](./skills/oci-autonomous-db) — ADB lifecycle, shared demo ATP/ADW reuse, private endpoints, wallets, ACLs, scaling, and connectivity.
   - [**OCI Database Cloud**](./skills/oci-database-cloud) — Base Database and Exadata lifecycle, backup, patching, and Data Guard.
   - [**OCI DBM OPSI**](./skills/oci-dbm-opsi) — Database Management, Operations Insights, Performance Hub, AWR, ADDM, ASH, and DBSNMP.
   - [**OCI Data Platform**](./skills/oci-data-platform) — Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL, movement, and replication.
-  - [**OCI Log Analytics**](./skills/oci-log-analytics) — OCL/LQL queries, sources, parsers, entities, detections, and content migration.
+  - [**OCI Log Analytics**](./skills/oci-log-analytics) — OCL/LQL queries, VCN Flow Log connection investigations, sources, parsers, entities, detections, and content migration.
 - **Application delivery**
   - [**OCI Events Functions**](./skills/oci-events-functions) — Functions, Events, ONS, Service Connector Hub, Queue, Streaming, and event workers.
   - [**OCI Developer Services**](./skills/oci-developer-services) — DevOps, API Gateway, Container Instances, Artifact Registry, and OCIR delivery.
 - **Observe and optimize**
   - [**OCI Observability DB**](./skills/oci-observability-db) — Monitoring, Logging, APM, OpenTelemetry, alarms, dashboards, and PromQL-to-MQL.
+  - [**OCI AIOps Agent Evaluation**](./skills/oci-aiops-agent-evaluation) — AIOps trace evidence, evaluator eligibility, calibration datasets, and release evidence.
   - [**OCI Cost**](./skills/oci-cost) — usage, spend, forecasts, budgets, and FinOps guardrails.
   - [**OCI Diagramming**](./skills/oci-diagramming) — secure editable Draw.io, Excalidraw, and Mermaid architecture sources with OCI stencil conventions.
   - [**Image-generation prompt library**](./references/image-generation-prompts.md) — evidence-aware original visual, comic, storyboard, and transparent-asset prompts; generated art never replaces editable OCI diagrams.
@@ -67,6 +71,7 @@ The canonical ownership table remains flat so install tooling and routing tests 
 | `oci-iam-admin` | Users, groups, policies, compartments, budgets, quotas, tags, limits, named contexts |
 | `oci-security-compliance` | OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates |
 | `oci-observability-db` | Monitoring, Logging, APM, OTel, alarms, PromQL→MQL, Linux/Windows host dashboards |
+| `oci-aiops-agent-evaluation` | Trace-grounded AIOps evaluation datasets, evaluator eligibility, score lineage, and calibration evidence (no remote changes) |
 | `oci-dbm-opsi` | Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, DBSNMP |
 | `oci-autonomous-db` | ADB lifecycle, private endpoints, wallet, ACL, scale, connectivity, read-only diagnostics |
 | `oci-database-cloud` | Base Database and Exadata control-plane lifecycle, backup/restore, patching, Data Guard |
@@ -74,10 +79,10 @@ The canonical ownership table remains flat so install tooling and routing tests 
 | `oci-disaster-recovery` | Full Stack DR protection groups, plans, prechecks, drills, switchovers, failovers, reprotection |
 | `oci-bastion-access` | Bastion, Managed SSH, fixed/dynamic forwarding, allowlists, plugin diagnosis |
 | `oci-networking-compute` | VCN, subnet, NSG, routing, DNS, Traffic Management, Health Checks, Certificates, load balancers, VM/VNIC/attachment lifecycle |
-| `oci-oke-admin` | OKE cluster/application operations, kubeconfig, ingress, TLS, OCIR pulls, rollouts |
+| `oci-oke-admin` | OKE cluster/application operations, kubeconfig, control-plane/RBAC readiness, runtime-principal access, ingress, TLS, OCIR pulls, rollouts |
 | `oci-zpr-visibility` | ZPR attributes/policies, protected-resource inventory, flow-log correlation |
 | `oci-cost` | Usage/spend, forecasts, budgets, FinOps guardrails |
-| `oci-log-analytics` | OCL/LQL queries, sources, parsers, entities, detections, content migration |
+| `oci-log-analytics` | OCL/LQL queries, VCN Flow Log connection investigations, sources, parsers, entities, detections, content migration |
 | `oci-resource-manager` | Managed Terraform stacks/jobs/logs/state and drift operations |
 | `oci-data-safe` | Target registration, assessments, audit, discovery, masking |
 | `oci-events-functions` | Functions, Events, ONS, Service Connector Hub, Queue, Streaming, event workers |
@@ -138,12 +143,12 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 
 ## Product contracts and readiness
 
-The consolidated release contains **27 skills, 52 requirements, 40 detailed
+The consolidated release contains **28 skills, 52 requirements, 40 detailed
 PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic
-workflow evaluation, the 27-skill capability catalog, routing precedence,
+workflow evaluation, the 28-skill capability catalog, routing precedence,
 evidence envelopes, architecture traceability, distribution/redaction/release
 contracts, compatibility policy, user journeys, dependency and impact graphs,
 verification/provenance registries, an install manifest, safety cases, a release

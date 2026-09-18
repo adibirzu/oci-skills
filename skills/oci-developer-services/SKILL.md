@@ -8,6 +8,29 @@ description: >-
 
 Default API gateways, build runners, target environments, and workloads to private networking. Make public exposure an explicit reviewed requirement.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md):
+decide the owning surface first, discriminate failures before changing a
+pipeline, and report evidence at its actual verification class.
+
+## First decisions
+
+Resolve the source owner, artifact type and immutable identity, delivery target,
+ingress audience, deployment strategy, rollback target, secrets path, Terraform
+owner, and acceptance canaries. Separate platform creation from a release: a
+project, pipeline, or deployment resource in `ACTIVE` state does not prove that
+the intended artifact reached a healthy data plane.
+
+## Routing
+
+| Surface | Owner |
+|---|---|
+| DevOps project, repository/connection, build/deploy pipeline, artifact, API Gateway, Container Instance, OCIR delivery | This skill |
+| OKE environment, manifest, rollout, ingress, or Kubernetes health | **oci-oke-admin** |
+| Function application/runtime, Event, Queue, Streaming, or DLQ | **oci-events-functions** |
+| VCN, subnet, NSG, DNS, certificate, generic load balancer, or compute target | **oci-networking-compute** |
+| Durable HCL and state ownership | **oci-terraform-authoring** |
+| Vulnerability, provenance, policy, or release-security decision | **oci-security-compliance** |
+
 ## Workflow
 
 1. Preflight the named context (`./scripts/oci_preflight.sh -c "$COMPARTMENT_OCID"`) and read existing resources by display name. Stop if the resolved tenancy/compartment does not match the intended target.
@@ -43,6 +66,30 @@ the components selected by the design.
   --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
   (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview). Deployment triggers,
   rollbacks, and any resource deletion additionally require explicit `confirm`.
+
+## Failure discrimination
+
+- A successful build proves artifact production, not deployment, target health,
+  route reachability, or release acceptance. Follow the artifact digest through
+  every deployment stage and target.
+- Distinguish source-connection authentication, build-runner network access,
+  artifact-repository authorization, deploy principal IAM, target health, and
+  API route/auth policy. Do not “fix IAM” for an unproven network or target issue.
+- A pipeline waiting on approval is not failed; a deployment stage marked
+  successful with an unhealthy canary is not accepted.
+- A `404` at the gateway can mean route mismatch, deployment selection, upstream
+  absence, or authorization masking. Verify the gateway deployment and backend
+  independently before changing exposure.
+
+## Validation and evidence
+
+Validate build/deploy specifications and command plans offline; lint CLI plans
+with `oci_cli_lint.py`. Record the immutable artifact digest, provenance/SBOM
+result, pipeline and stage states, target revision, logs/alarms, and work-request
+outcome. Then run one authenticated positive canary, one intended unauthenticated
+or unauthorized negative canary, and a last-known-good rollback/redeployment
+exercise. Classify those separately as local, provider, data-plane, security,
+and release evidence.
 
 ## Expected output
 

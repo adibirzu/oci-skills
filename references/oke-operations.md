@@ -12,14 +12,24 @@ domains, API keys, fingerprints, or certificate material.
 ## Table of contents
 
 - [Preflight and context proof](#preflight-and-context-proof)
+- [Cluster creation and node-pool readiness](#cluster-creation-and-node-pool-readiness)
+- [Enhanced-cluster add-on checks](#enhanced-cluster-add-on-checks)
 - [Deployment baseline](#deployment-baseline)
 - [Ingress-first exposure](#ingress-first-exposure)
+- [OCI Native Ingress Controller](#oci-native-ingress-controller)
 - [Direct OCI LoadBalancer services](#direct-oci-loadbalancer-services)
 - [TLS and certificates](#tls-and-certificates)
 - [OCIR image pulls](#ocir-image-pulls)
 - [Kubeconfig endpoint failures](#kubeconfig-endpoint-failures)
+- [OKE control-plane and RBAC readiness](#oke-control-plane-and-rbac-readiness)
 - [Virtual nodes and nginx ingress](#virtual-nodes-and-nginx-ingress)
+- [Workload identities](#workload-identities)
+- [Runtime-principal readiness for app agents](#runtime-principal-readiness-for-app-agents)
+- [Network and node diagnosis](#network-and-node-diagnosis)
+- [Upgrade readiness](#upgrade-readiness)
 - [Rollout and health checks](#rollout-and-health-checks)
+- [Remote builders and SSH-safe execution](#remote-builders-and-ssh-safe-execution)
+- [API-first fallback when SSH is blocked](#api-first-fallback-when-ssh-is-blocked)
 - [Optional Kubernetes MCP read surface](#optional-kubernetes-mcp-read-surface)
 - [Secrets and last-applied annotations](#secrets-and-last-applied-annotations)
 - [Troubleshooting matrix](#troubleshooting-matrix)
@@ -44,6 +54,90 @@ kubectl auth can-i --list
 
 Context names are labels, not proof. Verify the OCI exec profile, region,
 cluster identity, and RBAC every time.
+
+## Cluster creation and node-pool readiness
+
+Cluster creation and worker capacity are separate OCI resources. A successful
+cluster work request does not create a schedulable worker pool, and a stopped
+managed-node instance can make every application symptom look like a Kubernetes
+failure. Use the installed CLI help before copying flags; current OCI CLI
+releases use `--endpoint-subnet-id` and `--endpoint-public-ip-enabled` rather
+than the retired `--endpoint-config` payload.
+
+For reusable scripts, make the API endpoint private by default and require
+explicit variables for the endpoint subnet, worker subnet, Kubernetes version,
+node-pool name, shape, count, and optional worker image. After creation, query
+the cluster and node pool by name, wait for `ACTIVE`, then prove at least one
+Kubernetes node is `Ready` before deploying workloads:
+
+```bash
+python3 scripts/oci_cli_help.py --json ce cluster create
+python3 scripts/oci_cli_help.py --json ce node-pool create
+oci_cli ce cluster get --cluster-id "<OKE_CLUSTER_OCID>" \
+  --query 'data.{state:"lifecycle-state",type:type,version:"kubernetes-version"}'
+oci_cli ce node-pool list --compartment-id "<COMPARTMENT_OCID>" \
+  --cluster-id "<OKE_CLUSTER_OCID>" --all \
+  --query 'data[].{name:name,state:"lifecycle-state",size:size}'
+kubectl get nodes -o wide
+kubectl get nodes --no-headers | awk '$2 == "Ready" { count++ } END { exit(count ? 0 : 1) }'
+```
+
+Creation is idempotent: if the named cluster or node pool already exists, read
+and verify it instead of issuing another create. Keep Terraform as the durable
+owner when a Terraform stack exists; a direct CLI bootstrap is a break-glass
+exception that must be reconciled into the stack.
+
+Use an OCI-generated version `2.0.0` kubeconfig. Its exec plugin mints
+short-lived, cluster-scoped, user-specific tokens; it is not shareable or a
+CI/CD credential. Generate it with the endpoint that is reachable from the
+operator's current network, then verify both client/server compatibility and
+authorization:
+
+```bash
+oci_cli ce cluster create-kubeconfig \
+  --cluster-id "<OKE_CLUSTER_OCID>" \
+  --file "<KUBECONFIG_PATH>" \
+  --region "<REGION>" \
+  --token-version 2.0.0 \
+  --kube-endpoint "LEGACY_KUBERNETES|PUBLIC_ENDPOINT|PRIVATE_ENDPOINT|VCN_HOSTNAME"
+kubectl version
+kubectl get nodes
+kubectl auth can-i --list
+```
+
+Keep `kubectl` within one minor version of the API server. When MFA is required,
+bind the correct `OCI_CLI_PROFILE` and security-token authentication to the
+kubeconfig exec plugin; `Unauthorized` can be an MFA/profile issue as well as
+Kubernetes RBAC. Validate the installed CLI shape before publishing an exact
+command because older runbooks often omit `LEGACY_KUBERNETES` and
+`VCN_HOSTNAME`:
+
+```bash
+python3 scripts/oci_cli_help.py --json ce cluster create-kubeconfig
+```
+
+## Enhanced-cluster add-on checks
+
+Enhanced clusters can use Oracle-managed cluster add-ons. Before installing a
+standalone controller, changing an add-on, or attributing a controller failure
+to a workload, establish the current cluster and add-on state with read-only
+calls:
+
+```bash
+oci_cli ce cluster list-addons --cluster-id "<OKE_CLUSTER_OCID>"
+oci_cli ce cluster get-addon \
+  --cluster-id "<OKE_CLUSTER_OCID>" \
+  --addon-name "<ADDON_NAME>"
+```
+
+Record only the sanitized enabled state, selected version, automatic-update
+choice, and approved configuration. Confirm the cluster is enhanced, the
+version is supported, and no standalone controller or webhook owns the same
+responsibility. Treat `oci_cli ce cluster install-addon` and any disable/update
+operation as a shared-cluster mutation: review the exact configuration, obtain
+explicit target-bound approval, and verify controller plus application
+readiness. A deprecated add-on version is a rollback exception, not a routine
+target.
 
 ## Deployment baseline
 
@@ -146,6 +240,31 @@ kubectl -n "<SOURCE_NS>" get secret "<TLS_SECRET>" -o yaml \
 
 Use this only with non-secret output handling discipline. Never paste the
 decoded cert key into docs or logs.
+
+## OCI Native Ingress Controller
+
+Use the OCI Native Ingress Controller either as an enhanced-cluster add-on or
+as a standalone controller, not both for the same ingress class. A healthy
+controller pod is not evidence that its OCI load balancer, listener, backend,
+or route has converged.
+
+For a failed route, inspect the controller before changing network resources:
+
+```bash
+kubectl get pods -n native-ingress-controller-system \
+  --selector='app.kubernetes.io/name in (oci-native-ingress-controller)' -o wide
+kubectl -n native-ingress-controller-system logs "<LEADER_POD>" \
+  | grep -i 'validation failure'
+kubectl -n "<NAMESPACE>" describe ingress "<INGRESS_NAME>"
+kubectl -n "<NAMESPACE>" get endpoints "<SERVICE_NAME>" -o wide
+```
+
+When pods can start before the OCI load balancer recognizes a healthy backend,
+use the native controller's readiness gate and a dedicated probe-safe health
+path. Do not weaken health checks merely to clear a transient backend
+`CRITICAL` state. Reusing a load balancer, preserving one after
+`IngressClass` deletion, or attaching WAF/NSGs changes a shared edge and
+requires normal target-bound approval.
 
 ## Direct OCI LoadBalancer services
 
@@ -274,10 +393,47 @@ Safe fallback order:
 
 1. If the current `kubectl` context already points at the target cluster/server,
    reuse it.
-2. For legacy clusters, try `create-kubeconfig` without `--kube-endpoint`.
-3. For private clusters, run from OCI Cloud Shell, a bastion, or a configured
+2. Generate a fresh token-version `2.0.0` kubeconfig with the exact endpoint
+   mode that exists and is reachable: `PUBLIC_ENDPOINT`, `PRIVATE_ENDPOINT`,
+   `VCN_HOSTNAME`, or `LEGACY_KUBERNETES`.
+3. For legacy clusters, also try `create-kubeconfig` without `--kube-endpoint`
+   when the CLI/docs for that environment recommend the original endpoint.
+4. For private clusters, run from OCI Cloud Shell, a bastion, or a configured
    tunnel that can reach the private API endpoint.
-4. Re-run `kubectl auth can-i --list`; kubeconfig creation does not prove RBAC.
+5. Re-run `kubectl auth can-i --list`; kubeconfig creation does not prove RBAC.
+
+## OKE control-plane and RBAC readiness
+
+Treat a failed Kubernetes API call as an OKE/control-plane reachability problem
+until you prove otherwise. Do not infer application readiness, failed rollout,
+or missing app permission from `kubectl` timeouts alone.
+
+Readiness ladder:
+
+```bash
+oci_cli ce cluster get --cluster-id "<OKE_CLUSTER_OCID>" \
+  --query 'data.{name:name,state:"lifecycle-state",endpoint:"endpoints.kubernetes"}'
+kubectl --request-timeout=10s cluster-info
+kubectl --request-timeout=10s get --raw=/readyz
+kubectl auth can-i get pods -n "<NAMESPACE>"
+kubectl auth can-i patch deployments -n "<NAMESPACE>"
+```
+
+If `cluster get` is healthy but `kubectl` cannot reach `/readyz`, resolve the
+API endpoint mode next: public endpoint, private endpoint from an in-VCN host,
+Cloud Shell, or a bounded Bastion tunnel. If `/readyz` works but `auth can-i`
+fails, this is Kubernetes RBAC, not IAM token minting. Fix only the smallest
+namespace/service-account binding needed for the operation.
+
+For deployment canaries and evaluator jobs, prefer a non-root service account,
+namespace-scoped RBAC, `activeDeadlineSeconds`, `ttlSecondsAfterFinished`, and a
+post-run check that no active or retained Jobs remain:
+
+```bash
+kubectl -n "<NAMESPACE>" get jobs \
+  --field-selector=status.successful!=1 -o wide
+kubectl -n "<NAMESPACE>" get pods -l job-name="<JOB_NAME>" -o wide
+```
 
 ## Virtual nodes and nginx ingress
 
@@ -296,6 +452,194 @@ Preferred options:
 Before adding a managed pool, check the cluster pod network option. A cluster
 using `OCI_VCN_IP_NATIVE` needs a node pool with matching pod networking; older
 CLI versions may not expose every required flag, so use the OCI SDK if needed.
+
+For application debugging on virtual nodes, use `kubectl proxy` rather than
+`kubectl port-forward`. Keep the proxy local, obtain the endpoint path from the
+Kubernetes API object rather than guessing it, and stop it when investigation is
+complete. This is an inspection path, not evidence that an ingress or OCI load
+balancer route works.
+
+## Workload identities
+
+Workload identities are available only on enhanced clusters. They grant OCI
+resource access to a workload by its Kubernetes namespace and service account;
+they do not replace Kubernetes RBAC or image-pull authentication. They are not
+dynamic groups: IAM policy conditions match the workload principal attributes
+such as cluster, namespace, and service account, and the application must use an
+OCI SDK provider that supports OKE Workload Identity.
+
+Prove each boundary independently before relying on one:
+
+1. The cluster is enhanced and the workload uses the intended service account.
+2. Kubernetes RBAC allows only the required in-cluster actions.
+3. OCI IAM policy grants the workload identity only the required resource
+   permissions in the intended compartment.
+
+Use a redacted service-account inspection and IAM policy review as configured
+evidence; use the workload outcome and OCI Audit records as runtime evidence.
+Do not substitute a node instance principal or an OCIR `imagePullSecret` for a
+workload identity.
+
+For customer-demo apps, browser users should not carry OCI credentials. The app
+pod should use OKE Workload Identity or an approved instance-principal path to
+read the required OCI services. Keep user-facing endpoints role-gated: signed-in
+demo users may call app-specific read/chat APIs, while privileged mutations,
+security execution, deployments, and Log Analytics writes remain admin-gated.
+
+Minimum verification:
+
+```bash
+kubectl -n "<NAMESPACE>" get serviceaccount "<SERVICE_ACCOUNT>" -o yaml
+kubectl -n "<NAMESPACE>" describe pod -l app="<APP>"
+kubectl -n "<NAMESPACE>" exec deploy/"<APP>" -- env | grep '^OCI_RESOURCE_PRINCIPAL\|^OCI_CONFIG_PROFILE' || true
+```
+
+For a managed-node instance-principal design, add a narrow in-pod CLI probe:
+
+```bash
+kubectl -n "<NAMESPACE>" exec deploy/"<APP>" -- \
+  oci iam region list --auth instance_principal --output table
+```
+
+Use `--auth instance_principal` only after confirming the target runtime really
+has the required metadata/resource-principal environment. For OKE Workload
+Identity, verify the service-account binding, workload-principal IAM policy,
+SDK provider path, and OCI Audit records before blaming application code. Do
+not copy kubeconfigs, user config files, API keys, wallets, or browser cookies
+into a pod to "make the demo work."
+
+## Runtime-principal readiness for app agents
+
+When a customer-demo agent is signed in but returns `A privileged role is
+required`, separate four identities before changing anything:
+
+1. Browser user and route authorization.
+2. Kubernetes service account and namespace RBAC.
+3. OCI runtime principal: OKE Workload Identity or the intended managed-node
+   instance-principal path.
+4. OCI IAM policy scope for the service family being queried.
+
+Generate the offline command ladder first:
+
+```bash
+python3 scripts/oci_oke_demo_troubleshoot.py runtime-principal-readiness --context "<NAMED_CONTEXT>" --pretty
+```
+
+Then collect current read-only evidence:
+
+```bash
+kubectl --request-timeout=10s get --raw=/readyz
+kubectl -n "<NAMESPACE>" get deployment "<APP>" \
+  -o jsonpath='{.spec.template.spec.serviceAccountName}'
+kubectl -n "<NAMESPACE>" get serviceaccount "<SERVICE_ACCOUNT>" -o yaml
+kubectl -n "<NAMESPACE>" auth can-i get pods \
+  --as=system:serviceaccount:"<NAMESPACE>":"<SERVICE_ACCOUNT>"
+kubectl -n "<NAMESPACE>" logs deployment/"<APP>" \
+  --since=30m --all-containers --tail=200
+```
+
+Only when the workload is designed to use instance principals, run a narrow
+in-pod provider probe. Prefer a read that lists a public tenancy-wide catalog or
+the smallest required service read; never probe with a mutation.
+
+```bash
+kubectl -n "<NAMESPACE>" exec deploy/"<APP>" -- \
+  oci iam region list --auth instance_principal --output table
+```
+
+For Workload Identity, use the service-account binding, workload-principal IAM
+policy, SDK canary/read path, and OCI Audit records as the evidence path
+instead of assuming the node instance principal applies to the pod. A successful
+image pull proves OCIR authorization only; it does not prove Log Analytics,
+Monitoring, Cloud Guard, APM, or Networking read access.
+
+If the runtime probe proves missing access, the remediation is a smallest-scope
+read-only policy for the named instance-principal dynamic group or the workload
+principal in the intended compartment. Preview any Deployment
+service-account patch with server-side dry-run before rollout. Keep privileged
+mutations, security execution, deployments, SOC actions, and Log Analytics
+writes role-gated even for signed-in demo users.
+
+## Network and node diagnosis
+
+For control-plane, node registration, pod, DNS, or OCI load-balancer reachability
+symptoms, run the cluster's pre-defined **Path analysis tests** before changing
+an NSG, security list, route table, or gateway. The tests analyze configuration;
+they do not send production traffic. Save only redacted JSON results when an
+operator needs a before/after comparison.
+
+Choose the smallest relevant category:
+
+- **Cluster API:** API endpoint and control-plane paths.
+- **Node:** managed-node registration and data-plane paths.
+- **Pod:** pod-to-service/OCI paths, including VCN-native networking.
+- **Load Balancer:** bidirectional OCI LB/NLB and backend paths.
+
+If a managed node is not `Ready`, use the Worker Node Troubleshooting Guide or
+OCI Run Command to invoke the pre-installed Node Doctor. Update it before use:
+
+```bash
+sudo /usr/local/bin/node-doctor.sh --update
+```
+
+Node Doctor is not supported on virtual nodes. Its diagnostic bundle can contain
+host metadata; redact it before a support upload and retain the original only in
+the approved support-evidence location. A transient `FileNotFoundError` does
+not invalidate output if Node Doctor reaches its bundle-generation phase; update
+the script and collect a fresh run before escalation.
+
+## Upgrade readiness
+
+An OKE upgrade has distinct control-plane, managed-node, and virtual-node
+effects. Do not begin until the target and blast radius are explicitly approved.
+
+1. Inventory the control plane, each node pool's configured Kubernetes version,
+   and the version actually running on each worker node. The control-plane
+   upgrade validates both configured and running managed-node versions.
+2. Confirm all workers are `Ready`, applications are tested on the target
+   version, disruption budgets/capacity are sufficient, and relevant add-ons are
+   compatible. Read the failed `CLUSTER_UPDATE` work request rather than
+   guessing from a Console banner.
+3. Upgrade the control plane first. It cannot be downgraded. Existing virtual
+   nodes are upgraded with it.
+4. Upgrade managed nodes by node-pool cycling only on enhanced clusters, or
+   cycle the node pool after an explicit disruption review; use
+   a reviewed out-of-place/replacement plan for basic clusters. Changing a node
+   pool's version alone affects only nodes subsequently created.
+5. Verify workload readiness, DNS/ingress/LB routes, autoscaling, and managed
+   add-ons. Record this as target-specific operational evidence, not merely a
+   successful work request.
+
+Follow the Kubernetes version-skew policy and any required intermediate minor
+upgrades. For Kubernetes 1.35 and later, prefer OKE worker images for managed
+nodes instead of platform images.
+
+## Enhanced cluster add-ons and native ingress
+
+Enhanced clusters support managed essential and optional **cluster add-ons**.
+Inventory and inspect them before changing resources that depend on an add-on:
+
+```bash
+oci_cli ce cluster list-addons --cluster-id "<OKE_CLUSTER_OCID>"
+oci_cli ce cluster get-addon \
+  --cluster-id "<OKE_CLUSTER_OCID>" \
+  --addon-name "<ADDON_NAME>"
+```
+
+An add-on update is a reviewed operational change. Check the supported version,
+approved configuration arguments, status, and associated work request. OKE
+reconciliation can discard direct, undocumented Kubernetes changes.
+
+Use workload identities only on enhanced clusters. Scope the Kubernetes service
+account and OCI IAM policy to the workload's required resources; do not replace
+that trust path with copied OCI credentials in a pod. Keep dynamic-group
+language for instance-principal designs; workload principals use
+workload-specific IAM policy conditions.
+
+The OCI Native Ingress Controller can be managed as a cluster add-on. When an
+OCI LB reports a backend failure, inspect controller validation errors,
+IngressClass resources, Service endpoints, and the documented pod **readiness
+gate** before manually changing LB resources.
 
 ## Rollout and health checks
 
@@ -318,6 +662,83 @@ actually exposes. Examples:
 - App-specific APIs: `/healthz` or `/ready` only when implemented
 
 Use `127.0.0.1` inside Docker health checks, not `0.0.0.0`.
+
+## Remote builders and SSH-safe execution
+
+When using a remote build/deploy host, avoid stale global SSH ControlMaster
+sockets. Use invocation-owned sockets in `/tmp`, bounded liveness options, and
+short polling commands instead of one long fragile session:
+
+```bash
+ssh -o BatchMode=yes \
+  -o ConnectTimeout=10 \
+  -o ServerAliveInterval=15 \
+  -o ServerAliveCountMax=4 \
+  -o ControlMaster=auto \
+  -o ControlPersist=10m \
+  -o ControlPath="/tmp/oci-skills-%r@%h:%p" \
+  "<HOST_ALIAS>" "kubectl -n '<NAMESPACE>' rollout status deployment/'<APP>' --timeout=240s"
+```
+
+Do not run broad `ssh -O exit` commands against shared/global control paths.
+If a transfer is needed, copy only reviewed source/test files required for the
+remote validation, exclude `.git`, environment files, kubeconfigs, wallets, and
+browser profiles, and avoid delete/sync flags unless the user approved the exact
+remote directory and deletion scope.
+
+## API-first fallback when SSH is blocked
+
+Treat a blocked SSH alias, expired ControlMaster socket, or unavailable
+`control-plane-oci` host as an operator-access problem, not as proof that the
+OKE control plane, application, Log Analytics source, or OCI data path failed.
+Keep moving with OCI APIs and supported in-VCN access paths:
+
+```bash
+oci_cli ce cluster get --cluster-id "<OKE_CLUSTER_OCID>" \
+  --query 'data.{name:name,state:"lifecycle-state",endpoint:"endpoints.kubernetes"}'
+python3 scripts/oci_cli_help.py --json ce work-request list
+python3 scripts/oci_cli_help.py --json search resource structured-search
+python3 scripts/oci_cli_help.py --json compute instance-agent command-execution list
+```
+
+Use Resource Search or service-specific `list/get` calls to rediscover target
+resources by tag/display name, then validate lifecycle state with the owning
+service API. For private API endpoints, prefer Cloud Shell, a reviewed Bastion
+session, or OCI Run Command on an in-VCN managed instance over copying local OCI
+configuration or opening broad network rules. Run Command proves command
+delivery and output on a target instance; it does not prove an interactive SSH
+path is healthy.
+
+Evidence classification:
+
+- `ssh timeout` / stale socket: remote operator path degraded.
+- `ce cluster get` ACTIVE but `/readyz` unreachable: Kubernetes API endpoint
+  network/RBAC path still unverified.
+- `/readyz` reachable but `kubectl auth can-i` denied: Kubernetes RBAC gap.
+- OCI API reads succeed while app source data is degraded: inspect Logging,
+  Service Connector Hub, Log Analytics source/parser, and VCN Flow Log rows
+  before changing network controls.
+
+Never mark a release, demo, or investigation failed solely because one SSH path
+is unavailable; record which alternate OCI evidence path was used and which
+gate remains unverified.
+
+For customer-demo incidents, hand the final answer a compact troubleshooting
+receipt instead of a transcript. Combine this OKE/API ladder with the Log
+Analytics receipt schema in `references/log-analytics.md`: OKE API status,
+bounded `/readyz`, namespace RBAC, rollout/endpoints, runtime principal check,
+Flow Log ingestion proof, source-IP OCL rows, trace reachability, Monitoring
+summary, Cloud Guard/security rows, explicit coverage gaps, and a strict
+conclusion level. If the OKE API, SSH host, or Log Analytics source is
+unavailable, keep that as a source/path status and do not infer application or
+network reachability.
+
+Start from the redacted canonical receipt template rather than improvising a
+new evidence schema:
+
+```bash
+python3 scripts/oci_oke_demo_troubleshoot.py receipt-template --context "<NAMED_CONTEXT>" --pretty
+```
 
 ## Optional Kubernetes MCP read surface
 
@@ -420,10 +841,30 @@ secret creation from declarative workload apply.
 
 ## Troubleshooting matrix
 
+For the recurring demo blockers, generate the current redacted command
+plan before running live reads:
+
+```bash
+python3 scripts/oci_oke_demo_troubleshoot.py privileged-role --context "<NAMED_CONTEXT>" --pretty
+python3 scripts/oci_oke_demo_troubleshoot.py connections-degraded --context "<NAMED_CONTEXT>" --pretty
+python3 scripts/oci_oke_demo_troubleshoot.py control-plane-blocked --context "<NAMED_CONTEXT>" --pretty
+python3 scripts/oci_oke_demo_troubleshoot.py melts-investigate-timeout --context "<NAMED_CONTEXT>" --pretty
+python3 scripts/oci_oke_demo_troubleshoot.py oke-security-unavailable --context "<NAMED_CONTEXT>" --pretty
+```
+
+The helper is offline. It emits placeholders, stop conditions, and
+approval-gated actions; it does not prove that any cluster, connector, or source
+is healthy.
+
 | Symptom | Likely cause | First checks |
 |---|---|---|
 | `kubectl Unauthorized` after kubeconfig | IAM token mint works, Kubernetes RBAC missing | `kubectl auth can-i --list`; ClusterRoleBinding |
-| `Target endpoint is not available` | Forced wrong endpoint mode or private/legacy API endpoint | Try existing context; omit `--kube-endpoint`; use Cloud Shell/bastion |
+| `Target endpoint is not available` | Forced wrong endpoint mode or private/legacy API endpoint | Try existing context; test `PUBLIC_ENDPOINT` / `PRIVATE_ENDPOINT` / `VCN_HOSTNAME` / `LEGACY_KUBERNETES`; use Cloud Shell/bastion |
+| `OKE control plane is unavailable` | Cluster API endpoint unreachable, wrong endpoint mode, stale kubeconfig, or network path issue | `ce cluster get`; bounded `/readyz`; endpoint mode; Cloud Shell/bastion |
+| `control-plane-oci` / SSH blocked | Operator access lane degraded, stale ControlMaster socket, host allowlist, or bastion path issue | OCI API `list/get`; Resource Search; Cloud Shell; Bastion; OCI Run Command |
+| `A privileged role is required` in app agent | App route is over-gated or pod identity lacks required read-only OCI policy | API route policy; signed-in user role; service account; instance-principal dynamic group or workload-principal policy; IAM scope |
+| MELTS investigation exceeded response-time budget | Provider/source query path is slow, partial, or unavailable; agent budget ended before evidence receipt was complete | Flow Log ingestion proof; source-IP OCL rows; trace, metric, and Cloud Guard source status; receipt conclusion level |
+| OKE Security control plane unavailable | App security route, Kubernetes RBAC, runtime principal, or security provider read path is unavailable | OKE API `/readyz`; namespace `auth can-i`; service account; app logs; Cloud Guard/WAF/VSS read availability |
 | `ImagePullBackOff` / OCIR Unauthorized | Missing or wrong imagePullSecret, private repo, token propagation, wrong image tag | `kubectl describe pod`; verify tag; recreate secret; wait 60s |
 | `EXTERNAL-IP <pending>` | Service should be ClusterIP, LB quota, missing subnet annotation, stale finalizer | `kubectl describe svc`; events; LB quota; service annotations |
 | OCI LB 502 / backend `CRITICAL` | LB subnet cannot reach node health/NodePort or wrong LB subnet | service endpoints; NodePort; security list egress/ingress |
@@ -448,6 +889,9 @@ Sanitized lessons came from:
   rollout verification.
 - `oci-coordinator-oke/KB.md` and `docs/OCTO_DEPLOY_KB.md`: SSO-protected ingress
   path routing, strategic-merge env conflict, and ClusterIP behind nginx-ingress.
+- Recent OKE demo operations: control-plane reachability before app readiness
+  claims, namespace-scoped evaluator jobs, signed-in user route gates backed by
+  instance-principal/Workload Identity access, and SSH-safe remote validation.
 
 Keep future imports at this same abstraction level: reusable cause/fix pattern,
 not project topology.

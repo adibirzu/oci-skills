@@ -11,6 +11,7 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 - `oci-iam-admin`: IAM, compartments, budgets, quotas, tags, limits.
 - `oci-security-compliance`: OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates.
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms, dashboards.
+- `oci-aiops-agent-evaluation`: safe AIOps agent datasets, evaluator eligibility, score lineage, and human calibration; no remote changes.
 - `oci-diagramming`: editable OCI Draw.io, Excalidraw, and Mermaid diagrams with offline validation.
 - `oci-dbm-opsi`: DBM, OPSI, Performance Hub, AWR/ADDM/ASH, DBSNMP.
 - `oci-autonomous-db`: ADB lifecycle, wallet, ACL, private connectivity.

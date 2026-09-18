@@ -14,6 +14,18 @@ description: >-
 
 Preflight the context, read existing topology by name, then choose the narrowest convergent change. Use `oci_cli` and risk-classified `run_action`; never print addresses or OCIDs.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md)
+and keep control-plane configuration, path analysis, and real data-plane
+reachability as separate evidence.
+
+## First decisions
+
+Identify source, destination, protocol/port, direction, DNS name, TLS boundary,
+public/private intent, resource and Terraform owners, expected path, rollback,
+and the exact positive and negative canaries. For compute, also resolve shape,
+image architecture, AD/capacity, boot-volume fate, agent access, and desired
+lifecycle action.
+
 ## First move
 
 ```bash
@@ -55,6 +67,28 @@ Read [networking-compute.md](../../references/networking-compute.md) for exact c
   --compartment <COMPARTMENT_OCID> --description "<...>" -- oci_cli ...`
   (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview); teardown/detach/delete
   additionally requires explicit `confirm`.
+
+## Failure discrimination
+
+- A configured NSG rule does not prove reachability. Evaluate security lists,
+  NSGs, routes/gateways, VNIC/subnet policy, DNS/TLS, listener/backend health,
+  host firewall, and application bind separately.
+- A load balancer in `ACTIVE` state can still have critical backends; a healthy
+  backend does not prove the client route, hostname, certificate, or auth path.
+- DNS failure, certificate mismatch, TCP refusal, timeout, and HTTP error are
+  different layers. Preserve the first failing layer before proposing change.
+- Empty discovery is inconclusive until region, compartment subtree,
+  permissions, pagination, and resource lifecycle are checked.
+
+## Validation and evidence
+
+Before change, save a redacted topology and current rule/route/listener state.
+Validate the exact command shape, idempotency check, risk, and rollback. After
+change, re-list configuration, wait for work requests/lifecycle convergence,
+then run a source-appropriate DNS lookup, TLS handshake, port/path canary, LB
+backend-health check, and an intended-deny negative canary. For compute, verify
+instance/VNIC/volume/agent state and the requested guest or application health;
+do not promote configured control-plane state into data-plane proof.
 
 ## Expected output
 

@@ -119,9 +119,11 @@ cmd_plan() {
   require_cmd terraform python3
   [[ -n "$TF_PLAN" ]] || TF_PLAN="reviewed.tfplan"
   [[ "$TF_PLAN" != */* ]] || die "--out must be a filename inside the Terraform directory"
-  local -a extra=()
-  [[ "$TF_DESTROY" == true ]] && extra=(-destroy)
-  terraform -chdir="$directory" plan -input=false "${extra[@]}" -out="$TF_PLAN"
+  if [[ "$TF_DESTROY" == true ]]; then
+    terraform -chdir="$directory" plan -input=false -destroy -out="$TF_PLAN"
+  else
+    terraform -chdir="$directory" plan -input=false -out="$TF_PLAN"
+  fi
   local plan_path context_hash identity plan_risk
   plan_path="$(cd "$directory" && pwd -P)/$TF_PLAN"
   chmod 600 "$plan_path"

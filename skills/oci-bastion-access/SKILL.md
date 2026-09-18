@@ -4,8 +4,10 @@ description: >-
   Operate OCI Bastion access safely: bastion and session lifecycle, Managed SSH,
   fixed SSH port forwarding, dynamic SOCKS5 forwarding, client CIDR allowlists,
   Oracle Cloud Agent Bastion plugin health, connection diagnosis, and cleanup.
-  Use for time-bound access to private targets. Pure NSG, route, subnet, or VCN
-  changes remain with oci-networking-compute.
+  Use for time-bound access to private targets and SSH-safe remote validation
+  when stale ControlMaster sockets or private endpoint reachability block OKE/OCI
+  troubleshooting. Pure NSG, route, subnet, or VCN changes remain with
+  oci-networking-compute.
 ---
 
 # OCI Bastion Access
@@ -48,6 +50,7 @@ credential handling, verification, rollback, and official sources.
 | Fixed port forwarding | preflight → read target reachability and port → verify allowlist → credential-risk session → bind a local-only port → verify tunnel and target protocol |
 | Dynamic forwarding | preflight → read target scope and allowlist → credential-risk SOCKS5 session → constrain client proxy use → verify intended destinations only |
 | Repair plugin failure | read session error → inspect instance-agent/plugin state → hand host/network causes to their owners → retry with a new session → verify plugin and session state |
+| Avoid SSH blocks during remote validation | use invocation-owned ControlMaster socket under `/tmp` → bounded liveness options → short status/poll commands → no global socket teardown |
 | Cleanup | inventory active sessions and dependents → preview destructive session/bastion removal → exact approval → verify absence and unchanged target exposure |
 
 ## Safety boundaries

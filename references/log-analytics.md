@@ -15,7 +15,8 @@ namespace, entity names, or tenant field values.
 ## Quick navigation
 
 Select OCL, query execution, sources/parsers, entities/log groups, detections,
-migration/ingestion/dashboards, reusable queries, or risks.
+VCN Flow Logs ingestion/correlation, migration/ingestion/dashboards, reusable
+queries, or risks.
 
 ## OCL query language (cheat-sheet)
 
@@ -209,6 +210,211 @@ can become operator runbooks instead of anonymous OCL snippets.
   live `parse_query` + a synthetic-data row check** — only promote queries that
   parse and return rows.
 
+## Windows access monitoring fast track
+
+Use this sequence for Windows logon, RDP, account, and local privileged-group
+monitoring. It is a collection-to-response workflow: installation, entity
+mapping, source association, query, dashboard, scheduled metric, alarm, and
+notification are separate evidence and mutation gates.
+
+### Current Windows Server prerequisites and install shape
+
+- Use the standalone Management Agent path for Windows Server. Oracle Cloud
+  Agent's Management Agent plug-in path is currently documented for supported
+  Linux compute images, not Windows compute instances.
+- Recheck Oracle's current Windows Server support matrix before installing.
+- Standalone prerequisites currently include 300 MB free disk, JDK/JRE 8 update
+  281 or newer, WMIC enabled, synchronized host time, and outbound HTTPS 443.
+- The response file must include `Service.plugin.logan.download=true`.
+- Oracle's Windows command is
+  `installer.bat <full_path_of_response_file>`. Treat the response file as a
+  secret; never print or commit it.
+- Log Analytics uses
+  `loganalytics.<region>.oci.oraclecloud.com:443` for log upload/warnings and
+  `telemetry-ingestion.<region>.oraclecloud.com:443` for metrics.
+
+### Native source contract
+
+Do not create competing custom sources for continuous Windows event collection.
+List with `--is-system ALL` and match both display and internal names:
+
+| Channel | Display name | Internal name | Entity type |
+|---|---|---|---|
+| Security | `Windows Security Events` | `MsftWinEventSecurityLogSource` | `Host (Windows)` |
+| System | `Windows System Events` | `MsftWinEventSystemLogSource` | `Host (Windows)` |
+| Application | `Windows Application Events` | `MsftWinEventApplicationLogSource` | `Host (Windows)` |
+
+An `ACTIVE` Management Agent is not ingestion proof. Map the exact agent to one
+`Host (Windows)` entity, associate all three sources with the reviewed log group,
+then prove one fresh row from every channel and inspect
+`logCollectionUploadDataSize` / `logCollectionUploadFailureCount`.
+
+### Access detection contract
+
+The reusable baseline covers Event IDs `4624`, `4625`, `4634`, `4648`, `4672`,
+`4720`, `4726`, `4732`, `4733`, and `4776`, with five operator searches:
+
+1. More than 10 failed logons from one source in 5 minutes.
+2. Successful RDP logon (`Logon Type = 10`) outside reviewed business hours.
+3. Administrator logon, tuned for renamed/localized administrator identities.
+4. New local user created.
+5. User added to Administrators or Remote Desktop Users.
+
+Scheduled-search queries must output one numeric metric and no more than three
+dimensions. Detection rules emit metrics; Monitoring alarms are separate. A
+custom metric namespace must not start with reserved `oci_` or `oracle_`; the
+accelerator uses `logan_windows_access`. Create alarms disabled, prove the metric
+and notification owner, then enable one canary before wider activation.
+
+### Reusable accelerator
+
+The independent `adibirzu/oci-log-analytics-detections` accelerator contains:
+
+- [fast onboarding overview](https://github.com/adibirzu/oci-log-analytics-detections/blob/main/docs/WINDOWS_ACCESS_FAST_ONBOARDING.md)
+- [manual console runbook](https://github.com/adibirzu/oci-log-analytics-detections/blob/main/docs/WINDOWS_ACCESS_MANUAL_RUNBOOK.md)
+- [script-assisted runbook](https://github.com/adibirzu/oci-log-analytics-detections/blob/main/docs/WINDOWS_ACCESS_SCRIPTED_RUNBOOK.md)
+- [workflow diagrams](https://github.com/adibirzu/oci-log-analytics-detections/blob/main/docs/WINDOWS_ACCESS_WORKFLOW_DIAGRAMS.md)
+- [guarded Windows installer/preflight helper](https://github.com/adibirzu/oci-log-analytics-detections/blob/main/scripts/windows/management_agent_access_setup.ps1)
+- [tenant-neutral onboarding and OCI CLI bundle helper](https://github.com/adibirzu/oci-log-analytics-detections/blob/main/scripts/windows_access_onboarding.py)
+
+Treat these as an independent accelerator, not an Oracle product or proof of
+customer acceptance. Its local fixtures validate query semantics; provider
+verification still requires a fresh event to traverse agent, native source,
+Log Analytics, saved search, scheduled metric, alarm, and approved destination.
+
+## VCN Flow Logs ingestion and connection investigations
+
+VCN Flow Logs are the authoritative network-layer signal for accepted/rejected
+traffic. Application traces, compute metrics, and app logs can all look normal
+when traffic is blocked before it reaches a pod, load balancer backend, or VM.
+When Flow Logs are absent, report a coverage gap, not a reachability conclusion.
+
+For demo incidents that surface as **Data source degraded**, generate the
+redacted command plan first:
+
+```bash
+python3 scripts/oci_oke_demo_troubleshoot.py connections-degraded --context "<NAMED_CONTEXT>" --pretty
+python3 scripts/oci_oke_demo_troubleshoot.py receipt-template --context "<NAMED_CONTEXT>" --pretty
+```
+
+The generated plan is offline guidance. It lists read-only checks, mutation
+gates, verification queries, and stop conditions for VCN Flow Logs; it is not a
+claim that Logging, Service Connector Hub, or Log Analytics is working.
+
+Safe enablement shape for an OKE demo estate:
+
+1. Read existing Logging logs, log groups, capture filters, Service Connector
+   Hub targets, and subnet identities.
+2. Create or reuse exactly one capture filter with a 100% `ALL` / `INCLUDE`
+   rule. Do not create empty capture-filter records.
+3. Remove only a known failed empty Flow Log record after confirming it has no
+   usable source binding.
+4. Enable exactly five subnet Flow Logs with 30-day retention for the demo's OKE
+   network lanes: the node subnet, Kubernetes API endpoint subnet, load-balancer
+   subnet, and the two pod-network subnets. If the live topology has a different
+   pod-subnet count, stop and report the topology mismatch rather than guessing
+   additional targets.
+5. Do not change NSGs, Security Lists, route tables, NAT gateways, or
+   application traffic while adding observability.
+
+Command families to validate with installed help before rendering exact flags:
+
+```bash
+python3 scripts/oci_cli_help.py --json "logging log list"
+python3 scripts/oci_cli_help.py --json "logging log create"
+python3 scripts/oci_cli_help.py --json "logging log update"
+python3 scripts/oci_cli_help.py --json "network capture-filter list"
+python3 scripts/oci_cli_help.py --json "network capture-filter create"
+python3 scripts/oci_cli_help.py --json "network capture-filter update"
+python3 scripts/oci_cli_help.py --json "sch service-connector list"
+```
+
+Use `oci_cli network capture-filter create --filter-type FLOWLOG` with
+`--flow-log-capture-filter-rules file://<TMP_0600_RULES_JSON>` only after help
+validation. Use `oci_cli logging log create --log-type SERVICE
+--retention-duration 30 --configuration file://<TMP_0600_CONFIG_JSON>` for each
+subnet Flow Log. The service connector should already forward the Logging log
+group to Log Analytics; if it does not, report the missing connector as an
+enablement gate instead of creating a parallel path without review.
+
+After enablement, prove ingestion with a source-wide query before a source-IP
+drilldown:
+
+```bash
+./scripts/oci_logan.sh -q "'Log Source' = 'OCI VCN Flow Logs' | stats count by 'Action' | sort -count" -t 1h
+./scripts/oci_logan.sh -q "'Log Source' = 'OCI VCN Flow Logs' and 'Source IP' = '<SOURCE_IP>' | stats count as requests by Action, 'Destination Port', 'Rule Type', 'Rule Name' | sort -requests" -t 24h
+```
+
+For MELTS-style investigations, correlate in this order:
+
+- VCN Flow Logs: source IP, destination IP/port, action, packets/bytes, rule
+  type/name when present.
+- Load Balancer Access Logs: client IP, listener/backend status, request count.
+- Cloud Guard / security logs: open problem IDs, detector/risk labels, MITRE
+  mapping when provided.
+- Traces: prove whether traffic reached instrumented app code.
+- OCI Monitoring: CPU, memory, LB backend health, node/pod saturation.
+
+Grounded answers should name the evidence sources used and keep conclusions
+proportional. Example: "blocked before the app" requires Flow Log rejects or LB
+backend evidence; "no traces" alone only proves the instrumentation saw no app
+span.
+
+### OCI incident troubleshooting receipt
+
+For customer-demo or agent-facing investigations, produce a short receipt before
+writing the final answer. The receipt is not a raw data dump; it is a
+redaction-safe evidence envelope that lets another operator rerun the same
+investigation without guessing which sources were checked.
+
+Use the helper to start from the current canonical receipt shape:
+
+```bash
+python3 scripts/oci_oke_demo_troubleshoot.py receipt-template --context "<NAMED_CONTEXT>" --pretty
+```
+
+Minimum receipt fields:
+
+```json
+{
+  "schema_version": "oci-skills.incident-troubleshooting-receipt.v1",
+  "case_type": "connection-source-investigation|oke-app-agent|custom",
+  "time_window": "<ISO8601_OR_DURATION>",
+  "target_scope": {
+    "compartment": "<COMPARTMENT_PLACEHOLDER>",
+    "region": "<REGION>",
+    "cluster": "<OKE_CLUSTER_PLACEHOLDER>",
+    "namespace": "<NAMESPACE_PLACEHOLDER>"
+  },
+  "evidence_sources": [
+    {
+      "source": "vcn_flow_logs|load_balancer_logs|cloud_guard|traces|monitoring|audit",
+      "query_or_command": "<SANITIZED_QUERY_OR_COMMAND>",
+      "status": "verified|empty|degraded|unavailable",
+      "result_summary": "<COUNTS_AND_FIELDS_ONLY>",
+      "coverage_gap": "<NONE_OR_GAP>"
+    }
+  ],
+  "conclusion_level": "provider_verified|configured|unavailable|inconclusive",
+  "next_action": "<READ_ONLY_RETRY_OR_REVIEWED_MUTATION>"
+}
+```
+
+Keep `conclusion_level` strict:
+
+- `provider_verified`: current rows or service API results support the claim.
+- `configured`: policies, connectors, sources, or manifests exist, but current
+  data movement or runtime behavior was not proven.
+- `unavailable`: the source/tool/control-plane path was unreachable; no
+  service or reachability verdict was inferred.
+- `inconclusive`: sources disagree or the minimum evidence set is missing.
+
+For connection-source degradation, the minimum evidence set is Flow Log ingestion
+proof plus one source-IP query. If Flow Logs are unavailable, the final answer
+must say "connection source degraded" and list the exact Logging, Service
+Connector Hub, Log Analytics source/parser, compartment subtree, and time-window
+checks still required.
+
 ## Reusable generic queries
 
 ```
@@ -255,12 +461,20 @@ not event count):
 'Log Source' = 'OCI VCN Flow Logs' | stats sum(Bytes) as total_bytes by 'Source IP' | sort -total_bytes | head 20
 ```
 
+**Source-IP connection errors** (VCN Flow Logs, rule attribution where fields exist):
+```
+'Log Source' = 'OCI VCN Flow Logs' and 'Source IP' = '<SOURCE_IP>' | stats count as requests by Action, 'Destination Port', 'Protocol', 'Rule Type', 'Rule Name' | sort -requests | head 50
+```
+
 ## Risks to flag
 
 - Quoting mistakes on string-vs-numeric fields are the #1 cause of "valid query,
   zero rows / parse error" — verify field type before trusting an empty result.
 - An empty/partial result from a single noisy query is **inconclusive**, not
   proof of absence — widen the window or simplify the filter before concluding.
+- A missing `OCI VCN Flow Logs` source or zero rows after fresh enablement is a
+  collection/ingestion gap until the Logging log, connector, log group, source,
+  parser, retention, compartment subtree, and time window are verified.
 - Never put real entity names, IPs, or principal names in committed queries —
   parameterize them.
 

@@ -40,6 +40,11 @@ the installed help again before emitting any exact flags or payload fields.
 - A failed Managed SSH session is inconclusive until image/architecture support,
   OpenSSH, Cloud Agent, Bastion plugin state, source allowlist, target network,
   IAM, region, and tenancy scope are checked.
+- For repeated remote execution blocks, check for stale SSH ControlMaster
+  sockets before changing Bastion or network policy. Prefer invocation-owned
+  sockets under `/tmp`, bounded `ConnectTimeout`, `ServerAliveInterval`, and
+  `ServerAliveCountMax`, then run short idempotent status probes. Do not run
+  broad `ssh -O exit` against shared/global control paths.
 - Do not repair a plugin failure by opening a public IP or broad management port.
 - Recreate an expired/failed session rather than extending access indefinitely.
 - Empty session lists are not proof of absence until compartment, region,

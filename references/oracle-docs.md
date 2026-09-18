@@ -139,7 +139,20 @@ Safe), the upstream `db/` domain of
 | Topic | Canonical doc |
 |---|---|
 | Log Analytics (Logan, OCL) | <https://docs.oracle.com/en-us/iaas/log-analytics/home.htm> |
-| Oracle-defined log sources | <https://docs.oracle.com/en-us/iaas/logging-analytics/doc/oracle-defined-sources.html> |
+| Oracle-defined log sources | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/oracle-defined-sources.html> |
+| Install Management Agents for Log Analytics | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/install-management-agents.html> |
+| Standalone Management Agent prerequisites | <https://docs.oracle.com/en-us/iaas/management-agents/doc/perform-prerequisites-deploying-management-agents.html> |
+| Windows Server Management Agent installation | <https://docs.oracle.com/en-us/iaas/management-agents/doc/install-management-agent-chapter.html> |
+| Continuous collection using Management Agent | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/continuous-log-collection-form-your-hosts.html> |
+| Management Agent collection IAM | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/allow-continuous-log-collection-using-management-agents.html> |
+| Source-entity association | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/manage-source-entity-association.html> |
+| Monitor continuous collection | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/monitor-your-continuous-log-collection.html> |
+| Saved searches and dashboard widgets | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/save-share-log-searches.html> |
+| Scheduled-search detection rules | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/create-schedule-run-saved-search.html> |
+| Alerts for detected events | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/create-alerts-detected-events.html> |
+| VCN Flow Logs | <https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/vcn_flow_logs.htm> |
+| Capture filter CLI | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/network/capture-filter/create.html> |
+| Logging service log CLI | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/logging/log/create.html> |
 
 ## Networking & compute — `oci-networking-compute`
 
@@ -192,6 +205,18 @@ Safe), the upstream `db/` domain of
 |---|---|
 | Kubernetes Engine (OKE) | <https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm> |
 | List Kubernetes clusters | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/list-clusters.htm> |
+| Set up cluster access / kubeconfig v2 | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengdownloadkubeconfigfile.htm> |
+| Enhanced versus basic clusters | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengworkingwithenhancedclusters.htm> |
+| OKE Network Path Analyzer troubleshooting | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengtroubleshooting_topic-network_troubleshooting.htm> |
+| OKE Node Doctor troubleshooting | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengtroubleshooting_topic-node_troubleshooting.htm> |
+| Virtual-node troubleshooting with `kubectl proxy` | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengaccessingpodsonvirtualnodesusingkubectlproxy.htm> |
+| OKE cluster upgrade model | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutupgradingclusters.htm> |
+| Install and configure a cluster add-on | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/install-add-on.htm> |
+| Configure OCI Native Ingress Controller | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupnativeingresscontroller-configuring.htm> |
+| Overview of OKE cluster add-ons | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengintroducingclusteraddons.htm> |
+| Grant workloads access to OCI resources | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contenggrantingworkloadaccesstoresources.htm> |
+| OCI Native Ingress Controller troubleshooting | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengsettingupnativeingresscontroller-troubleshooting.htm> |
+| Update an OKE managed node pool | <https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/update-node-pool.htm> |
 
 ## Cost & FinOps — `oci-cost`
 
