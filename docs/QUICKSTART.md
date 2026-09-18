@@ -202,6 +202,7 @@ view used by the quickstart.
 | project lifecycle | `oci-project` |
 | golden-path platform bundle | `oci-product-development` |
 | application code/review/reuse/model evaluation | `oci-application-engineering` |
+| OCI AIOps agent evaluation, Langfuse score lineage, evaluator calibration datasets | `oci-aiops-agent-evaluation` |
 | landing-zone/greenfield tenancy guardrails | `oci-landing-zone` |
 
 ## External handoffs and troubleshooting
@@ -218,7 +219,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **27 skills, 52 requirements, 37 contracts, and
+The installed pack exposes **28 skills, 52 requirements, 37 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 

@@ -10,8 +10,11 @@ description: >-
   request mentions OCI Log Analytics, Logan, OCL, LQL, a log query, Log Source,
   OCI Audit Logs query, parser, log source, log group, entity, saved search,
   scheduled search, Cloud Guard / WAF / Sysmon query, Sigma-to-OCI, Sentinel KQL
-  migration, management dashboard, or upload_log_file. Read-only querying by
-  default; content changes go through the shared safety core.
+  migration, management dashboard, upload_log_file, VCN Flow Logs, flow-log
+  capture filters, connection-source investigations, network reject
+  correlation, Windows Event collection, Management Agent onboarding, RDP or
+  failed logons, or privileged-group changes. Read-only querying by default;
+  content changes go through the shared safety core.
 ---
 
 # OCI Log Analytics (Logan)
@@ -51,6 +54,8 @@ safety rules.
 | source, parser, field, lookup, custom log shape | Sources / parsers / fields |
 | entity, log group, association, upload | Entities & log groups |
 | detection, saved/scheduled search, Sigma→OCI | Detections |
+| Windows Security/System/Application channels, Management Agent, RDP/logon monitoring | Windows access monitoring fast track |
+| VCN Flow Logs, network rejects, source-IP investigations, missing connection-source data | VCN Flow Logs ingestion and connection investigations |
 | dashboard import/export, migrate content, KQL→OCL | Migration / dashboards |
 
 ## Common multi-step flows
@@ -60,13 +65,24 @@ safety rules.
 | Write a query that returns rows | apply the field-typing rules (quote multi-word/string-int fields, KB-060/062) → run via `oci_logan.sh -t` → if empty, widen the window and add `--compartment-id-in-subtree` before concluding (KB-063, KB-070) |
 | Audit "who did what" | query `'Log Source' = 'OCI Audit Logs'` → `stats count by 'Principal Name'` → set the window with `-t` (time is out-of-band, KB-063) |
 | Build a detection | author OCL (or convert Sigma→OCL) → validate live (watch bulk-validation timeout, KB-071) → save with the current `etag` (KB-065) → schedule |
+| Onboard Windows access monitoring | verify current standalone Windows Agent prerequisites → deploy the Log Analytics plug-in → map one `Host (Windows)` entity → associate the three Oracle-defined Windows sources → prove fresh Security/System/Application rows → create five saved searches/dashboard widgets → create scheduled metrics → create alarms disabled and enable one canary |
 | Migrate content in | export the source dashboard → convert KQL→OCL → import → validate against live data |
+| Investigate high-volume connection errors | prove `OCI VCN Flow Logs` ingestion → query source IP by action/port/rule → correlate LB access logs, Cloud Guard, traces, and OCI metrics → report coverage gaps separately from conclusions |
+| Enable OKE subnet Flow Logs | generate `scripts/oci_oke_demo_troubleshoot.py connections-degraded` → read existing logs/connectors/subnets → create/reuse one 100% `ALL`/`INCLUDE` capture filter → remove only the known failed empty Flow Log record → enable exactly five 30-day subnet Flow Logs for node, endpoint, load-balancer, and two pod-network subnets through the existing Logging-to-Log-Analytics connector → do not change NSGs, Security Lists, route tables, or app traffic |
+| Produce an OCI incident troubleshooting receipt | collect source inventory, Flow Log ingestion proof, source-IP OCL rows, trace reachability, Monitoring summaries, Cloud Guard/security rows, and explicit coverage gaps → emit the receipt schema from the reference → never infer a reachability verdict from missing sources |
+| Recover a MELTS investigation timeout | generate `scripts/oci_oke_demo_troubleshoot.py melts-investigate-timeout` → rerun source-wide Flow Log and source-IP queries first → correlate traces, Monitoring, and Cloud Guard only when those sources are available → keep timeout/cached receipts below provider_verified evidence |
 
 ## Common tasks
 
 ```bash
 # Ad-hoc read-only query (helper resolves the namespace; -t accepts 5m/24h/7d).
 ./scripts/oci_logan.sh -q "'Log Source' = 'OCI WAF Logs' and Action = 'BLOCK' | stats count by 'Client IP' | sort -count" -t 7d
+
+# Offline demo command plan for degraded Connections / missing VCN Flow Logs.
+python3 scripts/oci_oke_demo_troubleshoot.py connections-degraded --context "<NAMED_CONTEXT>" --pretty
+
+# Offline MELTS command plan when an investigation exceeds its response budget.
+python3 scripts/oci_oke_demo_troubleshoot.py melts-investigate-timeout --context "<NAMED_CONTEXT>" --pretty
 
 # Raw CLI query (the verb is `query search`; keep the query time-agnostic).
 oci_cli log-analytics query search --namespace-name <LA_NAMESPACE> \
@@ -107,6 +123,9 @@ run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "repai
   `redact` before sharing.
 - **An empty result is inconclusive,** not proof of absence — check field typing
   and widen the window before concluding.
+- **Missing VCN Flow Logs are a source gap,** not proof that traffic was absent
+  or blocked. Verify Logging, connector, Log Analytics source/parser, retention,
+  subtree scope, and window before making a network-layer claim.
 - **Never invent `oci` flags.** Fetch the exact command shape first:
   `python3 scripts/oci_cli_help.py <service> <op>`.
 

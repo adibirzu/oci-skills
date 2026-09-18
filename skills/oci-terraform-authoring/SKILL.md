@@ -13,6 +13,28 @@ description: >-
 
 Create reviewable infrastructure artifacts without contacting OCI. Contact OCI only for discovery, planning, or an explicitly approved apply/destroy after a named-context preflight.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md)
+and keep HCL validity, reviewed plan identity, provider apply, data-plane
+verification, and release acceptance as separate gates.
+
+## First decisions
+
+Resolve whether the request is authoring, discovery, adoption/import, refactor,
+drift, plan, apply, backend migration, or destroy. Identify the resource owner,
+execution context/auth mode, provider and Terraform constraints, realm/region,
+state backend and recovery owner, module provenance, target context, expected
+action counts, replacement tolerance, and verification/rollback canaries.
+
+## Routing
+
+| Surface | Owner |
+|---|---|
+| HCL, modules, provider schema, local validate/test/plan/apply/destroy, import/moved blocks, state design | This skill |
+| Existing Resource Manager stack/job/log/state operations | **oci-resource-manager** |
+| Service-specific intent, acceptance, and data-plane verification | Owning OCI domain skill |
+| Whole-project release or teardown coordination | **oci-project** |
+| Module/provisioner security and release gate | **oci-security-compliance** |
+
 ## Workflow
 
 1. Establish the owner. Default durable resources to `terraform`; never give the same resource to direct CLI and Terraform.
@@ -65,6 +87,29 @@ Read [terraform-authoring.md](../../references/terraform-authoring.md) for comma
   official docs. Do not hardcode commercial-realm domains; use the applicable
   FIPS-compatible provider where Oracle requires it.
 - CLI may inspect or recover. A CLI mutation against a Terraform-owned resource is break-glass and must be followed by `terraform plan` reconciliation.
+
+## Failure discrimination
+
+- `fmt`/`validate` success proves syntax and schema consistency, not credentials,
+  target capacity, policy, plan safety, apply success, or service health.
+- An init failure can be provider download, backend auth/network, lock, version,
+  checksum, or module-source failure; preserve the failing phase.
+- A plan difference can be intended change, drift, provider normalization,
+  unknown values, address refactor, or forced replacement. Do not apply until
+  ownership and replacement semantics are resolved.
+- An apply timeout does not prove failure or success. Inspect Terraform state,
+  provider work requests, and the resource directly before retrying.
+
+## Validation and evidence
+
+Run `oci_tf.sh validate`, mocked `.tftest.hcl` tests where useful, forbidden-
+artifact/redaction checks, and module provenance review. For live planning,
+record the named context, lockfile/provider versions, binary plan hash, action
+counts, replacements, public exposure, and sensitive resource flags. Apply only
+the unchanged reviewed plan, then verify state convergence, provider lifecycle
+and work requests, owning-domain data-plane canaries, and a follow-up plan with
+no unintended change. Test backend/state recovery separately and never expose
+state content.
 
 ## Expected output
 

@@ -19,6 +19,27 @@ inventory protected resources and security attributes, correlate VCN Flow Logs,
 emit sanitized custom records, and validate Log Analytics dashboards. Keep all
 outputs placeholder-safe.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md)
+and preserve the distinction between ZPR inventory, flow-log observations,
+correlation inference, and a provider or policy verdict.
+
+## First decisions
+
+Resolve the protected resource and security-attribute scope, policy intent,
+source/destination flow tuple, direction, time window, Flow Log coverage,
+Logging-to-Log-Analytics path, expected allow/deny outcome, and whether the ask
+is inventory, correlation, dashboard content, or enforcement change.
+
+## Routing
+
+| Surface | Owner |
+|---|---|
+| ZPR inventory, policy/attribute correlation, visibility records and dashboards | This skill |
+| ZPR policy or security-attribute mutation and security review | **oci-security-compliance** |
+| VCN Flow Log enablement, capture filters, subnet/NSG/route ownership | **oci-networking-compute** + **oci-log-analytics** |
+| Log source/parser/query/dashboard mechanics | **oci-log-analytics** |
+| Terraform HCL and state | **oci-terraform-authoring** |
+
 ## First move
 
 ```bash
@@ -47,6 +68,28 @@ creating collectors, logs, Service Connector Hub connectors, or dashboards.
   that ZPR itself is wrong.
 - Never commit security attribute names from a real tenant if they identify
   topology or business domains. Use placeholders.
+
+## Failure discrimination
+
+- A missing flow row is a collection gap until Flow Logs, capture filter,
+  Logging log/group, connector, Log Analytics source/parser, scope, retention,
+  permissions, and window are proved.
+- `REJECT` does not identify ZPR by itself; correlate network security and route
+  evidence before attributing the decision.
+- `unexpected_accepted` and `suspected_misconfiguration` are review classes,
+  not proof of bypass or defective policy.
+- A parser-valid dashboard with zero rows is not provider-verified visibility;
+  it needs a known, authorized canary inside the covered scope.
+
+## Validation and evidence
+
+Validate collector output against its schema and redaction gate; parse every
+query and dry-run content import. For a named live context, prove current ZPR and
+security-attribute inventory, Flow Log coverage, connector and source health,
+one expected-allow and one expected-deny correlated row, dashboard HIT status,
+and any work requests. Report policy intent as supplied or provider-read facts,
+and label correlation conclusions as inference unless the evidence supports a
+stronger class.
 
 ## Expected output
 

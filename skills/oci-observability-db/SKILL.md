@@ -8,6 +8,19 @@ description: >-
 
 Preflight the named context, query current telemetry configuration, and search the KB before changing an alarm, log, connector, or APM resource. Run every CLI through `oci_cli`, every mutation through risk-classified `run_action`, and every shared output through redaction.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md).
+Keep collection, storage, query, correlation, visualization, alerting, and
+response as separately verified layers.
+
+## First decisions
+
+Identify the operator question, telemetry signal (metric, event, log, or trace),
+producer, collector, namespace/source, resource and correlation identifiers,
+scope, time window, retention/cost, expected cardinality, alert destination,
+owner, and the canary that proves the path. Decide whether the task is missing
+data, wrong data, slow data, visualization, alerting, or response before changing
+configuration.
+
 ## First move
 
 ```bash
@@ -58,6 +71,28 @@ for bounded PromQL conversion and prepared Linux/Windows profiles.
 - Treat converted MQL and rendered dashboards as candidates until every query
   parses and returns the intended dimensions and units; reject unsupported
   PromQL rather than guessing.
+
+## Failure discrimination
+
+- No datapoints can mean wrong region/scope/window/dimensions, collection lag,
+  inactive producer, permission, connector failure, retention, or real absence.
+- A query that parses does not prove correct units, dimensions, aggregation,
+  cardinality, or live data.
+- An alarm in `OK` can mean healthy service, missing stream, wrong query, or
+  pending evaluation. Prove the metric and notification route independently.
+- Trace ingestion does not prove complete propagation or correlation. Verify
+  root/child spans and required resource, environment, tenant, and trace IDs.
+
+## Validation and evidence
+
+Validate queries and dashboard definitions offline where supported. In a named
+context, inventory definitions before datapoints, run the query for a bounded
+window, verify units/dimensions, inject or select an authorized known canary,
+confirm storage and visualization, exercise alarm-to-notification delivery, and
+record retention/cost implications. For traces, verify the full expected span
+shape and missing-attribute behavior with prompt/body capture disabled. Report
+each layer's evidence separately; a green dashboard alone is not end-to-end
+observability proof.
 
 ## Expected output
 

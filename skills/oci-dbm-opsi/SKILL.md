@@ -20,6 +20,28 @@ leaking database topology or credentials. This skill is for the OCI control
 plane and monitoring setup around a database; SQL tuning and deep in-database
 work still routes to database-specific skills.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md)
+and treat DBM, OPSI, in-database privileges, Performance Hub, and Log Analytics
+ingestion as distinct enablement and evidence gates.
+
+## First decisions
+
+Resolve database type and lifecycle owner, CDB/PDB scope, region/compartment,
+network path and private endpoint, connection method, monitoring-user state,
+DBM and OPSI current states, licensing/privilege boundary, Log Analytics entity
+path, expected work requests, and the exact read-only verification goal.
+
+## Routing
+
+| Surface | Owner |
+|---|---|
+| DBM private endpoint, managed database, OPSI insight, Performance Hub enablement | This skill |
+| Base DB system/home/database/PDB lifecycle, backup, patch, Data Guard | **oci-database-cloud** |
+| Autonomous DB lifecycle, ACL, wallet, service level, app connectivity | **oci-autonomous-db** |
+| Deep SQL tuning, RMAN, AWR/ASH interpretation, or database remediation | Official database skill / DBA owner |
+| Metrics, alarms, generic Logging/APM | **oci-observability-db** |
+| Log Analytics source/entity/query mechanics | **oci-log-analytics** |
+
 ## First move
 
 ```bash
@@ -55,6 +77,28 @@ for broader Monitoring/APM/DB observability context.
   "<...>" -- oci_cli ...` (honors `OCI_SKILLS_DRY_RUN=true` for a no-op preview)
   and get explicit user confirmation before applying a grant or enabling a
   service.
+
+## Failure discrimination
+
+- DBM enabled does not prove OPSI enabled, a healthy connection, Performance
+  Hub privileges, AWR population, or DB log ingestion.
+- `NotAuthorizedOrNotFound` can be IAM, wrong region/compartment/database scope,
+  or absence. Resolve in that order without guessing.
+- Separate private-endpoint routing, database listener/service, credential,
+  monitoring-user grant, service work request, and agent/entity-association
+  failures.
+- A lifecycle flap or empty insight list is inconclusive until a known insight
+  is read directly and its work-request/error history is inspected.
+
+## Validation and evidence
+
+Record discovery joins before redaction, then redact at the display boundary.
+Verify private-endpoint/network readiness, managed-database connection state,
+DBM lifecycle, OPSI insight lifecycle by direct GET, work requests, and the
+minimum read-only SQL/grant canary authorized for the task. For Performance Hub,
+prove required views/snapshots separately. For DB logs, prove current agent,
+entity, association, source, parser, and one fresh row. State licensing and
+approval status for every proposed database grant.
 
 ## Expected output
 
