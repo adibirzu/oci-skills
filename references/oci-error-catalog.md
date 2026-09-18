@@ -34,6 +34,9 @@ throttling, validation, limits, concurrency, async, or database errors.
 | `500` / `503` | Transient backend error | Retry with backoff; if persistent, check service health | — |
 | Empty `data.id` after create | It was **async** — you got a work request, not the resource | Poll the work request, then `list` by name for the id | KB-008 |
 | `--wait-for-state SUCCEEDED` hangs | Job/work-request reached a *different* terminal state (`FAILED`/`CANCELED`) | Poll state yourself; break on **every** terminal state | KB-007, KB-083 |
+| App says `A privileged role is required` | Application authorization or runtime-principal policy gap, not an OCI API error by itself | Split browser auth, route policy, service account, dynamic group, and IAM read policy | KB-165 |
+| App says `Data source degraded` for connections | Missing/failed ingestion path, not proof of no traffic or no impact | Prove VCN Flow Logs and Logging-to-Log-Analytics connector before source-IP conclusions | KB-164 |
+| Demo app loses ADB/Langfuse score persistence | Shared ADB lifecycle, wallet, ACL, secret, migration, or app-user gap | Prove shared ADB readiness and app-user readback without ADMIN runtime access | KB-166 |
 
 ## Authentication — `401 NotAuthenticated`
 
@@ -152,6 +155,36 @@ Two distinct failure modes that look like hangs or empty results:
    every terminal state**, dumping logs on failure (KB-007 for ORM, KB-083).
 
 **Docs:** [Work requests](https://docs.oracle.com/en-us/iaas/Content/General/Concepts/workrequestoverview.htm).
+
+## Application-surfaced OCI dependency errors
+
+Errors returned by a demo app or agent UI can wrap several layers: browser
+session, application route authorization, Kubernetes RBAC, runtime principal
+identity, IAM policy, service connector health, and the underlying OCI API. Do
+not classify them as an OCI service verdict until the layer is proven.
+
+- **`A privileged role is required`**: first verify the signed-in user route
+  contract, then the Kubernetes service account, Workload Identity or instance
+  principal, dynamic group, and least-privilege read policy. Keep mutations,
+  security execution, deployments, and Log Analytics writes separately
+  role-gated (KB-165).
+- **`Data source degraded` / connection sources unavailable**: first prove the
+  Logging log exists, Flow Log capture filter includes the relevant subnets,
+  Service Connector Hub forwards to Log Analytics, the `OCI VCN Flow Logs`
+  source/parser is visible, and a source-wide query returns current rows. Only
+  then run source-IP drilldowns (KB-164).
+- **ADB-backed score/prompt persistence unavailable**: first prove the shared
+  ADB/ATP/ADW lifecycle, ACL posture, wallet secret, app schema/user, migration
+  head, and a redacted app-user read/write canary. Do not create a dedicated DB
+  or run the app as ADMIN for a demo shortcut (KB-166).
+- **`OKE control plane is unavailable`**: treat it as endpoint/RBAC reachability
+  until `ce cluster get`, bounded `/readyz`, and `kubectl auth can-i` separate
+  cluster state, network path, token minting, and Kubernetes authorization
+  (KB-163).
+- **`control-plane-oci` / SSH unavailable**: this is an operator-access lane,
+  not an OCI service verdict. Continue with OCI API reads, Cloud Shell, Bastion,
+  or OCI Run Command; do not infer OKE, app, or Log Analytics readiness from SSH
+  alone (KB-167).
 
 ## Database-surfaced Oracle errors (via OCI services)
 

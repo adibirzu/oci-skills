@@ -5,6 +5,7 @@
     {"skill": "oci-iam-admin", "owner": "iam-tenancy", "reference": "references/iam-tenancy.md"},
     {"skill": "oci-security-compliance", "owner": "security-compliance", "reference": "references/security-compliance.md"},
     {"skill": "oci-observability-db", "owner": "observability", "reference": "references/observability-db.md"},
+    {"skill": "oci-aiops-agent-evaluation", "owner": "aiops-agent-evaluation", "reference": "references/aiops-agent-evaluation.md"},
     {"skill": "oci-dbm-opsi", "owner": "database-observability", "reference": "references/dbm-opsi.md"},
     {"skill": "oci-autonomous-db", "owner": "autonomous-database", "reference": "references/autonomous-db.md"},
     {"skill": "oci-database-cloud", "owner": "database-cloud", "reference": "references/database-cloud.md"},

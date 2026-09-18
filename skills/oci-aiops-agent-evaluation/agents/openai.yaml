@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI AIOps Agent Evaluation"
+  short_description: "Calibrate safe, trace-grounded OCI AIOps agents"
+  default_prompt: "Use $oci-aiops-agent-evaluation to analyze this OCI AIOps agent dataset, evaluator lineage, and calibration gap without changing remote services."

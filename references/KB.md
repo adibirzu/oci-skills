@@ -922,7 +922,7 @@ logs carry **no `Severity` field** (`Severity = 'ERROR'` returns 0 — filter on
 message instead); SSH/auth events are in **`Linux Secure Logs`**, not
 `Linux Syslog Logs`; the WAF source is **`OCI WAF Logs`**, not `OCI WAF Access Logs`.
 Treat an empty result as inconclusive until the source name and fields are confirmed.
-**See:** [Oracle-defined log sources](https://docs.oracle.com/en-us/iaas/logging-analytics/doc/oracle-defined-sources.html)
+**See:** [Oracle-defined log sources](https://docs.oracle.com/en-us/iaas/log-analytics/doc/oracle-defined-sources.html)
 **Status:** resolved.
 
 ## KB-108 — Alarm never fires / metric query empty: MQL dimension names are case-sensitive and differ from Console labels (observability-db)
@@ -1620,4 +1620,158 @@ this pack's own `./terraform` directory convention (`schemas/platform-bundle
 .schema.json`'s `iac.path`, `oci_tf.sh`'s own arguments) is never misread as
 the `terraform` command itself.
 **See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.
+
+## KB-163 — OKE API reachability is not application readiness (oke-admin)
+
+**Symptom:** A deployment, evaluator, or browser replay is marked failed or
+ready based only on `kubectl` timeout/error output.
+**Root cause:** Kubernetes API endpoint reachability, kubeconfig endpoint mode,
+IAM token minting, Kubernetes RBAC, workload rollout, and browser reachability
+are separate gates.
+**Fix:** Run the readiness ladder in `references/oke-operations.md`: `ce cluster
+get`, bounded `/readyz`, namespace-scoped `kubectl auth can-i`, rollout status,
+and browser/API probes. If the API endpoint is unreachable, report the OKE
+control plane/path as unavailable and infer no app readiness state.
+**See:** [Kubernetes Engine (OKE)](https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm)
+**Status:** resolved.
+
+## KB-164 — Connection-source investigations need VCN Flow Log ingestion (log-analytics)
+
+**Symptom:** A connection investigation reports degraded sources, no VCN reject
+rows, or "source unavailable" while app logs, traces, and metrics look normal.
+**Root cause:** VCN Flow Logs were not enabled for the relevant subnets or were
+not flowing through the Logging-to-Log-Analytics connector/source.
+**Fix:** Add observability only: create/reuse one 100% `ALL`/`INCLUDE` capture
+filter, remove only the failed empty Flow Log record, and enable exactly five
+30-day subnet Flow Logs for the OKE node, Kubernetes API endpoint,
+load-balancer, and two pod-network subnets through the existing connector. Do
+not change NSGs, Security Lists, route tables, or application traffic. Confirm
+ingestion with a source-wide OCL query before running source-IP drilldowns.
+Use `python3 scripts/oci_oke_demo_troubleshoot.py connections-degraded --context "<NAMED_CONTEXT>" --pretty`
+to emit the redacted read/action/verification ladder before live work.
+**See:** [Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+**Status:** resolved.
+
+## KB-165 — Demo app OCI access should use runtime principals, not copied credentials (oke-admin)
+
+**Symptom:** A signed-in demo user receives `A privileged role is required` from
+read/chat endpoints or the app agent cannot query OCI data from inside OKE.
+**Root cause:** Browser user auth, application route authorization, Kubernetes
+service-account identity, dynamic groups, and OCI IAM policies were conflated.
+Copying a local OCI config, kubeconfig, wallet, or browser session into a pod
+masks the broken trust boundary.
+**Fix:** Keep privileged mutations/security actions role-gated, but let the
+signed-in app call only approved read/chat endpoints. Verify OKE Workload
+Identity or instance-principal access from the pod, then grant the smallest
+read-only OCI policy needed by the runtime principal.
+Use `python3 scripts/oci_oke_demo_troubleshoot.py privileged-role --context "<NAMED_CONTEXT>" --pretty`
+to keep route authorization, Kubernetes RBAC, and OCI runtime-principal checks
+separate.
+**See:** [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm)
+**Status:** resolved.
+
+## KB-171 — OCI incident reports need a repeatable receipt envelope (log-analytics)
+
+**Symptom:** Agents return long troubleshooting transcripts or unsupported
+reachability conclusions after checking only some of OKE, Flow Logs, traces,
+metrics, and security sources.
+**Root cause:** Without a fixed evidence envelope, provider failures, empty
+results, configured resources, and current verified rows get mixed together.
+**Fix:** Start every customer-demo connection or OKE app-agent incident with
+`python3 scripts/oci_oke_demo_troubleshoot.py receipt-template --context "<NAMED_CONTEXT>" --pretty`.
+Fill only sanitized current evidence into the receipt. Use conclusion level
+`provider_verified` only for current rows/API results, `configured` for setup
+without current behavior proof, `unavailable` for unreachable source paths, and
+`inconclusive` when the minimum evidence set is missing or sources disagree.
+**See:** [Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+**Status:** resolved.
+
+## KB-166 — Shared demo ADB/ATP onboarding must preserve ACLs and secrets (autonomous-db)
+
+**Symptom:** A demo app requires ADB persistence but creating a dedicated ADB is
+unnecessary or blocked, or ACL/wallet probing risks leaking credentials.
+**Root cause:** Shared-tenant ADBs are viable for demos, but wallet material,
+temporary passwords, and `whitelisted-ips` replacement semantics need exact
+handling.
+**Fix:** Reuse the shared ADB/ATP/ADW, create a least-privilege app user/schema,
+apply migrations there, and mount wallet/DSN/password through the runtime secret
+path. Preview any ACL update with all existing keepers included. Transfer wallet
+files or temporary passwords only to an explicitly approved target for the
+read-only check, remove them after validation, and never commit/log them.
+**See:** [Autonomous Database](https://docs.oracle.com/en-us/iaas/autonomous-database/index.html)
+**Status:** resolved.
+
+## KB-167 — Blocked SSH/control-plane host is not an OCI service verdict (oke-admin)
+
+**Symptom:** `control-plane-oci`, a jump host, or an SSH ControlMaster path times
+out, preventing remote build, deploy, browser replay, or validation commands.
+**Root cause:** The operator access lane can fail independently from OCI service
+state, OKE API reachability, application rollout, and Log Analytics ingestion.
+Treating SSH failure as an application or data-source conclusion hides the real
+gate that failed.
+**Fix:** Record SSH as degraded and continue with API-first evidence:
+`ce cluster get`, Resource Search or owning-service `list/get`, work requests,
+Cloud Shell, reviewed Bastion, or OCI Run Command from an in-VCN managed
+instance. Do not copy OCI configs, wallets, kubeconfigs, or browser state into
+pods or remote hosts to bypass the gate.
+Use `python3 scripts/oci_oke_demo_troubleshoot.py control-plane-blocked --context "<NAMED_CONTEXT>" --pretty`
+to preserve the API-first fallback sequence.
+**See:** [Run commands on instances](https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm)
+**Status:** resolved.
+
+## KB-168 — MELTS investigation timeout is not a network conclusion (log-analytics)
+
+**Symptom:** A MELTS or connection investigation reports that it exceeded the
+response-time budget before returning a grounded answer.
+**Root cause:** Flow Logs, Log Analytics, traces, Monitoring, and security
+providers have independent latency, query limits, and availability states. The
+agent budget ended before a minimum evidence receipt was complete.
+**Fix:** Generate the offline plan with
+`python3 scripts/oci_oke_demo_troubleshoot.py melts-investigate-timeout --context "<NAMED_CONTEXT>" --pretty`.
+Prove Flow Log ingestion and source-IP rows first, then add trace, metric, and
+Cloud Guard source statuses to an `oci-skills.incident-troubleshooting-receipt.v1`
+receipt. Increase investigation time/token budgets only after source
+availability and query limits are measured. Never convert a timeout or stale
+cached receipt into `provider_verified` evidence.
+**See:** [Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+**Status:** resolved.
+
+## KB-169 — OKE Security unavailable is a dependency matrix, not one permission fix (oke-admin)
+
+**Symptom:** The app reports "The OKE Security control plane is unavailable" or
+returns a privileged-role error for a security capability after login.
+**Root cause:** App route authorization, OKE API reachability, Kubernetes RBAC,
+runtime-principal identity, and Cloud Guard/WAF/VSS/Audit provider availability
+are separate dependencies.
+**Fix:** Generate the offline plan with
+`python3 scripts/oci_oke_demo_troubleshoot.py oke-security-unavailable --context "<NAMED_CONTEXT>" --pretty`.
+Check OKE `ce cluster get`, bounded `/readyz`, namespace `auth can-i`, app
+service account, app logs, and security-provider read availability separately.
+Repair only the missing read-only runtime-principal policy or namespace RBAC
+after current preflight and route proof. Keep privileged mutations, security
+execution, SOC actions, deployments, and Log Analytics writes role-gated.
+**See:** [Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm)
+**Status:** resolved.
+
+## KB-170 — Browser login does not prove OKE app-agent OCI runtime access (oke-admin)
+
+**Symptom:** The website login succeeds, but the app agent still cannot query
+OCI services and reports `A privileged role is required`, `Data source
+degraded`, or a provider-specific authorization failure.
+**Root cause:** The browser session authorizes the user to call app routes; it
+does not grant the backend pod OCI permissions. Kubernetes service account,
+namespace RBAC, OKE Workload Identity or managed-node instance principal,
+instance-principal dynamic-group membership or workload-principal policy, and
+OCI IAM policy scope remain separate evidence gates.
+**Fix:** Generate the offline ladder with
+`python3 scripts/oci_oke_demo_troubleshoot.py runtime-principal-readiness --context "<NAMED_CONTEXT>" --pretty`.
+Prove OKE `/readyz`, Deployment `serviceAccountName`, ServiceAccount metadata,
+namespace `auth can-i`, app logs, an in-pod low-impact OCI read using
+`--auth instance_principal` only when that is the intended runtime path, and OCI
+Audit rows for the intended runtime principal. Remediate only the smallest
+missing read policy or service-account binding. Never copy user OCI config,
+kubeconfig, wallets, browser cookies, or temporary admin passwords into the
+workload.
+**See:** [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm)
 **Status:** resolved.

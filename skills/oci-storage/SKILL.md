@@ -16,6 +16,18 @@ Manage durable data services without exposing content, topology, or temporary
 access credentials. Read configuration and protection state before proposing a
 change. Use Terraform as the default owner for durable storage resources.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md)
+and treat configured protection, completed backup/replication, and tested
+recovery as different evidence classes.
+
+## First decisions
+
+Identify the data owner and classification, storage service, region/AD,
+durability and access pattern, RPO/RTO, retention/legal hold, encryption owner,
+replication/backup target, public or bearer access, Terraform owner, restore
+target/conflict behavior, cost, and the non-destructive canary that proves
+recovery.
+
 ## Routing
 
 | Intent | Owner |
@@ -59,6 +71,26 @@ change. Use Terraform as the default owner for durable storage resources.
 - Terraform-owned storage remains Terraform-owned; direct mutation is break-glass followed by HCL and plan reconciliation.
 - Destructive non-TTY work exposes only the dry-run preview and exact approval contract, never a live delete command.
 
+## Failure discrimination
+
+- A configured policy is not a successful backup, replica, or restore test.
+- Empty object/backup/snapshot lists are inconclusive until namespace, region,
+  compartment, permissions, prefix/filter, pagination, and retention are checked.
+- Distinguish access policy, network/mount path, export options, identity,
+  encryption key, capacity, lifecycle/work request, and application I/O failure.
+- Replication lag, legal hold, retention lock, versioning, and overwrite conflict
+  change recovery semantics; do not describe all failures as “restore failed.”
+
+## Validation and evidence
+
+Validate the installed command/payload shape and Terraform plan offline. Read
+encryption, access, retention, versioning, replication, backup, work-request,
+and lifecycle state before change. After change, verify those states again and
+perform a non-destructive recovery sample to a new target or clone when
+possible; verify checksum/metadata and expected access while keeping content
+private. Exercise temporary-access revocation and record RPO/RTO, recovery-test
+date, rollback source, and residual irreversibility.
+
 ## Verification and rollback
 
 Verify lifecycle state, encryption association, replication/backup health, work
@@ -69,6 +101,13 @@ reduction, or overwrite, rollback means recovery from a separately verified
 backup, replica, version, snapshot, or clone—not an assumed undo.
 
 Read [the storage reference](../../references/storage.md) before service-specific work.
+
+## Expected output
+
+Report the named service/resource without identifiers, data and Terraform
+owners, risk classification, current protection evidence, exact gated action or
+offline artifact, verification and recovery-test result, rollback source,
+retention/cost implications, residual gaps, and next safe action.
 
 ## Official documentation
 

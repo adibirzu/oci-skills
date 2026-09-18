@@ -13,7 +13,8 @@ description: >-
   SQLAlchemy Oracle URL, Alembic upgrade on Oracle, ORDS, run/execute SQL on ADB,
   SQLcl, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN. Mentions
   Autonomous Database, ADB, ADW, ATP, wallet, cwallet.sso, ewallet, DSN, oracledb,
-  cx_Oracle, SQLcl, V$SESSION, in-DB diagnostics.
+  cx_Oracle, SQLcl, V$SESSION, in-DB diagnostics, shared demo ATP/ADB, or
+  ADW-backed app migrations.
 ---
 
 # OCI Autonomous Database — lifecycle & connectivity
@@ -52,6 +53,7 @@ inline real OCIDs, DSNs, IPs, or wallet contents — use `<PLACEHOLDER>` tokens.
 | Wallet: generate, rotate, mTLS vs TLS, `TNS_ADMIN`, regional vs instance | Wallet & connectivity (this skill) |
 | Access control list / `whitelisted-ips` / private endpoint | Network access (this skill) |
 | Connect an app: DSN service levels, pooling, `oracledb`, SQLAlchemy, Alembic | Application integration (this skill) |
+| Use an existing tenant-shared ADB/ATP/ADW for a demo app | Shared demo ADB pattern (this skill) |
 | **Read-only in-DB diagnostics** over the connection: blocking sessions, wait events, top SQL, long-running ops, full table scans, plans (`DBMS_XPLAN`) via SQLcl/oracledb | In-DB diagnostics (this skill) → `../../references/oracle-db-diagnostics.md` |
 | **Monitor** the DB (Performance Hub, DBM, Ops Insights, metrics/alarms) | → `oci-observability-db` |
 | **Provision/enable** DBM/OPSI on the DB | → `oci-observability-db` |
@@ -71,6 +73,7 @@ Safety rules (auth modes, read-before-write, redaction):
 | Wallet leaked / rotated staff | **Console → DB → Database Connection → Rotate Wallet** (invalidates old wallets) → `generate-wallet` fresh → redeploy `TNS_ADMIN` → rotate the DB password too |
 | New client IP blocked | `get` ACL → `confirm` → `update --whitelisted-ips '[...existing + new]'` (the list is **replace, not append**) → verify |
 | Wire an app to a new ADB | `generate-wallet` (out of repo) → set `TNS_ADMIN` + DSN service level → `oracledb.connect`/pool smoke test → SQLAlchemy `oracle+oracledb://` → `alembic upgrade head` |
+| Wire a demo app to a shared ADB/ATP/ADW | read shared DB state/ACL/mTLS → create/use a least-privilege app user → apply migrations to that schema → mount wallet/DSN/password through the runtime secret path → smoke-test `SELECT 1`, migration head, and one app read/write → expose only redacted readiness status |
 | "DB is hung / sessions stuck" | smoke-test (`SELECT 1 FROM dual`) → run blocking-chain query (§ diagnostics) → find the **root** blocker → hand off any `KILL SESSION` to a confirmation-gated remediation (never from the diagnostic path) |
 
 ## Common tasks

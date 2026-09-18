@@ -158,6 +158,43 @@ ACL restriction* (open to the internet within TLS/mTLS) — review before cleari
 
 ## 4. Application integration
 
+### Shared demo ADB / ATP / ADW pattern
+
+For demos, prefer an existing shared ADB/ATP/ADW in the tenant over creating a
+dedicated database. Create a least-privilege application schema/user, apply the
+app migrations there, and keep the ADMIN user only for setup/repair. The app
+runtime should receive a dedicated DB user, DSN alias, wallet directory, and
+wallet password from a secret manager or Kubernetes Secret/ExternalSecret — not
+from an operator shell profile.
+
+Readiness sequence:
+
+Start with the offline, redacted planner when this is part of an OKE/customer
+demo incident:
+
+```bash
+python3 scripts/oci_oke_demo_troubleshoot.py shared-adb-readiness --context "<NAMED_CONTEXT>" --pretty
+```
+
+1. `get` the shared ADB and confirm `AVAILABLE`, service level, mTLS mode, and
+   ACL posture.
+2. Preview any ACL change; `whitelisted-ips` replaces the whole list, so include
+   all existing keepers.
+3. Generate/download the wallet outside the repo, chmod the directory, and
+   store it as a credential-bearing artifact.
+4. Run migrations with the app user where possible; use ADMIN only for creating
+   or repairing that user and grants.
+5. Smoke-test with `SELECT 1 FROM dual`, migration-head check, and one
+   application read/write path.
+6. Expose only readiness booleans and redacted error classes to the app UI; do
+   not return DSNs, usernames, wallet paths, listener strings, or raw driver
+   exceptions.
+
+If an ACL or wallet handoff is needed for remote validation, transfer only the
+specific wallet files and temporary passwords explicitly approved for that
+target directory. Remove them after the read-only authentication check, and do
+not commit or log their names/contents.
+
 ### python-oracledb (thin mode + wallet, pooled)
 ```python
 import os, oracledb

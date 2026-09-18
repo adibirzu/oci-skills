@@ -8,6 +8,29 @@ description: >-
 
 Turn product requirements into an owner-explicit platform bundle. Artifact generation is offline; deployment requires a named context, preflight, plan review, and risk-specific approval.
 
+Apply the shared [skill entrypoint quality standard](../../references/skill-quality-standard.md)
+so a generated bundle remains an executable operator contract rather than a
+catalog of OCI services.
+
+## First decisions
+
+Decide whether the request is architecture selection, offline scaffolding,
+materialization, deployment, health inspection, or teardown. Resolve audience,
+trust boundary, runtime constraints, data classification, RTO/RPO, SLOs,
+expected load, delivery source, budget, operator, and the owner of every durable
+resource before selecting a golden path.
+
+## Routing
+
+| Need | Owner |
+|---|---|
+| Select and compose the golden path; generate bundle contracts | This skill |
+| Business logic, application tests, or code review | **oci-application-engineering** |
+| Whole-project status, release coordination, or teardown | **oci-project** |
+| HCL, plan, state, import, or drift | **oci-terraform-authoring** |
+| Runtime/delivery/service resources | The owning domain named in `platform-bundle.yaml` |
+| Security release gate | **oci-security-compliance**; it does not self-approve here |
+
 ## Intake
 
 Resolve runtime constraints, ingress audience, data durability, traffic/SLOs, compliance, recovery objectives, budget, region/availability, delivery source, and operator model. Default to private ingress, Vault references, least privilege, encryption, logs, alarms, budgets, and Terraform ownership.
@@ -50,6 +73,34 @@ or scaffolding.
 | Deploy a bundle | context select → preflight → domain materialization → validate → plan → approval → apply → named checks |
 | Inspect health | **oci-project** status → bundle verification list → owning domain diagnostics |
 | Tear down | refreshed Terraform destroy plan → dependency review → destructive approval → verify → compartment last via **oci-project** |
+
+## Failure discrimination
+
+- Schema-valid scaffolding is code-backed, not configured or deployed.
+- A successful Terraform plan does not prove capacity, service readiness,
+  application health, rollback, or release acceptance.
+- Separate quota/IAM, network, secret resolution, artifact delivery, runtime,
+  ingress, datastore, and telemetry failures; keep the failing component with
+  its declared owner.
+- An empty health or telemetry read is inconclusive until context, region,
+  compartment subtree, time window, permissions, and collection are verified.
+
+## Validation and evidence
+
+Run the bundle schema validator and each generated offline check first. Verify
+the ownership map has exactly one durable owner per component, placeholder-only
+secrets, a private-by-default network, explicit public exposure, named positive
+and negative canaries, rollback, cost guardrail, and teardown order. For live
+work, preserve the reviewed plan identity, apply result, service lifecycle and
+work requests, data-plane canaries, alarm/log visibility, rollback exercise,
+and residual external gates as distinct evidence.
+
+## Expected output
+
+Return the selected path and rejected alternatives, artifact paths, component
+owners, trust boundaries, verification matrix, evidence classes, plan/approval
+state, rollback and teardown paths, unresolved live gates, and the next safe
+action. Never imply that an offline bundle has been deployed.
 
 ## Boundary
 
