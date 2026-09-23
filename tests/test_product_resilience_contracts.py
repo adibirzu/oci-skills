@@ -74,7 +74,7 @@ def test_next_ten_prds_and_ledgers_cover_req_33_through_req_42() -> None:
 
 def test_contract_inventory_and_governance_graphs_expand_through_req_42() -> None:
     names = {path.name for path in CONTRACT_ROOT.glob("*.json")}
-    assert len(names) == 37
+    assert len(names) == 39
     assert NEW_CONTRACTS <= names
     registry = _json("contract-schema-registry.json")
     assert set(registry["contracts"]) == names - {"contract-schema-registry.json"}
@@ -171,12 +171,12 @@ def test_validator_reports_42_requirements_27_contracts_and_20_journeys() -> Non
     result = validator.validate_repository(ROOT)
     assert result["requirements"] == 52
     assert result["new_prds"] == 40
-    assert result["contracts"] == 37
+    assert result["contracts"] == 39
     assert result["journeys"] == 30
     assert result["safety_cases"] == 8
     report = validator.build_report(ROOT)
     assert report["requirements"] == 52
-    assert report["contract_count"] == 37
+    assert report["contract_count"] == 39
     assert report["journey_count"] == 30
     assert report["self_certified"] is False
 

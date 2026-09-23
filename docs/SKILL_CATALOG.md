@@ -61,6 +61,7 @@ them before you pick a skill from the tables below.
 |---|---|
 | Functions, Events, ONS, Service Connector Hub, Queue, Streaming, event workers | [OCI Events Functions](../skills/oci-events-functions/) |
 | DevOps, API Gateway, Container Instances, Artifact Registry, OCIR delivery | [OCI Developer Services](../skills/oci-developer-services/) |
+| Broad or ambiguous OCI request; compact local context selection | [OCI Developer Knowledge](../skills/oci-developer-knowledge/) |
 
 ## Observe and Optimize
 

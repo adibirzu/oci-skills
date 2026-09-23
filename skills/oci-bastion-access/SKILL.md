@@ -90,3 +90,8 @@ risk, approval state, connection verification, expiry/cleanup, and rollback.
 
 **Open Knowledge Format grounding** — every Oracle documentation link is
 registered and liveness-checked in the pack's central index.
+## Capability selection
+
+For `bastion-access`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Access operations retain the exact target and approved access-scope checks.

@@ -300,3 +300,8 @@ SQL library lives in the
 registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md)
 (the pack's single source of truth). Cite the most specific official page through
 that index so every claim stays verifiable.
+## Capability selection
+
+For `autonomous-database-lifecycle`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Lifecycle work retains named-context and approval gates.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "OCI Developer Knowledge"
+  short_description: "Offline OCI capability discovery and safe context cards"
+  default_prompt: "Use $oci-developer-knowledge to select the smallest safe OCI skill context without contacting OCI."

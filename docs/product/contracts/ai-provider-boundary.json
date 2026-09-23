@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "provider": "oci-genai",
+  "invocation_enabled": false,
+  "accepted_identity_modes": ["named-context", "workload-identity"],
+  "accepted_data_classifications": ["public", "approved-redacted"],
+  "max_input_bytes": 8192,
+  "retry_policy": "no-retry",
+  "evidence_labels": ["code-backed", "unverified"],
+  "model_availability": "unverified",
+  "guardrails": "unverified"
+}

@@ -114,3 +114,8 @@ starter; add producer/consumer IAM through `oci-iam-admin`.
 [Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/home.htm) · [Events](https://docs.oracle.com/en-us/iaas/Content/Events/home.htm) · [Queue](https://docs.oracle.com/en-us/iaas/Content/queue/overview.htm) · [Streaming](https://docs.oracle.com/en-us/iaas/Content/Streaming/home.htm). Full list in the [events-functions reference](../../references/events-functions.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `events-functions-integration`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Integration changes retain event contract and destination approval gates.

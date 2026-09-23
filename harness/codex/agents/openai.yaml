@@ -18,6 +18,7 @@ interface:
 # see skills/oci-administrator/SKILL.md for the full router table and
 # skills/<name>/SKILL.md for the deep reference.
 routing:
+  oci-developer-knowledge: Local-first capability discovery, validation, and context measurement; no OCI or model call.
   oci-iam-admin: IAM, compartments, budgets, quotas, tags, limits.
   oci-security-compliance: OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates.
   oci-observability-db: Monitoring, Logging, APM, OTel, alarms, dashboards.

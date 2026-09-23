@@ -100,3 +100,8 @@ Report the owner of every component, quota/IAM/network/log checks, artifact iden
 [OCI DevOps](https://docs.oracle.com/en-us/iaas/Content/devops/using/devops_overview.htm) · [DevOps build specifications](https://docs.oracle.com/en-us/iaas/Content/devops/using/build_specs.htm) · [API Gateway](https://docs.oracle.com/en-us/iaas/Content/APIGateway/Concepts/apigatewayconcepts.htm) · [Container Instances](https://docs.oracle.com/en-us/iaas/Content/container-instances/overview-of-container-instances.htm) · [Container Registry](https://docs.oracle.com/en-us/iaas/Content/Registry/home.htm). Full list in the [developer-services reference](../../references/developer-services.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `developer-services-delivery`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Delivery work retains target and artifact-scope gates.

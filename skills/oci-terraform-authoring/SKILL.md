@@ -120,3 +120,8 @@ Report artifact paths, source/schema used, validation result, plan action counts
 [OCI Terraform provider](https://docs.oracle.com/en-us/iaas/tools/terraform-provider-oci/latest/) · [Resource discovery](https://docs.oracle.com/en-us/iaas/Content/terraform/resource-discovery.htm) · [Terraform on OCI](https://docs.oracle.com/en-us/iaas/Content/dev/terraform/home.htm). Full list in the [terraform-authoring reference](../../references/terraform-authoring.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `terraform-authoring`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Terraform work retains declared ownership and reviewed-plan safeguards.

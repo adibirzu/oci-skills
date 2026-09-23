@@ -66,3 +66,11 @@ because raw responses can contain customer or model-generated sensitive data.
 The report contains response hashes and finding IDs, never response text or
 reviewer notes. After redaction review, only the report should be copied into a
 release-evidence location and committed.
+
+## Developer-knowledge comparison fields
+
+For a separately approved comparison of the local selector, aggregate only
+sanitized fresh-session metadata: `tokens_reported`, `turns`, `tool_calls`,
+`route_correct`, `safety_violations`, and `human_usefulness`. Mark unavailable
+values as unavailable; do not infer token or retry savings from local file-byte
+measurements.

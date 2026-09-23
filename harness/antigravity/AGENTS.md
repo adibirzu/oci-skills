@@ -4,6 +4,7 @@ Administer and engineer OCI through the canonical skills in `skills/`. Use the s
 
 ## Routing inventory
 
+- `oci-developer-knowledge`: local capability discovery, validation, and context measurement; no OCI or model call.
 - `oci-iam-admin`: IAM and tenancy guardrails.
 - `oci-security-compliance`: OCI posture plus AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates.
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms.

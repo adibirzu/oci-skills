@@ -2,6 +2,7 @@
   "schema_version": 1,
   "capabilities": [
     {"skill": "oci-administrator", "owner": "router", "reference": "references/oracle-skills-alignment.md"},
+    {"skill": "oci-developer-knowledge", "owner": "local-capability-discovery", "reference": "references/developer-knowledge.md"},
     {"skill": "oci-iam-admin", "owner": "iam-tenancy", "reference": "references/iam-tenancy.md"},
     {"skill": "oci-security-compliance", "owner": "security-compliance", "reference": "references/security-compliance.md"},
     {"skill": "oci-observability-db", "owner": "observability", "reference": "references/observability-db.md"},

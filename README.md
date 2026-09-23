@@ -54,6 +54,7 @@ operator tour of the foundational service domains, read the [core services start
   - [**OCI Data Platform**](./skills/oci-data-platform) — Data Integration, Data Flow, Data Catalog, GoldenGate, NoSQL, movement, and replication.
   - [**OCI Log Analytics**](./skills/oci-log-analytics) — OCL/LQL queries, VCN Flow Log connection investigations, sources, parsers, entities, detections, and content migration.
 - **Application delivery**
+  - [**OCI Developer Knowledge**](./skills/oci-developer-knowledge) — local capability discovery and compact safety-gated context cards, without OCI or model calls.
   - [**OCI Events Functions**](./skills/oci-events-functions) — Functions, Events, ONS, Service Connector Hub, Queue, Streaming, and event workers.
   - [**OCI Developer Services**](./skills/oci-developer-services) — DevOps, API Gateway, Container Instances, Artifact Registry, and OCIR delivery.
 - **Observe and optimize**
@@ -68,6 +69,7 @@ The canonical ownership table remains flat so install tooling and routing tests 
 
 | Skill | Primary ownership |
 |---|---|
+| `oci-developer-knowledge` | Local capability discovery, catalog validation, and local-context proxy measurement; no OCI or model calls |
 | `oci-iam-admin` | Users, groups, policies, compartments, budgets, quotas, tags, limits, named contexts |
 | `oci-security-compliance` | OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates |
 | `oci-observability-db` | Monitoring, Logging, APM, OTel, alarms, PromQL→MQL, Linux/Windows host dashboards |
@@ -143,8 +145,8 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 
 ## Product contracts and readiness
 
-The consolidated release contains **28 skills, 52 requirements, 40 detailed
-PRDs, 37 contracts, and 30 journeys**. These inventories are validated offline
+The consolidated release contains **29 skills, 52 requirements, 40 detailed
+PRDs, 39 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic

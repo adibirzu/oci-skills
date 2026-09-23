@@ -178,6 +178,7 @@ view used by the quickstart.
 
 | Intent | Skill |
 |---|---|
+| broad or ambiguous OCI task; minimal local context | `oci-developer-knowledge` |
 | IAM/tenancy | `oci-iam-admin` |
 | Cloud Guard/Vault/WAF/compliance | `oci-security-compliance` |
 | Monitoring/Logging/APM/alarms | `oci-observability-db` |
@@ -219,7 +220,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **28 skills, 52 requirements, 37 contracts, and
+The installed pack exposes **29 skills, 52 requirements, 39 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 

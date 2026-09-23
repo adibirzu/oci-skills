@@ -25,6 +25,8 @@ EXPECTED_PRDS = {
     "REQ-32": "req-32-migration-readiness.md",
 }
 NEW_CONTRACTS = {
+    "ai-provider-boundary.json",
+    "developer-knowledge-catalog.json",
     "contract-schema-registry.json",
     "user-journeys.json",
     "requirement-dependencies.json",
@@ -255,14 +257,14 @@ def test_validator_reports_expanded_contract_plane_deterministically() -> None:
         "valid": True,
         "requirements": 52,
         "new_prds": 40,
-        "contracts": 37,
-        "capabilities": 28,
+        "contracts": 39,
+        "capabilities": 29,
         "journeys": 30,
         "safety_cases": 8,
     }
     report = validator.build_report(ROOT)
     assert report["requirements"] == 52
-    assert report["contract_count"] == 37
+    assert report["contract_count"] == 39
     assert report["journey_count"] == 30
     assert report["safety_case_count"] == 8
     assert report["external_evidence_complete"] is False

@@ -96,8 +96,8 @@ Terraform, DNS, or application operators.
 
 ## Product contract plane
 
-The consolidated product plane covers **28 skills, 52 requirements, 40 detailed
-PRDs, 37 contracts, and 30 journeys**.
+The consolidated product plane covers **29 skills, 52 requirements, 40 detailed
+PRDs, 39 contracts, and 30 journeys**.
 
 `docs/product/contracts/` is the machine-readable control plane for capability
 ownership, routing precedence, architecture traceability, distribution,
@@ -253,3 +253,8 @@ backup source of truth, and every restore must pass the complete validator.
 Rollback targets the last attested release, requires review, and cannot bypass
 safety gates. Removal requires a major release, an owner, advance deprecation,
 and a documented migration path.
+# Local developer-knowledge selection
+
+Before domain routing, `oci-developer-knowledge` reads the checked-in capability
+catalog locally and returns a bounded card. It does not call OCI or a provider;
+the selected domain owns all later live gates. See [OCI Developer Plugin](OCI_DEVELOPER_PLUGIN.md).

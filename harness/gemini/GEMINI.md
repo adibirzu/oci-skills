@@ -8,6 +8,7 @@ For a live target, select a named context, run `./scripts/oci_preflight.sh -c <C
 
 ## Routing
 
+- `oci-developer-knowledge`: local capability discovery, validation, and context measurement; no OCI or model call.
 - `oci-iam-admin`: IAM, compartments, budgets, quotas, tags, limits.
 - `oci-security-compliance`: OCI posture plus vendor-neutral AppSec/API, supply-chain, agent/plugin/MCP security, compliance evidence, and DevSecOps release gates.
 - `oci-observability-db`: Monitoring, Logging, APM, OTel, alarms, dashboards.

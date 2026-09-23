@@ -19,11 +19,24 @@ ROUTER = ROOT / "skills" / "oci-administrator" / "SKILL.md"
 AGENTS = ROOT / "AGENTS.md"
 EVALS = ROOT / "evals" / "evals.json"
 ALIGNMENT = ROOT / "references" / "oracle-skills-alignment.md"
+DEVELOPER_KNOWLEDGE_CATALOG = ROOT / "docs" / "product" / "contracts" / "developer-knowledge-catalog.json"
 
 
 def _domains() -> set[str]:
     """All domain skills (the router itself is not a routable domain)."""
     return {p.parent.name for p in ROOT.glob("skills/*/SKILL.md")} - {"oci-administrator"}
+
+
+def test_router_names_developer_knowledge() -> None:
+    assert "**oci-developer-knowledge**" in ROUTER.read_text(encoding="utf-8")
+
+
+def test_each_catalogued_skill_has_capability_selection() -> None:
+    catalog = json.loads(DEVELOPER_KNOWLEDGE_CATALOG.read_text(encoding="utf-8"))
+    for item in catalog["capabilities"]:
+        text = (ROOT / "skills" / item["skill"] / "SKILL.md").read_text(encoding="utf-8")
+        assert "## Capability selection" in text
+        assert "developer-knowledge-catalog.json" in text
 
 
 def test_every_domain_in_both_routing_tables() -> None:

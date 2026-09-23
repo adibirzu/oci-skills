@@ -7,7 +7,8 @@ gets the same operating contract.
 ## What this is
 
 A tenancy-agnostic OCI administration, Terraform, CLI, and product-development
-skill pack. Route requests to one of twenty-two primary domain skills or the
+skill pack. Route requests to one of twenty-two primary domain skills, the local
+`oci-developer-knowledge` selector, or the
 `oci-project`, `oci-product-development`, `oci-application-engineering`, or
 `oci-landing-zone` or `oci-diagramming` orchestrator under `skills/`.
 
@@ -42,6 +43,7 @@ sequence a request instead of re-deriving the steps.
 
 | Topic | Skill / reference |
 |---|---|
+| broad or ambiguous OCI task; smallest safe local skill context | `skills/oci-developer-knowledge/` · `references/developer-knowledge.md` |
 | IAM, policies, compartments, budgets, quotas, tags | `skills/oci-iam-admin/` · `references/iam-tenancy.md` |
 | Cloud Guard, Vault, WAF, CIS/ISO-42001, audit, DevSecOps release gates | `skills/oci-security-compliance/` · `references/security-compliance.md` |
 | APM, Monitoring, Logging, dashboards, alarms, OpenTelemetry | `skills/oci-observability-db/` · `references/observability-db.md` |

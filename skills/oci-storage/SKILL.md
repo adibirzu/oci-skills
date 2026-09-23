@@ -114,3 +114,8 @@ retention/cost implications, residual gaps, and next safe action.
 [Object Storage](https://docs.oracle.com/en-us/iaas/Content/Object/home.htm) · [File Storage](https://docs.oracle.com/en-us/iaas/Content/File/home.htm) · [Block Volume](https://docs.oracle.com/en-us/iaas/Content/Block/home.htm). Full list in the [storage reference](../../references/storage.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `storage-lifecycle`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Retention and protection changes retain the existing approval gates.

@@ -3,6 +3,13 @@
   "description": "Trigger and behavior evals for the OCI Administrator skill pack.",
   "cases": [
     {
+      "id": "trigger-developer-knowledge",
+      "prompt": "Use a minimal safe skill context and local capability route for an ambiguous OCI task.",
+      "expect_skill": "oci-administrator",
+      "expect_route": "oci-developer-knowledge",
+      "expect_behavior": "Uses local catalog discovery, returns a bounded card or clarification, and does not call OCI or an AI provider."
+    },
+    {
       "id": "trigger-application-engineering",
       "prompt": "Review this OCI-backed application, find reusable modules, assess installed plugins, and measure whether adaptive MultiLLM helps before implementing the fix.",
       "expect_skill": "oci-administrator",

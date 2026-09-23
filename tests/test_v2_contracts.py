@@ -12,6 +12,7 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 EXPECTED_SKILLS = {
     "oci-administrator",
+    "oci-developer-knowledge",
     "oci-iam-admin",
     "oci-security-compliance",
     "oci-observability-db",
@@ -49,7 +50,7 @@ def _frontmatter(path: pathlib.Path) -> str:
 def test_v2_skill_topology_and_codex_metadata() -> None:
     skills = {path.parent.name for path in ROOT.glob("skills/*/SKILL.md")}
     assert skills == EXPECTED_SKILLS
-    assert len(skills) == 28
+    assert len(skills) == 29
     for skill in skills:
         assert (ROOT / "skills" / skill / "agents" / "openai.yaml").is_file()
 
