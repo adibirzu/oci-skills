@@ -84,8 +84,3 @@ Return the source window and redaction boundary, score/evaluator lineage, duplic
 and eligibility findings, reviewed dataset candidates, calibration gaps, and a
 prioritized enhancement plan. State clearly whether a proposed action is offline,
 requires approval, or remains blocked by missing evidence.
-## Capability selection
-
-For `aiops-agent-evaluation`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Evaluation remains offline and evidence-qualified until a separately approved provider step.

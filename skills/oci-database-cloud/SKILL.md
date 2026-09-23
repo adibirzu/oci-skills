@@ -94,8 +94,3 @@ verification, rollback, and the boundary to database-internal work.
 
 **Open Knowledge Format grounding** — every Oracle documentation link is
 registered and liveness-checked in the pack's central index.
-## Capability selection
-
-For `base-database-lifecycle`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Lifecycle work retains named-context and approval gates.

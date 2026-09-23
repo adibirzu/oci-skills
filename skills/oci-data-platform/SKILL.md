@@ -99,8 +99,3 @@ export, or replica; never promise lossless rollback without that evidence.
 [Data Integration](https://docs.oracle.com/en-us/iaas/Content/data-integration/home.htm) · [Data Flow](https://docs.oracle.com/en-us/iaas/Content/data-flow/using/home.htm) · [Data Catalog](https://docs.oracle.com/en-us/iaas/Content/data-catalog/home.htm) · [GoldenGate](https://docs.oracle.com/en-us/iaas/goldengate/). Full list in the [data-platform reference](../../references/data-platform.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `data-platform-pipeline`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Pipeline work retains data-source and lifecycle safety boundaries.

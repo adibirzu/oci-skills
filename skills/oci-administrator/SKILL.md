@@ -192,23 +192,6 @@ and give its safe recovery contract immediately:
    service or fix, use [references/oracle-docs.md](../../references/oracle-docs.md)
    (the verified source-of-truth index).
 
-## Slash commands (Claude Code plugin)
-
-When installed as a plugin, these wrap the safety core so the user works by name:
-
-| Command | Does |
-|---|---|
-| `/oci-administrator:context` | Manage named contexts (name → profile + compartment + region). |
-| `/oci-administrator:preflight` | Confirm the target tenancy/compartment by name (read-only gate). |
-| `/oci-administrator:audit` | Read-only IAM posture snapshot. |
-| `/oci-administrator:cost` | Read-only cost, usage & budget summary. |
-| `/oci-administrator:logan` | Read-only Log Analytics (OCL) query with a time window. |
-| `/oci-administrator:genai-models` | Discover the live region-scoped GenAI model/agent catalog through `oci/enterprise-ai`. |
-| `/oci-administrator:orm` | Read-only Resource Manager overview (stacks + latest job). |
-| `/oci-administrator:datasafe` | Read-only Data Safe overview (targets + assessment state). |
-| `/oci-administrator:kb` | Search the KB for a known fix. |
-| `/oci-administrator:troubleshoot` | KB-first, route to domain, propose a gated fix. |
-
 ## Domain routing
 
 **Golden-path composition takes precedence:** any request to scaffold or design a
@@ -364,7 +347,6 @@ intra-domain flow table.
 | `scripts/oci_cli_lint.py` | Validate wrapper-routed read/action/verify/rollback CLI plans. |
 | `scripts/oci_tf.sh` | Scaffold, discover, validate, plan, inspect, apply, or destroy OCI Terraform. |
 | `scripts/platform_bundle.py` | Scaffold and validate schema-v1 golden-path bundles. |
-| `scripts/forward_eval.py` | Prepare and score blinded, hash-bound fresh-agent release evidence. |
 | `scripts/redact.py` | Mask OCIDs/IPs/secrets in text or JSON (CI gate). |
 | `scripts/kb_lookup.py` | Search `references/KB.md` for a known fix. |
 
