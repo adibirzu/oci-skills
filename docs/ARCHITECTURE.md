@@ -151,8 +151,10 @@ entries may resolve to this repository or to an external canonical repository,
 as declared by each entry's `source`. Claude caches versioned plugin payloads,
 so upgrades refresh the selected marketplace, update the plugin, and reload
 plugins. Copy installation is a separate adapter path:
-`install.sh` materializes the portable payload for Claude, Codex, Gemini, or
-Antigravity, but it does not activate Claude-only commands or hooks.
+`install.sh` materializes the compact runtime payload for Claude, Codex, Gemini,
+or Antigravity, but it does not activate Claude-only commands or hooks. It
+excludes repository-only plans, evaluator material, plugin command/hook source,
+and contract tooling, and removes stale copies of those owned paths on upgrade.
 
 ## Contract governance plane
 
