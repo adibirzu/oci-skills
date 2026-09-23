@@ -44,6 +44,13 @@ RUNTIME_SCRIPTS=(
   platform_bundle.py redact.py workflow_eval.py
 )
 RUNTIME_FILES=(docs/product/contracts/developer-knowledge-catalog.json install.sh)
+# A previous installer copied much more than the runtime closure.  Clear only
+# paths owned by this pack before rebuilding, so an upgrade cannot retain
+# stale docs, evaluator material, hooks, commands, or helper scripts.
+OWNED_PAYLOAD_PATHS=(
+  skills references schemas scripts docs commands hooks evals agents
+  AGENTS.md README.md LICENSE SKILL.md GEMINI.md gemini-extension.json
+)
 ROUTER_SRC="skills/oci-administrator/SKILL.md"
 
 say()  { printf '[install] %s\n' "$*"; }
@@ -57,6 +64,9 @@ copy_payload() {  # copy_payload <dest_dir>
   fi
   mkdir -p "$dest"
   local item
+  for item in "${OWNED_PAYLOAD_PATHS[@]}"; do
+    rm -rf "${dest:?}/$item"
+  done
   for item in "${RUNTIME_DIRECTORIES[@]}" "${RUNTIME_FILES[@]}"; do
     [[ -e "$REPO_DIR/$item" ]] || continue
     rm -rf "${dest:?}/$item"

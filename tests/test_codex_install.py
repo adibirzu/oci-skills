@@ -155,6 +155,26 @@ def test_codex_blinded_eval_install_remains_a_compact_runtime_copy(tmp_path: pat
     assert not list(dest.rglob("*.pyo"))
 
 
+def test_reinstall_removes_legacy_development_payload(tmp_path: pathlib.Path) -> None:
+    codex_skills = tmp_path / "codex-skills"
+    env = os.environ.copy()
+    env["CODEX_SKILLS_DIR"] = str(codex_skills)
+    env.pop("DRY_RUN", None)
+
+    _run_install("codex", env)
+    dest = codex_skills / "oci-administrator"
+    legacy = dest / "evals" / "forward" / "prompts.json"
+    legacy.parent.mkdir(parents=True)
+    legacy.write_text("stale evaluator material", encoding="utf-8")
+    (dest / "docs" / "product" / "prds").mkdir(parents=True)
+    (dest / "docs" / "product" / "prds" / "legacy.md").write_text("stale docs", encoding="utf-8")
+
+    _run_install("codex", env)
+
+    assert not (dest / "evals").exists()
+    assert not (dest / "docs" / "product" / "prds").exists()
+
+
 def test_copy_install_can_be_disabled_and_reenabled_without_deleting_payload(
     tmp_path: pathlib.Path,
 ) -> None:
