@@ -74,11 +74,17 @@ def test_render_card_is_bounded_to_operational_fields(knowledge, catalog) -> Non
     card = knowledge.render_card(result)
     assert set(card["primary"]) == knowledge.CARD_FIELDS
     assert "intents" not in card["primary"]
+    assert "tests" not in card["primary"]
 
 
 def test_validate_catalog_rejects_path_escape(knowledge, tmp_path) -> None:
     with pytest.raises(knowledge.CatalogError, match="repository-relative"):
         knowledge.validate_catalog(tmp_path, knowledge.parse_capabilities([BAD_ESCAPE_RECORD]))
+
+
+def test_source_catalog_test_evidence_resolves(knowledge, catalog) -> None:
+    report = knowledge.validate_catalog(ROOT, catalog, include_test_evidence=True)
+    assert report["capability_count"] == 28
 
 
 def test_measure_uses_a_local_context_proxy(knowledge, catalog) -> None:

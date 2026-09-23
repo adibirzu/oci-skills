@@ -32,7 +32,18 @@ AGY_SKILLS_DIR="${AGY_SKILLS_DIR:-$HOME/.antigravity/skills}"
 # Canonical skills live under skills/<name>/SKILL.md (plugin-native layout). For
 # copy-install we also synthesize a bundle-root SKILL.md so single-skill harnesses
 # still find the router at the top of the installed directory.
-PAYLOAD=(skills references scripts schemas docs commands hooks AGENTS.md README.md LICENSE evals install.sh)
+# Copy only the runtime closure.  Development plans, evaluations, source-plugin
+# hooks/commands, repository metadata, and contract tooling remain in the
+# checkout; a harness does not need them to route or operate a skill.
+RUNTIME_DIRECTORIES=(skills references schemas)
+RUNTIME_SCRIPTS=(
+  common.sh check_doc_links.py iam_audit.py kb_lookup.py oci_adb.sh
+  oci_cli_help.py oci_cli_lint.py oci_context.py oci_cost.sh oci_datasafe.sh
+  oci_developer_knowledge.py oci_logan.sh oci_oke_demo_troubleshoot.py
+  oci_orm.sh oci_preflight.sh oci_project.sh oci_tf.sh oci_tf_plan.py
+  platform_bundle.py redact.py workflow_eval.py
+)
+RUNTIME_FILES=(docs/product/contracts/developer-knowledge-catalog.json install.sh)
 ROUTER_SRC="skills/oci-administrator/SKILL.md"
 
 say()  { printf '[install] %s\n' "$*"; }
@@ -46,10 +57,7 @@ copy_payload() {  # copy_payload <dest_dir>
   fi
   mkdir -p "$dest"
   local item
-  for item in "${PAYLOAD[@]}"; do
-    if [[ "${OCI_SKILLS_BLINDED_EVAL:-}" == "true" && "$item" == "evals" ]]; then
-      continue
-    fi
+  for item in "${RUNTIME_DIRECTORIES[@]}" "${RUNTIME_FILES[@]}"; do
     [[ -e "$REPO_DIR/$item" ]] || continue
     rm -rf "${dest:?}/$item"
     if [[ -d "$REPO_DIR/$item" ]]; then
@@ -81,17 +89,18 @@ copy_payload() {  # copy_payload <dest_dir>
       fi
       rm -f "$archive"
     else
+      mkdir -p "$(dirname "$dest/$item")"
       cp "$REPO_DIR/$item" "$dest/$item"
     fi
+  done
+  mkdir -p "$dest/scripts"
+  for item in "${RUNTIME_SCRIPTS[@]}"; do
+    cp "$REPO_DIR/scripts/$item" "$dest/scripts/$item"
   done
   # Local interpreter caches are neither runtime assets nor portable. Strip
   # them before applying the stricter blinded-evaluation exclusions below.
   find "$dest" -type d -name '__pycache__' -prune -exec rm -rf {} +
   find "$dest" -type f \( -name '*.pyc' -o -name '*.pyo' \) -delete
-  if [[ "${OCI_SKILLS_BLINDED_EVAL:-}" == "true" ]]; then
-    rm -rf "${dest:?}/evals"
-    rm -f "$dest/scripts/forward_eval.py" "$dest/scripts/forward_eval_contract.py"
-  fi
   # Synthesize the bundle-root router for single-skill harnesses. The canonical
   # router lives 2 levels deep (skills/oci-administrator/) so its links use
   # ../../ ; at the bundle root those resolve to ./ instead.

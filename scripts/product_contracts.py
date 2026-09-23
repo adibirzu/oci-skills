@@ -450,10 +450,10 @@ def _validate_install_manifest(
         raise ContractError("install manifest must reject symlinks")
     if (root / "install.sh").is_file():
         installer = _read_text(root, "install.sh")
-        if "PAYLOAD=(" not in installer:
+        if "RUNTIME_DIRECTORIES=(" not in installer or "RUNTIME_SCRIPTS=(" not in installer:
             raise ContractError("installer has no canonical payload")
         for item in manifest["payload"]:
-            if item not in installer:
+            if item.rsplit("/", 1)[-1] not in installer:
                 raise ContractError(f"installer payload missing {item}")
 
 
