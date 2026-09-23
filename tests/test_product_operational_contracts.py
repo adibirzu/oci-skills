@@ -199,12 +199,18 @@ def test_install_manifest_matches_installer_and_excludes_sensitive_runtime_data(
     assert contract["ordering"] == "bytewise-path"
     assert set(contract["harnesses"]) == {"claude", "codex", "gemini", "antigravity"}
     payload = set(contract["payload"])
-    assert {"skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "evals"} <= payload
+    assert {"skills", "references", "schemas", "install.sh"} <= payload
+    assert "docs/product/contracts/developer-knowledge-catalog.json" in payload
+    assert "scripts/oci_developer_knowledge.py" in payload
+    assert "evals" not in payload
+    assert "commands" not in payload
+    assert "hooks" not in payload
     exclusions = set(contract["exclusions"])
     assert {"*.tfstate", "*.tfplan", "*.tfvars", "*.pem", "*.key", "__pycache__"} <= exclusions
     installer = (ROOT / "install.sh").read_text(encoding="utf-8")
-    assert "PAYLOAD=(" in installer
-    assert all(item in installer for item in payload)
+    assert "RUNTIME_DIRECTORIES=(" in installer
+    assert "RUNTIME_SCRIPTS=(" in installer
+    assert all(item.rsplit("/", 1)[-1] in installer for item in payload)
 
 
 def test_release_state_machine_requires_independent_evidence_and_zero_safety_violations() -> None:

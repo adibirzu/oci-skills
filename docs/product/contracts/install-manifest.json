@@ -3,7 +3,7 @@
   "algorithm": "sha256-path-null-content",
   "ordering": "bytewise-path",
   "harnesses": ["claude", "codex", "gemini", "antigravity"],
-  "payload": ["skills", "references", "scripts", "schemas", "docs", "commands", "hooks", "AGENTS.md", "README.md", "LICENSE", "evals", "install.sh"],
+  "payload": ["skills", "references", "schemas", "scripts/common.sh", "scripts/check_doc_links.py", "scripts/iam_audit.py", "scripts/kb_lookup.py", "scripts/oci_adb.sh", "scripts/oci_cli_help.py", "scripts/oci_cli_lint.py", "scripts/oci_context.py", "scripts/oci_cost.sh", "scripts/oci_datasafe.sh", "scripts/oci_developer_knowledge.py", "scripts/oci_logan.sh", "scripts/oci_oke_demo_troubleshoot.py", "scripts/oci_orm.sh", "scripts/oci_preflight.sh", "scripts/oci_project.sh", "scripts/oci_tf.sh", "scripts/oci_tf_plan.py", "scripts/platform_bundle.py", "scripts/redact.py", "scripts/workflow_eval.py", "docs/product/contracts/developer-knowledge-catalog.json", "install.sh"],
   "exclusions": [".terraform", "__pycache__", ".pytest_cache", ".ruff_cache", "*.pyc", "*.pyo", "*.tfstate", "*.tfstate.*", "*.tfplan", "*.tfvars", "*wallet*", "*.pem", "*.key", "*.p12", "*.pfx", "terraform-provider-*"],
   "symlinks_allowed": false,
   "blinded_eval_exclusions": ["evals", "scripts/forward_eval.py", "scripts/forward_eval_contract.py"]

@@ -18,7 +18,6 @@ CARD_FIELDS = frozenset(
         "skill",
         "reference",
         "scripts",
-        "tests",
         "prerequisites",
         "evidence_classes",
         "mutation_policy",
@@ -144,19 +143,24 @@ def _repository_path(root: Path, relative: str) -> Path:
     return candidate
 
 
-def _approved_paths(root: Path, capability: Capability) -> tuple[Path, ...]:
+def _approved_paths(
+    root: Path, capability: Capability, *, include_test_evidence: bool = False
+) -> tuple[Path, ...]:
     paths = [
         _repository_path(root, f"skills/{capability.skill}/SKILL.md"),
         _repository_path(root, capability.reference),
         *(_repository_path(root, item) for item in capability.scripts),
-        *(_repository_path(root, item) for item in capability.tests),
     ]
+    if include_test_evidence:
+        paths.extend(_repository_path(root, item) for item in capability.tests)
     if any(not path.is_file() or path.is_symlink() for path in paths):
         raise CatalogError(f"catalog path is unavailable for {capability.id}")
     return tuple(paths)
 
 
-def validate_catalog(root: Path, capabilities: Sequence[Capability]) -> dict[str, object]:
+def validate_catalog(
+    root: Path, capabilities: Sequence[Capability], *, include_test_evidence: bool = False
+) -> dict[str, object]:
     """Fail closed when catalog routing or referenced local material drifts."""
     legal_tiers = {"card", "reference", "deep-reference", "live-read"}
     legal_statuses = {"current", "future", "unsupported"}
@@ -178,7 +182,7 @@ def validate_catalog(root: Path, capabilities: Sequence[Capability]) -> dict[str
             raise CatalogError("capability contains an illegal enum")
         if capability.mutation_policy not in legal_policies or not capability.evidence_classes:
             raise CatalogError("capability contains an illegal policy")
-        _approved_paths(root, capability)
+        _approved_paths(root, capability, include_test_evidence=include_test_evidence)
     return {"capability_count": len(capabilities), "current_ids": sorted(capability.id for capability in capabilities if capability.status == "current")}
 
 
@@ -269,7 +273,6 @@ def _card(capability: Capability) -> dict[str, object]:
         "skill": capability.skill,
         "reference": capability.reference,
         "scripts": list(capability.scripts),
-        "tests": list(capability.tests),
         "prerequisites": list(capability.prerequisites),
         "evidence_classes": list(capability.evidence_classes),
         "mutation_policy": capability.mutation_policy,
