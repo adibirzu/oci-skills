@@ -58,6 +58,7 @@ PRD_FILES = {
 OPERATIONAL_REQUIREMENTS = {f"REQ-{number:02d}" for number in range(23, 53)}
 ALL_REQUIREMENTS = {f"REQ-{number:02d}" for number in range(1, 53)}
 CONTRACT_FILES = {
+    "ai-provider-boundary.json",
     "accountability-matrix.json",
     "architecture-invariants.json",
     "architecture-traceability.json",
@@ -68,6 +69,7 @@ CONTRACT_FILES = {
     "compatibility-contract.json",
     "contract-schema-registry.json",
     "contract-backup-restore.json",
+    "developer-knowledge-catalog.json",
     "dependency-integrity.json",
     "deterministic-output.json",
     "distribution-contract.json",

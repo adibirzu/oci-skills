@@ -18,7 +18,7 @@ description: >-
 
 # OCI Administrator
 
-Operate and engineer OCI safely. The pack exposes 28 skills: this router selects
+Operate and engineer OCI safely. The pack exposes 29 skills: this router selects
 one of twenty-two primary domain skills or the **oci-project**, **oci-product-development**,
 **oci-application-engineering**, **oci-landing-zone**, and **oci-diagramming** orchestrators,
 all sharing one tenancy-safety core.
@@ -257,6 +257,7 @@ VNICs, images, and raw network reachability remain networking/compute.
 
 | Request mentions… | Plugin | Reference |
 |---|---|---|
+| broad or ambiguous OCI task, minimal safe skill context, local capability route | **oci-developer-knowledge** | [references/developer-knowledge.md](../../references/developer-knowledge.md) |
 | users, groups, dynamic groups, policies, compartments, budgets, quotas, service limit, tags, regions, named context, OIDC, OAuth application, SAML, SCIM provisioning | **oci-iam-admin** | [references/iam-tenancy.md](../../references/iam-tenancy.md) |
 | Cloud Guard, Vault/KMS, Security Zones, WAF, Vulnerability Scanning, scan recipe, scan target, host scan, container image scan, CIS, public Object Storage, 0.0.0.0/0 SSH rules, ISO-42001, compliance, policy review, audit logs, credential, instance principal, auth mode, DevSecOps release gate, dependency vulnerability audit | **oci-security-compliance** | [references/security-compliance.md](../../references/security-compliance.md) |
 | APM, Monitoring, alarm, dashboard, metric, Logging, OpenTelemetry, Prometheus, PromQL→MQL, Linux/Windows host dashboard, node_exporter, windows_exporter, agent trace, trace integrity, agent episode | **oci-observability-db** | [references/observability-db.md](../../references/observability-db.md) |
@@ -271,7 +272,7 @@ VNICs, images, and raw network reachability remain networking/compute.
 | OKE, kubectl, kubeconfig, Kubernetes deployment, Kubernetes service, ingress-nginx, nginx ingress, OCI Native Ingress, LoadBalancer pending, TLS secret, certificate, OCIR image pull, ImagePullBackOff, CrashLoopBackOff, rollout status, virtual nodes, Workload Identity, instance-principal app access, OKE control plane unavailable | **oci-oke-admin** | [references/oke-operations.md](../../references/oke-operations.md) |
 | ZPR, Zero Trust Packet Routing, security attributes, protected resources, ZPR policy, VCN Flow Logs correlation, unexpected accepted/rejected flows, ZPR dashboards | **oci-zpr-visibility** | [references/zpr-visibility.md](../../references/zpr-visibility.md) |
 | cost, spend, usage, billing, invoice, forecast, FinOps, cost-tracking tag, Usage API | **oci-cost** | [references/cost-management.md](../../references/cost-management.md) |
-| Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI, VCN Flow Logs, capture filter, connection-source degradation, source-IP correlation | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
+| Log Analytics, Logan, OCL/LQL query, Log Source, parser, log group, entity, saved/scheduled search, detection, Sigma→OCI, VCN Flow Logs, capture filter, connection-source degradation, source-IP correlation, MELTS investigate, MELTS investigation timeout | **oci-log-analytics** | [references/log-analytics.md](../../references/log-analytics.md) |
 | Resource Manager, ORM, RMS, managed Terraform stack, stack plan/apply/destroy job, stack logs, state retrieval | **oci-resource-manager** | [references/resource-manager.md](../../references/resource-manager.md) |
 | Data Safe, target database registration, security/user assessment, activity auditing, data discovery, data masking | **oci-data-safe** | [references/data-safe.md](../../references/data-safe.md) |
 | Function control plane, Functions, Events rule, object uploaded event, eventType, Notifications/ONS, Service Connector Hub, Queue or Streaming transport, queue-push/pull, DLQ, visibility timeout | **oci-events-functions** | [references/events-functions.md](../../references/events-functions.md) |

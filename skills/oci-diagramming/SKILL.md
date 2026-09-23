@@ -94,3 +94,8 @@ Return the editable source, any preview, validation result, source/provenance li
 evidence class, and limitations. Say explicitly when a stencil alias still needs
 confirmation against the installed official OCI library or when visual rendering
 was not locally verified.
+## Capability selection
+
+For `oci-architecture-diagram`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Diagramming remains offline and uses sanitized architecture inputs.

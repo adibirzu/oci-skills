@@ -183,3 +183,8 @@ KB:           KB-004 (WAF policy not blocking after attach).
 [Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm) · [Vault / KMS](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/home.htm) · [WAF](https://docs.oracle.com/en-us/iaas/Content/WAF/home.htm) · [Vulnerability Scanning](https://docs.oracle.com/en-us/iaas/Content/scanning/home.htm) · [OCI DevOps vulnerability audits](https://docs.oracle.com/en-us/iaas/Content/devops/using/scan-code.htm). Full list in the [security-compliance reference](../../references/security-compliance.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `security-compliance-posture`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Security assessment stays defensive and retains the existing approval boundary.

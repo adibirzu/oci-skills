@@ -63,7 +63,7 @@ def test_prds_ledgers_and_contract_inventory_extend_through_req_52() -> None:
     for number in range(1, 53):
         assert f"REQ-{number:02d}" in product and f"REQ-{number:02d}" in plan
     assert CONTRACTS <= {path.name for path in CONTRACT_ROOT.glob("*.json")}
-    assert len(list(CONTRACT_ROOT.glob("*.json"))) == 37
+    assert len(list(CONTRACT_ROOT.glob("*.json"))) == 39
 
 
 def test_change_manifest_exceptions_and_waivers_fail_closed() -> None:
@@ -115,7 +115,7 @@ def test_governance_graphs_and_validator_expand_through_req_52() -> None:
     result = validator.validate_repository(ROOT)
     assert result["requirements"] == 52
     assert result["new_prds"] == 40
-    assert result["contracts"] == 37
+    assert result["contracts"] == 39
     assert result["journeys"] == 30
 
 
@@ -151,7 +151,7 @@ def test_public_docs_publish_the_consolidated_inventory_and_reliability_controls
 
     for document in (readme, quickstart, architecture):
         assert "52 requirements" in document
-        assert "37 contracts" in document
+        assert "39 contracts" in document
         assert "30 journeys" in document
     assert "change-set manifests" in readme
     assert "dependency integrity" in quickstart

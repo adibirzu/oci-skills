@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OCI developer knowledge catalog",
+  "type": "object",
+  "required": ["schema_version", "capabilities"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "skill", "intents", "exclusions", "reference", "scripts", "tests", "prerequisites", "evidence_classes", "mutation_policy", "context_tier", "status"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+          "skill": {"type": "string", "pattern": "^oci-[a-z0-9-]+$"},
+          "intents": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 3}},
+          "exclusions": {"type": "array", "items": {"type": "string"}},
+          "reference": {"type": "string", "pattern": "^(references|skills)/[a-z0-9_./-]+\\.md$"},
+          "scripts": {"type": "array", "items": {"type": "string", "pattern": "^scripts/[a-z0-9_./-]+$"}},
+          "tests": {"type": "array", "minItems": 1, "items": {"type": "string", "pattern": "^tests/[a-z0-9_./-]+$"}},
+          "prerequisites": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+          "evidence_classes": {"type": "array", "minItems": 1, "items": {"enum": ["code-backed", "configured", "locally-verified", "provider-verified", "release-accepted"]}},
+          "mutation_policy": {"enum": ["read-only-default", "approval-gated", "terraform-owned", "offline-only"]},
+          "context_tier": {"enum": ["card", "reference", "deep-reference", "live-read"]},
+          "status": {"enum": ["current", "future", "unsupported"]}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

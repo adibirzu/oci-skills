@@ -221,11 +221,11 @@ def test_recent_app_facing_oci_errors_are_in_error_catalog() -> None:
         assert term in catalog
 
 
-def test_router_docs_catalog_and_evals_publish_the_28_skill_surface() -> None:
+def test_router_docs_catalog_and_evals_publish_the_29_skill_surface() -> None:
     catalog = json.loads(_text(ROOT / "docs" / "product" / "contracts" / "capability-catalog.json"))
     skills = {entry["skill"] for entry in catalog["capabilities"]}
     assert set(NEW_SKILLS) <= skills
-    assert len(skills) == 28
+    assert len(skills) == 29
     assert {"oci-data-platform", "oci-os-management"} <= skills
 
     router = _text(ROOT / "skills" / "oci-administrator" / "SKILL.md")
@@ -233,7 +233,7 @@ def test_router_docs_catalog_and_evals_publish_the_28_skill_surface() -> None:
     architecture = _text(ROOT / "docs" / "ARCHITECTURE.md")
     quickstart = _text(ROOT / "docs" / "QUICKSTART.md")
     for text in (router, readme, architecture, quickstart):
-        assert "28 skills" in text
+        assert "29 skills" in text
     assert "twenty-two primary" in router.lower()
     assert "twenty-two primary" in readme.lower()
 

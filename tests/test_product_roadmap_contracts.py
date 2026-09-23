@@ -26,6 +26,8 @@ EXPECTED_PRDS = {
     "REQ-22": "req-22-compatibility-deprecation.md",
 }
 EXPECTED_CONTRACTS = {
+    "ai-provider-boundary.json",
+    "developer-knowledge-catalog.json",
     "change-set-manifest.json",
     "exception-policy.json",
     "waiver-expiry.json",
@@ -154,8 +156,8 @@ def test_product_contract_validator_and_report_are_deterministic() -> None:
     assert first == second
     assert first["valid"] is True
     assert first["requirements"] == 52
-    assert first["contracts"] == 37
-    assert first["capabilities"] == 28
+    assert first["contracts"] == 39
+    assert first["capabilities"] == 29
     report = validator.build_report(ROOT)
     assert report["external_evidence_complete"] is False
     assert report["self_certified"] is False

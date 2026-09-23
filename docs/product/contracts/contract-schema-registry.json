@@ -2,8 +2,10 @@
   "schema_version": 1,
   "validation_mode": "offline-fail-closed",
   "contracts": {
+    "ai-provider-boundary.json": {"schema_version": 1, "required_keys": ["schema_version", "provider", "invocation_enabled", "accepted_identity_modes", "accepted_data_classifications", "max_input_bytes", "retry_policy", "evidence_labels"]},
     "architecture-traceability.json": {"schema_version": 1, "required_keys": ["schema_version", "requirements"]},
     "capability-catalog.json": {"schema_version": 1, "required_keys": ["schema_version", "capabilities"]},
+    "developer-knowledge-catalog.json": {"schema_version": 1, "required_keys": ["schema_version", "capabilities"]},
     "change-impact.json": {"schema_version": 1, "required_keys": ["schema_version", "requirements"]},
     "compatibility-contract.json": {"schema_version": 1, "required_keys": ["schema_version", "stable", "deprecated", "ownership"]},
     "distribution-contract.json": {"schema_version": 1, "required_keys": ["schema_version", "harnesses", "required_payload", "forbidden_payload"]},

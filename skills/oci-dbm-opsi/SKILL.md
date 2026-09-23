@@ -116,3 +116,8 @@ KB:           <known KB applied, or new sanitized KB entry added>
 [Operations Insights](https://docs.oracle.com/en-us/iaas/operations-insights/home.htm)
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `dbm-opsi-diagnostics`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Database diagnostics retain the existing target and time-window safety checks.

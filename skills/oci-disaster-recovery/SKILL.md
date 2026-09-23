@@ -84,3 +84,8 @@ Read [the disaster-recovery reference](../../references/disaster-recovery.md) be
 [Full Stack Disaster Recovery](https://docs.oracle.com/en-us/iaas/disaster-recovery/index.html) · [Disaster-recovery design guidance](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/disaster-recovery.htm). Full list in the [disaster-recovery reference](../../references/disaster-recovery.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
+## Capability selection
+
+For `disaster-recovery-drill`, consult the local
+[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
+before loading deeper material. Run local `validate` after catalog changes. Drills and transitions retain their approved-window and production safeguards.
