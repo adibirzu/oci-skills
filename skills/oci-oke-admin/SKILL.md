@@ -233,8 +233,3 @@ KB:           <known KB applied, or new sanitized KB entry added>
 [Load Balancer](https://docs.oracle.com/en-us/iaas/Content/Balance/home.htm)
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `oke-operations`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Cluster work retains cluster, namespace, and approval boundaries.

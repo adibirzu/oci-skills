@@ -99,8 +99,3 @@ Report named resource, redacted evidence, owner/risk, exact wrapper-routed actio
 [Networking](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm) · [Compute](https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm) · [Resource Search](https://docs.oracle.com/en-us/iaas/Content/Search/Concepts/queryoverview.htm). Full list in the [networking-compute reference](../../references/networking-compute.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `networking-compute-diagnosis`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Network changes retain VCN scope, read-first, and approval gates.

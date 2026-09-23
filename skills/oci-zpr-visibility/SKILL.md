@@ -108,8 +108,3 @@ KB:           <known KB applied, or new sanitized KB entry added>
 [Log Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `zpr-visibility`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Visibility work remains read-only by default and preserves its resource scope checks.

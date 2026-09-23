@@ -91,8 +91,3 @@ This skill performs no direct OCI mutation and emits no Terraform/service-resour
 [OCI Documentation](https://docs.oracle.com/en-us/iaas/Content/home.htm) · [SDK and CLI configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm). Full source-grounding rules are in [oracle-docs.md](../../references/oracle-docs.md); application workflow boundaries are in [application-engineering.md](../../references/application-engineering.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `application-engineering-workflow`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Application engineering remains offline and requires sanitized, reproducible inputs.

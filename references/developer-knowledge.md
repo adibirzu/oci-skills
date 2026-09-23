@@ -28,7 +28,7 @@ plus `ceil(selected_bytes / 4)` as an explicitly labeled
 ## Capability card contract
 
 Cards expose only the routing-critical fields: ID, owner skill, reference,
-approved helper/test paths, prerequisites, evidence classes, mutation policy,
+approved helper paths, prerequisites, evidence classes, mutation policy,
 context tier, status, and next safe action. They never expose raw task input,
 credentials, topology, provider responses, or a model output.
 

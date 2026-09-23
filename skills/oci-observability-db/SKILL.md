@@ -103,8 +103,3 @@ Report finding, redacted evidence, exact risk-classified action or read, verific
 [Monitoring](https://docs.oracle.com/en-us/iaas/Content/Monitoring/home.htm) · [Logging](https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm) · [APM](https://docs.oracle.com/en-us/iaas/application-performance-monitoring/home.htm) · [Service Connector Hub](https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm). Full list in the [observability-db reference](../../references/observability-db.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `observability-dashboard-troubleshooting`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Dashboard and telemetry work retains the existing source and time-window gates.

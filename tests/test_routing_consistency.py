@@ -31,12 +31,17 @@ def test_router_names_developer_knowledge() -> None:
     assert "**oci-developer-knowledge**" in ROUTER.read_text(encoding="utf-8")
 
 
-def test_each_catalogued_skill_has_capability_selection() -> None:
+def test_capability_selection_is_loaded_once_before_domain_routing() -> None:
     catalog = json.loads(DEVELOPER_KNOWLEDGE_CATALOG.read_text(encoding="utf-8"))
+    selector = (ROOT / "skills" / "oci-developer-knowledge" / "SKILL.md").read_text(encoding="utf-8")
+    assert "## Capability selection" in selector
+    assert "developer-knowledge-catalog.json" in selector
     for item in catalog["capabilities"]:
+        if item["skill"] == "oci-developer-knowledge":
+            continue
         text = (ROOT / "skills" / item["skill"] / "SKILL.md").read_text(encoding="utf-8")
-        assert "## Capability selection" in text
-        assert "developer-knowledge-catalog.json" in text
+        assert "## Capability selection" not in text
+        assert "developer-knowledge-catalog.json" not in text
 
 
 def test_every_domain_in_both_routing_tables() -> None:

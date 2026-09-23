@@ -143,8 +143,3 @@ provisioning conflicts, deactivation, and rollback.
 [IAM](https://docs.oracle.com/en-us/iaas/Content/Identity/home.htm) · [Identity Domains](https://docs.oracle.com/en-us/iaas/Content/Identity/domains/overview.htm) · [Identity Domains REST/SCIM API](https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/api-get-started.htm) · [OAuth scopes](https://docs.oracle.com/en-us/iaas/Content/Identity/api-getstarted/Scopes.htm) · [Service Limits](https://docs.oracle.com/en-us/iaas/Content/General/service-limits/overview.htm). Full list in the [iam-tenancy reference](../../references/iam-tenancy.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `iam-tenancy-review`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. IAM review remains read-before-write and needs a named context for live reads.

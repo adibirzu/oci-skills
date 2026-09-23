@@ -88,8 +88,3 @@ available; never promise package rollback without tested owner evidence.
 [OS Management Hub](https://docs.oracle.com/en-us/iaas/osmh/doc/) · [Overview](https://docs.oracle.com/en-us/iaas/osmh/doc/overview.htm) · [Getting started](https://docs.oracle.com/en-us/iaas/osmh/doc/getstarted.htm). Full list in the [OS Management reference](../../references/os-management.md).
 
 **Open Knowledge Format grounding** - every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill, cite the most specific official page through that index; the non-official MCP gateway is never a source of truth.
-## Capability selection
-
-For `os-management-patching`, consult the local
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-before loading deeper material. Run local `validate` after catalog changes. Patching retains managed-instance scope and change-window approval.

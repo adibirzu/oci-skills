@@ -144,11 +144,3 @@ run_action --risk in-place --compartment <COMPARTMENT_OCID> --description "repai
 [Logging Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm). Full list in the [log-analytics reference](../../references/log-analytics.md).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](../../references/oracle-docs.md) (the pack's single source of truth). When extending this skill to build an OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.
-
-## Capability selection
-
-For `log-analytics-investigation`, use the checked-in
-[`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json)
-to select this owner before loading deeper reference material. Run local
-`validate` when the catalog changes; real query and detection work keeps this
-skill's existing time-window, named-context, and mutation gates.
