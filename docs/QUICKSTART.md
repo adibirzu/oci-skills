@@ -64,7 +64,7 @@ installed bundle directory:
 `--enable` restores it. It applies only to copy installs. Disable marketplace
 plugins in their plugin manager.
 
-Upgrade a clone with `git pull --ff-only`, then rerun the target installer. A skill / copy install does not activate Claude plugin hooks. Marketplace plugin installs activate Claude commands and hooks; Codex/ChatGPT, Gemini, and Antigravity use their native adapters and the same in-script safety guard. Installation and local validation are offline and do not contact an OCI tenancy.
+Upgrade a clone with `git pull --ff-only`, then rerun the target installer. Copy installs contain only the runtime closure—skills, references, schemas, operational helpers, the local capability catalog, lifecycle control, and the target adapter. PRDs, evaluator data, source-plugin commands/hooks, and repository contract tooling stay in the clone; reinstalling removes any stale copies. A skill / copy install does not activate Claude plugin hooks. Marketplace plugin installs activate Claude commands and hooks; Codex/ChatGPT, Gemini, and Antigravity use their native adapters and the same in-script safety guard. Installation and local validation are offline and do not contact an OCI tenancy.
 
 ## Work by named context
 

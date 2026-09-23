@@ -282,7 +282,7 @@ Temporarily turn off a copy-installed pack without deleting it, then start a new
 
 The installer moves the bundle from the harness's `skills/` or `extensions/` directory to its sibling `disabled/` directory and restores it on `--enable`; it never changes OCI resources or bypasses the pack's safety controls. Disable Claude marketplace plugins through Claude's plugin manager, because this copy-installer does not own plugin installs.
 
-`make install`, `make install-codex`, and `make dry-run` provide equivalent shortcuts. Upgrade a clone with `git pull --ff-only`, then rerun the selected installer. A skill / copy install does not activate Claude plugin hooks; use the plugin install for commands and hooks. Codex/ChatGPT can also import `.codex-plugin/plugin.json`; Gemini and Antigravity use the adapters under `harness/`. Installation and validation are offline and do not contact an OCI tenancy.
+`make install`, `make install-codex`, and `make dry-run` provide equivalent shortcuts. Upgrade a clone with `git pull --ff-only`, then rerun the selected installer. Each copy install reconstructs a compact runtime closure: skills, references, schemas, operational helpers, the local capability catalog, lifecycle control, and its harness adapter. Repository-only PRDs, evaluations, source-plugin commands/hooks, and contract tooling are not copied; a reinstall removes stale copies of those paths. A skill / copy install does not activate Claude plugin hooks; use the plugin install for commands and hooks. Codex/ChatGPT can also import `.codex-plugin/plugin.json`; Gemini and Antigravity use the adapters under `harness/`. Installation and validation are offline and do not contact an OCI tenancy.
 
 ## Requirements
 
