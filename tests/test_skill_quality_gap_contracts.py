@@ -153,17 +153,22 @@ def test_connection_flow_logs_and_shared_adb_patterns_are_documented() -> None:
 
     for term in (
         "vcn flow logs ingestion and connection investigations",
-        "100% `all` / `include`",
-        "exactly five 30-day subnet flow logs",
-        "remove only the known failed empty flow log record",
-        "logging-to-log-analytics connector",
-        "network capture-filter create",
-        "logging log create --log-type service",
+        "inventory the target cluster's actual",
+        "select capture scope, sampling, retention, and cost explicitly",
+        "never delete a record from generic guidance",
+        "reviewed logging-to-log-analytics path",
+        "capture filters",
+        "service connector",
         "source-ip connection errors",
         "connection-source investigations",
         "report coverage gaps separately from conclusions",
     ):
         assert term in (log_skill + "\n" + log_ref)
+    for incident_specific_term in (
+        "exactly five 30-day subnet flow logs",
+        "remove only the known failed empty flow log record",
+    ):
+        assert incident_specific_term not in (log_skill + "\n" + log_ref)
 
     for term in (
         "shared demo adb / atp / adw pattern",

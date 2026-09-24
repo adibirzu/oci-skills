@@ -167,4 +167,24 @@ grep -qiE ' create | delete | terminate | update ' "$calls" \
   && { echo "FAIL H: teardown must remain read-only"; cat "$calls"; exit 1; }
 echo "H ok: bundle teardown is owner-aware and read-only (rc=$rc_h)"
 
+# Collection envelopes must count items, not object keys. Invalid reads remain unknown.
+cat > "$tmp/oci" <<'EOF'
+#!/bin/sh
+case "$*" in
+  *"api-gateway gateway list"*) echo '{"data":{"items":[]}}' ;;
+  *"devops project list"*) echo '{"data":{"items":[{"name":"delivery","lifecycle-state":"ACTIVE"},{"name":"other","lifecycle-state":"ACTIVE"}]}}' ;;
+  *"cloud-guard problem list"*) echo '{"data":null}' ;;
+  *"monitoring alarm-status list"*) echo 'malformed' ;;
+  *"budget budget list"*) echo '[]' ;;
+  *) echo '{"data":[]}' ;;
+esac
+EOF
+chmod +x "$tmp/oci"
+out_i="$(run status -c "$CMPT" 2>&1)"
+printf '%s' "$out_i" | grep -q 'API Gateway: 0 gateway(s)' || { echo "FAIL I: empty items miscounted"; exit 1; }
+printf '%s' "$out_i" | grep -q 'DevOps    : 2 project(s) \[ACTIVE:2\]' || { echo "FAIL I: nested items not normalized"; exit 1; }
+printf '%s' "$out_i" | grep -q 'security  : unknown' || { echo "FAIL I: missing security evidence reported healthy"; exit 1; }
+printf '%s' "$out_i" | grep -q 'firing unknown' || { echo "FAIL I: malformed alarm evidence reported healthy"; exit 1; }
+echo "I ok: collection envelopes and unavailable evidence"
+
 echo "oci project smoke OK"

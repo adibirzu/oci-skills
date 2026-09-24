@@ -66,13 +66,11 @@ In all three: **the secret lives in Vault; the *permission to read it* lives in 
 (a dynamic group + a `read secret-bundles` policy scoped to the compartment). The
 workload reads it at startup via its principal — nothing is baked into the image.
 
-```bash
-# Outbound third-party secret — read at runtime via the runtime's principal.
-OCI_AUTH_MODE=instance_principal \
-oci_cli secrets secret-bundle get --secret-id <SECRET_OCID> \
-  --query 'data."secret-bundle-content".content' --raw-output | base64 --decode
-#   ^ secret-bundle content is base64 — decode it (KB-005).
-```
+For routine diagnosis, inspect **metadata only** (secret name, lifecycle, and
+rotation stage). Do not retrieve a secret bundle in a terminal, pipe it through
+`base64`, or place decoded content in a shell variable. The workload's runtime
+principal should pass the value directly to its approved SDK consumer, or an
+owner-reviewed 0600 temporary file with bounded lifetime and cleanup.
 
 ## 3. Best practices
 
@@ -108,7 +106,7 @@ list. Remove the temporary payload after verification.
 | `NotAuthorizedOrNotFound` on a real resource | Policy/dynamic-group gap, or wrong compartment | Confirm the DG matching rule covers the principal; confirm a policy grants it in **that** compartment |
 | Works locally, fails on the instance | `config` locally but no principal grant in-cloud | Add the instance to a dynamic group + policy; set `OCI_AUTH_MODE=instance_principal` |
 | OKE pod cannot call OCI | Workload Identity not wired | Map the pod's service account to a DG; grant the DG; set `oke_workload` |
-| Secret value looks garbled | Secret-bundle content is base64 | `base64 --decode` the content (KB-005) |
+| Consumer cannot use the new secret version | Version, principal, or consumer configuration is stale | inspect secret metadata and consumer health only; use the approved SDK-to-consumer path or owner-reviewed `0600` file flow, never terminal retrieval or decoding |
 | Token leaked / key compromised | — | Rotate immediately: create new key/token, deploy, then **delete the old**; audit `audit` events for use |
 
 **Rotate an API key (zero downtime):** upload the new key (`iam user api-key upload`),

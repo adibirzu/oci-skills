@@ -14,7 +14,7 @@ MUTATION_RE = re.compile(
 )
 DESTRUCTIVE_RE = re.compile(r"\b(delete|terminate|destroy|purge)\b", re.IGNORECASE)
 SECRET_ARG_RE = re.compile(
-    r"\s(--(?:[A-Za-z0-9-]+-)?(?:password|credentials|auth-token|private-key|secret|secret-content|key-content|token))(?:\s+|=)(?!file://)(\S+)",
+    r"\s(--(?:[A-Za-z0-9-]+-)?(?:password|credentials|auth-token|private-key|secret|secret-content|secret-content-content|key-content|token))(?:\s+|=)(?!file://)(\S+)",
     re.IGNORECASE,
 )
 INLINE_JSON_RE = re.compile(r"\s(--[A-Za-z0-9-]+)(?:\s+|=)['\"]?(?:\{|\[)")

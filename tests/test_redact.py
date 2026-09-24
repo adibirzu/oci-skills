@@ -128,6 +128,24 @@ def test_long_lowercase_token_outside_url_is_still_flagged() -> None:
     assert "<SECRET-REDACTED>" in _clean(f"token={token}")
 
 
+def test_markdown_table_and_json_checksum_labels_do_not_bypass_secret_detection() -> None:
+    short_hex = "a" * 40
+    long_hex = "b" * 64
+    table = _clean(f"| digest | `{short_hex}` |")
+    checksum = _clean(f'{{"sha256":"{long_hex}"}}')
+    assert short_hex not in table and "<SECRET-REDACTED>" in table
+    assert long_hex not in checksum and "<SECRET-REDACTED>" in checksum
+
+
+def test_verified_public_action_notice_revision_is_not_redacted() -> None:
+    revision = "a" * 40
+    text = (
+        f"| actions/checkout | `{revision}` | "
+        f"<https://github.com/actions/checkout/blob/{revision}/LICENSE> |"
+    )
+    assert _clean(text) == text
+
+
 # --- tenancy namespace in an OCIR path (account fingerprint) ---------------
 
 def test_masks_ocir_namespace() -> None:

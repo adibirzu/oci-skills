@@ -1,0 +1,1056 @@
+{
+  "evidence_note": "source-derived local metadata; not provider or release acceptance",
+  "harnesses": {
+    "antigravity": {
+      "adapter": "harness/antigravity/AGENTS.md",
+      "install_target": "antigravity"
+    },
+    "claude": {
+      "adapter": ".claude-plugin/plugin.json",
+      "install_target": "claude"
+    },
+    "codex": {
+      "adapter": ".codex-plugin/plugin.json",
+      "install_target": "codex"
+    },
+    "gemini": {
+      "adapter": "harness/gemini/GEMINI.md",
+      "install_target": "gemini"
+    }
+  },
+  "installed_payload": [
+    "LICENSE",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "THIRD_PARTY_NOTICES.md",
+    "docs/product/contracts/developer-knowledge-catalog.json",
+    "install.sh",
+    "references",
+    "schemas",
+    "scripts/check_doc_links.py",
+    "scripts/common.sh",
+    "scripts/enterprise_workflow.py",
+    "scripts/iam_audit.py",
+    "scripts/kb_lookup.py",
+    "scripts/oci_adb.sh",
+    "scripts/oci_cli_help.py",
+    "scripts/oci_cli_lint.py",
+    "scripts/oci_context.py",
+    "scripts/oci_cost.sh",
+    "scripts/oci_datasafe.sh",
+    "scripts/oci_developer_knowledge.py",
+    "scripts/oci_logan.sh",
+    "scripts/oci_oke_demo_troubleshoot.py",
+    "scripts/oci_orm.sh",
+    "scripts/oci_preflight.sh",
+    "scripts/oci_project.sh",
+    "scripts/oci_tf.sh",
+    "scripts/oci_tf_plan.py",
+    "scripts/platform_bundle.py",
+    "scripts/redact.py",
+    "scripts/shipped_surface_inventory.py",
+    "scripts/target_derived_plan.py",
+    "scripts/workflow_eval.py",
+    "skills"
+  ],
+  "schema_version": 1,
+  "skill_count": 29,
+  "skills": [
+    {
+      "access_prerequisites": [
+        "sanitized OCI request intent"
+      ],
+      "description": "Default router for tenancy-agnostic Oracle Cloud Infrastructure engineering. Use for OCI administration, audit, security, IAM, Bastion, networking, compute, OKE, observability, storage, disaster recovery, Base Database, Exadata, DBM/OPSI, ADB, data platforms, OS Management Hub, cost, Log Analytics, Resource Manager, Data Safe, Events, Functions, Queue, Terraform/HCL, landing zones, DevOps, API Gateway, Container Instances, Artifact Registry/OCIR, exact oci-cli commands, platform bundles, OCI diagrams, Draw.io, Excalidraw, Mermaid, or project lifecycle requests. Routes to distinct domain skills and the oci-project, oci-product-development, oci-application-engineering, oci-landing-zone, or oci-diagramming orchestrator while enforcing named contexts, preflight receipts, redaction, and risk-specific approval. Routes deep GenAI, in-database work, specialist OKE, and Fusion work to official Oracle skills or documentation.",
+      "entrypoint": "skills/oci-administrator/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "offline-only",
+      "name": "oci-administrator",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "missing-local-owner",
+        "unavailable-upstream-skill"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/oracle-skills-alignment.md",
+        "execution": "offline-only",
+        "failure_modes": [
+          "missing-local-owner",
+          "unavailable-upstream-skill"
+        ],
+        "inputs": [
+          "sanitized OCI request intent"
+        ],
+        "outputs": "deterministic route and safe abstention contract",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_routing_consistency.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "sanitized evaluation inputs"
+      ],
+      "description": "Evaluate OCI AIOps agents with safe, trace-grounded datasets, evaluator eligibility, score-lineage analysis, and human calibration. Use when an operator asks to assess agent quality, Langfuse evaluations, operational-agent datasets, tool grounding, autonomous decisions, or release readiness for OCI incident and platform workflows. This skill is read-only by default: it never creates evaluators, changes rules, contacts an OCI tenancy, or treats local scores as provider verification.",
+      "entrypoint": "skills/oci-aiops-agent-evaluation/SKILL.md",
+      "evidence_class": "code-backed",
+      "mutation_policy": "offline-only",
+      "name": "oci-aiops-agent-evaluation",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "unapproved-provider",
+        "unavailable-evaluator"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/aiops-agent-evaluation.md",
+        "execution": "offline-only",
+        "failure_modes": [
+          "unapproved-provider",
+          "unavailable-evaluator"
+        ],
+        "inputs": [
+          "sanitized evaluation inputs"
+        ],
+        "outputs": "held-out rubric and eligibility contract",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_aiops_agent_evaluation_skill.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "sanitized source and reproducible symptom"
+      ],
+      "description": "Orchestrate OCI-backed application engineering: intake, local knowledge and reuse discovery, read-only plugin assessment, TDD implementation, independent review, security gates, verification, and efficiency measurement. Use for application code creation, code review, debugging, module reuse, or skill/plugin selection around OCI workloads. It never mutates OCI infrastructure; platform bundles remain oci-product-development and service delivery remains oci-developer-services. Also use it to create, audit, or improve a coding-agent development harness: project instructions, durable state, verification gates, scope boundaries, or session handoff.",
+      "entrypoint": "skills/oci-application-engineering/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "offline-only",
+      "name": "oci-application-engineering",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "raw-provider-evidence",
+        "unapproved-integration"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/application-engineering.md",
+        "execution": "offline-only",
+        "failure_modes": [
+          "raw-provider-evidence",
+          "unapproved-integration"
+        ],
+        "inputs": [
+          "sanitized source and reproducible symptom"
+        ],
+        "outputs": "sanitized workflow and fake-canary checkpoints",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_workflow_eval.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "named context and database identifier"
+      ],
+      "description": "Oracle Autonomous Database lifecycle and application connectivity via oci-cli and python-oracledb. Use when the user manages an ADB/ADW/ATP instance (start/stop/restart, scale ECPU/storage, enable auto-scaling), works with its wallet (generate-wallet, rotate wallet, mTLS vs TLS, TNS_ADMIN), tunes the access-control IP allowlist, clones or restores it, or connects an application (DSN service levels _high/_medium/_low/_tp, connection pooling, SQLAlchemy `oracle+oracledb://`, Alembic migrations, private-endpoint DSNs). Triggers: generate ADB wallet, rotate wallet, start/stop/scale Autonomous Database, whitelisted-ips / ACL, connect to ADB, TNS_ADMIN, oracledb thin/thick, SQLAlchemy Oracle URL, Alembic upgrade on Oracle, ORDS, run/execute SQL on ADB, SQLcl, blocking sessions, wait events, top SQL, SQL plan, DBMS_XPLAN. Mentions Autonomous Database, ADB, ADW, ATP, wallet, cwallet.sso, ewallet, DSN, oracledb, cx_Oracle, SQLcl, V$SESSION, in-DB diagnostics, shared demo ATP/ADB, or ADW-backed app migrations.",
+      "entrypoint": "skills/oci-autonomous-db/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-autonomous-db",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "missing-wallet-owner",
+        "unverified-private-connectivity"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/autonomous-db.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "missing-wallet-owner",
+          "unverified-private-connectivity"
+        ],
+        "inputs": [
+          "named context and database identifier"
+        ],
+        "outputs": "connection and restore evidence plan",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_cli_help.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "target host and approved access scope"
+      ],
+      "description": "Operate OCI Bastion access safely: bastion and session lifecycle, Managed SSH, fixed SSH port forwarding, dynamic SOCKS5 forwarding, client CIDR allowlists, Oracle Cloud Agent Bastion plugin health, connection diagnosis, and cleanup. Use for time-bound access to private targets and SSH-safe remote validation when stale ControlMaster sockets or private endpoint reachability block OKE/OCI troubleshooting. Pure NSG, route, subnet, or VCN changes remain with oci-networking-compute.",
+      "entrypoint": "skills/oci-bastion-access/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-bastion-access",
+      "provider_boundary": "approved-canary",
+      "unsupported_states": [
+        "missing-target",
+        "unapproved-session"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/bastion-access.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "missing-target",
+          "unapproved-session"
+        ],
+        "inputs": [
+          "target host and approved access scope"
+        ],
+        "outputs": "expiry and local-only tunnel verification",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "named context and reporting period"
+      ],
+      "description": "Cost, usage, and budget reporting (FinOps) for any OCI tenancy via oci-cli: spend grouped by service / compartment / region over a time window using the Usage API, budgets and alert rules (limit vs actual vs forecast), cost-tracking tags, and guardrail recommendations. Use whenever a request mentions OCI cost, spend, billing, invoice, usage, Usage API, budget, forecast, cost alert, FinOps, \"what is this tenancy costing\", or cost-tracking tags. Read-only by default; for creating budgets it defers to oci-iam-admin.",
+      "entrypoint": "skills/oci-cost/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "read-only-default",
+      "name": "oci-cost",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "billing-permission-missing",
+        "incomplete-usage-window"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/cost-management.md",
+        "execution": "read-only-default",
+        "failure_modes": [
+          "billing-permission-missing",
+          "incomplete-usage-window"
+        ],
+        "inputs": [
+          "named context and reporting period"
+        ],
+        "outputs": "bounded cost query and completeness receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_cli_help.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "data source and lifecycle scope"
+      ],
+      "description": "Operate OCI data-platform control-plane services: Data Integration workspaces, data assets, applications, tasks, pipelines and runs; Data Flow Spark applications, pools, SQL endpoints and runs; Data Catalog catalogs, assets, harvest jobs, glossaries, custom properties and metastores; GoldenGate deployments, connections, deployment backups, upgrades and replication health; and NoSQL table lifecycle. Use for ETL/ELT, Spark jobs, metadata governance, data movement, CDC/replication, and data-platform operational troubleshooting.",
+      "entrypoint": "skills/oci-data-platform/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-data-platform",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "unknown-lineage",
+        "unverified-replication-lag"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/data-platform.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "unknown-lineage",
+          "unverified-replication-lag"
+        ],
+        "inputs": [
+          "data source and lifecycle scope"
+        ],
+        "outputs": "data quality and freshness receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "target database and approved scope"
+      ],
+      "description": "OCI Data Safe administration via oci-cli and the OCI SDK: target-database registration (Autonomous and Base DB / Exadata cloud service), Data Safe private endpoints, Security Assessment and User Assessment, Activity Auditing (scim_query time filters), Data Discovery (sensitive data models), and Data Masking. Use whenever a request mentions OCI Data Safe, target database registration, Data Safe private endpoint, security assessment, user assessment, activity auditing, audit policy/retention, sensitive data discovery, data masking, or a database NEEDS_ATTENTION / ORA-01017 in Data Safe. Assessments are read; registration/masking/audit-policy changes go through the safety core.",
+      "entrypoint": "skills/oci-data-safe/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-data-safe",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "incomplete-audit-ingestion",
+        "unregistered-target"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/data-safe.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "incomplete-audit-ingestion",
+          "unregistered-target"
+        ],
+        "inputs": [
+          "target database and approved scope"
+        ],
+        "outputs": "redacted assessment-diff receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_cli_help.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "named context and database scope"
+      ],
+      "description": "Operate OCI Base Database Service and Exadata Database Service control-plane lifecycle: DB systems, Exadata infrastructure and VM clusters, DB homes, databases and PDB resources, backups and restores, scaling, maintenance, patching, upgrades, and Data Guard associations. Use when the request mentions Base Database, Exadata, DB systems, DB homes, PDB lifecycle, cloud backups, maintenance, or Data Guard associations. Do not use for Autonomous Database, observability onboarding, or in-database SQL, RMAN, and tuning.",
+      "entrypoint": "skills/oci-database-cloud/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-database-cloud",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "incomplete-database-inventory",
+        "unverified-failback"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/database-cloud.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "incomplete-database-inventory",
+          "unverified-failback"
+        ],
+        "inputs": [
+          "named context and database scope"
+        ],
+        "outputs": "fleet health and rollback prerequisites",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "database target and time window"
+      ],
+      "description": "OCI Administrator skill for Database Management (DBM) and Operations Insights (OPSI) enablement, validation, and troubleshooting for OCI databases. Use when working with DBM private endpoints, managed databases, OPSI database insights, Performance Hub, AWR/ADDM/ASH, DBSNMP monitoring users, Data Safe target drift, Management Agent-backed Log Analytics ingestion for DBCS/Base DB, DBM/OPSI work requests, Database Insight lifecycle flaps, or Base Database Service observability. Triggers: DBM, Database Management, OPSI, Operations Insights, Performance Hub, AWR, ADDM, ASH, DBSNMP, Database Insight, create-pe-comanged-database, DbcsEntityChangeWorkflowFailed, managed-database, database-insights, and DB log ingestion.",
+      "entrypoint": "skills/oci-dbm-opsi/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "read-only-default",
+      "name": "oci-dbm-opsi",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "missing-management-agent",
+        "partial-fleet-inventory"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/dbm-opsi.md",
+        "execution": "read-only-default",
+        "failure_modes": [
+          "missing-management-agent",
+          "partial-fleet-inventory"
+        ],
+        "inputs": [
+          "database target and time window"
+        ],
+        "outputs": "privilege and collection receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "sanitized request intent"
+      ],
+      "description": "Local-first OCI capability discovery for selecting a small, safety-gated skill card, reference, helper, and verification surface without contacting OCI or an AI provider. Use before broad or ambiguous OCI engineering requests.",
+      "entrypoint": "skills/oci-developer-knowledge/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "offline-only",
+      "name": "oci-developer-knowledge",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "out-of-domain",
+        "stale-path",
+        "unsupported-oci"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/developer-knowledge.md",
+        "execution": "offline-only",
+        "failure_modes": [
+          "out-of-domain",
+          "stale-path",
+          "unsupported-oci"
+        ],
+        "inputs": [
+          "sanitized request intent"
+        ],
+        "outputs": "catalog-backed route with fallback",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_developer_knowledge.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "delivery target and artifact scope"
+      ],
+      "description": "Design, provision, deliver, inspect, and roll back OCI developer platforms: DevOps projects, code repositories and external connections, build pipelines/specifications, artifacts, environments, deployment pipelines and triggers, API Gateway, Container Instances, Artifact Registry, and OCIR delivery. Use for OCI CI/CD, private APIs, container deployments, blue-green or canary releases, and DevOps-to-OKE/Functions/instance-group targets. Hand off runtime ownership to the matching OKE, Functions, networking, or Terraform skill.",
+      "entrypoint": "skills/oci-developer-services/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-developer-services",
+      "provider_boundary": "approved-canary",
+      "unsupported_states": [
+        "unsigned-artifact",
+        "unverified-promotion"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/developer-services.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "unsigned-artifact",
+          "unverified-promotion"
+        ],
+        "inputs": [
+          "delivery target and artifact scope"
+        ],
+        "outputs": "artifact provenance and rollback-health receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "sanitized architecture inputs"
+      ],
+      "description": "Create, edit, validate, or review editable OCI architecture diagrams in Draw.io, Excalidraw, or Mermaid. Use for OCI stencils, logical/physical/layered views, cloud topology, observability pipelines, security boundaries, DR, OKE, AI/LLM, multicloud, multi-tenancy, sequence, workflow, C4, UML, ERD, and diagrams-as-code.",
+      "entrypoint": "skills/oci-diagramming/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "offline-only",
+      "name": "oci-diagramming",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "missing-sanitized-snapshot",
+        "unverified-provider-state"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/oci-architecture-conventions.md",
+        "execution": "offline-only",
+        "failure_modes": [
+          "missing-sanitized-snapshot",
+          "unverified-provider-state"
+        ],
+        "inputs": [
+          "sanitized architecture inputs"
+        ],
+        "outputs": "structural and visual export review",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_diagramming.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "protection group and approved window"
+      ],
+      "description": "Design, inspect, validate, and operate OCI Full Stack Disaster Recovery orchestration. Use for DR protection groups, members, associations, DR plans, plan groups and user-defined steps, prechecks, drills, planned switchovers, unplanned failovers, reprotection, readiness evidence, RTO/RPO validation, and cross-region or intra-region application recovery. Database Data Guard remains with oci-database-cloud; storage replication remains with oci-storage.",
+      "entrypoint": "skills/oci-disaster-recovery/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-disaster-recovery",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "partial-dependency-inventory",
+        "unverified-drill"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/disaster-recovery.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "partial-dependency-inventory",
+          "unverified-drill"
+        ],
+        "inputs": [
+          "protection group and approved window"
+        ],
+        "outputs": "dependency and reprotection receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "event source and destination contract"
+      ],
+      "description": "Operate OCI Functions, Fn deployment/invocation, Events rules and CloudEvents filters, Notifications/ONS, Service Connector Hub, Queue, and Streaming/Kafka transports. Use for serverless applications, eventType and FAAS/ONS/Streaming actions, serviceconnector fan-out/IAM, Queue producer-consumer policy, visibility timeout, channels, retry/poison-message/DLQ behavior, stream publishing, consumer offsets, Kafka SASL/Connect, or event-worker automation. Delivery pipelines belong to oci-developer-services; Queue and event transport ownership stays here. Live create/update/invoke operations use the shared context-bound safety core.",
+      "entrypoint": "skills/oci-events-functions/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "approval-gated",
+      "name": "oci-events-functions",
+      "provider_boundary": "approved-canary",
+      "unsupported_states": [
+        "unapproved-replay",
+        "unverified-delivery"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/events-functions.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "unapproved-replay",
+          "unverified-delivery"
+        ],
+        "inputs": [
+          "event source and destination contract"
+        ],
+        "outputs": "delivery and rollback outcome receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "named context for live reads"
+      ],
+      "description": "IAM and tenancy administration for any OCI tenancy via oci-cli: users, groups, group memberships, dynamic groups (matching rules), policies (author/scope a statement with least privilege, detect and rewrite tenancy-wide manage-all grants), compartments (create, move, delete, subtree traversal), budgets and alert rules, quotas, service limits / resource-availability pre-checks, tags (namespaces, defined, freeform, cost-tracking), regions, and Identity Domains vs legacy IAM. Use whenever a request mentions OCI IAM, OCID, compartment, policy, tenancy, dynamic group, budget, quota, service limit, tag namespace, auth token, generic OIDC/OAuth or SAML application integration, claims/scopes, or SCIM provisioning. A standalone compliance/CIS-style policy audit sweep (no authoring) is oci-security-compliance.",
+      "entrypoint": "skills/oci-iam-admin/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-iam-admin",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "missing-read-permission",
+        "partial-inventory"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/iam-tenancy.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "missing-read-permission",
+          "partial-inventory"
+        ],
+        "inputs": [
+          "named context for live reads"
+        ],
+        "outputs": "bounded policy and principal inventory",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_iam_audit.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "tenancy design scope"
+      ],
+      "description": "Assess, design, deploy, upgrade, and validate OCI landing zones and greenfield tenancy guardrails using Cloud Adoption Framework and Well-Architected guidance. Orchestrates IAM, security, networking, observability, cost, Terraform, and Resource Manager while preserving one IaC owner and the existing Solution Blueprint. Use when the request mentions a landing zone, greenfield tenancy foundation, Cloud Adoption Framework, enterprise guardrails, or landing-zone assessment and upgrade. Do not use for an ordinary workload or project lifecycle; route that to oci-project.",
+      "entrypoint": "skills/oci-landing-zone/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-landing-zone",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "partial-tenancy-inventory",
+        "unverified-hybrid-dependency"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/landing-zone.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "partial-tenancy-inventory",
+          "unverified-hybrid-dependency"
+        ],
+        "inputs": [
+          "tenancy design scope"
+        ],
+        "outputs": "quota and dependency readiness receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "time window and log scope"
+      ],
+      "description": "OCI Log Analytics (Logan) administration and querying via oci-cli and the OCI SDK: the OCL query language (search + pipe commands like stats, timestats, where, eval, link, fields), running and validating queries, sources, parsers, fields, lookups, entities and log groups, on-demand log upload and continuous ingestion, saved/scheduled searches, detections (including Sigma\u2192OCL conversion), management dashboards, and content migration. Use whenever a request mentions OCI Log Analytics, Logan, OCL, LQL, a log query, Log Source, OCI Audit Logs query, parser, log source, log group, entity, saved search, scheduled search, Cloud Guard / WAF / Sysmon query, Sigma-to-OCI, Sentinel KQL migration, management dashboard, upload_log_file, VCN Flow Logs, flow-log capture filters, connection-source investigations, network reject correlation, Windows Event collection, Management Agent onboarding, RDP or failed logons, or privileged-group changes. Read-only querying by default; content changes go through the shared safety core.",
+      "entrypoint": "skills/oci-log-analytics/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "read-only-default",
+      "name": "oci-log-analytics",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "missing-source",
+        "unverified-ingestion"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/log-analytics.md",
+        "execution": "read-only-default",
+        "failure_modes": [
+          "missing-source",
+          "unverified-ingestion"
+        ],
+        "inputs": [
+          "time window and log scope"
+        ],
+        "outputs": "schema and ingestion receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_log_analytics_windows_access_contract.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "VCN and region scope"
+      ],
+      "description": "Operate OCI VCNs, subnets, routes, gateways, DRGs, NSGs, load balancers, DNS, Traffic Management, Health Checks, Certificates, compute instances, VNICs, images, volume attachments, and instance groups. Use for connectivity, network policy, name resolution, TLS endpoint lifecycle, VM lifecycle, load-balancer health, capacity, or compute troubleshooting. Route storage protection and replication to oci-storage, OKE resources to oci-oke-admin, and Container Instances or registry delivery to oci-developer-services.",
+      "entrypoint": "skills/oci-networking-compute/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "approval-gated",
+      "name": "oci-networking-compute",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "partial-network-inventory",
+        "unverified-reachability"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/networking-compute.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "partial-network-inventory",
+          "unverified-reachability"
+        ],
+        "inputs": [
+          "VCN and region scope"
+        ],
+        "outputs": "target-derived route and architecture plan",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "resource and time-window scope"
+      ],
+      "description": "Operate OCI Monitoring, Logging, APM, OpenTelemetry, Notifications, Service Connector Hub, service/custom logs, metrics, alarms, dashboards, agent traces, Grafana integrations, PromQL-to-MQL conversion, and Linux or Windows host dashboards. Use for telemetry collection, queries, alerting, trace integrity, logging pipelines, exporter metrics, or observability inventory. Route Database Management, Operations Insights, Performance Hub, AWR/ADDM/ASH, and DBSNMP to oci-dbm-opsi; route Autonomous Database lifecycle to oci-autonomous-db.",
+      "entrypoint": "skills/oci-observability-db/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "read-only-default",
+      "name": "oci-observability-db",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "incomplete-collection",
+        "missing-telemetry"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/observability-db.md",
+        "execution": "read-only-default",
+        "failure_modes": [
+          "incomplete-collection",
+          "missing-telemetry"
+        ],
+        "inputs": [
+          "resource and time-window scope"
+        ],
+        "outputs": "source and correlation receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "cluster scope and namespace"
+      ],
+      "description": "OCI Administrator skill for Oracle Kubernetes Engine (OKE) application and cluster operations. Use when working with OKE clusters, kubeconfig, kubectl, manifests, namespaces, deployments, services, ingress-nginx, OCI Native Ingress Controller, OCI LoadBalancer services, TLS, OCIR image pulls, CrashLoopBackOff, ImagePullBackOff, Pending LoadBalancers, virtual nodes, managed node pools, managed cluster add-ons, Workload Identity, External Secrets, Network Path Analyzer, Node Doctor, cluster upgrades, Kubernetes MCP read surfaces, or OKE app agents using instance principals / Workload Identity instead of copied user credentials. Triggers: OKE deploy, nginx ingress, LB pending, kubeconfig endpoint error, OKE control plane unavailable, kubectl Unauthorized, backend health CRITICAL, NodePort, OCIR Unauthorized, readiness/liveness, NodeNotReady, app agent privilege error, or public app exposure on Kubernetes.",
+      "entrypoint": "skills/oci-oke-admin/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-oke-admin",
+      "provider_boundary": "approved-canary",
+      "unsupported_states": [
+        "missing-cluster-access",
+        "unverified-workload-identity"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/oke-operations.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "missing-cluster-access",
+          "unverified-workload-identity"
+        ],
+        "inputs": [
+          "cluster scope and namespace"
+        ],
+        "outputs": "RBAC, image architecture, and outcome receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oke_demo_troubleshoot_plan.py",
+          "tests/test_target_derived_plan.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "managed instance group and change window"
+      ],
+      "description": "Operate OCI OS Management Hub for patching and update governance across Oracle Linux, Ubuntu, and Windows managed instances. Use for OS Management Hub registration, profiles, groups, dynamic sets, lifecycle environments, software sources, Ksplice, scheduled update jobs, reports, management stations, Oracle Cloud Agent plugin readiness, and patch compliance evidence.",
+      "entrypoint": "skills/oci-os-management/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-os-management",
+      "provider_boundary": "approved-canary",
+      "unsupported_states": [
+        "unapproved-maintenance-window",
+        "unverified-managed-instance"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/os-management.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "unapproved-maintenance-window",
+          "unverified-managed-instance"
+        ],
+        "inputs": [
+          "managed instance group and change window"
+        ],
+        "outputs": "reboot and workload-health receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "runtime ingress and data requirements"
+      ],
+      "description": "Compose secure OCI platform bundles for five product-development golden paths: API Gateway with Functions, Container Instances applications, OKE applications, Queue or Streaming event workers, and ADB-backed services. Use when a user asks to design, scaffold, or deploy an OCI application platform, select a runtime/ingress/data/delivery stack, or create platform-bundle.yaml. Produces infrastructure, delivery, IAM, OpenAPI, verification, and runbook artifacts\u2014not business application logic.",
+      "entrypoint": "skills/oci-product-development/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "offline-only",
+      "name": "oci-product-development",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "unreviewed-deployment",
+        "unsupported-bundle"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/product-development.md",
+        "execution": "offline-only",
+        "failure_modes": [
+          "unreviewed-deployment",
+          "unsupported-bundle"
+        ],
+        "inputs": [
+          "runtime ingress and data requirements"
+        ],
+        "outputs": "schema-valid bundle and rollback contract",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_platform_bundle.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "project phase and intended outcome"
+      ],
+      "description": "End-to-end OCI project lifecycle orchestrator. Use whenever the request is about a *project* as a whole rather than one service: stand up / bootstrap / scaffold a new OCI project (compartment + scoped IAM + network skeleton + budget guardrail + project tags), get a project's overall status / health / posture, deploy or release a project (Resource Manager stack or OKE rollout), or tear down / decommission / clean up a project. It binds a project to a named context (compartment + region + profile), accepts a schema-v1 platform bundle after design, and sequences the owning domain skills, each call gated by the shared safety core. Triggers on: new OCI project, bootstrap, scaffold, set up a project, project status, project health, \"is my project healthy\", deploy the project, release, promote, tear down, decommission, clean up, delete the project, project guardrails, project compartment. For a single-service task, use that domain skill directly.",
+      "entrypoint": "skills/oci-project/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "approval-gated",
+      "name": "oci-project",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "ambiguous-owner",
+        "partial-state"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/project-workflow.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "ambiguous-owner",
+          "partial-state"
+        ],
+        "inputs": [
+          "project phase and intended outcome"
+        ],
+        "outputs": "durable checkpoint and teardown plan",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_prompt_router.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "stack scope and ownership confirmation"
+      ],
+      "description": "OCI Resource Manager (ORM) \u2014 managed Terraform \u2014 administration via oci-cli: stacks, plan/apply/destroy jobs, job log and state retrieval, drift detection, state import, variables (flat name\u2192string map, JSON-encoded complex values), and packaging a Terraform bundle as a deployable stack with schema.yaml. Use whenever a request mentions OCI Resource Manager, ORM, RMS, a Terraform stack, plan/apply/destroy job, terraform-version, execution plan strategy, tfstate, drift, stack outputs, or \"deploy to Oracle Cloud\". Plan/read is safe; apply and destroy jobs are mutations gated by the shared safety core.",
+      "entrypoint": "skills/oci-resource-manager/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "terraform-owned",
+      "name": "oci-resource-manager",
+      "provider_boundary": "approved-canary",
+      "unsupported_states": [
+        "terraform-ownership-conflict",
+        "unreviewed-plan"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/resource-manager.md",
+        "execution": "terraform-owned",
+        "failure_modes": [
+          "terraform-ownership-conflict",
+          "unreviewed-plan"
+        ],
+        "inputs": [
+          "stack scope and ownership confirmation"
+        ],
+        "outputs": "plan digest and drift receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_cli_help.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "named context for live reads"
+      ],
+      "description": "OCI security and compliance operations for administrators: Cloud Guard targets, detector/responder recipes and problems; Vault/KMS key and secret create, read (base64-decode), rotation and the oci-vault:// env-resolver; Security Zones; WAF web-app-firewall policies with SQLi/XSS/rate-limit BLOCK rules attached to a load balancer; Vulnerability Scanning host and container image scan recipes, targets and reports; Audit event queries; CIS / ISO-42001 / sovereignty / NIS2 compliance scanning; IAM least-privilege policy review as part of a broader compliance/audit sweep; and secrets redaction. Use for oci-cli, Cloud Guard, Vault, KMS, WAF, Vulnerability Scanning, Security Zones, Audit, CIS, compliance, secure software delivery, dependency vulnerability audits, DevSecOps, or secret-handling tasks in an OCI tenancy. Authoring or rewriting a specific IAM policy statement is oci-iam-admin.",
+      "entrypoint": "skills/oci-security-compliance/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "approval-gated",
+      "name": "oci-security-compliance",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "partial-control-inventory",
+        "secret-value-request"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/security-compliance.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "partial-control-inventory",
+          "secret-value-request"
+        ],
+        "inputs": [
+          "named context for live reads"
+        ],
+        "outputs": "redacted control inventory and exception state",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_guard_destructive.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "bucket or volume scope"
+      ],
+      "description": "Operate OCI Object Storage, Archive Storage, File Storage, and Block/Boot Volume data-protection lifecycle. Use for buckets, objects, multipart uploads, lifecycle and retention rules, versioning, replication, pre-authenticated requests, file systems, mount targets, exports, snapshots, volume groups, backups, backup policies, clones, and volume replication. Compute attachment remains with oci-networking-compute; OKE persistent volumes remain with oci-oke-admin; database-native backups remain with their database owner.",
+      "entrypoint": "skills/oci-storage/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "approval-gated",
+      "name": "oci-storage",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "missing-restore-marker",
+        "retention-lock-unknown"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/storage.md",
+        "execution": "approval-gated",
+        "failure_modes": [
+          "missing-restore-marker",
+          "retention-lock-unknown"
+        ],
+        "inputs": [
+          "bucket or volume scope"
+        ],
+        "outputs": "retention and restore-marker plan",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "declared Terraform ownership"
+      ],
+      "description": "Author, discover, format, validate, test, plan, inspect, apply, and destroy OCI Terraform configurations. Use for local Terraform, provider schema, discovery, reviewed plans, Resource Manager-compatible packages, state ownership, drift, declarative import and moved blocks, native OCI Object Storage backends, execution-context authentication, sovereign realms, modules, or HCL. Existing Resource Manager stack and job operations remain with oci-resource-manager.",
+      "entrypoint": "skills/oci-terraform-authoring/SKILL.md",
+      "evidence_class": "locally-verified",
+      "mutation_policy": "terraform-owned",
+      "name": "oci-terraform-authoring",
+      "provider_boundary": "offline-only",
+      "unsupported_states": [
+        "provider-schema-unavailable",
+        "unreviewed-apply"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/terraform-authoring.md",
+        "execution": "terraform-owned",
+        "failure_modes": [
+          "provider-schema-unavailable",
+          "unreviewed-apply"
+        ],
+        "inputs": [
+          "declared Terraform ownership"
+        ],
+        "outputs": "schema and reviewed-plan contract",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_oci_tf_plan.py"
+        ]
+      }
+    },
+    {
+      "access_prerequisites": [
+        "security attributes and resource scope"
+      ],
+      "description": "OCI Administrator skill for Zero Trust Packet Routing (ZPR) visibility and audit operations. Use when working with ZPR policies, security attributes, protected resources, VCN Flow Logs correlation, ZPR inventory collection, unexpected accepted/rejected flows, Log Analytics ZPR dashboards, ZPR custom logs, Service Connector Hub ingestion for ZPR evidence, or Terraform/CLI onboarding of ZPR visibility. Triggers: ZPR, Zero Trust Packet Routing, security attributes, ZPR policy, protected resource, zpr-family, ZPR flow correlation, unexpected_accepted, suspected_misconfiguration, and OCI ZPR visibility dashboard.",
+      "entrypoint": "skills/oci-zpr-visibility/SKILL.md",
+      "evidence_class": "provider-pending",
+      "mutation_policy": "read-only-default",
+      "name": "oci-zpr-visibility",
+      "provider_boundary": "named-context-read-only",
+      "unsupported_states": [
+        "no-flow-data",
+        "partial-policy-inventory"
+      ],
+      "version_status": "source-unversioned",
+      "workflow": {
+        "cleanup": "target-derived-and-approval-gated-for-mutations",
+        "cost_retention": "target-derived-before-action",
+        "discovery": "read references/zpr-visibility.md",
+        "execution": "read-only-default",
+        "failure_modes": [
+          "no-flow-data",
+          "partial-policy-inventory"
+        ],
+        "inputs": [
+          "security attributes and resource scope"
+        ],
+        "outputs": "policy-impact and no-data receipt",
+        "recovery": "fail-closed-rescope-and-rerun",
+        "verification": [
+          "tests/test_skill_entrypoint_contracts.py"
+        ]
+      }
+    }
+  ],
+  "source_only_and_runtime_surface_count": 41,
+  "support_documents": {
+    "SECURITY.md": "present",
+    "SUPPORT.md": "present",
+    "THIRD_PARTY_NOTICES.md": "present",
+    "docs/INSTALL_ROLLBACK.md": "present"
+  }
+}

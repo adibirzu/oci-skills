@@ -13,6 +13,10 @@ below for the commit or PR backing each row). What is genuinely outstanding:
 | `v2.0.0` promotion | V2-12 | Plugin/extension manifests declare `2.0.0-rc.3` (`.claude-plugin/plugin.json`, `.codex-plugin/plugin.json`, `harness/gemini/gemini-extension.json`, `.claude-plugin/marketplace.json`); no `v2.0.0` git tag exists yet (`git tag -l` shows only `v1.10.0`, `v1.10.1`, `v1.13.0`). Blocked on the forward-eval run above. |
 | Golden-path component locals need domain-specific HCL materialization | Medium/low follow-up | Fixtures still resolve provider fields from a mocked `schema.yaml`, not the real provider schema, per customer design. See [Medium/low follow-ups](#mediumlow-follow-ups). |
 | Live Resource Manager / Terraform end-to-end tests are mocked in CI | Medium/low follow-up | CI's `terraform` job runs every `init`/`validate` with `-backend=false` (verified in `.github/workflows/ci.yml`); no live tenancy is exercised. See [Medium/low follow-ups](#mediumlow-follow-ups). |
+| Enterprise-readiness delivery safety | ER-001 through ER-004 | Planned from review findings F01-F04; atomic upgrade, required notices, secret-safe consumption, and exact-revision CI are not yet implemented. |
+| Enterprise routing, guidance, runtime, and documentation | ER-005 through ER-013 | Planned from F05-F09 and the target workflow contract; implementation evidence is pending. |
+| Governed provider journeys and capability acceptance | ER-014 through ER-020 | Planned from F10 and the 29-capability enhancement inventory; live canaries require separate named-context approval. |
+| Independent enterprise release acceptance | ER-021 through ER-023 | Blocked on the claimed implementation scope and an independent digest-bound decision. |
 
 ## Requirement traceability
 
@@ -74,7 +78,7 @@ below for the commit or PR backing each row). What is genuinely outstanding:
 ## Task cards
 
 Verified in this worktree against `main` (tip `06f3495`): `python3 -m pytest tests/ -q` → 355 passed;
-`python3 scripts/product_contracts.py validate` → `valid: true` (40 PRDs, 39 contracts, 30 journeys, 8 safety cases, 52 requirements); `skills/oci-bastion-access/`, `skills/oci-database-cloud/`,
+`python3 scripts/product_contracts.py validate` → `valid: true` (40 PRDs, 40 contracts, 30 journeys, 8 safety cases, 52 requirements); `skills/oci-bastion-access/`, `skills/oci-database-cloud/`,
 `skills/oci-landing-zone/`, and `skills/oci-application-engineering/` are all
 present on `main`. This backs the blanket "Implemented" (dropped "locally")
 and PR-column corrections below for rows without a more specific reference: no
@@ -145,6 +149,23 @@ PR was ever opened for this work — it was committed straight to `main` — so
 ## Deferred release evidence
 
 The implementation intentionally stops at release-candidate metadata. A maintainer must use the [blinded forward-eval workflow](../../evals/forward/README.md) to install a grader-free candidate, run raw prompts through fresh isolated agent sessions, and record at least 90% pass@1 with zero safety violations before tagging or publishing `v2.0.0`. The harness validates completeness, canonical prompt and manifest bindings, response hashes, deterministic criteria, and independent human review; it does not invoke agents or self-certify evidence. This is a release-evidence deferral, not missing product code.
+
+## Enterprise-readiness follow-on
+
+The [enterprise-readiness PRD set](../product/prds/enterprise-readiness/README.md)
+and [task ledger](../product/tasks/enterprise-readiness.md) convert the
+2026-09-23 review into five dependency-ordered increments and 23 vertical
+slices. They are planning artifacts, not additions to the implemented
+REQ-13-through-REQ-52 contract count. Their status remains planned until each
+task has code, tests, review, and the evidence class required by its acceptance
+criteria.
+
+The clarified follow-on scope is to enhance and test every skill against the
+same task performed by the AI host without the pack, using official sources
+and reproduced guides. Direct OCI AI invocation is optional and the pack adds
+no identity service. Final diagram review and aggregate evaluation happen last;
+tested-package provenance remains required. The earlier release-evidence
+deferral describes the contract plane only, not completion of this program.
 
 ## Application-engineering extension track
 

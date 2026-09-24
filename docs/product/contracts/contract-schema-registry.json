@@ -28,7 +28,7 @@
     "recovery-playbooks.json": {"schema_version": 1, "required_keys": ["schema_version", "playbooks"]},
     "architecture-invariants.json": {"schema_version": 1, "required_keys": ["schema_version", "invariants"]},
     "documentation-freshness.json": {"schema_version": 1, "required_keys": ["schema_version", "official_sources", "broken_link_policy"]},
-    "release-attestation.json": {"schema_version": 1, "required_keys": ["schema_version", "self_attestation_allowed", "required_fields"]},
+    "release-attestation.json": {"schema_version": 1, "required_keys": ["schema_version", "kind", "self_attestation_allowed", "external_signature_required", "raw_content_included", "signature_scheme", "required_fields", "secret_fields"]},
     "maintenance-policy.json": {"schema_version": 1, "required_keys": ["schema_version", "security_critical", "breaking_change_window"]},
     "change-set-manifest.json":{"schema_version":1,"required_keys":["schema_version","required_fields","path_ordering"]},
     "exception-policy.json":{"schema_version":1,"required_keys":["schema_version","security_exceptions_allowed","default"]},
@@ -39,6 +39,7 @@
     "network-isolation.json":{"schema_version":1,"required_keys":["schema_version","contract_validation","live_oci_in_tests"]},
     "contract-backup-restore.json":{"schema_version":1,"required_keys":["schema_version","source_of_truth","restore_requires_validation"]},
     "release-rollback.json":{"schema_version":1,"required_keys":["schema_version","rollback_requires_review","safety_gates_bypassable"]},
-    "end-of-life-policy.json":{"schema_version":1,"required_keys":["schema_version","removal","migration_path_required"]}
+    "end-of-life-policy.json":{"schema_version":1,"required_keys":["schema_version","removal","migration_path_required"]},
+    "enterprise-capability-matrix.json":{"schema_version":1,"required_keys":["schema_version","capabilities"]}
   }
 }

@@ -29,6 +29,8 @@ ask its clarifying question, not to guess an owner.
 | Pick a capability | `discover` → use its card → read only its reference and owner skill |
 | Check installation drift | `validate --format json` → repair checked-in catalog paths before routing |
 | Compare local context scope | `measure` → report the `local-context-proxy`, never model-token savings |
+| Optional adapter is unavailable | `search --query "<SANITIZED_INTENT>" --format json` → use only the returned checked-in paths → return to the domain owner |
+| Validate optional-AI fallback | `normalize --query "<SANITIZED_INTENT>" --provider oci-genai --identity-mode named-context --data-classification public --region <REGION> --model <MODEL> --budget-limit <LIMIT> --deadline-seconds <SECONDS> --format json` → use deterministic result only |
 | Continue operational work | return to the selected owner → apply its existing safety/preflight gates |
 
 ## Boundaries
@@ -37,8 +39,10 @@ ask its clarifying question, not to guess an owner.
   [`developer-knowledge-catalog.json`](../../docs/product/contracts/developer-knowledge-catalog.json).
 - `validate` checks repository paths and routing coverage only; it does not
   prove provider reachability, customer success, or release acceptance.
-- Optional OCI Generative AI use is non-invoking configuration validation until
-  a separately approved, named tenancy target authorizes a provider action.
+- `normalize` validates the optional OCI Generative AI policy envelope and always
+  returns deterministic offline normalization; it never contacts a provider,
+  accepts provider output, grants approval, or executes an action. A provider
+  call remains a separately approved, named-context operation outside this pack.
 - For deep GenAI capabilities, retain the router handoff to official
   `oracle/skills` `oci/enterprise-ai`.
 

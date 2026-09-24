@@ -76,7 +76,11 @@ association points at the intended policy OCID, and re-test.
 
 **Symptom:** A secret read from Vault is garbled or fails to authenticate.
 **Root cause:** `get_secret_bundle` returns base64-encoded content; it was used raw.
-**Fix:** `base64.b64decode(bundle.secret_bundle_content.content).decode()` before use.
+**Fix:** Decode only inside an authorized SDK-to-consumer path or into a
+restrictive temporary file with bounded lifetime and verified cleanup. Never
+print the encoded or decoded value, pass it on command arguments, or persist it
+in receipts. Use metadata-only discovery unless the exact consumer operation is
+approved.
 **See:** [Managing Vault secrets](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/Tasks/managingsecrets.htm)
 **Status:** resolved.
 
@@ -707,11 +711,15 @@ not replicated into the consuming cluster/namespace.
 **See:** [Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm)
 **Status:** resolved.
 
-## KB-084 — OCI Functions image must be amd64 (events-functions)
+## KB-084 — OCI Functions image architecture must match the application shape (events-functions)
 
 **Symptom:** A function deploys fine but every invoke errors or hangs.
-**Root cause:** The image was built on arm64 (Apple Silicon); OCIR-hosted functions run on x86_64.
-**Fix:** Build with `--platform linux/amd64` (or on an x86 builder), re-push, and redeploy.
+**Root cause:** The image architecture does not match the target Functions
+application shape. Assuming X86 for every application is as unsafe as accepting
+the workstation's default architecture.
+**Fix:** Inspect the target application shape, build X86 or ARM to match (or
+publish a compatible multi-architecture manifest), verify the registry manifest,
+then deploy an immutable unique tag.
 **See:** [Creating/deploying Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm)
 **Status:** resolved.
 
@@ -1671,6 +1679,133 @@ separate.
 **See:** [OKE access control](https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm)
 **Status:** resolved.
 
+## KB-172 — Wide certificate discovery can be throttled and remain incomplete (security)
+
+**Symptom:** A cross-compartment certificate inventory returns HTTP 429 or ends
+with only part of the accessible estate, and downstream logic reports that no
+matching certificate exists.
+**Root cause:** Enumerating every accessible compartment multiplies Certificates
+list calls and can exceed service rate limits. An interrupted retry sequence is
+partial evidence, not an empty result.
+**Fix:** Use the target or explicitly configured certificate compartment for the
+normal readiness gate. When a wider inventory is required, pace it, checkpoint
+pagination, preserve per-scope errors, and resume in a fresh rate-limit window.
+Do not conclude absence until the declared scope completes without errors.
+**See:** [Certificates overview](https://docs.oracle.com/en-us/iaas/Content/certificates/overview.htm)
+**Status:** resolved pattern.
+
+## KB-173 — Cross-compartment inventory must expose completeness (cli)
+
+**Symptom:** A resource inventory returns fewer objects than expected, or an
+accessible compartment fails, but the resulting receipt looks like a valid
+complete empty or partial list.
+**Root cause:** List scope, child-compartment traversal, pagination, and
+collection errors were not represented in the receipt contract.
+**Fix:** Record the root scope, child-compartment choice, visited scopes,
+pagination completion, collection errors, timestamp, and completeness state.
+Treat `partial`, `stale`, and `unknown` separately from `complete-empty`; never
+use a partial inventory as destructive or release authority.
+**See:** [OCI CLI command reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/)
+**Status:** resolved pattern.
+
+## KB-174 — Management Agent setup must fail when target installs fail (log-analytics)
+
+**Symptom:** Automation reports Management Agent setup complete even though one
+or more discovered targets failed installation and no active agent is verified.
+**Root cause:** The workflow treated copy or command submission as success,
+allowed a zero-success default, or selected an unverified jump path.
+**Fix:** Validate prerequisites per target, require the intended target set to
+reach the documented active state, reject unverified access paths, and emit a
+per-target failure receipt. A submitted OCI Run Command is not installation
+proof; verify guest execution, agent registration, and collection readiness.
+**See:** [Management Agent prerequisites](https://docs.oracle.com/en-us/iaas/management-agents/doc/perform-prerequisites-deploying-management-agents.html)
+**Status:** resolved pattern.
+
+## KB-175 — Vault rotation must surface failures and wait for the active version (security)
+
+**Symptom:** A rotation helper reports success while the current secret bundle
+or consuming workload still uses the prior version.
+**Root cause:** Update errors were suppressed, consecutive updates were not
+serialized, or verification ran before the new version became active and
+propagated to the consumer.
+**Fix:** Fail on the first update error, bind the operation to the exact Vault
+and secret, wait for the new version to become `ACTIVE`, then verify the consumer
+through a non-value-bearing readiness check. Never log either secret version.
+**See:** [Managing Vault secrets](https://docs.oracle.com/en-us/iaas/Content/KeyManagement/Tasks/managingsecrets.htm)
+**Status:** resolved pattern.
+
+## KB-176 — Complex NSG writes require model fidelity and read-back verification (networking-compute)
+
+**Symptom:** An NSG rule request succeeds but the returned rule has no TCP port
+constraint and therefore permits broader traffic than planned.
+**Root cause:** A generic SDK fallback populated the outer rule while dropping
+nested protocol-option or port-range models; OCI accepted the broader valid
+shape.
+**Fix:** Use a typed service model or a CLI path whose exact nested schema was
+validated. After creation, read the rule back and compare protocol, source,
+destination ports, stateless flag, and attachment to the approved plan. Replace
+only the exact unintended rule after current approval.
+**See:** [Networking overview](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/overview.htm)
+**Status:** resolved pattern.
+
+## KB-177 — A producer receipt does not prove downstream Log Analytics delivery (log-analytics)
+
+**Symptom:** A Function or collector reports a successful export while the
+expected Log Analytics result can be satisfied only by older rows, or the new
+row is not yet queryable.
+**Root cause:** Producer completion, OCI Logging ingestion, Connector Hub
+delivery, and Log Analytics indexing are asynchronous independent stages. A
+source-wide query has no current-run correlation.
+**Fix:** Generate an opaque run marker, carry it through the exported record,
+and poll a marker-specific query for a bounded window. Require the current
+producer count and downstream marker count to reconcile; do not substitute an
+unmarked historical row or `ACTIVE` connector state.
+**See:** [Log Analytics](https://docs.oracle.com/en-us/iaas/log-analytics/home.htm)
+**Status:** resolved pattern.
+
+## KB-178 — Function deployments need an immutable unique tag and artifact binding (events-functions)
+
+**Symptom:** A deployment references a mutable tag or unsupported digest-form
+image and later evidence cannot prove which bytes the Function executed.
+**Root cause:** Deployment input and release evidence were not bound to one
+immutable image identity; OCI Functions accepts a tagged OCIR image reference
+for creation, while a reused tag can drift.
+**Fix:** Push a unique version tag, record and verify its registry manifest
+digest before deployment, use that exact tag in the Function input, and bind
+deployment and test receipts to the observed digest. Never reuse a release tag.
+**See:** [Creating and deploying Functions](https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm)
+**Status:** resolved pattern.
+
+## KB-179 — Provider exceptions must become stable redacted reason codes (cli)
+
+**Symptom:** A failed read-only or validation command prints an SDK traceback or
+service response containing request identifiers, endpoints, or private resource
+details.
+**Root cause:** Provider exceptions escaped the public CLI or evidence boundary.
+**Fix:** Catch service exceptions at the boundary and emit a stable status,
+reason code, retryability, and evidence class without the provider message.
+Retain raw diagnostics only in approved access-controlled observability and
+never in public receipts or committed fixtures.
+**See:** [SDK and CLI configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
+**Status:** resolved pattern.
+
+## KB-180 — Lifecycle polling must not suppress query failures (cli)
+
+**Symptom:** A lifecycle-state poll returns an unknown state or eventually
+times out, with no indication whether the cause was invalid query syntax,
+authentication, authorization, throttling, or a transient provider failure.
+**Root cause:** The polling helper discarded standard error and converted a
+failed query into an empty result, erasing the failure boundary.
+**Fix:** Use the standard query `data."lifecycle-state"`, capture provider
+diagnostics only in a short-lived private file, and emit a stable redacted
+phase, exit code, resource-id flag, query mode/digest, error byte count/digest,
+retry wait, and explicit `outcome=inconclusive` marker. Keep raw diagnostics
+out of public receipts and committed logs; the final timeout preserves the
+sanitized last-error classification so an operator can distinguish a failed
+query from a genuinely empty state response.
+**See:** [OCI CLI query](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/compute/instance/get.html)
+**Status:** resolved.
+
 ## KB-171 — OCI incident reports need a repeatable receipt envelope (log-analytics)
 
 **Symptom:** Agents return long troubleshooting transcripts or unsupported
@@ -1753,6 +1888,117 @@ after current preflight and route proof. Keep privileged mutations, security
 execution, SOC actions, deployments, and Log Analytics writes role-gated.
 **See:** [Cloud Guard](https://docs.oracle.com/en-us/iaas/cloud-guard/home.htm)
 **Status:** resolved.
+
+## KB-182 — Installed skill helper missing in a consuming project (cli)
+**Symptom:** Python cannot open `scripts/oci_cli_help.py` or `scripts/kb_lookup.py`
+from an application checkout.
+**Root cause:** Relative paths resolve against the working directory, not the
+installed pack. The application need not vendor the pack's helpers.
+**Fix:** Locate the loaded skill's installation root containing `scripts/` and
+`references/`; invoke the helper by that absolute path. If the installed payload
+is incomplete, repair the installation rather than copying private project
+scripts or inventing CLI flags. KB lookup needs neither credentials nor OCI CLI.
+**Evidence:** Historical workaround generalized; installed lookup is locally tested.
+**See:** [OCI CLI reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/)
+
+## KB-183 — Audit list_events rejects the limit keyword (security)
+**Symptom:** `ValueError: list_events got unknown kwargs: ['limit']`.
+**Root cause:** Not every SDK list method accepts the same keyword arguments.
+**Fix:** Check the installed SDK version against the Audit method documentation.
+Use the required compartment and narrow `start_time` / `end_time` window; use
+documented `page` continuation when present, not an invented `limit`. Bound page
+count and elapsed time and mark truncated results incomplete. Keep raw Audit
+events private; emit redacted aggregate diagnostics only.
+**Evidence:** Historical fix generalized; no new provider test claimed.
+**See:** [AuditClient](https://docs.oracle.com/en-us/iaas/tools/python/latest/api/audit/client/oci.audit.AuditClient.html)
+
+## KB-184 — Empty Resource Manager stack state is unavailable evidence (resource-manager)
+**Symptom:** `JSONDecodeError` when parsing an active stack's state download.
+**Root cause:** A zero-byte response contains no Terraform state document;
+stack lifecycle does not prove state availability.
+**Fix:** Check status and body length before decoding. Classify empty or malformed
+state as unavailable, then inspect the relevant stack/job metadata read-only.
+Never replace missing state with an empty resource list or use it as authority
+to destroy, recreate, or import resources. Preserve Terraform ownership.
+**Evidence:** Historical fix generalized; no new provider test claimed.
+**See:** [Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm)
+
+## KB-185 — Resource Manager job-log response is not always a stream (resource-manager)
+**Symptom:** `AttributeError` calling stream methods on a job-log response.
+**Root cause:** Client versions and endpoints can expose direct strings/bytes
+or readable response bodies; one response adapter cannot assume every shape.
+**Fix:** Check the installed SDK endpoint contract. Normalize supported direct
+strings, bytes, or bounded readable bodies explicitly; reject unknown shapes.
+Keep body-size and read-time limits. Do not stringify unknown objects or log raw
+Terraform output: state and logs can contain credentials and resource identities.
+Test each supported shape and a malformed response using synthetic fixtures.
+**Evidence:** Historical fix generalized; no new provider test claimed.
+**See:** [Resource Manager](https://docs.oracle.com/en-us/iaas/Content/ResourceManager/home.htm)
+
+## KB-186 — Usage compartment grouping requires compartmentDepth (cost)
+**Symptom:** `compartmentDepth is missing when compartment is in groupBy`.
+**Root cause:** Compartment grouping needs an explicit supported hierarchy depth.
+**Fix:** Set the documented `compartment_depth` SDK field (CLI
+`--compartment-depth`) with compartment grouping. Keep the requested time window,
+currency, and exact compartment scope; do not substitute tenancy-wide totals for
+a compartment budget decision. Failed or empty responses remain inconclusive.
+Verify the installed CLI command's help before executing via `oci_cli`.
+**Evidence:** Historical fix generalized; SDK field checked against official docs.
+**See:** [Usage request model](https://docs.oracle.com/en-us/iaas/tools/python/latest/api/usage_api/models/oci.usage_api.models.RequestSummarizedUsagesDetails.html)
+
+## KB-187 — ErrImagePull manifest unknown after using a local image digest (networking-compute)
+**Symptom:** An OKE pod reports `ErrImagePull` / `manifest unknown` after a push.
+**Root cause:** A local image configuration ID is not the registry manifest or
+multi-platform index digest needed for a repository-qualified pull reference.
+**Fix:** Read the target repository's digest from the push result or registry
+inspection. Verify the image exists and supports the node architecture. Use
+`<REGISTRY>/<NAMESPACE>/<REPOSITORY>@sha256:<MANIFEST_DIGEST>` only after confirming
+that binding. Any deployment change needs normal approval; verify rollout and
+the resulting pod image identity, then application readiness separately.
+**Evidence:** Historical fix generalized; no new rollout or provider test claimed.
+**See:** [Pushing images](https://docs.oracle.com/en-us/iaas/Content/Registry/Tasks/registrypushingimagesusingthedockercli.htm)
+
+## KB-188 — Low-volume Streaming records remain queued in a collector (observability-db)
+**Symptom:** A Kafka-compatible receiver reports fetched records but no new
+downstream events appear and the exporter reports no error.
+**Root cause:** A minimum batch size without a bounded flush interval can leave
+low-volume traffic queued. A consumer starting at the latest offset also skips
+records published before it joins the group.
+**Fix:** Inspect receiver, queue, exporter, and downstream delivery separately.
+For the installed collector version, configure its documented maximum batch
+flush delay; do not assume exporter option names are portable between versions.
+After the consumer is ready, publish one approved unique synthetic marker and
+verify that marker downstream within a bounded time window. Do not reset offsets
+or replay production traffic merely to make a test pass.
+**Evidence:** Historical third-party collector recipe generalized; current
+collector configuration and end-to-end delivery remain unverified.
+**See:** [Streaming Kafka configuration](https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm)
+
+## KB-189 — Explicit profile or compartment override reuses stale resource targets (iam)
+**Symptom:** A scoped inventory fails with `NotAuthorizedOrNotFound` or queries
+a configured cluster outside the explicitly selected context.
+**Root cause:** Authentication was overridden but dotenv, cached endpoint, or
+resource selections remained bound to the previous target.
+**Fix:** Treat profile, tenancy, region, compartment, resource IDs, endpoints,
+and preflight receipts as one context binding. On a context change, invalidate
+inherited selections and rediscover resources read-only in the requested scope.
+Require explicit selection when multiple candidates remain. Never silently retry
+with another profile, widen IAM, or mutate the stale target to resolve the error.
+**Evidence:** Historical fix generalized; no new provider test claimed.
+**See:** [SDK and CLI configuration](https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm)
+
+## KB-181 — Collection envelopes miscount inventory and hide unavailable reads (iam)
+**Symptom:** A list reports one resource with no name or lifecycle state even
+when its nested item collection is empty. A failed security read looks clean.
+**Root cause:** Counting the keys of `data` treats an `items` collection envelope
+as a resource array. Defaulting malformed responses to an empty array fabricates
+absence evidence.
+**Fix:** Normalize either `data` arrays or `data.items` arrays before counting,
+state grouping, and name extraction. Reject missing, malformed, or non-object
+items as unknown. Report unavailable security and alarm reads explicitly rather
+than reporting zero problems or zero firing alarms. Test both response shapes
+with synthetic empty, populated, and invalid responses.
+**See:** [OCI CLI reference](https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/)
 
 ## KB-170 — Browser login does not prove OKE app-agent OCI runtime access (oke-admin)
 

@@ -63,6 +63,7 @@ ALL_CONTRACTS = {
     "capability-catalog.json",
     "compatibility-contract.json",
     "distribution-contract.json",
+    "enterprise-capability-matrix.json",
     "redaction-contract.json",
     "release-gates.json",
     "routing-precedence.json",
@@ -263,14 +264,14 @@ def test_validator_reports_expanded_contract_plane_deterministically() -> None:
         "valid": True,
         "requirements": 52,
         "new_prds": 40,
-        "contracts": 39,
+        "contracts": 40,
         "capabilities": 29,
         "journeys": 30,
         "safety_cases": 8,
     }
     report = validator.build_report(ROOT)
     assert report["requirements"] == 52
-    assert report["contract_count"] == 39
+    assert report["contract_count"] == 40
     assert report["journey_count"] == 30
     assert report["safety_case_count"] == 8
     assert report["external_evidence_complete"] is False

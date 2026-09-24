@@ -177,10 +177,16 @@ and give its safe recovery contract immediately:
    ./scripts/oci_preflight.sh -c "${OCI_SKILLS_COMPARTMENT:-<COMPARTMENT_OCID>}"
    ```
 4. Search the KB before deep live debugging; use local project knowledge first
-   for application-development work:
+   for application-development work. Resolve `<PACK_ROOT>` from this installed
+   skill's location (the directory containing `scripts/` and `references/`),
+   not the consuming project's working directory:
    ```bash
-   python3 scripts/kb_lookup.py "symptom words"
+   python3 "<PACK_ROOT>/scripts/kb_lookup.py" "symptom words" --top 3 --show
    ```
+   Exact identifiers also work: `KB-001 --show`. Read the fix, applicability,
+   and cited source before acting; a search match is not proof of diagnosis or
+   authorization. Lookup is offline and requires no OCI credentials. Resolve
+   other bundled helpers, including `oci_cli_help.py`, from the same pack root.
 5. Read [references/tenancy-safety.md](../../references/tenancy-safety.md) and
    [references/helper-conventions.md](../../references/helper-conventions.md) once per
    session, then load only the domain reference you need. For auth/secret questions
