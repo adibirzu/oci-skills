@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "source_manifest": "docs/product/contracts/install-manifest.json",
+  "surface_count": 41,
+  "surfaces": [
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "bootstrap.sh",
+      "sha256": "99eb73199dd37c85f3156982a9098865e47fcc5e46a9440b9ba1123cf04f2640"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "hooks/guard_destructive.py",
+      "sha256": "c40f49c337c58349248868720f6cdabadf0387af68fd20b848cea3f347ebfc55"
+    },
+    {
+      "classification": "reviewed-non-executable-source",
+      "distribution": "source-only",
+      "mode": "0644",
+      "path": "hooks/guard_skill_routing.py",
+      "sha256": "d5a12c50d704689d5022c85db5378583fed70f413423f18f9a86b85391c41f79"
+    },
+    {
+      "classification": "reviewed-non-executable-source",
+      "distribution": "source-only",
+      "mode": "0644",
+      "path": "hooks/inject_oci_router.py",
+      "sha256": "c5d7e0721f64e02fe2b2ad1c68da66e63751812a879819a87dab2bdaeef2f812"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "install.sh",
+      "sha256": "1eefe9276f964286661c58bbbf699ec2b2ad31f41a786c25d1d7b13163f84fc2"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/check_action_contracts.py",
+      "sha256": "8baaa3829616df4b38afe46c5d777b2f6854a502e661ded23995841b64f14185"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/check_doc_links.py",
+      "sha256": "909a3d15803b04c6bd6165cd4772b5389c3b6b17d02b81f7ddf9f05cf8429931"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/codex_forward_eval_trial.py",
+      "sha256": "8cd0f720cb324972299c4ee2183d7fef04a3d2cbeb17ff7bd2630eb5357067b4"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/common.sh",
+      "sha256": "883e508c5ff3e0b24d9f7e58dd08378650c0525fd1bedcee063b24070a5c1149"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/enterprise_workflow.py",
+      "sha256": "b6331772f5e7a8f3e436670d876139be2e467047ebf8e2a0ae2514c6da1dd29f"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/forward_eval.py",
+      "sha256": "4c4186ecb15ad30717bdfdca7cb81fe4502005f48f559e9fdda1487d54158ae2"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/forward_eval_contract.py",
+      "sha256": "a25461e60207fcd058b578e7b04ade9b5b508d9e948cf3c4c2d186882305e619"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/iam_audit.py",
+      "sha256": "d22869dd921a8ec6318e44a164fb70b592cc01d788ef983d5920c5016940c5d3"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/kb_lookup.py",
+      "sha256": "6288b7be0f3bc16809362aa3af22ae4c6404bc20373202f0e9fb10a2d8116fac"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_adb.sh",
+      "sha256": "50548e15839a7a12a64e0c5781626f5832ad35ce60ee6f399e731e614af76965"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_cli_help.py",
+      "sha256": "4d22d1b588a49805897ba94d6e5d8daf4fa09f0480425a86b6a493bc74ae87ee"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_cli_lint.py",
+      "sha256": "a89f0cb7186aa18182553131dce254f73185a019ebdc23d8f9f9f391decc210c"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_context.py",
+      "sha256": "ae625d133ca93d8f3554b992664ae643fa0ba0fc71e9c8b97007ad42b4ded7b1"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_cost.sh",
+      "sha256": "eb70b9fe9952c16c577aad90a103f2f1f2f96fd822c228a601125e68ada1980e"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_datasafe.sh",
+      "sha256": "186485e908cb579abb7e87acca24196913951794ad3af8388d1cd672e9b4faea"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_developer_knowledge.py",
+      "sha256": "d59ad9ae6fb59fa704e493e4cfdaddfd7f1119c358432463dfe9ab1005155c59"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_logan.sh",
+      "sha256": "3190436cf9a12b764e1decfc395ae2b54f96f0e31c700c387ecab9b375b36db9"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_oke_demo_troubleshoot.py",
+      "sha256": "0741619883def1f6d8c529e07b033af7945d08ef622b4b526160559cbd20d0fa"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_orm.sh",
+      "sha256": "db878072289b74003ba1b48ef143e004937e79198df816b54033b1c2c7a4ec94"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_preflight.sh",
+      "sha256": "f5c19fcd9f7fac17142037dcfb505fa4a05ecafa315b976944a6bbd4ce777d99"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/oci_private_bucket_canary.sh",
+      "sha256": "97b253b097db88a7867887a7c13e0d2194ec3f239ad8a09844d0cb6b67481447"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_project.sh",
+      "sha256": "b1707f94a59cbdb1f317bff28467426c3771e0e4593ad3ab1f54c91c2de34447"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_tf.sh",
+      "sha256": "24baa44e80d795e666c706ede4722c09b46b312bcb2db366995ccd718fe2f516"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/oci_tf_plan.py",
+      "sha256": "b5e56f77165c5f96e709b4c8c40fd240dd64e90d2cc954dc23f74015e5718fb9"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/operator_inventory.py",
+      "sha256": "9417db11e711b0e5e561fa14d3cb2a360352a858cd607af4b4e4f1b029ed9c8a"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/platform_bundle.py",
+      "sha256": "40798db573b7e53eb5555eff618bfcba9f526ccb25577582e0eabed89a69e445"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/product_contracts.py",
+      "sha256": "1c986832f86a101937dda57508cdecd18c3bef304831783558086d6dcf49db48"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/redact.py",
+      "sha256": "76cd28f6d0459523236680b21aeb0e54cbc0fe221777a6d62248fc7f34cbccbc"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/redaction_gate.py",
+      "sha256": "831ba17d67871f779dc291c2206956188d43093d5d09db9e3b5bad1a01aac0a8"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/release_attestation.py",
+      "sha256": "900705674a8acc8e30c54be97cd42e22f65c8b82d092c938e686fc7a9dbb4afe"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/release_evidence_packet.py",
+      "sha256": "add31703ea29eaf7e9032b4f6dc799c006a96a11427077aa573f46e665c60006"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/shipped_surface_inventory.py",
+      "sha256": "bb453c0f1ba5ec020acecbc9c6bed95c0046c2f56117ecfb9391109bab7b7bcb"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/target_derived_plan.py",
+      "sha256": "91d1f938b615906e32349bd8d9a4560b52e6e401ae0835dc18d3e42cd1d18a31"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "scripts/workflow_eval.py",
+      "sha256": "cc721dd4673f4ff0a886894206e7cabd17b06c7e2c859bde2a77b96e2f547ccc"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "skills/oci-diagramming/scripts/oci_diagram.py",
+      "sha256": "04690b2df5805744fac8c91489dea2af9da92889f4106f14d48f23ac79bf6a57"
+    },
+    {
+      "classification": "executable",
+      "distribution": "copy-install-runtime",
+      "mode": "0755",
+      "path": "skills/oci-observability-db/scripts/promql_to_mql.py",
+      "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
+    }
+  ],
+  "surfaces_sha256": "126d9ba77c8fea5e057445b7f4555c1c39a4d50a9d3046fc9c5c821d21144506"
+}

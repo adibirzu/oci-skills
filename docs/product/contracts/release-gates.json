@@ -7,6 +7,8 @@
     {"id": "product-contracts", "command": "python3 scripts/product_contracts.py validate", "required": true},
     {"id": "forward-definitions", "command": "python3 scripts/forward_eval.py validate", "required": true},
     {"id": "clean-install", "command": "pytest -q tests/test_codex_install.py", "required": true},
+    {"id": "installer-rollback", "command": "pytest -q tests/test_codex_install.py", "required": true},
+    {"id": "workflow-rollback", "command": "pytest -q tests/test_enterprise_workflow.py", "required": true},
     {"id": "documentation-links", "command": "pytest -q tests/test_doc_links.py", "required": true},
     {"id": "redaction", "command": "make check", "required": true}
   ],

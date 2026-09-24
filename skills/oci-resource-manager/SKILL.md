@@ -26,8 +26,10 @@ logs, state) are safe; **apply** and **destroy** jobs are mutations and go throu
    ```
 2. Check the KB before debugging a stuck job:
    ```bash
-   python3 scripts/kb_lookup.py "resource manager job" cli
+   python3 "<PACK_ROOT>/scripts/kb_lookup.py" "resource manager job" --top 3 --show
    ```
+   Resolve `<PACK_ROOT>` from this installed skill (the directory containing
+   `scripts/` and `references/`), not the application's working directory.
 
 Read [../../references/resource-manager.md](../../references/resource-manager.md)
 for the full lifecycle, job-wait pattern, variables, and `schema.yaml` packaging,

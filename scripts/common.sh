@@ -541,7 +541,7 @@ _validate_action_command() {
     fi
     case "$flag" in
       --password|--*-password|--credentials|--*-credentials|--auth-token|--*-auth-token|\
-      --private-key|--*-private-key|--secret|--*-secret|--secret-content|--*-secret-content|\
+      --private-key|--*-private-key|--secret|--*-secret|--secret-content|--*-secret-content|--*-secret-content-content|\
       --key-content|--*-key-content|--token|--*-token)
         [[ "$value" == file://* ]] \
           || die "secret-bearing $flag requires a temporary 0600 file:// payload"
@@ -678,16 +678,68 @@ wait_for_state() {
   # load-balancer lifecycle is exposed differently; callers can override the
   # query by passing OCI_SKILLS_STATE_QUERY, default to the standard field.
   local query="${OCI_SKILLS_STATE_QUERY:-data.\"lifecycle-state\"}"
-  local waited=0 state
+  local waited=0 state rc query_error error_class last_error_class="" last_error_digest="" last_error_bytes=0 query_mode query_digest
+  query_error="$(mktemp "${TMPDIR:-/tmp}/oci-state-query.XXXXXX")"
+  if [[ "$query" == 'data."lifecycle-state"' ]]; then
+    query_mode="standard"
+  else
+    query_mode="custom"
+  fi
+  query_digest="$(printf '%s' "$query" | shasum -a 256 | awk '{print $1}')"
+  # OCI deliberately conflates some authorization and absence failures.  Keep
+  # the provider diagnostic private, but emit enough structured context to
+  # distinguish a broken query from a retryable or target-scoping failure.
+  _state_query_error_class() {
+    local detail="$1"
+    if printf '%s' "$detail" | grep -qiE 'JMESPath|invalid.*query|parse error|unknown token'; then
+      printf '%s' 'query-syntax'
+    elif printf '%s' "$detail" | grep -qiE 'NotAuthorizedOrNotFound|\b404\b'; then
+      printf '%s' 'not-authorized-or-not-found'
+    elif printf '%s' "$detail" | grep -qiE 'NotAuthenticated|\b401\b'; then
+      printf '%s' 'not-authenticated'
+    elif printf '%s' "$detail" | grep -qiE 'TooManyRequests|\b429\b|throttl|rate.?limit'; then
+      printf '%s' 'throttled'
+    elif printf '%s' "$detail" | grep -qiE '\b50[0-9]\b|ServiceUnavailable|InternalServerError|BackendError|timed? ?out|Connection (reset|refused|aborted)|EOF occurred'; then
+      printf '%s' 'transient-provider-or-network'
+    else
+      printf '%s' 'unclassified'
+    fi
+  }
   while (( waited < timeout )); do
     # shellcheck disable=SC2086  # $kind is an intentional multi-word command path
+    rc=0
     state="$(oci_cli ${kind} get "$id_flag" "$ocid" \
-      --query "$query" --raw-output 2>/dev/null || true)"
-    if [[ "$state" == "$target" ]]; then ok "$kind reached $target"; return 0; fi
+      --query "$query" --raw-output 2>"$query_error")" || rc=$?
+    if (( rc != 0 )); then
+      local error_detail error_bytes error_digest
+      error_detail="$(cat "$query_error")"
+      error_class="$(_state_query_error_class "$error_detail")"
+      error_bytes="$(LC_ALL=C printf '%s' "$error_detail" | wc -c | tr -d '[:space:]')"
+      error_digest="$(printf '%s' "$error_detail" | shasum -a 256 | awk '{print $1}')"
+      last_error_class="$error_class"
+      last_error_digest="$error_digest"
+      last_error_bytes="${error_bytes:-0}"
+      warn "$kind lifecycle query failed (phase=state-read class=$error_class rc=$rc id_flag=$id_flag query_mode=$query_mode query_digest=$query_digest error_bytes=${error_bytes:-0} error_digest=$error_digest waited=${waited}s outcome=inconclusive)"
+      audit_log lifecycle_query_failed "kind=$kind" "phase=state-read" \
+        "error_class=$error_class" "exit_code=$rc" "id_flag=$id_flag" \
+        "query_mode=$query_mode" "query_digest=$query_digest" \
+        "error_bytes=${error_bytes:-0}" "error_digest=$error_digest" \
+        "waited_seconds=$waited" "outcome=inconclusive"
+      state=""
+    fi
+    if [[ "$state" == "$target" ]]; then
+      rm -f "$query_error"
+      ok "$kind reached $target"
+      return 0
+    fi
     log "$kind state=${state:-<unknown>} (target=$target) waited=${waited}s"
     sleep 10; waited=$(( waited + 10 ))
   done
-  die "timed out after ${timeout}s waiting for $kind to reach $target"
+  rm -f "$query_error"
+  if [[ -n "$last_error_class" ]]; then
+    die "timed out after ${timeout}s waiting for $kind to reach $target (outcome=inconclusive last_error_class=$last_error_class last_error_bytes=$last_error_bytes last_error_digest=$last_error_digest)"
+  fi
+  die "timed out after ${timeout}s waiting for $kind to reach $target (outcome=inconclusive no-state-observed)"
 }
 
 # ---------------------------------------------------------------------------

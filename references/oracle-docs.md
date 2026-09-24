@@ -150,7 +150,7 @@ Safe), the upstream `db/` domain of
 | Saved searches and dashboard widgets | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/save-share-log-searches.html> |
 | Scheduled-search detection rules | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/create-schedule-run-saved-search.html> |
 | Alerts for detected events | <https://docs.oracle.com/en-us/iaas/log-analytics/doc/create-alerts-detected-events.html> |
-| VCN Flow Logs | <https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/vcn_flow_logs.htm> |
+| VCN Flow Logs | <https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/vcn-flow-logs.htm#vcn_flow_logs> |
 | Capture filter CLI | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/network/capture-filter/create.html> |
 | Logging service log CLI | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/logging/log/create.html> |
 
@@ -330,12 +330,16 @@ duplicating (deep OKE day-2, OCI Generative AI / Enterprise AI):
 
 ## Cross-cutting — CLI, SDK, API errors
 
+- Audit SDK method parameters: <https://docs.oracle.com/en-us/iaas/tools/python/latest/api/audit/client/oci.audit.AuditClient.html>
+- Usage request fields: <https://docs.oracle.com/en-us/iaas/tools/python/latest/api/usage_api/models/oci.usage_api.models.RequestSummarizedUsagesDetails.html>
+
 | Topic | Canonical doc |
 |---|---|
 | OCI documentation home | <https://docs.oracle.com/en-us/iaas/Content/home.htm> |
 | SDK & CLI configuration (`~/.oci/config`) | <https://docs.oracle.com/en-us/iaas/Content/API/Concepts/sdkconfig.htm> |
 | OCI CLI install | <https://docs.oracle.com/iaas/Content/API/SDKDocs/cliinstall.htm> |
 | OCI CLI command reference | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/> |
+| Compute instance get CLI reference | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/compute/instance/get.html> |
 | API error reference (status codes) | <https://docs.oracle.com/en-us/iaas/Content/API/References/apierrors.htm> |
 | Work requests | <https://docs.oracle.com/en-us/iaas/Content/General/Concepts/workrequestoverview.htm> |
 

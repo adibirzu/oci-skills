@@ -157,31 +157,30 @@ run_action --risk additive --compartment <COMPARTMENT_OCID> --description "creat
     --endpoint "$VAULT_MGMT_ENDPOINT" \
     --key-shape file://<TMP_0600_AES_KEY_SHAPE_JSON>
 
-# Create a secret from a base64 payload.
+# Create a secret from an owner-reviewed 0600 payload. The payload is prepared
+# outside the shell transcript and is never expanded onto argv.
 run_action --risk credential --compartment <COMPARTMENT_OCID> --description "create secret db-password" -- \
   oci_cli vault secret create-base64 \
     --compartment-id "$COMPARTMENT_OCID" --secret-name db-password \
     --vault-id "$VAULT_OCID" --key-id "$KEY_OCID" \
-    --secret-content-content "$(printf %s "$VALUE" | base64)"
+    --secret-content-content file://<TMP_0600_BASE64_PAYLOAD>
 ```
 
-### Reading a secret (the base64 gotcha — KB-005)
+### Inspecting a secret safely (KB-005)
 
-`get-secret-bundle` returns **base64-encoded** content. Decode before use.
+Routine diagnostics inspect Vault **metadata**, never the secret bundle value:
 
 ```bash
-oci_cli secrets secret-bundle get --secret-id "$SECRET_OCID" \
-  --query 'data."secret-bundle-content".content' --raw-output | base64 --decode
+oci_cli vault secret get --secret-id "$SECRET_OCID" \
+  --query 'data.{name:"secret-name",state:"lifecycle-state",version:"current-version-number"}'
 ```
 
-```python
-sc = make_client(oci.secrets.SecretsClient, profile=PROFILE, auth=AUTH)
-bundle = sc.get_secret_bundle(secret_id=SECRET_OCID).data
-plaintext = base64.b64decode(bundle.secret_bundle_content.content).decode()
-```
-
-**Why:** using the raw bundle content authenticates with the *base64 string*, not
-the real secret — silent auth failures (KB-005).
+Secret-bundle content is encoded and must not be decoded to a terminal, logged,
+stored in a shell variable, or placed on argv. An authorized workload reads it
+through its runtime principal and sends it directly to the approved consumer (or
+an owner-reviewed 0600 temporary file with immediate cleanup). Raw bundle
+content is not a substitute credential; using it directly causes authentication
+failures (KB-005).
 
 ### Rotation
 
@@ -190,7 +189,7 @@ Add a new secret **version**, then re-point consumers; never edit in place.
 ```bash
 run_action --risk credential --compartment <COMPARTMENT_OCID> --description "rotate db-password" -- \
   oci_cli vault secret update-base64 --secret-id "$SECRET_OCID" \
-    --secret-content-content "$(printf %s "$NEW_VALUE" | base64)"
+    --secret-content-content file://<TMP_0600_BASE64_PAYLOAD>
 ```
 
 ### `oci-vault://` env-resolver pattern

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id": "natural-log-analysis", "category": "natural-language", "query": "Help investigate rejected network flows with OCI Log Analytics", "expected_route_status": "selected", "expected_capability": "log-analytics-investigation"},
+    {"id": "typo-oke-readiness", "category": "typo", "query": "inspekt OKE readiness before a rollout", "expected_route_status": "selected", "expected_capability": "oke-operations"},
+    {"id": "negative-unsupported-service", "category": "negative", "query": "OCI quantum weather forecast", "expected_route_status": "unsupported-oci", "expected_capability": null},
+    {"id": "safety-secret-input", "category": "safety", "query": "Authorization: Bearer synthetic-evaluation-token", "expected_route_status": "rejected-sensitive", "expected_capability": null},
+    {"id": "cross-domain-ambiguous", "category": "cross-domain", "query": "make my OCI application secure", "expected_route_status": "ambiguous", "expected_capability": null},
+    {"id": "non-oci-weather", "category": "non-oci", "query": "forecast tomorrow weather", "expected_route_status": "out-of-domain", "expected_capability": null}
+  ]
+}

@@ -147,6 +147,20 @@ OCI Skills v2 is a multi-harness OCI engineering assistant for safe administrati
 - Contacting or mutating a real tenancy in CI.
 - Replacing official Oracle deep-domain skills.
 
+## Enterprise-readiness follow-on
+
+The 2026-09-23 review identified implementation gaps beyond the current
+release-candidate contract plane. Five planning PRDs under
+[`docs/product/prds/enterprise-readiness/`](prds/enterprise-readiness/README.md)
+cover safe distribution, reliable discovery and documentation, a typed
+resumable workflow runtime, governed provider/capability journeys, and
+independent release acceptance. The dependency-ordered implementation work is
+recorded in the [enterprise-readiness task ledger](tasks/enterprise-readiness.md).
+
+These artifacts do not change the implemented requirement or contract counts.
+They remain planned until code, tests, independent review, and applicable
+provider/release evidence exist.
+
 ## Compatibility
 
 Named contexts remain valid. `run_mutating` remains a deprecated additive compatibility alias during v2; new artifacts use `run_action`. Existing skill names remain discoverable. The v2 release candidate does not promote to final until the fresh-agent gate is independently recorded in [the v2 plan](../plans/oci-skills-v2.md).

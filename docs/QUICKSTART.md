@@ -2,10 +2,83 @@
 
 This guide distinguishes offline artifact generation, read-only inspection, and live mutation. Start offline; no OCI credential is needed until a preflighted read/plan/action.
 
+For transactional copy-install upgrades, reversible disable/enable, public
+compatibility scope, and recovery, read [install and rollback](INSTALL_ROLLBACK.md).
+Report vulnerabilities through [SECURITY.md](../SECURITY.md) and maintenance
+questions through [SUPPORT.md](../SUPPORT.md).
+
+The [enterprise capability matrix](product/contracts/enterprise-capability-matrix.json)
+lists each skill's owner, acceptance journey, provider boundary, and unsupported
+states. It is a local planning/support contract, not proof of provider or release
+acceptance.
+The checked-in [shipped surface inventory](generated/shipped-surface-inventory.json)
+shows the packaged executable/helper classification and checksums.
+The [operator inventory](generated/operator-inventory.json) is generated from
+the skill entrypoints, installation/distribution contracts, enterprise
+capability matrix, support documents, and shipped-surface inventory. It is
+local metadata that records provider boundaries and unsupported states; it does
+not establish provider or release acceptance.
+
+For a metadata-only enterprise workflow or identity/security/governance pack,
+use `scripts/enterprise_workflow.py`. It stores only hashes and aggregate
+category states in a new local `0700` run directory. `empty` and `unavailable`
+inventory categories remain inconclusive; they never become policy, assessment,
+score, or reachability claims. The workflow does not invoke OCI; a later
+provider check remains a named-context, read-only or approved-action gate.
+For observability, database, and data journeys, its marker-aware acceptance
+plans keep collection through user outcome separate and require fresh restore,
+failback, ingestion, or replication markers before an outcome claim.
+Delivery acceptance plans additionally require architecture, routes,
+certificates, identity, and target-cluster derivations from the named context;
+`ACTIVE` or `RUNNING` is never an end-to-end delivery, patch, or promotion
+receipt.
+Stateful cost, IaC, project, product, and application plans additionally bind
+plan, state, provenance, cost, telemetry, rollback, and teardown metadata to
+one candidate digest, with a single explicit durable-resource owner and a
+reviewed migration path.
+Final routing, landing-zone, and diagram packs retain explicit unavailable
+upstream states, record only safe capability/revision metadata when an upstream
+owner is present, and bind diagram review to a sanitized snapshot digest.
+
+For a local release-evidence candidate, `scripts/release_evidence_packet.py`
+first emits a candidate digest, then records only the result of each completed
+local gate in a private receipt. Build the packet from those receipts; it stays
+`external-evidence-pending` and cannot become an independent release approval.
+Never attach command output, provider responses, topology, or credentials to a
+receipt.
+The checked-in [release readiness declaration](product/release-readiness.json)
+also exposes open P1-defect identifiers, owner-review availability, and
+unreviewed-exception identifiers as metadata only. It defaults owner review to
+`unavailable`; an independent reviewer must supply a current, digest-bound
+decision before any release claim.
+
 For editable OCI architecture diagrams, use `oci-diagramming`. Its Draw.io,
 Excalidraw, and Mermaid generator/validator is offline and contacts no tenancy.
 
 ## Install and prerequisites
+
+### Ask about a known issue
+
+After installing, ask your AI host to use the OCI skill and describe the symptom
+or error (remove resource identities and secrets). The pack searches its bundled,
+sanitized KB; it does not need access to the projects that supplied the lessons.
+There is no separate skill login or authorization service. Cloud actions still
+use your existing OCI identity and the pack's safety gates.
+
+For manual offline lookup, resolve `<PACK_ROOT>` to the installed directory
+containing `scripts/` and `references/`, regardless of your current project:
+
+```bash
+python3 "<PACK_ROOT>/scripts/kb_lookup.py" "ErrImagePull manifest unknown" --top 3 --show
+python3 "<PACK_ROOT>/scripts/kb_lookup.py" "KB-187" --show
+```
+
+Use `--json --show` for structured guidance. A match is a diagnostic candidate,
+not proof that its fix applies. Check prerequisites and the official citation;
+validate the outcome after an authorized change. No match means continue scoped
+diagnosis, not broaden cloud permissions. Python alone is enough for KB lookup.
+
+### Tool prerequisites
 
 Use Bash 3.2+, Python 3.10+, `jq`, and the OCI CLI. Terraform 1.5+ supports HCL validation/execution; 1.7+ runs the native `.tftest.hcl` tests. `pip install jsonschema` is required for `scripts/platform_bundle.py validate`.
 

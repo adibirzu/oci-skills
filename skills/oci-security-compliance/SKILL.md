@@ -64,7 +64,7 @@ If the resolved tenancy/compartment name is not the one you expect, stop.
 | Triage & fix a finding | `cloud-guard problem list` (ACTIVE, subtree) → identify the resource + compartment → remediate in the owning domain → re-list to confirm the problem clears |
 | Block web attacks | `web-app-firewall-policy get` (confirm action is `BLOCK`, not `OBSERVE` — KB-004) → `web-app-firewall create` attaching the policy to the LB → replay a test request → expect `403` |
 | Score against a framework | run the compliance scan (env carries auth) → `redact.py` the findings → prioritize CRITICAL/HIGH → remediate → re-scan |
-| Rotate a leaked secret | `secret-bundle get` to confirm current value (KB-005, base64) → `secret update-base64` (new *version*, never in place) → update consumers → `redact.py --check` before commit |
+| Rotate a leaked secret | inspect secret metadata/version and consumer health only → create a new version through an owner-reviewed protected consumer path (never terminal value retrieval) → update consumers → verify readiness and retirement evidence → `redact.py --check` before commit |
 | Secure a release | artifact provenance/SBOM → dependency audit → policy threshold → deploy canary → Cloud Guard + runtime verification → rollback on failure |
 | Enable Vulnerability Scanning | read recipes/targets → check host agent or OCIR repository coverage → gated target/recipe change → verify host/container reports and Cloud Guard problems |
 
@@ -103,18 +103,19 @@ store raw scanner dumps or secrets in the bundle.
 
 ## Common tasks
 
-**Read a Vault secret** (KB-005 — decode base64):
+**Inspect Vault secret metadata** (default; never fetch the value):
 ```bash
-oci_cli secrets secret-bundle get --secret-id <SECRET_OCID> \
-  --query 'data."secret-bundle-content".content' --raw-output | base64 --decode
+oci_cli vault secret get --secret-id <SECRET_OCID> \
+  --query 'data.{name:"secret-name",state:"lifecycle-state",version:"current-version-number"}'
 ```
 
-**Rotate a secret** (add a version, never edit in place):
-```bash
-run_action --risk credential --compartment <COMPARTMENT_OCID> --description "rotate secret" -- \
-  oci_cli vault secret update-base64 --secret-id <SECRET_OCID> \
-    --secret-content-content "$(printf %s "$NEW_VALUE" | base64)"
-```
+**Consume or rotate a secret** (credential-risk operation): use a reviewed SDK
+path that transfers the value directly to its consumer, or a restrictive
+temporary file created with mode `0600` and deleted after use. Never print the
+value, interpolate it into a command argument, place it in shell history, or
+persist it in a receipt. Bind the action to the exact secret and consumer with
+`run_action`, wait for the new version to become `ACTIVE`, then verify consumer
+readiness without returning the value. See KB-005 and KB-175.
 
 **WAF with BLOCK rules** (KB-004 — `OBSERVE` only logs):
 ```bash

@@ -142,6 +142,34 @@ def _is_lowercase_url_path_token(text: str, match: re.Match[str]) -> bool:
     return bool(re.fullmatch(r"https?://[A-Za-z0-9._~:/-]*", prefix))
 
 
+def _is_pinned_public_revision(text: str, match: re.Match[str]) -> bool:
+    """Allow full Git SHAs only in an explicit public provenance context."""
+    token = match.group(0)
+    if re.search(r"/(?:blob|commit)/[0-9a-f]{40}(?:/|$)", token):
+        return True
+    if not re.fullmatch(r"[0-9a-f]{40}", token):
+        return False
+    prefix = text[max(0, match.start() - 180):match.start()]
+    if (
+        re.search(r"uses:\s*[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+@\s*$", prefix)
+        or re.search(r"github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/(?:blob|commit)/$", prefix)
+    ):
+        return True
+    line_start = text.rfind("\n", 0, match.start()) + 1
+    line_end = text.find("\n", match.end())
+    line = text[line_start:None if line_end == -1 else line_end]
+    return bool(
+        re.fullmatch(
+            r"\|\s*[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+\s*\|\s*`?"
+            + re.escape(token)
+            + r"`?\s*\|\s*<https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/blob/"
+            + re.escape(token)
+            + r"/[^>]+>\s*\|",
+            line,
+        )
+    )
+
+
 def _b64_slash_is_secret(token: str) -> bool:
     """True if a 40+ char run containing "/" is a base64 secret, not a URL path.
 
@@ -235,6 +263,8 @@ def redact(
                 return token  # documentation/example address, not PII
             if _name == "secret_blob" and _is_lowercase_url_path_token(_text, match):
                 return token  # long documentation URL slug, not a secret
+            if _name in ("secret_blob", "secret_blob_slash") and _is_pinned_public_revision(_text, match):
+                return token  # explicit immutable action/provenance revision
             if _name == "secret_blob_slash" and not _b64_slash_is_secret(token):
                 return token  # URL/endpoint path, not a secret
             if (

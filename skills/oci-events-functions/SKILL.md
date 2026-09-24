@@ -55,7 +55,7 @@ starter; add producer/consumer IAM through `oci-iam-admin`.
 
 | Task | Sequence |
 |------|----------|
-| Deploy & wire a function | `fn deploy` an **amd64** image (KB-084) → verify the app/function exists → `events rule create` with a FAAS action → trigger a test event |
+| Deploy & wire a function | collect a sanitized target inventory → run `scripts/target_derived_plan.py --inventory <SANITIZED_INVENTORY_JSON>` → inspect the target Functions application shape → build a matching X86, ARM, or multi-architecture image and verify its manifest (KB-084) → `fn deploy` → verify the app/function exists → `events rule create` with a FAAS action → trigger a test event |
 | Rule never fires | enable emit-events on the source resource (KB-087) → check the rule's `eventType` condition matches → verify the FAAS/ONS target → trigger and watch |
 | Fan-out logs/metrics | `service-connector create` (source → target) → grant the `serviceconnector` principal per-source/target verbs (KB-085) → confirm data actually moves, not just `ACTIVE` |
 | Notifications never arrive | `ons topic create` → `subscription create` → confirm it leaves `PENDING` → `ACTIVE` (KB-086) → publish a test message |
@@ -66,8 +66,9 @@ starter; add producer/consumer IAM through `oci-iam-admin`.
 
 ## Key gotchas (the ones that waste hours)
 
-- **Function image must be amd64** — an arm64 (Apple Silicon) image deploys but
-  fails to invoke on OCIR. Build `--platform linux/amd64`.
+- **Function image architecture must match the application shape** — inspect the
+  target application, build X86 or ARM accordingly (or publish a compatible
+  multi-architecture manifest), and verify the registry manifest before deploy.
 - **SCH runs as the `serviceconnector` principal** — without per-source/target
   IAM (`stream-pull`/`stream-consume`, target verb), it goes `ACTIVE` but moves
   no data.

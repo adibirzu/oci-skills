@@ -3,6 +3,24 @@
 Every script in this pack is built on `scripts/common.sh`. Use these helpers
 instead of re-deriving auth, validation, or redaction logic.
 
+## Contents
+
+- [Installed paths](#installed-paths)
+- [Bash skeleton](#bash-skeleton)
+- [Never invent CLI flags — fetch the command shape first](#never-invent-cli-flags--fetch-the-command-shape-first)
+
+## Installed paths
+
+Resolve helper paths from the loaded pack's installation root, not the user's
+application working directory. Examples written as `scripts/...` assume that
+root; from another directory invoke `<PACK_ROOT>/scripts/...` instead. Keep
+project-relative configuration and Terraform working directories explicitly
+bound to the user's project—do not change directory blindly to find a helper.
+The installed `kb_lookup.py "symptom words" --top 3 --show` returns candidate
+fixes with citations offline. A supplied tag matches heading domains only
+(for example `oke` matches `oke-admin`); retry without the optional filter when
+investigating cross-domain symptoms.
+
 ## Bash skeleton
 
 ```bash

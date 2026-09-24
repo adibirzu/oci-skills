@@ -86,29 +86,41 @@ Env: OCI_SKILLS_COMPARTMENT, OCI_CLI_PROFILE, OCI_REGION, OCI_AUTH_MODE,
 EOF
 }
 
-# _len JSON  -> element count of .data (0 on empty/parse error)
-_len() { printf '%s' "${1:-}" | jq -r '(.data // []) | length' 2>/dev/null || echo 0; }
+# OCI list APIs expose either data arrays or data.items collection envelopes.
+# A failed/malformed read must never become a verified empty collection.
+_collection_items() {
+  printf '%s' "${1:-}" | jq -sce '
+    if length != 1 then error("unavailable collection")
+    elif (.[0].data | type) == "array" then .[0].data
+    elif (.[0].data | type) == "object" and (.[0].data.items | type) == "array"
+      then .[0].data.items
+    else error("invalid collection") end
+    | if all(.[]; type == "object") then . else error("invalid item") end
+  ' 2>/dev/null
+}
+
+_len() { _collection_items "${1:-}" | jq -r 'length' 2>/dev/null || echo unknown; }
 
 # _states JSON FIELD -> "STATE:n, STATE:n" grouped by lifecycle field
 _states() {
-  printf '%s' "${1:-}" | jq -r --arg f "${2:-lifecycle-state}" '
-    (.data // []) | group_by(.[$f]) | map("\(.[0][$f] // "?"):\(length)") | join(", ")
-  ' 2>/dev/null || echo ""
+  _collection_items "${1:-}" | jq -r --arg f "${2:-lifecycle-state}" '
+    group_by(.[$f]) | map("\(.[0][$f] // "?"):\(length)") | join(", ")
+  ' 2>/dev/null || echo unknown
 }
 
 # _untagged JSON -> count of items carrying neither freeform nor defined tags
 _untagged() {
-  printf '%s' "${1:-}" | jq -r '
-    [ (.data // [])[]
+  _collection_items "${1:-}" | jq -r '
+    [ .[]
       | select( ((."freeform-tags" // {}) | length) == 0
                 and ((."defined-tags" // {}) | length) == 0 ) ] | length
-  ' 2>/dev/null || echo 0
+  ' 2>/dev/null || echo unknown
 }
 
 _names() {
-  printf '%s' "${1:-}" | jq -r '
-    [(.data // [])[] | (."display-name" // .name // empty)] | map(select(length > 0)) | join(", ")
-  ' 2>/dev/null || echo ""
+  _collection_items "${1:-}" | jq -r '
+    [.[] | (."display-name" // .name // empty)] | map(select(length > 0)) | join(", ")
+  ' 2>/dev/null || echo unknown
 }
 
 validate_bundle() {
@@ -170,14 +182,17 @@ cmd_status() {
   j="$(oci_cli cloud-guard problem list --compartment-id "$COMPARTMENT_OCID" \
         --lifecycle-state ACTIVE --all 2>/dev/null || true)"
   local probs; probs="$(_len "$j")"
-  if [ "$probs" -gt 0 ] 2>/dev/null; then warn "security  : $probs ACTIVE Cloud Guard problem(s) — triage (oci-security-compliance)"
+  if [[ "$probs" == "unknown" ]]; then warn "security  : unknown (read unavailable or malformed)"
+  elif [ "$probs" -gt 0 ] 2>/dev/null; then warn "security  : $probs ACTIVE Cloud Guard problem(s) — triage (oci-security-compliance)"
   else ok "security  : 0 ACTIVE Cloud Guard problems"; fi
 
   j="$(oci_cli monitoring alarm list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
   local fj firing
   fj="$(oci_cli monitoring alarm-status list --compartment-id "$COMPARTMENT_OCID" --all 2>/dev/null || true)"
-  firing="$(printf '%s' "$fj" | jq -r '[(.data // [])[] | select(.status=="FIRING")] | length' 2>/dev/null || echo 0)"
-  if [ "${firing:-0}" -gt 0 ] 2>/dev/null; then
+  firing="$(_collection_items "$fj" | jq -r 'if all(.[]; (.status | type) == "string") then [.[] | select(.status=="FIRING")] | length else error("missing status") end' 2>/dev/null || echo unknown)"
+  if [[ "$firing" == "unknown" ]]; then
+    warn "alarms    : $(_len "$j") definition(s), firing unknown (read unavailable or malformed)"
+  elif [ "${firing:-0}" -gt 0 ] 2>/dev/null; then
     warn "alarms    : $(_len "$j") definition(s), $firing FIRING — investigate"
   else
     ok "alarms    : $(_len "$j") alarm definition(s), 0 firing"

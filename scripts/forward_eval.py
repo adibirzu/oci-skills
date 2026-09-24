@@ -8,6 +8,7 @@ import json
 import os
 import re
 import stat
+import statistics
 import subprocess
 import sys
 import tempfile
@@ -17,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import redact as redact_tool
+import release_evidence_packet
 from forward_eval_contract import (
     SAFE_ID,
     ForwardEvalError,
@@ -30,6 +32,33 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SUITE = ROOT / "evals" / "forward" / "prompts.json"
 DEFAULT_RUBRIC = ROOT / "evals" / "forward" / "rubric.json"
 MAX_RESPONSE_BYTES = 1024 * 1024
+MAX_TELEMETRY_BYTES = 16 * 1024
+SUPPORTED_NETWORK_POLICY = "codex-read-only-sandbox"
+HOST_DEFAULT_MODEL = "host-default"
+TELEMETRY_FIELDS = (
+    "input_tokens",
+    "cached_input_tokens",
+    "output_tokens",
+    "turns",
+    "tool_calls",
+    "failed_tool_calls",
+    "repeated_tool_calls",
+    "clarification_turns",
+    "latency_ms",
+)
+TELEMETRY_KEYS = {
+    "schema_version",
+    "candidate_sha256",
+    "case_id",
+    "attempt",
+    "harness",
+    "model",
+    "cache_state",
+    *TELEMETRY_FIELDS,
+    "codex_cli_version",
+    "cache_provenance",
+    "network_policy",
+}
 
 
 def _sha256(path: Path) -> str:
@@ -73,6 +102,13 @@ def prepare_run(
     attempts: int,
     run_id: str,
     source_commit: str,
+    candidate_sha256: str | None = None,
+    candidate_install: Path | None = None,
+    harness: str | None = None,
+    codex_cli_version: str | None = None,
+    model: str | None = None,
+    cache_state: str | None = None,
+    cache_session_id: str | None = None,
 ) -> dict[str, Any]:
     if attempts not in {1, 2, 3}:
         raise ForwardEvalError("attempts must be 1, 2, or 3")
@@ -80,18 +116,43 @@ def prepare_run(
         raise ForwardEvalError("run id is invalid")
     if not re.fullmatch(r"[a-f0-9]{7,64}", source_commit):
         raise ForwardEvalError("source commit is invalid")
+    if (candidate_install is None) != (harness is None):
+        raise ForwardEvalError("installed candidate and harness must be provided together")
+    if candidate_install is not None and harness is not None:
+        try:
+            verified_digest = release_evidence_packet.verify_installed_candidate(candidate_install, harness)
+        except ValueError as exc:
+            raise ForwardEvalError(str(exc)) from exc
+        if candidate_sha256 is not None and candidate_sha256 != verified_digest:
+            raise ForwardEvalError("installed candidate digest does not match the requested candidate")
+        candidate_sha256 = verified_digest
+    else:
+        candidate_sha256 = candidate_sha256 or release_evidence_packet.candidate_digest()
+    if any(value is not None for value in (codex_cli_version, model, cache_state, cache_session_id)):
+        if (
+            codex_cli_version != "0.156.1"
+            or not isinstance(model, str) or not SAFE_ID.fullmatch(model)
+            or cache_state not in {"cold", "warm"}
+            or not isinstance(cache_session_id, str) or not SAFE_ID.fullmatch(cache_session_id)
+        ):
+            raise ForwardEvalError("Codex trial conditions are incomplete or unsupported")
+    if not re.fullmatch(r"[a-f0-9]{64}", candidate_sha256):
+        raise ForwardEvalError("candidate digest is invalid")
     suite, _rubric = load_and_validate(suite_path, rubric_path)
     _safe_empty_directory(output)
     prompts_dir = output / "prompts"
     responses_dir = output / "responses"
+    telemetry_dir = output / "telemetry"
     prompts_dir.mkdir(mode=0o700)
     responses_dir.mkdir(mode=0o700)
+    telemetry_dir.mkdir(mode=0o700)
     trials: list[dict[str, Any]] = []
     for prompt in suite["prompts"]:
         for attempt in range(1, attempts + 1):
             stem = f"{prompt['id']}--attempt-{attempt}"
             prompt_file = Path("prompts") / f"{stem}.txt"
             response_file = Path("responses") / f"{stem}.txt"
+            telemetry_file = Path("telemetry") / f"{stem}.json"
             _atomic_write(output / prompt_file, prompt["prompt"].strip() + "\n", 0o600)
             trials.append({
                 "case_id": prompt["id"],
@@ -100,6 +161,7 @@ def prepare_run(
                 "prompt_file": prompt_file.as_posix(),
                 "prompt_sha256": _sha256(output / prompt_file),
                 "response_file": response_file.as_posix(),
+                "telemetry_file": telemetry_file.as_posix(),
             })
     manifest = {
         "schema_version": 1,
@@ -108,10 +170,19 @@ def prepare_run(
         "suite_sha256": _sha256(suite_path),
         "rubric_sha256": _sha256(rubric_path),
         "source_commit": source_commit,
+        "candidate_sha256": candidate_sha256,
+        "network_policy": SUPPORTED_NETWORK_POLICY,
         "attempts": attempts,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "trials": trials,
     }
+    if candidate_install is not None and harness is not None:
+        manifest["candidate_install"] = str(candidate_install)
+        manifest["candidate_harness"] = harness
+    if model is not None:
+        manifest["codex_cli_version"] = codex_cli_version
+        manifest["model"] = model
+        manifest["cache_provenance"] = {"session_id": cache_session_id, "state": cache_state}
     _write_json(output / "manifest.json", manifest, 0o600)
     return manifest
 
@@ -135,6 +206,10 @@ def _load_manifest(run_dir: Path) -> dict[str, Any]:
     source_commit = manifest.get("source_commit")
     if not isinstance(source_commit, str) or not re.fullmatch(r"[a-f0-9]{7,64}", source_commit):
         raise ForwardEvalError("run manifest source commit is invalid")
+    if not re.fullmatch(r"[a-f0-9]{64}", str(manifest.get("candidate_sha256", ""))):
+        raise ForwardEvalError("run manifest candidate digest is invalid")
+    if manifest.get("network_policy") != SUPPORTED_NETWORK_POLICY:
+        raise ForwardEvalError("run manifest network policy is invalid")
     trials = manifest.get("trials")
     if not isinstance(trials, list) or not trials:
         raise ForwardEvalError("run manifest has no trials")
@@ -154,7 +229,11 @@ def _load_manifest(run_dir: Path) -> dict[str, Any]:
         seen.add(key)
         if not re.fullmatch(r"[a-f0-9]{64}", str(trial.get("prompt_sha256", ""))):
             raise ForwardEvalError("run manifest prompt hash is invalid")
-        for field, parent in (("prompt_file", "prompts"), ("response_file", "responses")):
+        for field, parent in (
+            ("prompt_file", "prompts"),
+            ("response_file", "responses"),
+            ("telemetry_file", "telemetry"),
+        ):
             relative = Path(str(trial.get(field, "")))
             if relative.is_absolute() or ".." in relative.parts or len(relative.parts) != 2:
                 raise ForwardEvalError(f"run manifest {field} is unsafe")
@@ -196,6 +275,180 @@ def _prompt_hash(run_dir: Path, trial: dict[str, Any]) -> str:
     if prompt_hash != trial["prompt_sha256"]:
         raise ForwardEvalError(f"prompt hash changed for {trial['case_id']}")
     return prompt_hash
+
+
+def _telemetry(
+    run_dir: Path,
+    trial: dict[str, Any],
+    manifest: dict[str, Any],
+) -> tuple[dict[str, Any], str]:
+    path = run_dir / trial["telemetry_file"]
+    if path.is_symlink() or not path.is_file():
+        raise ForwardEvalError(f"telemetry is missing for {trial['case_id']}")
+    if stat.S_IMODE(path.stat().st_mode) != 0o600:
+        raise ForwardEvalError(
+            f"telemetry permissions must be exactly 0600 for {trial['case_id']}"
+        )
+    if path.stat().st_size == 0 or path.stat().st_size > MAX_TELEMETRY_BYTES:
+        raise ForwardEvalError(f"telemetry size is invalid for {trial['case_id']}")
+    data = _read_json(path, "trial telemetry", secure=True)
+    if set(data) != TELEMETRY_KEYS or data.get("schema_version") != 1:
+        raise ForwardEvalError(f"telemetry schema is invalid for {trial['case_id']}")
+    if data.get("candidate_sha256") != manifest["candidate_sha256"]:
+        raise ForwardEvalError(f"telemetry candidate digest changed for {trial['case_id']}")
+    if data.get("case_id") != trial["case_id"] or data.get("attempt") != trial["attempt"]:
+        raise ForwardEvalError(f"telemetry trial identity changed for {trial['case_id']}")
+    # Older/manual evaluation manifests intentionally have no pinned Codex
+    # conditions.  When a manifest does declare a model (as every supported
+    # Codex trial does), bind telemetry to it; do not reinterpret legacy
+    # fixture scoring as a pinned-agent comparison.
+    if manifest.get("model") is not None and data.get("model") != manifest["model"]:
+        raise ForwardEvalError(f"telemetry model changed for {trial['case_id']}")
+    if data.get("cache_state") not in {"cold", "warm"}:
+        raise ForwardEvalError(f"telemetry cache state is invalid for {trial['case_id']}")
+    if data.get("codex_cli_version") != "0.156.1":
+        raise ForwardEvalError(f"telemetry Codex CLI version is invalid for {trial['case_id']}")
+    if data.get("network_policy") != manifest.get("network_policy"):
+        raise ForwardEvalError(f"telemetry network policy is invalid for {trial['case_id']}")
+    provenance = data.get("cache_provenance")
+    if (
+        not isinstance(provenance, dict)
+        or set(provenance) != {"session_id", "state"}
+        or not isinstance(provenance.get("session_id"), str)
+        or not SAFE_ID.fullmatch(provenance["session_id"])
+        or provenance.get("state") != data["cache_state"]
+    ):
+        raise ForwardEvalError(f"telemetry cache provenance is invalid for {trial['case_id']}")
+    for field in ("harness", "model"):
+        value = data.get(field)
+        if not isinstance(value, str) or not SAFE_ID.fullmatch(value):
+            raise ForwardEvalError(f"telemetry {field} is invalid for {trial['case_id']}")
+    for field in TELEMETRY_FIELDS:
+        value = data.get(field)
+        minimum = 1 if field == "turns" else 0
+        if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+            raise ForwardEvalError(f"telemetry {field} is invalid for {trial['case_id']}")
+    if data["cached_input_tokens"] > data["input_tokens"]:
+        raise ForwardEvalError(f"telemetry cached tokens exceed input for {trial['case_id']}")
+    if data["failed_tool_calls"] > data["tool_calls"]:
+        raise ForwardEvalError(f"telemetry failed calls exceed calls for {trial['case_id']}")
+    if data["repeated_tool_calls"] > data["tool_calls"]:
+        raise ForwardEvalError(f"telemetry repeated calls exceed calls for {trial['case_id']}")
+    if data["clarification_turns"] > data["turns"]:
+        raise ForwardEvalError(f"telemetry clarifications exceed turns for {trial['case_id']}")
+    return data, _sha256(path)
+
+
+def _numeric_summary(records: list[dict[str, Any]]) -> dict[str, Any]:
+    totals = {
+        field: sum(record[field] for record in records)
+        for field in TELEMETRY_FIELDS
+    }
+    distributions: dict[str, dict[str, int | float]] = {}
+    for field in TELEMETRY_FIELDS:
+        values = sorted(record[field] for record in records)
+        p95_index = max(0, (95 * len(values) + 99) // 100 - 1)
+        distributions[field] = {
+            "min": values[0],
+            "median": statistics.median(values),
+            "p95": values[p95_index],
+            "max": values[-1],
+        }
+    comparison = {
+        "sample_size": len(records),
+        "totals": totals,
+        "distributions": distributions,
+    }
+    return comparison
+
+
+def _telemetry_report(records: list[dict[str, Any]]) -> dict[str, Any]:
+    overall = _numeric_summary(records)
+    overall["by_category"] = {
+        category: _numeric_summary(
+            [record for record in records if record["category"] == category]
+        )
+        for category in sorted({record["category"] for record in records})
+    }
+    overall["by_cache_state"] = {
+        cache_state: _numeric_summary(
+            [record for record in records if record["cache_state"] == cache_state]
+        )
+        for cache_state in sorted({record["cache_state"] for record in records})
+    }
+    return overall
+
+
+def compare_reports(
+    baseline: dict[str, Any],
+    candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """Compare paired reports without allowing efficiency to hide regressions."""
+    for field in ("suite_id", "suite_sha256", "rubric_sha256", "environment"):
+        if baseline.get(field) != candidate.get(field):
+            raise ForwardEvalError(f"paired report {field} does not match")
+    try:
+        baseline_metrics = baseline["metrics"]
+        candidate_metrics = candidate["metrics"]
+        baseline_telemetry = baseline["telemetry"]
+        candidate_telemetry = candidate["telemetry"]
+        baseline_size = baseline_telemetry["sample_size"]
+        candidate_size = candidate_telemetry["sample_size"]
+    except (KeyError, TypeError) as exc:
+        raise ForwardEvalError("paired report is missing required metrics") from exc
+    if (
+        isinstance(baseline_size, bool)
+        or isinstance(candidate_size, bool)
+        or not isinstance(baseline_size, int)
+        or not isinstance(candidate_size, int)
+        or baseline_size <= 0
+        or candidate_size <= 0
+        or baseline_size != candidate_size
+    ):
+        raise ForwardEvalError("paired report sample sizes do not match")
+    try:
+        baseline_pass = float(baseline_metrics["pass_at_1"])
+        candidate_pass = float(candidate_metrics["pass_at_1"])
+        baseline_safety = int(baseline_metrics["safety_violations"])
+        candidate_safety = int(candidate_metrics["safety_violations"])
+        deltas = {
+            field: round(
+                candidate_telemetry["totals"][field] / candidate_size
+                - baseline_telemetry["totals"][field] / baseline_size,
+                4,
+            )
+            for field in TELEMETRY_FIELDS
+        }
+    except (KeyError, TypeError, ValueError, ZeroDivisionError) as exc:
+        raise ForwardEvalError("paired report metric shape is invalid") from exc
+    no_success_regression = candidate_pass >= baseline_pass
+    zero_safety_violations = baseline_safety == 0 and candidate_safety == 0
+    minimum_pass = float(candidate.get("thresholds", {}).get("minimum_pass_at_1", 0.9))
+    return {
+        "schema_version": 1,
+        "baseline_run_id": baseline.get("run_id"),
+        "candidate_run_id": candidate.get("run_id"),
+        "baseline_candidate_sha256": baseline.get("candidate_sha256"),
+        "candidate_sha256": candidate.get("candidate_sha256"),
+        "sample_size": candidate_size,
+        "baseline_pass_at_1": baseline_pass,
+        "candidate_pass_at_1": candidate_pass,
+        "no_success_regression": no_success_regression,
+        "zero_safety_violations": zero_safety_violations,
+        "deltas_per_trial": deltas,
+        "efficiency_credited": (
+            candidate_pass >= minimum_pass
+            and no_success_regression
+            and zero_safety_violations
+        ),
+    }
+    # A host-selected default may prove that a candidate can run locally, but
+    # the actual model ID is unavailable and can drift between the two runs.
+    # Do not turn it into a release-grade baseline/candidate comparison.
+    if baseline["environment"].get("model") == HOST_DEFAULT_MODEL:
+        comparison["comparison_scope"] = "local-canary-only"
+        comparison["efficiency_credited"] = False
+    return comparison
 
 
 def create_review_template(run_dir: Path, output: Path) -> dict[str, Any]:
@@ -377,6 +630,7 @@ def score_run(
     reviews = _review_map(review_path, manifest, _sha256(run_dir / "manifest.json"))
     case_rubrics = {case["id"]: case for case in rubric["cases"]}
     trial_results: list[dict[str, Any]] = []
+    telemetry_records: list[dict[str, Any]] = []
     safety_violations = 0
     for trial in manifest["trials"]:
         key = (trial["case_id"], trial["attempt"])
@@ -390,12 +644,22 @@ def score_run(
             case,
             rubric["global_forbidden"],
         )
+        telemetry, telemetry_sha256 = _telemetry(run_dir, trial, manifest)
+        telemetry_records.append({**telemetry, "category": trial["category"]})
+        result["telemetry_sha256"] = telemetry_sha256
         trial_results.append(result)
         safety_violations += violations
 
     case_ids = [prompt["id"] for prompt in suite["prompts"]]
     total = len(case_ids)
     pass_at_1, pass_at_k = _pass_metrics(trial_results, case_ids)
+    environments = {
+        (record["harness"], record["model"])
+        for record in telemetry_records
+    }
+    if len(environments) != 1:
+        raise ForwardEvalError("all trials must use the same harness and model")
+    harness, model = next(iter(environments))
     thresholds = rubric["thresholds"]
     release_gate = (
         pass_at_1 >= thresholds["minimum_pass_at_1"]
@@ -406,6 +670,7 @@ def score_run(
         "run_id": manifest["run_id"],
         "suite_id": manifest["suite_id"],
         "source_commit": manifest["source_commit"],
+        "candidate_sha256": manifest["candidate_sha256"],
         "suite_sha256": manifest["suite_sha256"],
         "rubric_sha256": manifest["rubric_sha256"],
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -417,6 +682,8 @@ def score_run(
             "safety_violations": safety_violations,
         },
         "thresholds": thresholds,
+        "environment": {"harness": harness, "model": model},
+        "telemetry": _telemetry_report(telemetry_records),
         "release_gate": release_gate,
         "trials": trial_results,
     }
@@ -459,6 +726,17 @@ def build_parser() -> argparse.ArgumentParser:
     prepare.add_argument("--attempts", type=int, choices=(1, 2, 3), default=1)
     prepare.add_argument("--run-id", default=None)
     prepare.add_argument("--source-commit", default=None)
+    prepare.add_argument(
+        "--candidate-sha256",
+        default=None,
+        help="exact release-evidence candidate digest (defaults to the current candidate)",
+    )
+    prepare.add_argument("--candidate-install", type=Path)
+    prepare.add_argument("--harness", choices=("codex",))
+    prepare.add_argument("--codex-cli-version")
+    prepare.add_argument("--model")
+    prepare.add_argument("--cache-state", choices=("cold", "warm"))
+    prepare.add_argument("--cache-session-id")
 
     review = sub.add_parser("review-template", help="hash responses and create human review records")
     review.add_argument("run_dir", type=Path)
@@ -470,6 +748,14 @@ def build_parser() -> argparse.ArgumentParser:
     score.add_argument("--rubric", type=Path, default=DEFAULT_RUBRIC)
     score.add_argument("--reviews", type=Path, default=None)
     score.add_argument("--output", type=Path, default=None)
+
+    compare = sub.add_parser(
+        "compare",
+        help="compare paired baseline and candidate reports without hiding regressions",
+    )
+    compare.add_argument("baseline", type=Path)
+    compare.add_argument("candidate", type=Path)
+    compare.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -488,6 +774,13 @@ def main(argv: list[str] | None = None) -> int:
                 attempts=args.attempts,
                 run_id=args.run_id or _default_run_id(),
                 source_commit=args.source_commit or _git_head(),
+                candidate_sha256=args.candidate_sha256,
+                candidate_install=args.candidate_install,
+                harness=args.harness,
+                codex_cli_version=args.codex_cli_version,
+                model=args.model,
+                cache_state=args.cache_state,
+                cache_session_id=args.cache_session_id,
             )
             print(f"forward-eval run prepared ({len(manifest['trials'])} blinded trials)")
             return 0
@@ -496,6 +789,16 @@ def main(argv: list[str] | None = None) -> int:
             template = create_review_template(args.run_dir, output)
             print(f"review template created ({len(template['reviews'])} responses)")
             return 0
+        if args.command == "compare":
+            baseline = _read_json(args.baseline, "baseline report", secure=True)
+            candidate = _read_json(args.candidate, "candidate report", secure=True)
+            comparison = compare_reports(baseline, candidate)
+            _write_json(args.output, comparison, 0o600)
+            print(
+                f"candidate_pass_at_1={comparison['candidate_pass_at_1']:.1%} "
+                f"efficiency_credited={str(comparison['efficiency_credited']).lower()}"
+            )
+            return 0 if comparison["efficiency_credited"] else 2
         reviews = args.reviews or args.run_dir / "reviews.json"
         output = args.output or args.run_dir / "report.json"
         report = score_run(args.run_dir, args.suite, args.rubric, reviews, output)

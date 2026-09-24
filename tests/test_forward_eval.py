@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import pathlib
 import re
 import stat
@@ -74,6 +75,7 @@ def _prepare_small(
         attempts=attempts,
         run_id="test-run",
         source_commit="deadbeef",
+        candidate_sha256="c" * 64,
     )
     return suite, rubric, run_dir
 
@@ -88,6 +90,49 @@ def _write_responses(run_dir: pathlib.Path, *, danger_case: str | None = None) -
         path = run_dir / trial["response_file"]
         path.write_text(content + "\n", encoding="utf-8")
         path.chmod(0o600)
+        _write_trial_telemetry(run_dir, manifest, trial, index=index)
+
+
+def _write_trial_telemetry(
+    run_dir: pathlib.Path,
+    manifest: dict,
+    trial: dict,
+    *,
+    index: int,
+) -> None:
+    telemetry = run_dir / trial["telemetry_file"]
+    telemetry.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "candidate_sha256": manifest["candidate_sha256"],
+                "case_id": trial["case_id"],
+                "attempt": trial["attempt"],
+                "harness": "test-harness",
+                "model": "test-model",
+                "cache_state": "cold" if trial["attempt"] == 1 else "warm",
+                "codex_cli_version": "0.156.1",
+                "network_policy": "codex-read-only-sandbox",
+                "cache_provenance": {
+                    "session_id": "test-session",
+                    "state": "cold" if trial["attempt"] == 1 else "warm",
+                },
+                "input_tokens": 100 + index,
+                "cached_input_tokens": 0,
+                "output_tokens": 20 + index,
+                "turns": 2,
+                "tool_calls": 3,
+                "failed_tool_calls": 1,
+                "repeated_tool_calls": 0,
+                "clarification_turns": 0,
+                "latency_ms": 1000 + index,
+            },
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    telemetry.chmod(0o600)
 
 
 def _complete_reviews(
@@ -259,6 +304,7 @@ def test_prepare_run_emits_only_raw_prompts_and_private_manifest(tmp_path: pathl
         attempts=2,
         run_id="forward-001",
         source_commit="deadbeef",
+        candidate_sha256="d" * 64,
     )
     suite, _rubric = forward_eval.load_and_validate(SUITE, RUBRIC)
     assert len(manifest["trials"]) == len(suite["prompts"]) * 2
@@ -274,6 +320,77 @@ def test_prepare_run_emits_only_raw_prompts_and_private_manifest(tmp_path: pathl
         assert trial["prompt_sha256"] == hashlib.sha256(prompt.read_bytes()).hexdigest()
 
 
+def test_prepare_run_binds_the_exact_candidate_digest(tmp_path: pathlib.Path) -> None:
+    """Changing candidate bytes must require a different evaluation manifest."""
+    output = tmp_path / "candidate-bound-run"
+    candidate_sha256 = "a" * 64
+
+    manifest = forward_eval.prepare_run(
+        SUITE,
+        RUBRIC,
+        output,
+        attempts=1,
+        run_id="candidate-bound",
+        source_commit="deadbeef",
+        candidate_sha256=candidate_sha256,
+    )
+
+    assert manifest["candidate_sha256"] == candidate_sha256
+    recorded = json.loads((output / "manifest.json").read_text(encoding="utf-8"))
+    assert recorded["candidate_sha256"] == candidate_sha256
+
+
+def test_prepare_run_records_verified_installed_candidate(tmp_path: pathlib.Path) -> None:
+    """A real candidate path is verified and bound into the private manifest."""
+    destination = tmp_path / "codex-skills"
+    result = __import__("subprocess").run(
+        ["bash", str(ROOT / "install.sh"), "codex"],
+        cwd=ROOT,
+        env={**os.environ, "CODEX_SKILLS_DIR": str(destination), "OCI_SKILLS_BLINDED_EVAL": "true"},
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    assert "Codex ->" in result.stdout
+    candidate = destination / "oci-administrator"
+    output = tmp_path / "installed-bound-run"
+    manifest = forward_eval.prepare_run(
+        SUITE,
+        RUBRIC,
+        output,
+        attempts=1,
+        run_id="installed-bound",
+        source_commit="deadbeef",
+        candidate_install=candidate,
+        harness="codex",
+    )
+    assert manifest["candidate_install"] == str(candidate)
+    assert manifest["candidate_sha256"] == (candidate / ".oci-skills-payload.sha256").read_text().strip()
+
+
+def test_prepare_run_declares_private_per_trial_telemetry(tmp_path: pathlib.Path) -> None:
+    """A run cannot claim efficiency without harness-reported trial telemetry."""
+    output = tmp_path / "telemetry-bound-run"
+
+    manifest = forward_eval.prepare_run(
+        SUITE,
+        RUBRIC,
+        output,
+        attempts=1,
+        run_id="telemetry-bound",
+        source_commit="deadbeef",
+        candidate_sha256="b" * 64,
+    )
+
+    telemetry_dir = output / "telemetry"
+    assert telemetry_dir.is_dir()
+    assert stat.S_IMODE(telemetry_dir.stat().st_mode) == 0o700
+    for trial in manifest["trials"]:
+        telemetry_file = pathlib.Path(trial["telemetry_file"])
+        assert telemetry_file.parts[0] == "telemetry"
+        assert telemetry_file.name == pathlib.Path(trial["response_file"]).with_suffix(".json").name
+
+
 def test_prepare_rejects_nonempty_or_symlink_output_and_bad_attempts(tmp_path: pathlib.Path) -> None:
     occupied = tmp_path / "occupied"
     occupied.mkdir()
@@ -281,6 +398,7 @@ def test_prepare_rejects_nonempty_or_symlink_output_and_bad_attempts(tmp_path: p
     with pytest.raises(forward_eval.ForwardEvalError, match="empty"):
         forward_eval.prepare_run(
             SUITE, RUBRIC, occupied, attempts=1, run_id="run", source_commit="deadbeef",
+            candidate_sha256="d" * 64,
         )
     assert (occupied / "mine").read_text(encoding="utf-8") == "preserve"
 
@@ -289,18 +407,21 @@ def test_prepare_rejects_nonempty_or_symlink_output_and_bad_attempts(tmp_path: p
     with pytest.raises(forward_eval.ForwardEvalError, match="symlink"):
         forward_eval.prepare_run(
             SUITE, RUBRIC, link, attempts=1, run_id="run", source_commit="deadbeef",
+            candidate_sha256="d" * 64,
         )
     for attempts in (0, 4):
         with pytest.raises(forward_eval.ForwardEvalError, match="attempts"):
             forward_eval.prepare_run(
                 SUITE, RUBRIC, tmp_path / f"bad-{attempts}",
                 attempts=attempts, run_id="run", source_commit="x",
+                candidate_sha256="d" * 64,
             )
     for source_commit in ("unknown", "dead beef", "abc123"):
         with pytest.raises(forward_eval.ForwardEvalError, match="source commit"):
             forward_eval.prepare_run(
                 SUITE, RUBRIC, tmp_path / f"bad-commit-{source_commit.replace(' ', '-')}",
                 attempts=1, run_id="run", source_commit=source_commit,
+                candidate_sha256="d" * 64,
             )
 
 
@@ -341,6 +462,124 @@ def test_score_passes_at_exactly_ninety_percent_with_human_review(tmp_path: path
     assert "Raw task" not in report_path.read_text(encoding="utf-8")
 
 
+def test_score_reports_required_efficiency_telemetry(tmp_path: pathlib.Path) -> None:
+    """ER-021 must report measured distributions, not infer efficiency from text size."""
+    suite, rubric, run_dir = _prepare_small(tmp_path, count=2)
+    _write_responses(run_dir)
+    review_path = run_dir / "reviews.json"
+    forward_eval.create_review_template(run_dir, review_path)
+    _complete_reviews(review_path)
+
+    report = forward_eval.score_run(
+        run_dir,
+        suite,
+        rubric,
+        review_path,
+        run_dir / "report.json",
+    )
+
+    telemetry = report["telemetry"]
+    assert telemetry["sample_size"] == 2
+    assert telemetry["totals"] == {
+        "cached_input_tokens": 0,
+        "clarification_turns": 0,
+        "failed_tool_calls": 2,
+        "input_tokens": 201,
+        "latency_ms": 2001,
+        "output_tokens": 41,
+        "repeated_tool_calls": 0,
+        "tool_calls": 6,
+        "turns": 4,
+    }
+    assert telemetry["distributions"]["input_tokens"] == {
+        "min": 100,
+        "median": 100.5,
+        "p95": 101,
+        "max": 101,
+    }
+    assert telemetry["by_category"]["test"]["sample_size"] == 2
+    assert telemetry["by_cache_state"]["cold"]["sample_size"] == 2
+
+
+def test_compare_reports_blocks_efficiency_when_success_regresses() -> None:
+    """Lower task success cannot be traded for fewer calls or tokens."""
+    baseline = {
+        "schema_version": 1,
+        "run_id": "baseline-run",
+        "suite_id": "suite",
+        "suite_sha256": "a" * 64,
+        "rubric_sha256": "b" * 64,
+        "candidate_sha256": "c" * 64,
+        "environment": {"harness": "codex", "model": "test-model"},
+        "metrics": {"pass_at_1": 1.0, "safety_violations": 0},
+        "telemetry": {
+            "sample_size": 10,
+            "totals": {field: 100 for field in forward_eval.TELEMETRY_FIELDS},
+        },
+    }
+    candidate = copy.deepcopy(baseline)
+    candidate.update(
+        {
+            "run_id": "candidate-run",
+            "candidate_sha256": "d" * 64,
+            "metrics": {"pass_at_1": 0.9, "safety_violations": 0},
+        }
+    )
+    candidate["telemetry"]["totals"] = {
+        field: 50 for field in forward_eval.TELEMETRY_FIELDS
+    }
+
+    comparison = forward_eval.compare_reports(baseline, candidate)
+
+    assert comparison["no_success_regression"] is False
+    assert comparison["zero_safety_violations"] is True
+    assert comparison["efficiency_credited"] is False
+    assert comparison["deltas_per_trial"]["tool_calls"] == -5.0
+
+
+def test_compare_cli_writes_private_report_and_returns_nonzero_for_regression(
+    tmp_path: pathlib.Path,
+) -> None:
+    baseline = {
+        "schema_version": 1,
+        "run_id": "baseline-run",
+        "suite_id": "suite",
+        "suite_sha256": "a" * 64,
+        "rubric_sha256": "b" * 64,
+        "candidate_sha256": "c" * 64,
+        "environment": {"harness": "codex", "model": "test-model"},
+        "metrics": {"pass_at_1": 1.0, "safety_violations": 0},
+        "thresholds": {"minimum_pass_at_1": 0.9},
+        "telemetry": {
+            "sample_size": 1,
+            "totals": {field: 10 for field in forward_eval.TELEMETRY_FIELDS},
+        },
+    }
+    candidate = copy.deepcopy(baseline)
+    candidate.update(
+        {
+            "run_id": "candidate-run",
+            "candidate_sha256": "d" * 64,
+            "metrics": {"pass_at_1": 0.9, "safety_violations": 0},
+        }
+    )
+    baseline_path = tmp_path / "baseline.json"
+    candidate_path = tmp_path / "candidate.json"
+    output = tmp_path / "comparison.json"
+    _write_json(baseline_path, baseline)
+    _write_json(candidate_path, candidate)
+    baseline_path.chmod(0o600)
+    candidate_path.chmod(0o600)
+
+    result = forward_eval.main(
+        ["compare", str(baseline_path), str(candidate_path), "--output", str(output)]
+    )
+
+    assert result == 2
+    assert stat.S_IMODE(output.stat().st_mode) == 0o600
+    assert json.loads(output.read_text(encoding="utf-8"))["efficiency_credited"] is False
+
+
 def test_safety_finding_blocks_release_and_raw_response_is_not_reported(tmp_path: pathlib.Path) -> None:
     suite, rubric, run_dir = _prepare_small(tmp_path)
     _write_responses(run_dir, danger_case="case-0")
@@ -376,6 +615,7 @@ def test_pass_at_k_does_not_hide_first_attempt_failure(tmp_path: pathlib.Path) -
         response = run_dir / trial["response_file"]
         response.write_text(("wrong" if trial["attempt"] == 1 else "SAFE-0") + "\n", encoding="utf-8")
         response.chmod(0o600)
+        _write_trial_telemetry(run_dir, manifest, trial, index=0)
     review_path = run_dir / "reviews.json"
     forward_eval.create_review_template(run_dir, review_path)
     _complete_reviews(review_path)
@@ -431,6 +671,7 @@ def test_repository_redaction_policy_blocks_sensitive_response(tmp_path: pathlib
     sensitive = ".".join(("ocid1", "compartment", "oc1", "", "synthetic123456789"))
     response.write_text(f"SAFE-0 {sensitive}\n", encoding="utf-8")
     response.chmod(0o600)
+    _write_trial_telemetry(run_dir, manifest, manifest["trials"][0], index=0)
     review_path = run_dir / "reviews.json"
     forward_eval.create_review_template(run_dir, review_path)
     _complete_reviews(review_path)
@@ -474,6 +715,7 @@ def test_cli_validate_prepare_and_incomplete_score(tmp_path: pathlib.Path, capsy
     assert forward_eval.main([
         "prepare", str(run_dir), "--suite", str(SUITE), "--rubric", str(RUBRIC),
         "--run-id", "cli-run", "--source-commit", "deadbeef",
+        "--candidate-sha256", "d" * 64,
     ]) == 0
     assert (run_dir / "manifest.json").is_file()
     assert forward_eval.main(["review-template", str(run_dir)]) == 1

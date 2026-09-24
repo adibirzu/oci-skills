@@ -4,7 +4,7 @@ OCI Skills v2 is a tenancy-agnostic engineering assistant for **OCI administrati
 
 It ships no tenancy data, OCIDs, IPs, keys, or credentials. Examples use `<PLACEHOLDER>` tokens resolved from your named context at runtime.
 
-Start with the [five-minute quickstart](docs/QUICKSTART.md), pick a skill from the [OCI skill catalog](docs/SKILL_CATALOG.md), read the [architecture](docs/ARCHITECTURE.md), or inspect the [v2 PRD](docs/product/oci-skills-v2-prd.md).
+Start with the [five-minute quickstart](docs/QUICKSTART.md), pick a skill from the [OCI skill catalog](docs/SKILL_CATALOG.md), read the [architecture](docs/ARCHITECTURE.md), inspect the [v2 PRD](docs/product/oci-skills-v2-prd.md), or see [install and rollback](docs/INSTALL_ROLLBACK.md). Security reporting is in [SECURITY.md](SECURITY.md) and maintenance boundaries are in [SUPPORT.md](SUPPORT.md).
 
 ## What it does
 

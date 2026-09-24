@@ -76,6 +76,7 @@ CONTRACT_FILES = {
     "documentation-freshness.json",
     "environment-parity.json",
     "end-of-life-policy.json",
+    "enterprise-capability-matrix.json",
     "exception-policy.json",
     "evidence-retention.json",
     "install-manifest.json",
@@ -249,6 +250,33 @@ def _validate_capabilities(root: Path, catalog: dict[str, Any]) -> int:
             raise ContractError(f"incomplete capability entry: {entry.get('skill')}")
         _read_text(root, entry["reference"])
     return len(entries)
+
+
+def _validate_enterprise_capability_matrix(catalog: dict[str, Any], matrix: dict[str, Any]) -> None:
+    """Require an explicit, bounded acceptance row for every shipped skill."""
+    rows = matrix.get("capabilities")
+    required = {
+        "skill", "owner", "journey", "implementation_task", "provider_boundary",
+        "acceptance_evidence", "unsupported_states", "evidence_class",
+    }
+    expected_skills = {entry["skill"] for entry in catalog["capabilities"]}
+    if not isinstance(rows, list) or len(rows) != len(expected_skills):
+        raise ContractError("enterprise capability matrix does not match capability catalog")
+    if {row.get("skill") for row in rows if isinstance(row, dict)} != expected_skills:
+        raise ContractError("enterprise capability matrix does not match capability catalog")
+    for row in rows:
+        if not isinstance(row, dict) or set(row) != required:
+            raise ContractError("enterprise capability matrix row has an invalid shape")
+        if row["implementation_task"] not in {"ER-016", "ER-017", "ER-018", "ER-019", "ER-020"}:
+            raise ContractError("enterprise capability matrix has an invalid implementation task")
+        if row["provider_boundary"] not in {"offline-only", "named-context-read-only", "approved-canary"}:
+            raise ContractError("enterprise capability matrix has an invalid provider boundary")
+        if row["evidence_class"] not in {"code-backed", "locally-verified", "provider-pending"}:
+            raise ContractError("enterprise capability matrix has an invalid evidence class")
+        if not all(isinstance(row[key], str) and row[key] for key in ("owner", "journey", "acceptance_evidence")):
+            raise ContractError("enterprise capability matrix has incomplete row text")
+        if not isinstance(row["unsupported_states"], list) or not row["unsupported_states"]:
+            raise ContractError("enterprise capability matrix must declare unsupported states")
 
 
 def _validate_routing(catalog: dict[str, Any], routing: dict[str, Any]) -> None:
@@ -708,6 +736,9 @@ def validate_repository(root: Path = ROOT) -> dict[str, Any]:
     contracts = _validate_contract_inventory(root)
     _validate_schema_registry(contracts)
     capabilities = _validate_capabilities(root, contracts["capability-catalog.json"])
+    _validate_enterprise_capability_matrix(
+        contracts["capability-catalog.json"], contracts["enterprise-capability-matrix.json"]
+    )
     _validate_routing(
         contracts["capability-catalog.json"],
         contracts["routing-precedence.json"],

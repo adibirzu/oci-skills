@@ -57,6 +57,34 @@ def test_live_action_requires_matching_recent_preflight(tmp_path: pathlib.Path) 
     assert ok.stdout == "ran"
 
 
+def test_wait_for_state_records_sanitized_query_failure_details(tmp_path: pathlib.Path) -> None:
+    """State polling must not hide malformed lifecycle queries or raw provider errors."""
+    fake_oci = tmp_path / "oci"
+    fake_oci.write_text(
+        "#!/usr/bin/env bash\n"
+        "echo 'JMESPath parse error: tenant-only-detail' >&2\n"
+        "exit 2\n",
+        encoding="utf-8",
+    )
+    fake_oci.chmod(0o755)
+    result = _bash(
+        tmp_path,
+        "OCI_SKILLS_MAX_RETRIES=0 wait_for_state 'test resource' private-resource-id READY 1",
+        PATH=f"{tmp_path}:{os.environ['PATH']}",
+    )
+    assert result.returncode != 0
+    assert "phase=state-read" in result.stderr
+    assert "class=query-syntax" in result.stderr
+    assert "query_mode=standard" in result.stderr
+    assert "id_flag=--resource-id" in result.stderr
+    assert "error_bytes=" in result.stderr
+    assert "error_digest=" in result.stderr
+    assert "outcome=inconclusive" in result.stderr
+    assert "last_error_class=query-syntax" in result.stderr
+    assert "last_error_digest=" in result.stderr
+    assert "tenant-only-detail" not in result.stderr
+
+
 def test_expired_receipt_blocks_live_action(tmp_path: pathlib.Path) -> None:
     result = _bash(
         tmp_path,
@@ -215,6 +243,30 @@ def test_secret_bearing_arguments_require_file_payload(tmp_path: pathlib.Path) -
     assert nested_json.returncode != 0
     assert "nested JSON" in nested_json.stderr
     assert "nested\"" not in nested_json.stderr
+
+
+def test_secret_file_payload_stays_out_of_preview_stderr_and_audit_ledger(
+    tmp_path: pathlib.Path,
+) -> None:
+    """ER-003: metadata-only action evidence must not contain payload content."""
+    payload = tmp_path / "secret-payload.json"
+    canary = "synthetic-" + "secret-" + "never-printed"
+    payload.write_text('{"secret":"' + canary + '"}\n', encoding="utf-8")
+    payload.chmod(0o600)
+    ledger = tmp_path / "audit.jsonl"
+
+    result = _bash(
+        tmp_path,
+        "run_action --risk credential --compartment cmpt-a --description rotate -- "
+        f"printf --credentials file://{payload}",
+        OCI_SKILLS_DRY_RUN="true",
+        OCI_SKILLS_NO_AUDIT="0",
+        OCI_SKILLS_AUDIT_LOG=str(ledger),
+    )
+
+    assert result.returncode == 0
+    assert canary not in result.stdout + result.stderr
+    assert canary not in ledger.read_text(encoding="utf-8")
 
 
 def test_live_action_rejects_bare_oci_entrypoint(tmp_path: pathlib.Path) -> None:

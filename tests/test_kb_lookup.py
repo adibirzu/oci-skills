@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import pathlib
 import sys
+import json
+
+import pytest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts"))
 
@@ -68,3 +71,69 @@ def test_real_kb_parses_and_ids_are_unique() -> None:
     ids = [e[0] for e in entries]
     assert len(ids) > 50
     assert len(ids) == len(set(ids)), "duplicate KB ids in references/KB.md"
+
+
+def test_score_uses_words_and_ignores_filler_and_repetition() -> None:
+    assert kb_lookup.score("my pod is failing", "repository", "the is my") == 0
+    assert kb_lookup.score("waf", "WAF", "") > kb_lookup.score("waf", "Other", "waf " * 100)
+
+
+def test_exact_id_shows_fix(tmp_path, capsys) -> None:
+    kb = tmp_path / "KB.md"
+    kb.write_text(SAMPLE)
+    assert kb_lookup.main(["kb-001", "--kb", str(kb), "--show"]) == 0
+    out = capsys.readouterr().out
+    assert "**Fix:** bind" in out
+    assert "KB-002" not in out
+
+
+def test_json_and_heading_tag_filter(tmp_path, capsys) -> None:
+    kb = tmp_path / "KB.md"
+    kb.write_text(SAMPLE + "\nThe networking team owns WAF.\n")
+    assert kb_lookup.main(["waf", "networking", "--kb", str(kb), "--json"]) == 0
+    assert json.loads(capsys.readouterr().out)["matches"] == []
+
+
+@pytest.mark.parametrize("top", ["0", "-1"])
+def test_nonpositive_top_is_rejected(top) -> None:
+    with pytest.raises(SystemExit) as exc:
+        kb_lookup.main(["waf", "--top", top])
+    assert exc.value.code == 2
+
+
+@pytest.mark.parametrize(("query", "expected"), [
+    ("ErrImagePull manifest unknown", "KB-187"),
+    ("compartmentDepth is missing when compartment is in groupBy", "KB-186"),
+    ("Audit list_events unknown kwargs limit", "KB-183"),
+    ("empty Resource Manager stack state JSONDecodeError", "KB-184"),
+    ("job-log AttributeError stream", "KB-185"),
+    ("installed helper missing consuming project", "KB-182"),
+    ("low volume Streaming collector queued records", "KB-188"),
+    ("explicit profile compartment override stale targets", "KB-189"),
+])
+def test_operational_symptoms_retrieve_the_relevant_fix(query, expected, capsys) -> None:
+    assert kb_lookup.main([query, "--top", "1", "--json", "--show"]) == 0
+    match = json.loads(capsys.readouterr().out)["matches"][0]
+    assert match["id"] == expected
+    assert "**Fix:**" in match["body"]
+    assert "docs.oracle.com" in match["body"]
+
+
+def test_human_output_escapes_terminal_controls(tmp_path, capsys) -> None:
+    kb = tmp_path / "KB.md"
+    kb.write_text("## KB-001 — Broken \x1b[2J title (cli)\n**Fix:** \x1b]52;c;payload\x07\n")
+    assert kb_lookup.main(["KB-001", "--kb", str(kb), "--show"]) == 0
+    out = capsys.readouterr().out
+    assert "\x1b" not in out and "\x07" not in out
+
+
+def test_en_dash_heading_is_supported() -> None:
+    assert kb_lookup.split_entries("## KB-001 – Example (cli)\nFix")[0][0] == "KB-001"
+
+
+def test_short_domain_tag_matches_compound_heading_not_body(tmp_path, capsys) -> None:
+    kb = tmp_path / "KB.md"
+    kb.write_text("## KB-001 — Access failed (oke-admin)\nFix RBAC\n"
+                  "## KB-002 — Access failed (security)\nAsk the oke team\n")
+    assert kb_lookup.main(["access", "oke", "--kb", str(kb), "--json"]) == 0
+    assert [m["id"] for m in json.loads(capsys.readouterr().out)["matches"]] == ["KB-001"]

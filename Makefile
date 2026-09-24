@@ -31,5 +31,6 @@ dry-run: ## Preview install actions without copying anything
 	@DRY_RUN=true $(INSTALL) claude codex gemini antigravity
 
 check: ## Lint scripts + run the secret/redaction gate
-	@command -v shellcheck >/dev/null && shellcheck -x --severity=warning scripts/*.sh install.sh bootstrap.sh || echo "shellcheck not installed (skipped)"
-	@for f in $$(git ls-files); do python3 scripts/redact.py --check "$$f" >/dev/null 2>&1 || echo "FLAGGED: $$f"; done; echo "redaction gate done"
+	@command -v shellcheck >/dev/null || { echo "required tool shellcheck is not installed" >&2; exit 127; }
+	@shellcheck -x --severity=warning scripts/*.sh install.sh bootstrap.sh
+	@git ls-files -z --cached --others --exclude-standard | python3 scripts/redaction_gate.py --root .

@@ -52,7 +52,9 @@ review are the only control. When in doubt, generalize.
 
 ## KB entry shape
 
-Append from the next number (`grep '^## KB-' references/KB.md | tail -1`):
+Use one more than the **largest numeric KB identifier**, not the last physical
+heading (entries may be grouped out of numeric order). Run
+`python3 -m pytest -q tests/test_kb_lookup.py` to reject duplicate identifiers:
 
 ```markdown
 ## KB-<n> — <generalized title> (<domain-tag>)
