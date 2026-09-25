@@ -151,7 +151,7 @@ def test_public_docs_publish_the_consolidated_inventory_and_reliability_controls
 
     for document in (readme, quickstart, architecture):
         assert "52 requirements" in document
-        assert "39 contracts" in document
+        assert "40 contracts" in document
         assert "30 journeys" in document
     assert "change-set manifests" in readme
     assert "dependency integrity" in quickstart

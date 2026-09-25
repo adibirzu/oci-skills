@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en" data-theme="business">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INTERNAL — Seven-backend OCI self-healing proposal</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/daisyui.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daisyui@5.5.19/themes.css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.2.4/dist/index.global.js"></script>
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    :where(.grid,.flex)>*{min-width:0}
+    :where(p,h1,h2,h3,li,td,th,code,.badge){overflow-wrap:anywhere}
+    :where(img,svg,canvas,iframe){max-width:100%;height:auto}
+    body{background:radial-gradient(circle at 90% 0%,color-mix(in oklab,var(--color-primary) 18%,transparent),transparent 30rem),var(--color-base-300)}
+    .shell{max-width:1240px;margin:0 auto}.eyebrow{letter-spacing:.14em;text-transform:uppercase;font-size:.72rem;font-weight:800}
+    .section-card{border:1px solid color-mix(in oklab,var(--color-base-content) 12%,transparent)}
+    .mermaid{overflow-x:auto;padding:1rem;background:var(--color-base-100);border-radius:var(--radius-box)}
+    .internal{border:2px solid var(--color-warning);box-shadow:0 0 0 4px color-mix(in oklab,var(--color-warning) 15%,transparent)}
+    .tbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--color-warning)}
+    @media print{.no-print{display:none!important}body{background:white}.card{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<main class="shell px-4 py-8 md:px-8 md:py-12">
+  <section class="hero internal rounded-box bg-base-100">
+    <div class="hero-content w-full flex-col items-start py-10">
+      <div class="flex w-full flex-wrap items-center justify-between gap-3">
+        <p class="eyebrow text-warning">Internal architecture proposal · do not publish</p>
+        <span class="badge badge-warning">Local review copy</span>
+      </div>
+      <h1 class="max-w-5xl text-4xl font-black leading-tight md:text-6xl">Self-healing for seven OCI Load Balancer backends</h1>
+      <p class="max-w-4xl text-lg text-base-content/75">A private OCI Load Balancer routes internal HTTPS traffic to seven independently operated backend services. OCI Monitoring, Notifications, Functions, and instance pools detect, remove, terminate, and replace a persistently unhealthy VM while preserving each service’s configured capacity.</p>
+      <div class="stats stats-vertical mt-4 w-full bg-base-200 shadow md:stats-horizontal">
+        <div class="stat"><div class="stat-title">Ingress</div><div class="stat-value text-2xl">Private OCI LB</div><div class="stat-desc">Internal listener, proposed HTTPS 443</div></div>
+        <div class="stat"><div class="stat-title">Backends</div><div class="stat-value text-2xl">7</div><div class="stat-desc">Independent health and capacity policy</div></div>
+        <div class="stat"><div class="stat-title">Remediation</div><div class="stat-value text-2xl">1 at a time</div><div class="stat-desc">Per pool, guarded and rate-limited</div></div>
+        <div class="stat"><div class="stat-title">Operations</div><div class="stat-value text-2xl">Email</div><div class="stat-desc">ONS subscription, confirmation required</div></div>
+      </div>
+    </div>
+  </section>
+
+  <div role="alert" class="alert alert-info mt-6"><span><strong>Status:</strong> offline proposal only. No OCI tenancy was contacted and no resource was created, changed, shared, or published.</span></div>
+  <div role="alert" class="alert alert-warning mt-3"><span><strong>Architecture rule:</strong> independent minimum/maximum/initial capacity, cooldown, placement, and remediation settings require one instance pool per backend service. The managed test stack therefore creates seven pools.</span></div>
+
+  <section class="card section-card mt-10 bg-base-100">
+    <div class="card-body">
+      <p class="eyebrow text-primary">Target architecture</p>
+      <h2 class="card-title text-3xl">Endpoints, APIs, signals, and deployment integrations</h2>
+      <div class="mermaid">
+flowchart TD
+  C["Internal clients"] --> DNS["OCI Private DNS<br/>internal service name"]
+  DNS --> L["Private OCI Load Balancer<br/>seven HTTP test listeners"]
+  L --> R["Direct listener-to-backend-set mapping"]
+  R --> B1["Atlas backend set<br/>HTTP :7100 · /healthz"]
+  R --> B2["Birch backend set<br/>HTTP :3100 · /healthz"]
+  R --> B3["Cedar backend set<br/>HTTP :2100 · /healthz"]
+  R --> B4["Delta backend set<br/>HTTP :9100 · /healthz"]
+  R --> B5["Ember backend set<br/>HTTP :7200 · /healthz"]
+  R --> B6["Fjord backend set<br/>HTTP :4100 · /healthz"]
+  R --> B7["Grove backend set<br/>HTTP :6100 · /healthz"]
+
+  B1 --> P1["Atlas instance pool"]
+  B2 --> P2["Birch instance pool"]
+  B3 --> P3["Cedar instance pool"]
+  B4 --> P4["Delta instance pool"]
+  B5 --> P5["Ember instance pool"]
+  B6 --> P6["Fjord instance pool"]
+  B7 --> P7["Grove instance pool"]
+  P1 & P2 & P3 & P4 & P5 & P6 & P7 --> IC["Per-service instance configuration<br/>boot + disposable block volumes"]
+
+  L --> MON["OCI Monitoring<br/>unhealthyBackendServers<br/>one alarm per backend set"]
+  MON --> ONS["OCI Notifications topic"]
+  ONS --> EMAIL["Confirmed EMAIL subscription<br/>operations + escalation owner"]
+  ONS --> FN["OCI Function<br/>seven-service remediator"]
+  FN -->|"LB APIs: read backend health"| L
+  FN -->|"Compute Management API:<br/>detach + auto-terminate + preserve size"| P1 & P2 & P3 & P4 & P5 & P6 & P7
+  FN --> STATE["OCI NoSQL<br/>dedupe, lock, rate limit, circuit breaker"]
+  FN --> LOG["OCI Logging + custom metrics"]
+  AUDIT["OCI Audit"] -.-> FN
+
+  GIT["Private internal Git repository<br/>TBD"] --> CI["CI/CD system<br/>TBD"]
+  CI --> TF["Terraform or OCI Resource Manager<br/>plan → approval → apply"]
+  CI --> OCIR["Private OCIR repository<br/>Function image"]
+  TF --> L
+  TF --> MON
+  TF --> ONS
+  TF --> FN
+  TF --> STATE
+  OCIR --> FN
+      </div>
+      <p class="text-sm text-base-content/65">No public endpoint is part of this proposal. NSGs permit listener traffic only from approved internal client CIDRs and backend traffic only from the LB NSG to each service port. The Function uses private subnets and resource-principal access to OCI service APIs.</p>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <p class="eyebrow text-primary">Load-balancer contract</p>
+    <h2 class="text-3xl font-bold">Seven backend sets, seven explicit health contracts</h2>
+    <div class="mt-4 overflow-x-auto rounded-box border border-base-content/10 bg-base-100">
+      <table class="table table-zebra">
+        <thead><tr><th>Backend</th><th>Target pool</th><th>Protocol / port</th><th>Health endpoint</th><th>Proposed internal route</th><th>Owner input</th></tr></thead>
+        <tbody>
+          <tr><td>Atlas</td><td>Atlas pool</td><td>HTTP / 7100</td><td>GET /healthz → 200</td><td>Private listener :7100</td><td>Synthetic</td></tr>
+          <tr><td>Birch</td><td>Birch pool</td><td>HTTP / 3100</td><td>GET /healthz → 200</td><td>Private listener :3100</td><td>Synthetic</td></tr>
+          <tr><td>Cedar</td><td>Cedar pool</td><td>HTTP / 2100</td><td>GET /healthz → 200</td><td>Private listener :2100</td><td>Synthetic</td></tr>
+          <tr><td>Delta</td><td>Delta pool</td><td>HTTP / 9100</td><td>GET /healthz → 200</td><td>Private listener :9100</td><td>Synthetic</td></tr>
+          <tr><td>Ember</td><td>Ember pool</td><td>HTTP / 7200</td><td>GET /healthz → 200</td><td>Private listener :7200</td><td>Synthetic</td></tr>
+          <tr><td>Fjord</td><td>Fjord pool</td><td>HTTP / 4100</td><td>GET /healthz → 200</td><td>Private listener :4100</td><td>Synthetic</td></tr>
+          <tr><td>Grove</td><td>Grove pool</td><td>HTTP / 6100</td><td>GET /healthz → 200</td><td>Private listener :6100</td><td>Synthetic</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-sm text-base-content/65">Health-check baseline: interval 10 seconds, timeout 3 seconds, 3 retries, expected 200. Tune after observing application startup and transient-failure behavior. A health endpoint must test local readiness without making a shared downstream outage trigger deletion of all seven fleets.</p>
+  </section>
+
+  <section class="mt-10">
+    <p class="eyebrow text-primary">Capacity and SLO worksheet</p>
+    <h2 class="text-3xl font-bold">Values are independent per backend—none are guessed</h2>
+    <div class="mt-4 overflow-x-auto rounded-box border border-base-content/10 bg-base-100">
+      <table class="table table-zebra">
+        <thead><tr><th>Backend</th><th>Min / initial / max</th><th>Cooldown</th><th>Placement</th><th>Capacity reservation</th><th>Minimum healthy</th><th>Replacement ceiling</th><th>Convergence SLO</th></tr></thead>
+        <tbody>
+          <tr><td>Atlas</td><td>2 / 3 / 5</td><td>300</td><td>Balanced FD</td><td>On-demand</td><td>2</td><td>1 concurrent; ≤2/30m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+          <tr><td>Birch</td><td>2 / 2 / 4</td><td>420</td><td>Balanced FD</td><td>On-demand</td><td>1</td><td>1 concurrent; ≤1/30m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+          <tr><td>Cedar</td><td>2 / 3 / 6</td><td>300</td><td>Balanced FD</td><td>On-demand</td><td>2</td><td>1 concurrent; ≤2/30m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+          <tr><td>Delta</td><td>2 / 2 / 3</td><td>600</td><td>Balanced FD</td><td>On-demand</td><td>1</td><td>1 concurrent; ≤1/30m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+          <tr><td>Ember</td><td>2 / 2 / 5</td><td>300</td><td>Balanced FD</td><td>On-demand</td><td>1</td><td>1 concurrent; ≤2/30m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+          <tr><td>Fjord</td><td>2 / 2 / 4</td><td>480</td><td>Balanced FD</td><td>On-demand</td><td>1</td><td>1 concurrent; ≤1/30m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+          <tr><td>Grove</td><td>2 / 2 / 3</td><td>600</td><td>Balanced FD</td><td>On-demand</td><td>1</td><td>1 concurrent; ≤1/60m</td><td>Request ≤5m; healthy ≤15m</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="grid gap-4 mt-4 lg:grid-cols-3">
+      <article class="card card-border bg-base-100"><div class="card-body"><h3 class="card-title">Default guardrail</h3><p>Remediate one VM at a time per pool and no more than three VMs globally in 30 minutes. Pause during an active autoscaling operation.</p></div></article>
+      <article class="card card-border bg-base-100"><div class="card-body"><h3 class="card-title">Minimum healthy rule</h3><p>The Function never acts if termination would take healthy capacity below the backend-specific approved threshold. A pool with one VM is alert-only.</p></div></article>
+      <article class="card card-border bg-base-100"><div class="card-body"><h3 class="card-title">Capacity strategy</h3><p>Distribute instances across fault domains and reserve or pre-validate one replacement shape per pool. Exact placement and reservation values remain service-owner decisions.</p></div></article>
+    </div>
+  </section>
+
+  <section class="card section-card mt-10 bg-base-100">
+    <div class="card-body">
+      <p class="eyebrow text-primary">Remediation transaction</p>
+      <h2 class="card-title text-3xl">Fail closed before deleting a VM</h2>
+      <ol class="steps steps-vertical lg:steps-horizontal">
+        <li class="step step-primary">Alarm FIRING</li>
+        <li class="step step-primary">Deduplicate + lock</li>
+        <li class="step step-primary">Re-read LB health</li>
+        <li class="step step-primary">Map exactly one pool member</li>
+        <li class="step step-primary">Check capacity + rate</li>
+        <li class="step step-primary">Detach + terminate</li>
+        <li class="step step-primary">Verify replacement healthy</li>
+      </ol>
+      <ul class="mt-5 list-disc space-y-2 pl-6">
+        <li>Invoke the Compute Management detach operation with <code>isAutoTerminate=true</code> and <code>isDecrementSize=false</code>. The faulty VM is removed and desired pool size remains unchanged.</li>
+        <li>Delete the boot volume by setting preservation to false. Attached block volumes are also eligible for deletion because the owner approved this behavior, but only volumes explicitly created for that VM and tagged <code>data-class=disposable</code> are deleted. Shared or ambiguous attachments make remediation stop and email the owner.</li>
+        <li>Use one NoSQL lock and rolling replacement counter per pool. Duplicate ONS delivery must not produce a second termination.</li>
+        <li>Stop on multiple unhealthy members, ambiguous IP-to-instance mapping, a scaling pool, insufficient healthy capacity, missing metrics, or exhausted shape capacity.</li>
+        <li>Start with <code>MODE=observe</code>, then enable one non-production backend, then one production backend at a time.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <p class="eyebrow text-primary">Notifications and escalation</p>
+    <h2 class="text-3xl font-bold">Email is the human operational channel</h2>
+    <div class="grid gap-4 mt-4 lg:grid-cols-2">
+      <article class="card card-border bg-base-100"><div class="card-body">
+        <h3 class="card-title">Events sent by email</h3>
+        <ul class="list-disc pl-6"><li>Alarm FIRING and RESET</li><li>Remediation started, completed, blocked, or failed</li><li>Minimum-capacity or rate-limit circuit breaker</li><li>Replacement convergence SLO breach</li><li>Function errors and missing telemetry</li></ul>
+      </div></article>
+      <article class="card card-border bg-base-100"><div class="card-body">
+        <h3 class="card-title">Required owner fields</h3>
+        <p>ONS email subscriptions do not deliver until the recipient confirms them.</p>
+        <dl class="mt-2 grid grid-cols-[auto_1fr] gap-2"><dt>Distribution list</dt><dd class="tbd">&lt;OPERATIONS_EMAIL&gt;</dd><dt>Primary owner</dt><dd class="tbd">&lt;ESCALATION_OWNER&gt;</dd><dt>Backup owner</dt><dd class="tbd">&lt;BACKUP_OWNER&gt;</dd><dt>Business hours</dt><dd class="tbd">&lt;SUPPORT_WINDOW&gt;</dd></dl>
+      </div></article>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <p class="eyebrow text-primary">Infrastructure ownership and delivery</p>
+    <h2 class="text-3xl font-bold">One private source of truth, one apply surface</h2>
+    <div class="overflow-x-auto rounded-box border border-base-content/10 bg-base-100 mt-4">
+      <table class="table table-zebra">
+        <thead><tr><th>Field</th><th>Required value</th><th>Proposal requirement</th></tr></thead>
+        <tbody>
+          <tr><td>Terraform repository</td><td class="tbd">&lt;INTERNAL_TERRAFORM_REPOSITORY&gt;</td><td>Private; protected default branch; no OCIDs, IPs, or secrets committed</td></tr>
+          <tr><td>State owner</td><td>Terraform or OCI Resource Manager</td><td>Choose exactly one apply surface per state; existing resources use fresh non-owning state and zero-change adoption validation</td></tr>
+          <tr><td>CI/CD system</td><td class="tbd">&lt;OCI_DEVOPS | GITHUB_ACTIONS | GITLAB | JENKINS&gt;</td><td>Private runners, plan artifact, approval gate, apply exact reviewed plan</td></tr>
+          <tr><td>Function source</td><td class="tbd">&lt;FUNCTION_SOURCE_PATH&gt;</td><td>Unit/integration tests, dependency lock, secret scan, linux/amd64 image</td></tr>
+          <tr><td>Image repository</td><td class="tbd">&lt;PRIVATE_OCIR_REPOSITORY&gt;</td><td>Immutable digest promoted to Function; vulnerability scan required</td></tr>
+          <tr><td>Pipeline owner</td><td class="tbd">&lt;PIPELINE_OWNER&gt;</td><td>Owns deploy, rollback, break-glass, and credential rotation</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="mt-4 mockup-code">
+      <pre data-prefix="1"><code>validate → test Function → terraform fmt/validate → plan</code></pre>
+      <pre data-prefix="2"><code>security scan → owner review → approval gate</code></pre>
+      <pre data-prefix="3"><code>apply reviewed plan → publish immutable Function image → deploy digest</code></pre>
+      <pre data-prefix="4"><code>smoke test resource principal → observe mode → controlled health drill</code></pre>
+      <pre data-prefix="5"><code>verify email + replacement SLO → retain evidence → promote next backend</code></pre>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <p class="eyebrow text-primary">Migration</p>
+    <h2 class="text-3xl font-bold">Deploy the synthetic stack without a remediation storm</h2>
+    <div class="space-y-3 mt-4">
+      <div class="collapse collapse-arrow section-card bg-base-100"><input type="checkbox" checked><div class="collapse-title text-xl font-semibold">1. Validate the synthetic configuration</div><div class="collapse-content"><p>Confirm seven neutral service records, ports, capacity envelopes, health checks, replacement budgets, internal CIDR, email owner, repository, and CI/CD system.</p></div></div>
+      <div class="collapse collapse-arrow section-card bg-base-100"><input type="checkbox"><div class="collapse-title text-xl font-semibold">2. Review one complete Terraform plan</div><div class="collapse-content"><p>Confirm the VCN, private LB, seven listeners/backend sets/pools/autoscaling policies, Functions, alarms, ONS, NoSQL, logging, IAM, and destroy boundary all belong to the synthetic state.</p></div></div>
+      <div class="collapse collapse-arrow section-card bg-base-100"><input type="checkbox"><div class="collapse-title text-xl font-semibold">3. Apply in observe mode</div><div class="collapse-content"><p>Create the entire stack with every Function set to observe so alarms and mappings can be tested without terminating a VM.</p></div></div>
+      <div class="collapse collapse-arrow section-card bg-base-100"><input type="checkbox"><div class="collapse-title text-xl font-semibold">4. Promote one synthetic service</div><div class="collapse-content"><p>Enable remediation only after all seven pools and backend sets are healthy and the email subscription is confirmed.</p></div></div>
+      <div class="collapse collapse-arrow section-card bg-base-100"><input type="checkbox"><div class="collapse-title text-xl font-semibold">5. Deploy observe-only, then canary</div><div class="collapse-content"><p>Prove alarms, Function mapping, email, deduplication, and capacity decisions without mutation. Enable one backend at a time, inject an application-health failure, and confirm the pool returns to desired size with a healthy replacement inside the SLO.</p></div></div>
+    </div>
+  </section>
+
+  <section class="mt-10">
+    <p class="eyebrow text-primary">Acceptance and rollback</p>
+    <h2 class="text-3xl font-bold">What “working as intended” means</h2>
+    <div class="grid gap-4 mt-4 lg:grid-cols-2">
+      <article class="card card-border bg-base-100"><div class="card-body"><h3 class="card-title">Acceptance tests</h3><ul class="list-disc pl-6"><li>Each backend health failure affects only its own alarm and pool.</li><li>LB stops new traffic to the failed VM before termination.</li><li>Duplicate notifications cause one action.</li><li>Pool size is preserved and replacement becomes LB-healthy within 15 minutes.</li><li>Boot and eligible disposable block volumes are deleted.</li><li>Minimum healthy capacity, per-pool and global rate limits stop unsafe action.</li><li>Email records start, completion, blocked action, and SLO breach.</li><li>Terraform plan is clean after convergence.</li></ul></div></article>
+      <article class="card card-border bg-base-100"><div class="card-body"><h3 class="card-title">Rollback / kill switch</h3><ul class="list-disc pl-6"><li>Set Function <code>MODE=observe</code> to stop mutations immediately.</li><li>Disable the Function subscription while leaving email alarms active.</li><li>Restore the previous Function image digest and Terraform plan.</li><li>Do not reattach a known-faulty VM; restore desired capacity through the instance pool.</li><li>Use Terraform destroy only for resources owned by this component. Existing supplied resources remain untouched.</li></ul></div></article>
+    </div>
+  </section>
+
+  <section class="card section-card mt-10 bg-base-100">
+    <div class="card-body">
+      <p class="eyebrow text-warning">Inputs still required before implementation</p>
+      <h2 class="card-title text-3xl">Owner decisions</h2>
+      <ol class="list-decimal space-y-2 pl-6">
+        <li>Confirm whether the internal LB listener is HTTPS 443 with host/path routing, or provide the existing listener ports and routing policy.</li>
+        <li>Confirm the synthetic ports and <code>/healthz</code> for all seven applications.</li>
+        <li>Complete all seven min/initial/max, cooldown, placement, reservation, and minimum-healthy values.</li>
+        <li>Confirm that every synthetic service retains its independent instance pool.</li>
+        <li>Provide the operations distribution list and named escalation owners.</li>
+        <li>Provide the private Terraform repository, chosen state owner, CI/CD system, Function source path, OCIR repository, and pipeline owner.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="mt-10 border-t border-base-content/15 py-6 text-sm text-base-content/60">
+    INTERNAL · DO NOT PUBLISH · Values marked <span class="tbd">&lt;LIKE_THIS&gt;</span> require the service owner’s confirmation before any live plan or mutation.
+  </footer>
+</main>
+<script type="module">
+  import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+  const theme = document.documentElement.dataset.theme === "business" ? "dark" : "default";
+  mermaid.initialize({startOnLoad:true,theme,securityLevel:"loose",flowchart:{curve:"basis",htmlLabels:true}});
+</script>
+</body>
+</html>

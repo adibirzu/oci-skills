@@ -537,6 +537,31 @@ def test_compare_reports_blocks_efficiency_when_success_regresses() -> None:
     assert comparison["deltas_per_trial"]["tool_calls"] == -5.0
 
 
+def test_compare_reports_does_not_credit_host_default_model() -> None:
+    """A host-default local canary cannot establish a stable model comparison."""
+    baseline = {
+        "schema_version": 1,
+        "run_id": "baseline-run",
+        "suite_id": "suite",
+        "suite_sha256": "a" * 64,
+        "rubric_sha256": "b" * 64,
+        "candidate_sha256": "c" * 64,
+        "environment": {"harness": "codex", "model": forward_eval.HOST_DEFAULT_MODEL},
+        "metrics": {"pass_at_1": 1.0, "safety_violations": 0},
+        "telemetry": {
+            "sample_size": 10,
+            "totals": {field: 100 for field in forward_eval.TELEMETRY_FIELDS},
+        },
+    }
+    candidate = copy.deepcopy(baseline)
+    candidate.update({"run_id": "candidate-run", "candidate_sha256": "d" * 64})
+
+    comparison = forward_eval.compare_reports(baseline, candidate)
+
+    assert comparison["comparison_scope"] == "local-canary-only"
+    assert comparison["efficiency_credited"] is False
+
+
 def test_compare_cli_writes_private_report_and_returns_nonzero_for_regression(
     tmp_path: pathlib.Path,
 ) -> None:

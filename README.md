@@ -20,7 +20,7 @@ Generated product bundles contain platform/IaC, IAM requirements, OpenAPI/build/
 
 ## Skill topology
 
-The 28-skill pack contains a router selecting twenty-two primary domains and five orchestrators:
+The 29-skill pack contains a router selecting twenty-two primary domains and five orchestrators:
 
 For a task-first picker, use the [OCI skill catalog](docs/SKILL_CATALOG.md). For an
 operator tour of the foundational service domains, read the [core services starter](docs/oci-core-services-starter.md).
@@ -146,11 +146,11 @@ Full ownership and lifecycle details are in [docs/ARCHITECTURE.md](docs/ARCHITEC
 ## Product contracts and readiness
 
 The consolidated release contains **29 skills, 52 requirements, 40 detailed
-PRDs, 39 contracts, and 30 journeys**. These inventories are validated offline
+PRDs, 40 contracts, and 30 journeys**. These inventories are validated offline
 and copied into every supported harness.
 
 REQ-13 through REQ-52 add versioned application evidence, deterministic
-workflow evaluation, the 28-skill capability catalog, routing precedence,
+workflow evaluation, the 29-skill capability catalog, routing precedence,
 evidence envelopes, architecture traceability, distribution/redaction/release
 contracts, compatibility policy, user journeys, dependency and impact graphs,
 verification/provenance registries, an install manifest, safety cases, a release

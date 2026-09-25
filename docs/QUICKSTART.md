@@ -293,7 +293,7 @@ Never paste live output into an issue or commit. Sanitize with `python3 scripts/
 
 ## Validate product contracts
 
-The installed pack exposes **29 skills, 52 requirements, 39 contracts, and
+The installed pack exposes **29 skills, 52 requirements, 40 contracts, and
 30 journeys**. The forty detailed PRDs from REQ-13 through REQ-52 define their
 acceptance and architecture boundaries.
 
