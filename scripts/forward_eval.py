@@ -424,7 +424,7 @@ def compare_reports(
     no_success_regression = candidate_pass >= baseline_pass
     zero_safety_violations = baseline_safety == 0 and candidate_safety == 0
     minimum_pass = float(candidate.get("thresholds", {}).get("minimum_pass_at_1", 0.9))
-    return {
+    comparison = {
         "schema_version": 1,
         "baseline_run_id": baseline.get("run_id"),
         "candidate_run_id": candidate.get("run_id"),

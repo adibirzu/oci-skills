@@ -18,7 +18,7 @@ DOCS = {
     "oke": "https://docs.oracle.com/en-us/iaas/Content/ContEng/home.htm",
     "access": "https://docs.oracle.com/en-us/iaas/Content/ContEng/Concepts/contengaboutaccesscontrol.htm",
     "kubeconfig": "https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contengdownloadkubeconfigfile.htm",
-    "flow_logs": "https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/vcn_flow_logs.htm",
+    "flow_logs": "https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/vcn-flow-logs.htm#vcn_flow_logs",
     "logging": "https://docs.oracle.com/en-us/iaas/Content/Logging/home.htm",
     "service_connector": "https://docs.oracle.com/en-us/iaas/Content/connector-hub/home.htm",
     "log_analytics": "https://docs.oracle.com/en-us/iaas/log-analytics/home.htm",

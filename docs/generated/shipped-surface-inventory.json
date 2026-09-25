@@ -78,7 +78,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/forward_eval.py",
-      "sha256": "4c4186ecb15ad30717bdfdca7cb81fe4502005f48f559e9fdda1487d54158ae2"
+      "sha256": "d6d641b431742c00f75ad482eb4d690d208466d4dce067b1c935dcae91bedced"
     },
     {
       "classification": "executable",
@@ -162,7 +162,7 @@
       "distribution": "copy-install-runtime",
       "mode": "0755",
       "path": "scripts/oci_oke_demo_troubleshoot.py",
-      "sha256": "0741619883def1f6d8c529e07b033af7945d08ef622b4b526160559cbd20d0fa"
+      "sha256": "0dc83d7e37d11d96a89b30c49ab2c0205db76345588309454756d959483efd1e"
     },
     {
       "classification": "executable",
@@ -291,5 +291,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "126d9ba77c8fea5e057445b7f4555c1c39a4d50a9d3046fc9c5c821d21144506"
+  "surfaces_sha256": "5b742d9804e9ccea18b0fbec78eb8479ae76c6bf3a3b8d6aa9e076f212165054"
 }

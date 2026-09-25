@@ -81,6 +81,7 @@ Safe), the upstream `db/` domain of
 | Generative AI model permissions | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/model-permissions.htm> |
 | Generative AI private endpoints | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/private-endpoint.htm> |
 | Generative AI guardrails | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/guardrails.htm> |
+| Generative AI Agents overview | <https://docs.oracle.com/en-us/iaas/Content/generative-ai/agents.htm> |
 | Generative AI Agents IAM policies | <https://docs.oracle.com/en-us/iaas/Content/generative-ai-agents/iam-policies.htm> |
 | Multicloud overview | <https://docs.oracle.com/en-us/iaas/Content/multicloud/overview.htm> |
 
@@ -163,6 +164,12 @@ Safe), the upstream `db/` domain of
 | Compute | <https://docs.oracle.com/en-us/iaas/Content/Compute/home.htm> |
 | Run commands on instances | <https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runningcommands.htm> |
 | Object Storage (buckets) | <https://docs.oracle.com/en-us/iaas/Content/Object/home.htm> |
+
+## Functions applications — `oci-events-functions`
+
+| Topic | Canonical doc |
+|---|---|
+| Creating OCI Functions applications | <https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingapps-task.htm> |
 
 ## Storage and disaster recovery
 
