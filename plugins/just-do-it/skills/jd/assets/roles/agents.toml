@@ -1,3 +1,7 @@
+[agents.luna-scout]
+description = "Luna read-only scout for bounded repository discovery."
+config_file = "agents/luna-scout.toml"
+
 [agents.prd-planner]
 description = "Terra planner that decomposes one goal into evidence-backed PRDs and task graphs."
 config_file = "agents/prd-planner.toml"

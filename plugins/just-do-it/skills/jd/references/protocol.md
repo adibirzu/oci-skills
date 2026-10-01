@@ -13,6 +13,12 @@ attempt: <current>/<maximum>
 blocker_fingerprint: <stable digest or none>
 files: <changed or inspected paths>
 tests: <commands and outcomes>
+requested_model: <model or role requested>
+actual_model: <runtime-reported model or unavailable>
+actual_model_source: <runtime report/tool metadata or unavailable>
+reasoning_effort: <requested and actual if reported>
+usage: <input/cached/output tokens and cost if metered; otherwise unavailable>
+escalation_reason: <reason for stronger tier or none>
 acceptance: <criteria satisfied or missing>
 risks: <remaining risks>
 next_ready: <task ids unblocked by this result>
@@ -96,7 +102,11 @@ Style-only preferences are not blocking. CRITICAL and HIGH findings block PRD co
 3. Lease canonical paths and reject post-task changes outside the lease.
 4. Require RED evidence before implementation for new behavior.
 5. Require focused GREEN evidence before integration.
-6. Require independent review before advancing to the next PRD.
+6. Require independent review before release acceptance or advancing a sensitive PRD. Consolidate
+   low-risk review when the same final diff and verification remain current. A
+   low-risk local-only task may close with acceptance label
+   `locally_verified_review_unavailable` after coordinator diff inspection and focused tests;
+   this is not independent review.
 7. Reopen a completed task when later integration invalidates its evidence.
 8. Enforce concurrency, attempt, review-cycle, and recursion budgets.
 9. Stop only at a terminal condition defined in `SKILL.md`.
@@ -122,7 +132,7 @@ evidence: <new evidence or none>
 ```text
 STATUS
 goal: <redacted goal label>
-mode: strict | supervised | break-glass
+mode: strict | supervised | transparent-shared-workspace | break-glass
 completed: <PRDs/tasks>
 in_flight: <task, owner, last progress time>
 blocked: <blocker and decision owner>
@@ -133,16 +143,24 @@ verification: <fresh/stale/missing evidence>
 
 ## Model fallback
 
-Preferred configured roles are model-pinned. A fallback is compatible only when it preserves:
+Preferred configured roles are model-pinned. Request Luna for routine discovery
+and bounded RED/GREEN implementation; request Terra only for evidenced complex
+planning or integration. Strict-mode fallback is compatible only when it preserves:
 
 - worker: workspace-write, bounded leased paths, internal child channel, no child delegation;
-- planner: read-only and Terra-equivalent or stronger reasoning;
+- routine scout: read-only and Luna-equivalent reasoning;
+- complex planner: read-only and Terra-equivalent reasoning;
 - reviewer: read-only, Sol-equivalent reasoning, no implementation ownership, no user tools;
 - security reviewer: read-only, Sol-equivalent reasoning, independent from implementation.
 
-Record actual role, model, sandbox, and available tool class. If the active runtime cannot prove
-those invariants, stop or ask instead of silently downgrading. Never claim a Luna, Terra, or Sol
-review occurred unless the runtime actually selected that model.
+Never silently substitute a stronger or more expensive model when the requested
+role is unavailable. Record requested and actual role/model separately, the
+source of actual-model evidence, usage only when reported, and any escalation
+reason. If the active runtime cannot prove
+strict worker invariants, use the SKILL.md transparent shared-workspace option only for bounded
+local work, with coordinator verification; otherwise stop or ask. Never claim a Luna, Terra, or
+Sol review occurred unless the runtime actually selected that model, and never claim review
+independence from an unverified sandbox or an implementation owner.
 
 ## Security review evidence
 

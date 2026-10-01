@@ -45,10 +45,12 @@ At activation, inventory the current harness instead of assuming Codex role name
    that the user must resume the session; do not promise background supervision.
 6. Keep all external operations behind the same authority envelope and delivery modes.
 
-Model brand names are preferences, not portable guarantees. Use the strongest available model
-for planning/integration and an independently started strong model or clean context for review.
-Use a cheaper capable model for bounded tests and implementation only when its sandbox and tool
-controls are verifiable. Record actual assignments in the ledger.
+Model brand names are preferences, not portable guarantees. Use the lowest
+capable tier: Luna for routine discovery and bounded RED/GREEN work; Terra only
+for evidenced architectural planning or cross-module integration; an
+independent strong model or clean context for required review. Never silently
+substitute a stronger model for a missing cheap role. Record requested and
+runtime-reported actual assignments, usage, and escalation reasons in the ledger.
 
 ## Harness-specific boundaries
 

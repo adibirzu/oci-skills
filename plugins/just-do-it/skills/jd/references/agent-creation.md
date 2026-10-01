@@ -26,9 +26,9 @@ copying prompts by hand. The generator validates it before rendering.
 
 1. Give every agent one purpose, one bounded deliverable, and an explicit capability list.
 2. Keep planner and scout read-only. Give writes only to test-writer and maker.
-3. Keep checker and security-checker read-only and independent from maker context. Their generated
-   definitions have no command runner: they review supplied evidence and return verification
-   commands and evidence requirements to the coordinator, which executes approved checks.
+   A maker can own the complete RED/GREEN loop; a separate test-writer is optional.
+3. Keep checker and security-checker read-only and independent from maker context. They may run
+   verification but may not repair their own findings.
 4. Give agents self-contained packets: goal slice, repository facts, owned paths, constraints,
    verification commands, evidence, and output schema. Do not say only "use the prior findings."
 5. Allow only the coordinator to assign work, reconcile state, obtain authority, and communicate
@@ -48,26 +48,9 @@ copying prompts by hand. The generator validates it before rendering.
 | Cursor | `.cursor/commands/jd-<role>.md` | Reusable command role, not a claimed isolated native subagent. |
 | Pi | `.pi/prompts/jd-<role>.md` | Reusable prompt template; isolation must be supplied by the coordinator/runtime. |
 | Cline | `.clinerules/workflows/jd-<role>.md` | Reusable workflow role; Plan/Act and permissions remain client controls. |
-| Codex | `${CODEX_HOME:-$HOME/.codex}/agents/<role>.toml` plus the global `[agents]` table | Native named roles, installed separately by `scripts/install_codex_roles.py`. |
 
 Cursor, Pi, and Cline outputs deliberately say `ROLE ADAPTER`, not `native subagent`. Do not
 misrepresent prompt separation as process, workspace, model, or permission isolation.
-
-## Two generators, two sources of truth
-
-Codex is not a `create_agent_team.py --harness` target and the six-harness generator does not
-produce Codex roles. The two paths are deliberately separate because Codex roles are global
-runtime configuration, not workspace files:
-
-| Path | Source of truth | Roles | Install / check |
-|---|---|---|---|
-| Portable workspace teams (AGY, Claude, Grok, Cursor, Pi, Cline) | `assets/agent-blueprints.json` | planner, scout, test-writer, maker, checker, security-checker | `python3 scripts/create_agent_team.py install\|check --harness all --target-root <repo>` |
-| Codex named roles | `assets/roles/*.toml` registered in `assets/roles/agents.toml` | prd-planner, implementation-worker, test-worker, integration-worker, sol-reviewer, sol-security-reviewer, jd-elevated-worker | `python3 scripts/install_codex_roles.py check` then, only after explicit approval, `install` |
-
-Edit the structured source for the path you are changing; never hand-copy a role prompt from one
-source into the other. Codex installs touch global configuration, so always run `check` first and
-follow [distribution.md](distribution.md) for the approval, backup, strict-config validation, and
-rollback contract.
 
 ## Agent acceptance checklist
 
