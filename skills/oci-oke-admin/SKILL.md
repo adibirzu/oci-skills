@@ -78,21 +78,25 @@ that match the current approved target.
 | Task | Sequence |
 |---|---|
 | Deploy an OKE app | collect a sanitized target inventory → run `scripts/target_derived_plan.py --inventory <SANITIZED_INVENTORY_JSON>` → prove context/profile/cluster and target node architecture → build/push a matching or multi-architecture image → verify the manifest architecture and OCIR pull auth from the target namespace → render manifests and preview with `kubectl diff -f <dir>` or `kubectl apply --dry-run=server -f <dir>` → get explicit user confirmation of the exact diff → apply namespace/secrets/config/deployment/service/ingress → `kubectl rollout status` → probe readiness and public routes |
-| Create a new OKE cluster for an application | validate installed `ce cluster create` and `ce node-pool create` flags → create or reuse the named cluster with a private API endpoint by default → create or reuse an explicit managed node pool → verify cluster/node-pool `ACTIVE` and at least one Kubernetes `Ready` node → continue to OCIR, ingress, and workload gates |
+| Create a new OKE cluster for an application | validate installed `ce cluster create` and `ce node-pool create` flags → create or reuse the named cluster with a private API endpoint by default → create or reuse an explicit managed node pool → for a tenancy requiring IMDSv1 disabled, set the OKE node-pool `node_metadata` field `areLegacyImdsEndpointsDisabled` to the string `"true"` (do not use Compute `instance_options` on the node-pool resource) → verify cluster/node-pool `ACTIVE`, read back the metadata, verify every resulting worker is IMDSv2-only, and confirm at least one Kubernetes `Ready` node → continue to OCIR, ingress, and workload gates |
 | Use a Kubernetes MCP server for OKE triage | treat it as an optional read surface → prove kube context/profile/cluster through this skill → restrict tools to read-only allowlists → keep secret masking and redaction on → reproduce any needed mutation through preflighted `kubectl`/`helm`/`oci_cli` here |
 | Add a web service behind shared nginx ingress | create/verify `ClusterIP` service → add Ingress host/path → copy or create namespace-local TLS secret → preview with `kubectl diff` or `--dry-run=server` and confirm before applying → update DNS to the shared ingress LB → verify HTML and API routes |
 | Diagnose `EXTERNAL-IP <pending>` | decide if service should be `ClusterIP` behind ingress → if direct LB is required, check LB quota, subnet annotation, service events, finalizers, and OCI CCM errors |
 | Diagnose 502 / backend health `CRITICAL` | check pod readiness → service endpoints → NodePort path → LB subnet egress to node CIDR on `10256` and `30000-32767` → node subnet ingress from LB CIDR |
+| Diagnose public C11B `/api/health` 502 | successful TLS plus HTTP 502 proves only that the public route responded; inspect DNS → LB listener/backend health → ingress/controller → Service endpoints → pod readiness → authenticated app flow; do not reuse a historical subnet fix without matching evidence (OCI-DEMO: KB-577) |
 | Fix TLS on an OCI LB-backed service | create Kubernetes TLS secret in the same namespace → annotate backend protocol, SSL ports, and TLS secret → verify listener is HTTPS, not plain TCP |
 | Recover from `ImagePullBackOff` | verify image architecture/tag exists → verify OCIR repo visibility or imagePullSecret → wait for auth-token propagation → inspect `kubectl describe pod` events |
 | Handle `NodeNotReady`, bootstrap, or registration failure | classify the node pool as managed or virtual → use OKE's read-only Network Path Analyzer tests first → run/update Node Doctor only on a managed node and collect a redacted support bundle if needed → change network or node-pool configuration only after review |
+| Enforce IMDSv2 on managed OKE nodes | use the OKE node-pool `node_metadata` string map with `areLegacyImdsEndpointsDisabled="true"` → inspect the installed OCI provider/API schema and a fresh plan → understand that metadata changes do not retroactively update existing workers → use a reviewed rolling replacement with capacity headroom → verify pool metadata, each replacement Compute instance, private API/RBAC, and Kubernetes `Ready`; never weaken tenancy IMDSv1 policy or retry a stale saved plan |
 | Diagnose virtual-node pod/service reachability | check events and service endpoints → use `kubectl proxy` for local debugging rather than `kubectl port-forward` → use OKE Network Path Analyzer for VCN paths → do not infer a NodePort path exists |
 | Inspect an enhanced-cluster add-on | inventory with `oci_cli ce cluster list-addons` and inspect with `oci_cli ce cluster get-addon` → compare version/status/configuration arguments with the target Kubernetes version → inspect the associated work request and controller logs → use only supported configuration arguments and an approved change |
 | Diagnose OCI Native Ingress Controller readiness | inspect controller events/logs and backend Service endpoints → verify the documented pod readiness gate → use validation messages to correct manifests before changing LB resources |
 | Update an existing image | prefer `kubectl set image --dry-run=server -o yaml` to preview the image change → get explicit user confirmation → run it for real → `kubectl rollout status` → smoke-test readiness, HTML, and JSON/API routes |
 | Upgrade an OKE cluster or managed nodes | inventory control-plane, configured node-pool, and running-node versions → test workloads against the target version → review all Ready/skew/precondition blockers and the OCI work request → get target-bound approval → upgrade the control plane → cycle/replace managed nodes or use an out-of-place pool → verify workloads, add-ons, and routing; never call a zero-downtime control-plane upgrade a zero-impact application upgrade |
 | Assess an enhanced-cluster add-on | inspect its enabled state, version, automatic-update choice, and configuration → confirm it has no standalone controller conflict → review its exact impact and obtain explicit approval before changing it → verify controller and workload readiness |
-| Handle private or legacy kubeconfig endpoints | validate `ce cluster create-kubeconfig` help → generate a v2 kubeconfig with the reachable endpoint mode (`PUBLIC_ENDPOINT`, `PRIVATE_ENDPOINT`, `VCN_HOSTNAME`, or `LEGACY_KUBERNETES`) → use Cloud Shell with Bastion or a local peered/bastion path for private endpoints → confirm the OCI CLI profile/MFA auth used by the exec plugin → verify kubectl version skew and RBAC |
+| Handle private or legacy kubeconfig endpoints | validate `ce cluster create-kubeconfig` help → generate a v2 kubeconfig with the reachable endpoint mode (`PUBLIC_ENDPOINT`, `PRIVATE_ENDPOINT`, `VCN_HOSTNAME`, or `LEGACY_KUBERNETES`) → for private endpoints, route via Bastion port forwarding tunnel (TCP 6443, TTL ≤ 3600s), an in-VCN jump host, or Cloud Shell with Bastion → point local kubeconfig `server` to `https://127.0.0.1:<local_port>` → confirm the OCI CLI profile/MFA auth used by the exec plugin → verify kubectl version skew and RBAC |
+| Access private OKE cluster via Bastion tunnel | preflight target compartment → create Bastion port-forwarding session targeting the OKE private API IP on TCP 6443 (session TTL ≤ 3600s) → launch local SSH tunnel `ssh -N -L 6443:<OKE_PRIVATE_IP>:6443` → configure kubeconfig cluster server to `https://127.0.0.1:6443` with cluster CA → run read probe `kubectl get nodes` → tear down tunnel and delete session on completion (KB-151, KB-184) |
+| Access private OKE cluster via in-VCN runner | verify runner VM is in the same VCN or an LPG/DRG-peered VCN as the OKE cluster → execute kubectl directly or via SSH tunnel from the runner (warning: unpeered cross-VCN jump hosts cannot route to private OKE endpoints, KB-187) |
 | Restore a customer-demo app agent | prove OKE API `/readyz` first → verify namespace RBAC → verify pod service account / Workload Identity or instance-principal path → test only intended signed-in app endpoints → keep privileged mutations and security actions role-gated |
 | Prove app-agent OCI runtime-principal readiness | generate `scripts/oci_oke_demo_troubleshoot.py runtime-principal-readiness` → inspect Deployment serviceAccountName and ServiceAccount → test Kubernetes RBAC as that service account → for managed-node instance-principal designs, run a narrow in-pod OCI read using `--auth instance_principal`; for OKE Workload Identity, use the app/SDK workload identity provider canary instead → inspect OCI Audit rows for the intended instance-principal dynamic group or workload principal → grant only the smallest read-only policy if current evidence proves it is missing |
 | Run remote OKE validation without SSH blocks | generate the offline plan with `scripts/oci_oke_demo_troubleshoot.py control-plane-blocked` → use invocation-owned SSH ControlMaster under `/tmp` only when SSH is the chosen lane → transfer only reviewed source/test files → exclude env/Git/wallet/browser state → poll bounded status commands |
@@ -106,8 +110,48 @@ that match the current approved target.
 These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
 `oci-coordinator-oke`; do not copy their tenant-specific values.
 
+- **Private OKE cluster connectivity (KB-151, KB-184, KB-187, KB-018):**
+  A private OKE cluster exposes its Kubernetes API server on a private IP only (TCP 6443).
+  Direct `kubectl` invocations from external developer workstations fail with connection timeouts.
+  Connect using: (1) Bastion port-forwarding session targeting private IP :6443 with
+  TTL ≤ 3600s and a local tunnel to `127.0.0.1:6443`; (2) an in-VCN runner or jump host
+  (e.g., C11 control plane VM). A jump host in a separate, unpeered VCN cannot reach the
+  private OKE cluster (KB-187). If using Resource Manager (ORM) with Private Endpoints for
+  in-VCN execution (C10 pattern), always clean up auto-created ORM Private Endpoint VNICs
+  during teardown to prevent blocked subnet/VCN deletions (KB-018).
+- **Private worker subnet routing (KB-018):**
+  Worker nodes in private subnets require a NAT gateway configured in the subnet route table
+  to communicate with the OKE control plane and download container images from public registries.
+- **NodePort and health check security rules:**
+  Verify that worker node security lists/NSGs permit ingress from the load balancer subnet
+  on NodePort range `30000-32767` and kube-proxy health check port `10256` to avoid 502/CRITICAL backends.
+- **CRI-O short name resolution policy on Oracle Linux (OKE):**
+  Oracle Linux worker nodes running CRI-O require fully qualified image names (e.g. `<region-key>.ocir.io/<namespace>/<repo>:<tag>`, `docker.io/library/nginx:latest`, or `quay.io/...`). Unqualified short names (such as `image: nginx` or `image: alpine`) can fail with image pull errors or ambiguous registry lookup errors. Always configure fully qualified image references in deployment manifests.
+- **Worker allocatable resources, root volume LVM expansion, and CRI-O storage corruption (KB-504, KB-022):**
+  Worker nodes provisioned on 100 GB boot volumes may leave rootfs partition/LVM `ocivolume-root` at ~36 GB with ~54 GB unpartitioned, tripping the soft-eviction threshold (~80-85%). Because CRI-O shares the root filesystem (`imageFs == rootfs`), high image pull churn under disk pressure corrupts the CRI-O image layer metadata (`crictl images` failing with `size for layer is unknown, failing getSize()`), rendering kubelet GC and image-gc DaemonSets unable to clean orphaned layers. Prevent this by auto-expanding worker root filesystems (`growpart`, `lvextend`, `xfs_growfs`), specifying pod `ephemeral-storage` requests/limits, and scheduling periodic `crictl rmi --prune` jobs. If corruption occurs, node recycling may re-corrupt under churn; repair the node by stopping kubelet/crio and running `crio wipe -f`.
+- **Compartment enumeration for OKE clusters (KB-043):**
+  The OCI Container Engine API `ContainerEngineClient.list_clusters` does NOT support `compartment_id_in_subtree`. A search on the root or parent compartment returns only clusters directly in that compartment. Always enumerate active sub-compartments recursively (`identity.list_compartments(compartment_id_in_subtree=True)`) to discover all OKE clusters in a tenancy.
+- **CoreDNS custom rewrite for private endpoint ADB and OCI Cache (KB-204):**
+  OKE CoreDNS imports `custom/*.server` from `/etc/coredns/custom` (mounted from `configmap/coredns-custom` in `kube-system`). Pods resolving regional private endpoint FQDNs (e.g. `<db_name>.adb.<region>.oraclecloud.com` or `<cluster-hash>-p.redis.<region>.oci.oraclecloud.com`) fail with `[Errno -2] Name or service not known` because upstream CoreDNS forwarding does not consistently query the private VCN resolver (`169.254.169.254`). Resolve this by creating `coredns-custom` in `kube-system` with a `hosts` block mapping the FQDN to its private endpoint IP (`hosts { <IP> <FQDN>; fallthrough }`) and running `kubectl rollout restart deploy/coredns -n kube-system`.
+- **Public Load Balancer NSG lockdown and Security List union precedence (KB-203):**
+  To lock down a public OKE `LoadBalancer` service to an operator IP allowlist, annotate the service with `service.beta.kubernetes.io/oci-load-balancer-network-security-groups: "<NSG_OCID>"`. Crucially, remove broad `0.0.0.0/0` ingress rules for TCP 80/443 on the load balancer subnet's Security List; otherwise, the permissive Security List rule overrides the NSG allowlist via union evaluation.
+- **Multi-process ingress segmentation and IDCS oauth2-proxy routing (KB-205):**
+  When hosting an interactive UI (such as Streamlit on 8501) alongside a REST API (FastAPI on 3001) under a single domain with IDCS SSO:
+  * Deploy `oauth2-proxy:4180` using an exact 32-byte base64 cookie secret (`python3 -c "import os, base64; print(base64.b64encode(os.urandom(32)).decode())"`). Non-standard lengths cause immediate startup panics.
+  * Segment ingress into three separate definitions: (1) `/oauth2` -> `oauth2-proxy:4180` (public authentication flow), (2) `/api`, `/health`, `/docs`, `/chat`, `/incidents` -> backend API port `3001`, and (3) `/` -> UI port `8501` gated by `nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"` and injecting `X-Auth-Request-User` headers. This eliminates localhost loopback redirects (`http://127.0.0.1:8501`).
 - Prefer **ClusterIP + shared authenticated ingress** for public web apps. Direct
   per-app `LoadBalancer` services are more expensive and can bypass ingress auth.
+- For OCI-DEMO, preserve protected authenticated ingress while diagnosing the
+  public Control Plane. Guardian remains private and disabled until a separate
+  authorization packet names targets, allowed techniques, time window, and
+  stop conditions.
+- OCI CLI `--output json` list responses may put records directly in `.data`;
+  do not assume `.data.items`. Normalize the observed shape before iterating:
+  `jq -r '.data as $d | (if ($d | type) == "array" then $d else ($d.items // []) end)[] | .name'`.
+  Always pass `--all` to list operations to avoid silent pagination truncation.
+  When querying LB backend health, use the returned backend-set `.name`, never an
+  array index, and first correlate the public route to the exact target-compartment
+  load balancer. See OCI-DEMO KB-595/596.
 - For direct OCI LB services, set the LB subnet annotation when the controller
   cannot infer it, and use flexible LB shape annotations when fixed-shape quota
   is constrained.
@@ -207,6 +251,17 @@ These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
   downgraded; follow Kubernetes version-skew policy and do not skip required
   intermediate minor versions. Virtual nodes are upgraded with the control
   plane, so include their workloads in impact assessment.
+- **OKE Cluster Visibility & Fleet Health Contracts (KB-612):**
+  Structure cluster health into three observable layers: (1) Node Pools & per-node CPU/RAM allocation,
+  (2) Namespace workload health (`pods_running`/`pods_total`), and (3) Istio Service Mesh mTLS STRICT health.
+- **OctoDemo Platform Architecture & Cross-App Orchestration (KB-613):**
+  For unified demo environments, bind microservices to standard domain suites (`cp.octodemo.cloud` for orchestration,
+  `obs.octodemo.cloud` for Atlas, `ops.octodemo.cloud` for triage, `guardian.octodemo.cloud` for CSPM,
+  `observeai.octodemo.cloud` for threat matrix). Ensure consistent multi-theme support (`redwood`, `dark`,
+  `light`, `palantir-slate`).
+- **Demo Compute & Container Instance Lifecycle State Machine (KB-614):**
+  Implement dedicated instance controls (`start`, `stop`, `restart`) with protected instance guardrails
+  (`protected: true` on critical control plane or bastion VMs preventing inadvertent shutdown during live demos).
 
 ## Expected output
 

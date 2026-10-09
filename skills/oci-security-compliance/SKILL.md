@@ -68,6 +68,51 @@ If the resolved tenancy/compartment name is not the one you expect, stop.
 | Secure a release | artifact provenance/SBOM → dependency audit → policy threshold → deploy canary → Cloud Guard + runtime verification → rollback on failure |
 | Enable Vulnerability Scanning | read recipes/targets → check host agent or OCIR repository coverage → gated target/recipe change → verify host/container reports and Cloud Guard problems |
 
+## OCI-DEMO Guardian / C7 authorization boundary
+
+Guardian and the C7 security-operation capability remain private and disabled
+by default. Do not infer authorization from a repository name, demo context, a
+general request to deploy, or a short acknowledgement. Before active validation,
+require a current owner-approved packet naming the exact tenant, compartment,
+resources/targets, allowed techniques, start and end time, stop conditions,
+and expected defensive telemetry/mitigation. Reconfirm the selected OCI profile
+and exact target immediately before any authorized action; a target or scope
+change invalidates that approval.
+
+Use read-only inventory and defensive review until that packet is complete.
+Keep Guardian off public ingress and out of default Resource Manager or
+Marketplace bundles. Where an authorized operation is later approved, use only
+the packet's bounded operation map, start with its canary, stop on scope or
+convergence mismatch, and retain a sanitized receipt paired with detections,
+mitigation, and retest evidence. Do not report a running agent, accepted job, or
+HTTP response as end-to-end security acceptance.
+
+For the current OCI4CCA case, protected authenticated ingress is selected for
+the Control Plane/apps; no C7 target inventory, permitted techniques, time
+window, or stop conditions were supplied, so Guardian remains private/disabled.
+See the OCI-DEMO handoff and KB-583/585/586 for the separate external-snapshot
+release blockers. A receipt check is point-in-time evidence, not a lock on a
+mutable checkout or authorization to consume it later. Do not use it as a
+release/deployment gate unless validation is bound to the exact immutable
+content-addressed artifact consumed by the build, or revalidation occurs under
+an ownership-enforced lock held through consumption. The current OCI-DEMO
+receipt-to-consumer boundary remains a HIGH release blocker.
+
+The follow-up implementation adds a supported-path lease: the materializer
+holds an exclusive advisory lock, while component deployment prerequisites hold
+a shared lease across locked receipt revalidation and the runtime's complete
+deployment consumption. This is local code/test evidence only; out-of-band
+writers and readers that bypass `DeploymentRuntime` are not constrained, and a
+fresh independent review has not yet closed the HIGH. The current ObserveAI and
+C7 receipts remain invalid pending owner review and re-pin (KB-583); read-only
+checks also report `invalid` for the Coordinator, CIS compliance, and ISO 42001
+snapshots in this checkout (KB-591). Run the bounded regression suite from the
+OCI-DEMO repository root:
+
+```bash
+python3.11 -m pytest -q tests/test_pinned_external_snapshot.py tests/test_external_contracts.py tests/test_component_evidence.py tests/test_deployment_runtime.py tests/test_compliance_integrations.py
+```
+
 ## Secure development and DevSecOps release gate
 
 Security owns the **policy, evidence, and exception decision**; the DevOps
@@ -165,6 +210,31 @@ python3 scripts/redact.py --check <file>   # exit 1 if OCID/IP/fingerprint/key/s
 - A vulnerability audit is a release input, not proof that a workload is safe:
   pair it with image provenance, least-privilege runtime identity, private
   networking, Cloud Guard and post-deploy verification.
+- **CloudEvents Normalization & Schema Validation (KB-606):**
+  Normalize security and audit event streams to CNCF CloudEvents v1.0.2 with OCI-specific attributes
+  (`com.oraclecloud.*`). Always validate required fields (`id`, `source`, `specversion`, `type`, `time`)
+  and sanitize internal tenancy namespaces, compartment IDs, and raw OCIDs before streaming or egress.
+- **Contextual Risk Prioritization Engine (CRE) (KB-607):**
+  Raw finding counts skew triage. Calculate contextual risk scores evaluating asset exposure
+  (public vs private network), data classification (PII, PCI, critical database), active exploit
+  availability (CISA KEV, EPSS), and lateral movement blast radius.
+- **Entitlement Bloat Index (EBI) & CIEM Downscoping (KB-608):**
+  Audit over-privileged IAM grants (e.g. `manage all-resources in tenancy`). Calculate an Entitlement
+  Bloat Index (EBI) comparing assigned verbs against historically invoked API telemetry. Synthesize
+  least-privilege replacement policies downscoping to specific compartments and restricted verbs
+  (`read`, `use`, or exact service scopes).
+- **IaC HCL AST Patch Synthesizer (KB-609):**
+  Generate declarative, syntax-safe HCL patches for Terraform manifests to remediate security findings
+  at the code level. Avoid raw text replacement; use an HCL AST parser to maintain formatting,
+  comments, and block structure without syntax errors.
+- **OCI Architecture Best Practices & PCI-DSS v4.0 Crosswalk (KB-610):**
+  Map findings to OCI Architecture Center recommendations and PCI-DSS v4.0 requirement controls
+  (e.g. Requirement 1.2, 2.2, 8.3). Provide both compliance framework mapping and practical
+  remediation steps without claiming legal certification.
+- **Multi-Gate Pre-Commit Redaction Protocol (KB-611):**
+  Enforce a pre-commit grep gate scanning for: (1) `ocid1.<type>.oc1.<region>.<hash>`, (2) tenancy
+  namespaces, (3) restricted public/private IPs, (4) APM data keys, and (5) email paths. Abort staging
+  immediately on detection.
 - After fixing a new error, add a `KB-<n>` entry to `references/KB.md`.
 - **Never invent `oci` flags.** Fetch the exact command shape first:
   `python3 scripts/oci_cli_help.py <service> <op>`.
