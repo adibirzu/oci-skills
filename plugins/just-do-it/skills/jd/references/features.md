@@ -3,8 +3,9 @@
 ## Core JD delivery features
 
 - One user goal becomes an ordered PRD program and bounded dependency-aware tasks.
-- Luna workers own RED tests and isolated GREEN implementation; Terra handles planning and
-  integration; independent Sol reviewers gate correctness and sensitive trust boundaries.
+- Luna workers can own one bounded RED/GREEN loop and routine scouting; Terra
+  handles evidenced complex planning and integration; independent Sol reviewers
+  gate sensitive trust boundaries and current final diffs.
 - Canonical path leases, optional worktree isolation, diff validation, bounded concurrency, and
   retry budgets prevent collision and runaway execution.
 - Strict, supervised, and break-glass execution modes use explicit capability receipts.
