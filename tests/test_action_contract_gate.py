@@ -4,6 +4,8 @@ from __future__ import annotations
 import pathlib
 import sys
 
+import pytest
+
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent / "scripts"))
 
 import check_action_contracts  # noqa: E402
@@ -12,6 +14,10 @@ import check_action_contracts  # noqa: E402
 def test_rejects_bare_oci_and_unguarded_mutation() -> None:
     bare = check_action_contracts.scan_text("demo.sh", "oci os bucket list\n")
     assert any("oci_cli" in error for error in bare)
+    chained_bare = check_action_contracts.scan_text(
+        "demo.sh", "oci_cli os bucket list; oci os bucket list\n"
+    )
+    assert any("bare OCI" in error for error in chained_bare)
     unguarded = check_action_contracts.scan_text(
         "demo.sh", "oci_cli os bucket delete --name demo\n"
     )
@@ -82,3 +88,53 @@ def test_cli_main_handles_valid_invalid_and_symlink(tmp_path, capsys) -> None:
     link = tmp_path / "link.sh"
     link.symlink_to(valid)
     assert check_action_contracts.main([str(link)]) == 1
+
+
+@pytest.mark.parametrize("separator", ["; ", " && ", " || ", "$(", "`"])
+def test_planner_does_not_guard_later_live_mutation(separator: str, tmp_path, capsys) -> None:
+    """Scanner output, never shell execution, is the safety contract."""
+    planner = (
+        'approval="$(action_approval_id --risk destructive --compartment x '
+        '--description teardown -- oci_cli os bucket delete --name demo)"'
+    )
+    suffix = ")" if separator == "$(" else "`" if separator == "`" else ""
+    fixture = tmp_path / "commands.sh"
+    fixture.write_text(planner + separator + "oci_cli os bucket delete --name demo" + suffix)
+    assert check_action_contracts.main([str(fixture)]) == 1
+    errors = capsys.readouterr().err
+    assert "mutating oci_cli command must use run_action" in errors
+    assert "destructive oci_cli command must declare --risk destructive" in errors
+
+
+@pytest.mark.parametrize("separator", ["; ", " && ", " || "])
+def test_each_guarded_invocation_has_its_own_risk(separator: str) -> None:
+    commands = (
+        "action_approval_id --risk destructive -- oci_cli os bucket delete --name demo"
+        + separator
+        + "run_action --risk additive -- oci_cli os bucket delete --name demo"
+    )
+    assert check_action_contracts.scan_text("commands.sh", commands) == [
+        "commands.sh:1: destructive oci_cli command must declare --risk destructive"
+    ]
+
+
+@pytest.mark.parametrize("substitution", ['"$(%s)"', '"`%s`"', '$(%s)', '`%s`'])
+def test_planning_inside_substitution_does_not_guard_sibling(substitution: str) -> None:
+    commands = (
+        "action_approval_id --risk destructive -- oci_cli os bucket delete --name demo; "
+        "oci_cli os bucket delete --name demo"
+    )
+    errors = check_action_contracts.scan_text("commands.sh", "result=" + substitution % commands)
+    assert len(errors) == 2
+    assert "must use run_action" in errors[0]
+    assert "must declare --risk destructive" in errors[1]
+
+
+def test_quoted_shell_punctuation_does_not_end_guard_scope() -> None:
+    command = (
+        'run_action --risk destructive --description "remove (demo); keep & others" -- '
+        'oci_cli os bucket delete --name demo; '
+        "action_approval_id --risk destructive --description 'remove `demo`' -- "
+        'oci_cli os bucket delete --name demo'
+    )
+    assert check_action_contracts.scan_text("commands.sh", command) == []
