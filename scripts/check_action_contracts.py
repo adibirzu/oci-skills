@@ -41,46 +41,47 @@ def _logical_commands(text: str) -> list[tuple[int, str]]:
 
 
 def _command_fragments(command: str) -> list[str]:
-    """Keep guards inside their shell command, including quoted substitutions."""
-    fragments: list[str] = []
-    start = 0
-    quote = ""
-    parents: list[tuple[str, str]] = []
-    escaped = False
-    for index, char in enumerate(command):
-        if escaped:
-            escaped = False
-            continue
-        if char == "\\" and quote != "'":
-            escaped = True
-            continue
-        if char == quote and quote:
-            quote = ""
-        elif char in "\"'" and not quote:
-            quote = char
-        elif quote != "'" and char == "(" and index and command[index - 1] == "$":
-            fragments.append(command[start:index - 1])
-            start = index + 1
-            parents.append((")", quote))
-            quote = ""
-        elif not quote and parents and char == parents[-1][0]:
-            fragments.append(command[start:index])
-            start = index + 1
-            _, quote = parents.pop()
-        elif quote != "'" and char == "`":
-            fragments.append(command[start:index])
-            start = index + 1
-            parents.append(("`", quote))
-            quote = ""
-        elif not quote and char == "(":
-            fragments.append(command[start:index])
-            start = index + 1
-            parents.append((")", quote))
-        elif not quote and char in ";&|)":
-            fragments.append(command[start:index])
-            start = index + 1
-    fragments.append(command[start:])
-    return fragments
+    """Keep outer invocations intact and scan nested shell scopes independently."""
+    def scope(index: int, closing: str = "") -> tuple[list[str], int]:
+        fragments: list[str] = []
+        current: list[str] = []
+        quote = ""
+        while index < len(command):
+            char = command[index]
+            if char == "\\" and quote != "'":
+                current.append(command[index:index + 2])
+                index += 2
+                continue
+            if not quote and closing and char == closing:
+                fragments.append("".join(current))
+                return fragments, index + 1
+            if quote != "'" and (command.startswith("$(", index) or char == "`"):
+                backtick = char == "`"
+                nested, index = scope(index + (1 if backtick else 2), "`" if backtick else ")")
+                fragments.extend(nested)
+                current.append("__substitution__")
+                continue
+            if char == quote and quote:
+                quote = ""
+            elif char in "\"'" and not quote:
+                quote = char
+            elif not quote and char == "(":
+                fragments.append("".join(current))
+                current = []
+                nested, index = scope(index + 1, ")")
+                fragments.extend(nested)
+                continue
+            elif not quote and char in ";&|)":
+                fragments.append("".join(current))
+                current = []
+                index += 1
+                continue
+            current.append(char)
+            index += 1
+        fragments.append("".join(current))
+        return fragments, index
+
+    return scope(0)[0]
 
 
 def scan_text(label: str, text: str) -> list[str]:

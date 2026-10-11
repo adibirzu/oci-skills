@@ -138,3 +138,60 @@ def test_quoted_shell_punctuation_does_not_end_guard_scope() -> None:
         'oci_cli os bucket delete --name demo'
     )
     assert check_action_contracts.scan_text("commands.sh", command) == []
+
+
+@pytest.mark.parametrize("substitution", ['"$(%s)"', '"`%s`"', '$(%s)', '`%s`'])
+@pytest.mark.parametrize("payload", [
+    ('--admin-password "$PASSWORD"', "secret-bearing --admin-password"),
+    ("--body '{\"nested\":true}'", "nested JSON for --body"),
+])
+def test_payload_after_substitution_is_checked(substitution, payload, tmp_path, capsys) -> None:
+    argument, diagnostic = payload
+    fixture = tmp_path / "payload.sh"
+    fixture.write_text(
+        "run_action --risk additive -- oci_cli db autonomous-database create "
+        "--display-name " + substitution % "date +%s" + " " + argument
+    )
+    assert check_action_contracts.main([str(fixture)]) == 1
+    assert diagnostic in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("substitution", ['"$(%s)"', '"`%s`"', '$(%s)', '`%s`'])
+def test_substitution_before_invocation_preserves_guard(substitution, tmp_path, capsys) -> None:
+    fixture = tmp_path / "guarded.sh"
+    fixture.write_text(
+        "run_action --risk destructive --description " + substitution % "date +%s"
+        + " -- oci_cli os bucket delete --name demo"
+    )
+    assert check_action_contracts.main([str(fixture)]) == 0
+    assert capsys.readouterr().err == ""
+
+
+@pytest.mark.parametrize("nested", [
+    '$(echo "$(oci_cli os bucket delete --name demo)")',
+    '$(echo `oci_cli os bucket delete --name demo`)',
+])
+def test_nested_substitution_does_not_inherit_outer_guard(nested, tmp_path, capsys) -> None:
+    fixture = tmp_path / "nested.sh"
+    fixture.write_text(
+        'run_action --risk additive -- oci_cli os bucket create --name "' + nested + '"'
+    )
+    assert check_action_contracts.main([str(fixture)]) == 1
+    assert capsys.readouterr().err.splitlines() == [
+        f"{fixture}:1: mutating oci_cli command must use run_action",
+        f"{fixture}:1: destructive oci_cli command must declare --risk destructive",
+    ]
+
+
+@pytest.mark.parametrize("command, diagnostic", [
+    ('oci_cli os bucket list --name "$(oci os bucket list)"', "bare OCI"),
+    ('run_action --risk destructive --description "$(date +%s)" -- '
+     'oci_cli os bucket delete --name demo; oci_cli os bucket create --name later',
+     "mutating oci_cli command must use run_action"),
+    ('run_action --risk credential -- oci_cli vault secret update '
+     '--password "$(printf value)"', "secret-bearing --password"),
+])
+def test_substitution_preserves_independent_safety_checks(command, diagnostic) -> None:
+    errors = check_action_contracts.scan_text("commands.sh", command)
+    assert len(errors) == 1
+    assert diagnostic in errors[0]
