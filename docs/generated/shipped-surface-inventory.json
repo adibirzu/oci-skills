@@ -43,7 +43,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/check_action_contracts.py",
-      "sha256": "b03f32026f527b6f58ca9f63023e44734362a3b6396eecc8df1c0648803edda4"
+      "sha256": "558ed77bf78585d2243f3d336dcb10105dfdc54faab09a593cc3f5e03b319450"
     },
     {
       "classification": "executable",
@@ -291,5 +291,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "50abd014076611e39dddb3e2d8d83e409b77206ab8d8cec00a9cb6c6236b02f8"
+  "surfaces_sha256": "6063dbf93c73fe5e89619b341393cd4e0b76b3dc10baf19aca44a94115069c4d"
 }
