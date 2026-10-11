@@ -204,11 +204,11 @@ PY
     safe_summary "teardown" "failed" "$(error_class "$TEMP_DIR/delete.err")"
     return 1
   fi
-  if oci_cli os bucket get --name "$bucket" >"$TEMP_DIR/delete-get.json" 2>"$TEMP_DIR/delete-get.err"; then
+  if oci_cli os bucket get --name "$bucket" >"$TEMP_DIR/absence-get.json" 2>"$TEMP_DIR/absence-get.err"; then
     safe_summary "teardown" "failed" "resource-still-readable"
     return 1
   fi
-  if ! grep -qiE 'NotAuthorizedOrNotFound|\b404\b' "$TEMP_DIR/delete-get.err"; then
+  if ! grep -qiE 'NotAuthorizedOrNotFound|\b404\b' "$TEMP_DIR/absence-get.err"; then
     safe_summary "teardown" "failed" "absence-not-provider-confirmed"
     return 1
   fi

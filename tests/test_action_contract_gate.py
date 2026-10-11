@@ -39,6 +39,18 @@ def test_rejects_secrets_on_argv() -> None:
     assert any("--admin-password" in error for error in service_specific)
 
 
+def test_accepts_approval_id_planning_but_requires_destructive_risk() -> None:
+    plan = (
+        'approval="$(action_approval_id --risk destructive --compartment x '
+        '--description teardown -- oci_cli os bucket delete --name demo)"\n'
+    )
+    assert check_action_contracts.scan_text("plan.sh", plan) == []
+    errors = check_action_contracts.scan_text(
+        "plan.sh", plan.replace("--risk destructive", "--risk additive")
+    )
+    assert any("destructive" in error for error in errors)
+
+
 def test_accepts_guarded_file_payload_and_read() -> None:
     errors = check_action_contracts.scan_text(
         "demo.sh",
