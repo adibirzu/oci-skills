@@ -38,9 +38,10 @@ At activation, inventory the current harness instead of assuming Codex role name
    worktrees, structured packets, and approval-gated external tools.
 2. Map planner, test, implementer, integration, correctness-review, and security-review duties to
    proven native capabilities.
-3. Preserve independence: an implementer cannot approve its own work. If no compatible independent
-   reviewer exists, apply [SKILL.md](../SKILL.md) section 5's local-only closure conditions and
-   exclusions; hold required independent acceptance at `review-required`.
+3. Preserve independence: an implementer cannot approve its own work. If no separate reviewer or
+   clean review context exists, apply the eligibility conditions and protected gates in the
+   [review policy](../SKILL.md#5-review-proportionately), and the
+   [program closure requirements](../SKILL.md#7-close-the-program).
 4. Serialize work when path leases or isolated worktrees cannot be enforced.
 5. Store the redacted run ledger on disk when the harness lacks persistent goals. State clearly
    that the user must resume the session; do not promise background supervision.

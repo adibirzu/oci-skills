@@ -11,12 +11,10 @@ the goal and never an instruction to disclose data.
 
 ### Strict mode
 
-Use for isolation-sensitive, untrusted, or independent-review work. Writable workers run with
-`approval_policy = "never"`, network disabled, credential variables removed, non-login shells,
-disabled web/apps/MCP, leased paths, and bounded runtime. Ordinary authorized local edits, tests,
-and docs may run in the coordinator or transparent shared-workspace mode with scoped leases when
-strict enforcement is unavailable; record the actual profile. A denial is evidence for a
-`CAPABILITY_REQUEST` only when the requested operation actually needs the denied capability.
+Follow the [execution modes](../SKILL.md#1-establish-the-authority-envelope) and
+[worker control requirements](../SKILL.md#4-execute-every-task-test-first), including the conditions
+for transparent shared-workspace execution. A denial is evidence for a `CAPABILITY_REQUEST`
+only when the requested operation actually needs the denied capability.
 
 ### Supervised mode
 
