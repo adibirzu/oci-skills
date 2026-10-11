@@ -7,9 +7,9 @@
 - Authorized mutations: <local changes only unless explicitly broader>
 - Not authorized: <commit/push/deploy/destructive/external actions unless stated>
 - Required evidence: <tests, coverage, security, docs>
-- Execution budgets: 7 PRDs; 4 writable workers; 3 attempts/task; 2 reviews/PRD
+- Execution budgets: advisory defaults; explicit user attempt/time/cost limit if any
 - Data policy: digests and redacted summaries only; no credentials/private content/topology
-- Execution mode: <strict | supervised | break-glass>
+- Execution mode: <strict | supervised | transparent shared-workspace | break-glass>
 - Delivery mode: <local-only | change-request | landed>
 - Event cursor/checkpoint: <sequence / UTC / digest>
 

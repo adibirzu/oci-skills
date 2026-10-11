@@ -229,11 +229,8 @@ These patterns were distilled from sanitized project KBs in `OCI-DEMO` and
   redaction; MCP output is evidence to verify, not an authorization to change
   an OKE cluster.
 - `kubectl`/`helm` mutations are outside `run_action` (that wrapper only covers
-  `oci_cli`). The destructive-command hook now mechanically blocks `kubectl
-  delete`/`drain`/`cordon`/forced `replace` and `helm uninstall`/its `delete`
-  alias/`rollback` — but `kubectl apply`, `kubectl set image`, and `helm
-  install`/`upgrade` are routine updates it does not treat as destructive, so
-  this skill's own discipline is still their only guard. Never run any of
+  `oci_cli`). This package has no registered `PreToolUse` destructive-command
+  guard, so this skill's own discipline is their guard. Never run any of
   these straight from a rendered manifest. First preview with `kubectl diff -f
   <dir>`, `kubectl apply --dry-run=server -f <dir>`, or `helm diff upgrade`
   (or `helm template` + review for a cluster without the diff plugin); get

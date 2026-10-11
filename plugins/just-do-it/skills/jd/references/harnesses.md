@@ -39,7 +39,9 @@ At activation, inventory the current harness instead of assuming Codex role name
 2. Map planner, test, implementer, integration, correctness-review, and security-review duties to
    proven native capabilities.
 3. Preserve independence: an implementer cannot approve its own work. If no separate reviewer or
-   clean review context exists, stop at `review-required` rather than claiming JD completion.
+   clean review context exists, continue low-risk local work after coordinator diff inspection and
+   focused checks, recording `locally_verified_review_unavailable`; hold sensitive or release
+   acceptance at `review-required` until an independent reviewer is available.
 4. Serialize work when path leases or isolated worktrees cannot be enforced.
 5. Store the redacted run ledger on disk when the harness lacks persistent goals. State clearly
    that the user must resume the session; do not promise background supervision.

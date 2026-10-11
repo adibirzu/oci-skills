@@ -22,8 +22,11 @@ Use at most one pass through each stage per attempt and emit a `RECOVERY` packet
    the worker is looping. Do not expand scope.
 3. **Relaunch** a genuinely wedged worker with the original brief plus a redacted `progress so far`
    note. Preserve its isolated worktree or leased changes.
-4. **Fail** after two relaunch failures or the global three-attempt budget, recording evidence and
-   escalating one consolidated question to the user when no safe alternative remains.
+4. **Fail** after two relaunch failures or an explicit user attempt, time, or cost limit, recording
+evidence and escalating one consolidated question to the user when no safe alternative remains.
+The default three-attempt counter is advisory for authorized local work: continue a repair when it
+produces concrete new evidence and remains within the authority envelope, recording the counter
+and rationale.
 
 Low remaining context is not itself a failure; compact and continue. A repeated blocker without
 new evidence is a stall. Do not repeatedly send the same instruction.

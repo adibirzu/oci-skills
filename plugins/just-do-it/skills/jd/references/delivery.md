@@ -13,7 +13,7 @@ them implicitly.
 - `landed`: merge only when the user explicitly authorizes the exact repository/change request
   or established repository policy delegates that authority. Never enable auto-merge.
 
-Record the mode independently from strict/supervised/break-glass execution mode. Network and
+Record the mode independently from strict/supervised/transparent-shared-workspace/break-glass execution mode. Network and
 external writes still require the authority and capability checks defined by JD.
 
 ## Promote scout evidence

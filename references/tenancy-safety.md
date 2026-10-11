@@ -82,25 +82,22 @@ Use these exact stop conditions in chat and automation plans:
 | Malicious or malformed dotenv input | Treat dotenv as data-only `KEY=VALUE` records. Reject `source`, `eval`, command substitution, shell operators, and malformed keys without executing any content. |
 | Empty or inconsistent read result | Call the result inconclusive—not proof of absence—and check permission, time window, region, tenancy, and pagination before deciding. |
 
-### The destructive-command hook fails open — by design, but loudly
+### Destructive-command helper script
 
-The Claude Code plugin wires a `PreToolUse` hook (`hooks/guard_destructive.py`)
-that blocks destructive `oci` / `oci_cli` / `oci_<domain>.sh` commands, and
-destructive `kubectl` (`delete`/`drain`/`cordon`/forced `replace`), `helm`
+The Claude Code plugin currently registers only its prompt router; it has no
+`PreToolUse` destructive-command registration. `hooks/guard_destructive.py` is a
+nonregistered helper that can evaluate destructive `oci` / `oci_cli` /
+`oci_<domain>.sh` commands, and destructive `kubectl`
+(`delete`/`drain`/`cordon`/forced `replace`), `helm`
 (`uninstall`/its `delete` alias/`rollback`), and `terraform` (`destroy`, or
 `apply -auto-approve`) commands, until they are previewed/preflighted and
-confirmed. It is **defense-in-depth, not a hard wall** — it fails *open* in
-three cases, so it can never wedge the agent loop:
+confirmed. It is **defense-in-depth, not a hard wall** — when explicitly
+invoked, it fails *open* for malformed payloads and when `OCI_SKILLS_FORCE=true`.
+Because it is unregistered, a missing helper cannot produce an automatic notice
+or enforce any command.
 
-1. **Guard script not locatable** (`CLAUDE_PLUGIN_ROOT` unset in a copy-install)
-   — the hook prints `destructive guard not found … running UNGUARDED` to stderr
-   and allows the command. The notice is the signal: if you see it, the only
-   thing standing between you and a `delete` is `run_action`.
-2. **Malformed hook payload** — allowed silently (never block on a parse error).
-3. **`OCI_SKILLS_FORCE=true`** — the operator has explicitly opted out.
-
-Because the hook is best-effort, the in-script `run_action` receipt and approval
-guard remains authoritative. Never rely on the hook alone.
+The in-script `run_action` receipt and approval guard remains authoritative.
+Never rely on an unregistered helper script for enforcement.
 
 ### Action ledger (self-telemetry)
 
