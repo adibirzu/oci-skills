@@ -51,6 +51,7 @@ def test_private_bucket_canary_writes_only_sanitized_provider_receipts(tmp_path:
     fake_oci.write_text(
         "#!/usr/bin/env bash\n"
         "case \" $* \" in\n"
+        "  *' iam tenancy get '*) printf '%s\\n' private-tenancy ;;\n"
         "  *' iam compartment get '*) printf '%s\\n' private-target ;;\n"
         "  *' os ns get '*) printf '%s\\n' private-namespace ;;\n"
         "  *' iam region-subscription list '*) printf '%s\\n' region-x ;;\n"
@@ -73,6 +74,7 @@ def test_private_bucket_canary_writes_only_sanitized_provider_receipts(tmp_path:
             "PATH": f"{fake_bin}:{os.environ['PATH']}",
             "OCI_AUTH_MODE": "config",
             "OCI_CLI_PROFILE": "TEST",
+            "OCI_SKILLS_TENANCY": "private-test-tenancy",
             "OCI_SKILLS_NO_AUDIT": "1",
             "OCI_SKILLS_PREFLIGHT_RECEIPT": str(tmp_path / "preflight.json"),
         },
