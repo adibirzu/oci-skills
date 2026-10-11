@@ -97,9 +97,10 @@ Style-only preferences are not blocking. CRITICAL and HIGH findings block PRD co
 4. Require RED evidence before implementation for new behavior.
 5. Require focused GREEN evidence before integration.
 6. Require independent review before release acceptance or advancing a sensitive PRD. Consolidate
-   low-risk review when the same final diff and verification remain current. A low-risk local-only
-   task may close with acceptance label `locally_verified_review_unavailable` after coordinator diff
-   inspection and focused tests; this is not independent review.
+   low-risk review when the same final diff and verification remain current. Task, PRD, and program
+   closure with `locally_verified_review_unavailable` must meet all conditions in `SKILL.md` section 5;
+   program closure must also satisfy section 7. Record the residual-review limitation and never
+   promote local verification to independent or protected review or release acceptance.
 7. Reopen a completed task when later integration invalidates its evidence.
 8. Track concurrency, attempt, review-cycle, and recursion counters. Treat defaults as advisory
    resource policy; enforce an explicit user limit as a hold, and continue authorized local repair

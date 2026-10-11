@@ -67,6 +67,8 @@
 
 - Coverage: pending
 - Security: pending
-- Aggregate Sol review: pending
+- Aggregate Sol review: <pending | pass | unavailable; actual reviewer evidence or limitation>
+- Acceptance: <pending | locally_verified_review_unavailable | evidence-backed outcome>
+- Residual-review limitation: <none or explicit limitation; local fallback is not independent/protected review or release acceptance>
 - Delivery state: local changes only
 - Landed verification: not authorized

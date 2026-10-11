@@ -194,10 +194,15 @@ push, deploy, or message external systems unless the original authority envelope
 
 Use independent review before release acceptance or when a change crosses a trust, security, or
 production boundary. Consolidate low-risk review when the same final diff and verification remain
-current. A low-risk local-only task may close with acceptance label
-`locally_verified_review_unavailable` after coordinator diff inspection and focused tests; this is
-not independent review. Do not advance sensitive or release work while required independent or
-security review findings remain.
+current. When a compatible independent reviewer is unavailable, a task, PRD, or entire program
+may close with acceptance label `locally_verified_review_unavailable` only if its entire scope is
+low-risk ordinary authorized local-only work. Require a scoped path lease, recorded actual runtime
+controls, coordinator inspection of the final aggregate diff, fresh focused local evidence for all
+acceptance criteria, and an explicit residual-review limitation in the ledger and final report.
+This is local verification, not independent or protected review or release acceptance. The fallback
+does not apply to sensitive, isolation-required, untrusted, trust-boundary, security, release,
+credential, IAM, destructive, external-write, or publication work; preserve required independent
+and security reviews for those scopes. Do not advance while required review findings remain.
 
 For authentication, authorization, secrets, egress, retrieval, tenant isolation, sandboxing,
 or production controls, require `sol-security-reviewer` after the normal review. Its evidence
@@ -254,7 +259,10 @@ sets a stronger threshold. For a legacy repository below that baseline, require 
 regression plus at least 80% on changed/new code; only the user can approve a weaker criterion.
 Include unit, integration, and critical E2E evidence. Run security
 and secret checks appropriate to the changed trust boundaries. Review the final aggregate diff
-with `sol-reviewer`.
+with `sol-reviewer`, unless the entire program qualifies for the local-only closure fallback
+in section 5. Apply that fallback to the final aggregate diff and record its acceptance label and
+residual-review limitation; task-level fallback evidence alone does not establish program closure.
+All required acceptance and verification criteria still apply.
 
 When delivery beyond local changes is authorized, follow `references/delivery.md`: preserve
 scout evidence when promoting an investigation to ship work, require a clean reviewed diff before
