@@ -43,7 +43,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/check_action_contracts.py",
-      "sha256": "8baaa3829616df4b38afe46c5d777b2f6854a502e661ded23995841b64f14185"
+      "sha256": "6b3401f6aeba3287b28bc2e72d381d242ee90f0dfaafe919b5e427feb5106135"
     },
     {
       "classification": "executable",
@@ -183,7 +183,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/oci_private_bucket_canary.sh",
-      "sha256": "97b253b097db88a7867887a7c13e0d2194ec3f239ad8a09844d0cb6b67481447"
+      "sha256": "30295999ce5fc54818855ae15562e95d44215631bf3bb9e53e0d8a76c8bb2068"
     },
     {
       "classification": "executable",
@@ -291,5 +291,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "fb61171d38e2f15ff12d4818933f85b1e5905ed1feb8cc1d5776034661aebeea"
+  "surfaces_sha256": "fd6ca1e701ce2f36636603c91e967309b8bfa5bf0b3e6292a2ad588008b44c1a"
 }

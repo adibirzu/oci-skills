@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import json
 import sys
 from pathlib import Path
 
@@ -132,3 +133,27 @@ def test_shipped_surface_inventory_writes_then_checks_a_public_metadata_artifact
     assert shipped_surface_inventory.main(["--output", str(output)]) == 0
     assert output.is_file()
     assert shipped_surface_inventory.main(["--output", str(output), "--check"]) == 0
+
+
+def test_redaction_gate_accepts_only_source_derived_inventory(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest = tmp_path / "docs/product/contracts/install-manifest.json"
+    manifest.parent.mkdir(parents=True)
+    manifest.write_text(json.dumps({"payload": ["bootstrap.sh"]}), encoding="utf-8")
+    (tmp_path / "bootstrap.sh").write_text("#!/bin/sh\ntrue\n", encoding="utf-8")
+    relative = "docs/generated/shipped-surface-inventory.json"
+    output = tmp_path / relative
+    output.parent.mkdir(parents=True)
+    inventory = shipped_surface_inventory.build_inventory(tmp_path)
+    output.write_text(json.dumps(inventory), encoding="utf-8")
+
+    def check() -> int:
+        stdin = io.TextIOWrapper(io.BytesIO(relative.encode() + b"\0"), encoding="utf-8")
+        monkeypatch.setattr(redaction_gate.sys, "stdin", stdin)
+        return redaction_gate.main(["--root", str(tmp_path)])
+
+    assert check() == 0
+    inventory["surfaces_sha256"] = "a" * 64
+    output.write_text(json.dumps(inventory), encoding="utf-8")
+    assert check() == 1

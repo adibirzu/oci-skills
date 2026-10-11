@@ -48,10 +48,12 @@ def scan_text(label: str, text: str) -> list[str]:
         if "oci_cli" in command:
             guard = command.split("oci_cli", 1)[0]
             invocation = command.split("oci_cli", 1)[1]
-            if MUTATION_RE.search(invocation) and "run_action" not in command:
+            if MUTATION_RE.search(invocation) and not re.search(
+                r"\b(?:run_action|action_approval_id)\b", guard,
+            ):
                 errors.append(f"{label}:{line}: mutating oci_cli command must use run_action")
             if DESTRUCTIVE_RE.search(invocation) and not re.search(
-                r"\brun_action\b.*\s--risk\s+destructive(?:\s|$)", guard,
+                r"\b(?:run_action|action_approval_id)\b.*\s--risk\s+destructive(?:\s|$)", guard,
             ):
                 errors.append(
                     f"{label}:{line}: destructive oci_cli command must declare --risk destructive"
