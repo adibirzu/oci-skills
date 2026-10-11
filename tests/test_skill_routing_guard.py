@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import pathlib
+import subprocess
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "hooks"))
 
 import guard_skill_routing as guard  # noqa: E402
+import inject_oci_router as router  # noqa: E402
 
 
 def _payload(skill: object) -> dict[str, object]:
@@ -68,12 +71,33 @@ def test_main_fails_open_for_malformed_or_oversized_input(monkeypatch, capsys) -
     assert captured.err == ""
 
 
-def test_hook_manifest_registers_skill_guard() -> None:
+def test_hook_manifest_has_no_pre_tool_use_registrations_and_keeps_prompt_router() -> None:
     manifest = json.loads((ROOT / "hooks" / "hooks.json").read_text(encoding="utf-8"))
-    skill_hooks = [entry for entry in manifest["hooks"]["PreToolUse"] if entry.get("matcher") == "Skill"]
 
-    assert len(skill_hooks) == 1
-    hook = skill_hooks[0]["hooks"][0]
+    assert manifest["hooks"]["PreToolUse"] == []
+    prompt_hooks = manifest["hooks"]["UserPromptSubmit"]
+    assert len(prompt_hooks) == 1
+    assert len(prompt_hooks[0]["hooks"]) == 1
+    hook = prompt_hooks[0]["hooks"][0]
     assert hook["type"] == "command"
-    assert "guard_skill_routing.py" in hook["command"]
-    assert "CLAUDE_PLUGIN_ROOT" in hook["command"]
+    marker = "SYNTHETIC_PROMPT_MUST_NOT_BE_EMITTED"
+    result = subprocess.run(
+        hook["command"],
+        shell=True,
+        input=json.dumps({"hook_event_name": "UserPromptSubmit", "prompt": marker}),
+        cwd=ROOT,
+        env={**os.environ, "CLAUDE_PLUGIN_ROOT": str(ROOT)},
+        text=True,
+        capture_output=True,
+        timeout=10,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    assert result.stderr == ""
+    assert json.loads(result.stdout) == {
+        "hookSpecificOutput": {
+            "hookEventName": "UserPromptSubmit",
+            "additionalContext": router.ROUTER_CONTEXT,
+        }
+    }
+    assert marker not in result.stdout

@@ -354,19 +354,19 @@ def test_fake_canary_keeps_provider_outcome_and_rollback_as_distinct_local_gates
     assert rollback["teardown_evidence"] == "fake-cleanup-verified"
 
 
-def test_cli_fake_canary_emits_only_sanitized_local_evidence(tmp_path: Path) -> None:
+def test_cli_fake_canary_emits_only_sanitized_local_evidence(tmp_path: Path, capsys) -> None:
     context = tmp_path / "context.json"
     context.write_text(json.dumps(_context()), encoding="utf-8")
     run = tmp_path / "run"
-    script = ROOT / "scripts" / "enterprise_workflow.py"
-
+    # Call the real CLI parser in-process so source-scoped coverage records
+    # these local state transitions. The readonly CLI test retains a subprocess.
     def invoke(*args: str) -> dict[str, object]:
-        result = subprocess.run(
-            [sys.executable, str(script), *args], text=True, capture_output=True, check=True
-        )
-        assert "disposable-canary" not in result.stdout
-        assert "synthetic-compartment" not in result.stdout
-        return json.loads(result.stdout)
+        assert enterprise_workflow.main(list(args)) == 0
+        output = capsys.readouterr()
+        assert output.err == ""
+        assert "disposable-canary" not in output.out
+        assert "synthetic-compartment" not in output.out
+        return json.loads(output.out)
 
     invoke(
         "plan-fake-canary", str(run), "--context", str(context), "--owner", "terraform",
@@ -469,7 +469,7 @@ def test_every_er016_owner_has_a_safe_typed_pack(tmp_path: Path) -> None:
         assert plan["provider_contacted"] is False
 
 
-def test_governance_pack_cli_emits_sanitized_metadata_only_plan(tmp_path: Path) -> None:
+def test_governance_pack_cli_emits_sanitized_metadata_only_plan(tmp_path: Path, capsys) -> None:
     context = tmp_path / "context.json"
     inventory = tmp_path / "inventory.json"
     context.write_text(json.dumps(_context()), encoding="utf-8")
@@ -484,27 +484,16 @@ def test_governance_pack_cli_emits_sanitized_metadata_only_plan(tmp_path: Path) 
         ),
         encoding="utf-8",
     )
-    result = subprocess.run(
-        [
-            sys.executable,
-            str(ROOT / "scripts" / "enterprise_workflow.py"),
-            "plan-governance-pack",
-            str(tmp_path / "run"),
-            "--context",
-            str(context),
-            "--owner",
-            "oci-security-compliance",
-            "--inventory",
-            str(inventory),
-        ],
-        text=True,
-        capture_output=True,
-        check=True,
-    )
-    plan = json.loads(result.stdout)
+    assert enterprise_workflow.main([
+        "plan-governance-pack", str(tmp_path / "run"), "--context", str(context),
+        "--owner", "oci-security-compliance", "--inventory", str(inventory),
+    ]) == 0
+    output = capsys.readouterr()
+    assert output.err == ""
+    plan = json.loads(output.out)
     assert plan["owner"] == "oci-security-compliance"
     assert plan["provider_contacted"] is False
-    assert "synthetic-compartment" not in result.stdout
+    assert "synthetic-compartment" not in output.out
 
 
 def test_data_acceptance_pack_keeps_observability_gates_and_markers_distinct(
@@ -815,3 +804,37 @@ def test_every_er020_owner_has_safe_readiness_and_unavailable_handoff_path(tmp_p
         assert plan["eligible_for_acceptance"] is True
         assert plan["upstream"] == {"status": "absent"}
         assert plan["provider_contacted"] is False
+
+
+@pytest.mark.parametrize("contents", ["private-invalid-json", "[]"])
+def test_cli_rejects_invalid_input_without_persisting_or_echoing_it(tmp_path: Path, capsys, contents: str) -> None:
+    context = tmp_path / "context.json"
+    context.write_text(contents, encoding="utf-8")
+    run = tmp_path / "run"
+    assert enterprise_workflow.main(["resume", str(run), "--context", str(context)]) == 1
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "context" in output.err
+    assert contents not in output.err
+    assert not run.exists()
+
+
+def test_cli_readonly_resume_rejects_target_drift_without_changing_checkpoint(tmp_path: Path, capsys) -> None:
+    context, inventory, run = tmp_path / "context.json", tmp_path / "inventory.json", tmp_path / "run"
+    context.write_text(json.dumps(_context()), encoding="utf-8")
+    inventory.write_text(json.dumps({"items": [], "complete": True}), encoding="utf-8")
+    assert enterprise_workflow.main([
+        "plan", str(run), "--context", str(context), "--inventory", str(inventory),
+    ]) == 0
+    assert json.loads(capsys.readouterr().out)["state"] == "planned"
+    assert enterprise_workflow.main(["execute-readonly", str(run)]) == 0
+    assert json.loads(capsys.readouterr().out)["provider_contacted"] is False
+    assert enterprise_workflow.main(["resume", str(run), "--context", str(context)]) == 0
+    assert json.loads(capsys.readouterr().out)["state"] == "verified"
+    before = {path.name: path.read_bytes() for path in run.iterdir() if path.is_file()}
+    context.write_text(json.dumps(dict(_context(), region="us-ashburn-1")), encoding="utf-8")
+    assert enterprise_workflow.main(["resume", str(run), "--context", str(context)]) == 1
+    output = capsys.readouterr()
+    assert output.out == ""
+    assert "target" in output.err
+    assert {path.name: path.read_bytes() for path in run.iterdir() if path.is_file()} == before

@@ -83,7 +83,7 @@ path; read/aggregated access can come from the gateway.**
 
 | Use the **skills' CLI/SDK path** (this pack) | Use the **MCP gateway** |
 |---|---|
-| Any **mutation** (create/update/delete) — it is preflighted, redacted, confirm-gated, and guarded by the PreToolUse hook. | **Read-only / aggregated tool access** from an agent runtime that already speaks MCP. |
+| Any **mutation** (create/update/delete) — it is preflighted, redacted, and confirm-gated by the in-script controls. | **Read-only / aggregated tool access** from an agent runtime that already speaks MCP. |
 | **Preflight** — confirming the target tenancy/compartment by name before acting. | Quick cross-domain **inventory/observability reads** without wiring five servers. |
 | Output that must be **redacted** before it is shown or committed. | Exploratory queries where the runtime, not the shell, owns the call. |
 | Local/offline work, named-context resolution, KB-first troubleshooting. | Fan-out reads across logan/oci/security/finops/db-observatory in one session. |

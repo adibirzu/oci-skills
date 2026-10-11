@@ -110,9 +110,9 @@ Destructive operations are irreversible or service-affecting. For them:
 - **Data masking is destructive on the masked copy** — mask only a verified
   non-prod database (see [data-safe.md](data-safe.md)).
 
-The `PreToolUse` destructive-guard hook is **defense-in-depth that fails open**
-(see [tenancy-safety.md](tenancy-safety.md)); in-script `run_action` receipt and
-approval checks are the authoritative control. Never rely on the hook alone.
+The destructive-guard script is an unregistered helper (see
+[tenancy-safety.md](tenancy-safety.md)); in-script `run_action` receipt and approval
+checks are the authoritative control. Never rely on the helper for enforcement.
 
 ## 5. Stop conditions
 

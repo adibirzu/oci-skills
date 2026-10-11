@@ -32,9 +32,11 @@ The approved installer performs these steps:
 4. roll back the merge if strict validation fails;
 5. restart Codex so role and skill discovery refreshes.
 
-Without named roles, use only a fallback whose actual model, sandbox, tools, and independence can
-be proven. Never auto-enable `jd-elevated-worker`; it is merely available for an exact confirmed
-break-glass grant. Never copy secrets, local state, prompts, logs, or run ledgers into a plugin.
+Without named roles, follow [protocol.md's model fallback](protocol.md#model-fallback) and
+[SKILL.md section 5](../SKILL.md#5-review-proportionately) for review requirements and eligible
+local-only closure. Never auto-enable `jd-elevated-worker`; it is merely available for an exact
+confirmed break-glass grant. Never copy secrets, local state, prompts, logs, or run ledgers into a
+plugin.
 
 Release only when `assets/jd-release.json` records every gate as true: skill validation,
 contract tests, strict-config parsing, security scan, forward test, and distribution parity.
