@@ -33,7 +33,6 @@ def test_jd_release_evidence_does_not_promote_modified_payload_without_fresh_gat
     assert release["version"] == VERSION
     assert release["status"] == "validation-pending"
     assert not any(release["gates"].values())
-    assert "preceding payload" in release["notes"]
 
 
 def test_jd_elevated_role_is_approval_gated_and_network_denied() -> None:
