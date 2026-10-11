@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Unit fence for the destructive-command PreToolUse guard.
+"""Unit fence for the nonregistered destructive-command helper.
 
 Regression target #1: the guard once keyed on `\\boci\\b`, which never matched
 the pack's own `oci_cli` wrapper (the mandated entrypoint) — so every

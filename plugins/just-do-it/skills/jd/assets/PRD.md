@@ -40,5 +40,5 @@ As a <role>, I want <capability>, so that <measurable benefit>.
 |---|---|---|---|---|---|---|
 | <ID>-01 | Write RED contract | test-worker | none | <paths> | <command> | pending |
 | <ID>-02 | Minimal implementation | implementation-worker | <ID>-01 | <paths> | <command> | pending |
-| <ID>-03 | Independent review | sol-reviewer | <ID>-02 | read-only | review packet | pending |
+| <ID>-03 | Independent review when required | sol-reviewer | <ID>-02 | read-only | review packet or coordinator local verification | pending |
 | <ID>-04 | Security review when sensitive | sol-security-reviewer | <ID>-03 | read-only | security evidence | pending |

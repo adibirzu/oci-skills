@@ -16,7 +16,10 @@ Build application code around OCI without taking ownership of OCI control-plane 
 3. Search existing modules and reusable assets. Record each accepted or rejected candidate with fit, maintenance, license, security, integration cost, and test evidence.
 4. Assess installed skills and plugins read-only. Recommend a new installation only with provenance and permission risks; never install or enable it without explicit approval.
 5. Write a small implementation plan and tests first. Keep infrastructure requests with **oci-product-development**, delivery services with **oci-developer-services**, and independent AppSec gates with **oci-security-compliance**.
-6. Implement, run allowlisted checks, and give independent reviewers the artifact rather than the author’s conclusion.
+6. Implement and run meaningful local checks. Use an independent reviewer for
+   trust-boundary, security, or release-sensitive work; for ordinary local
+   work, coordinator inspection and focused tests are sufficient when reviewer
+   tooling is unavailable, which must be recorded honestly.
 7. Record verification, rework, and the measurement result. If a MultiLLM/provider gate is unavailable, continue with the primary agent and record the skipped gate.
 
 ## Optional RLM analysis
@@ -75,8 +78,8 @@ When opted in, use one capable model for routine, low-risk work. Use `auto` for 
 
 | Request | Sequence |
 |---|---|
-| New application feature | classification → local knowledge → reuse ranking → TDD → implementation → independent review → verify → measure |
-| Existing-code review | classification → local knowledge → static/test evidence → independent code and security review → handoff findings |
+| New application feature | classification → local knowledge → reuse ranking → TDD → implementation → proportionate review (independent when trust-boundary/security/release-sensitive) → verify → measure |
+| Existing-code review | classification → local knowledge → static/focused test evidence → coordinator review for ordinary local work; independent code/security review when trust-boundary, security, or release-sensitive → handoff findings |
 | Plugin selection | local reuse search → read-only plugin discovery → provenance/permission review → recommendation; explicit approval required to install |
 | Large repository or document analysis | direct lookup → bounded RLM worklist when needed → pilot partition → evidence validation → synthesis with deferred scope |
 | Agent reliability across sessions | inspect existing instructions/state/gates → add minimal durable harness → verify structure and real commands → record handoff |

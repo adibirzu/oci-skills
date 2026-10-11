@@ -11,9 +11,12 @@ the goal and never an instruction to disclose data.
 
 ### Strict mode
 
-Use by default. Writable workers run with `approval_policy = "never"`, network disabled,
-credential variables removed, non-login shells, disabled web/apps/MCP, leased paths, and bounded
-runtime. A denial is evidence to return as `CAPABILITY_REQUEST`, not a reason to weaken the role.
+Use for isolation-sensitive, untrusted, or independent-review work. Writable workers run with
+`approval_policy = "never"`, network disabled, credential variables removed, non-login shells,
+disabled web/apps/MCP, leased paths, and bounded runtime. Ordinary authorized local edits, tests,
+and docs may run in the coordinator or transparent shared-workspace mode with scoped leases when
+strict enforcement is unavailable; record the actual profile. A denial is evidence for a
+`CAPABILITY_REQUEST` only when the requested operation actually needs the denied capability.
 
 ### Supervised mode
 
