@@ -1,7 +1,7 @@
 ---
 name: oci-application-engineering
 description: >-
-  Orchestrate OCI-backed application engineering: intake, local knowledge and reuse discovery, read-only plugin assessment, TDD implementation, independent review, security gates, verification, and efficiency measurement. Use for application code creation, code review, debugging, module reuse, or skill/plugin selection around OCI workloads. It never mutates OCI infrastructure; platform bundles remain oci-product-development and service delivery remains oci-developer-services.
+  Orchestrate OCI-backed application engineering: intake, local knowledge and reuse discovery, read-only plugin assessment, TDD implementation, proportionate review, security gates, verification, and efficiency measurement. Use for application code creation, code review, debugging, module reuse, or skill/plugin selection around OCI workloads. It never mutates OCI infrastructure; platform bundles remain oci-product-development and service delivery remains oci-developer-services.
   Also use it to create, audit, or improve a coding-agent development harness: project instructions, durable state, verification gates, scope boundaries, or session handoff.
 ---
 
