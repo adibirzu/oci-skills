@@ -14,7 +14,8 @@ Define a versioned application-workflow schema and require
 
 ## Acceptance criteria
 
-- Classification, tests, independent review, and verification are required.
+- Classification, tests, review, and verification are required; review requirements follow
+  the [application skill's workflow](../../../../skills/oci-application-engineering/SKILL.md#workflow).
 - Reuse decisions record candidate, accept/reject outcome, and reason.
 - Raw content cannot be represented as retained.
 - Restricted work remains local unless separately approved.

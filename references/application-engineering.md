@@ -1,6 +1,6 @@
 # OCI application engineering
 
-`oci-application-engineering` is the application-code orchestrator. It performs intake and data classification, local knowledge and reuse discovery, read-only plugin evaluation, test-driven implementation, independent review, security verification, and optional adaptive MultiLLM measurement. It performs no OCI mutation.
+`oci-application-engineering` is the application-code orchestrator. It performs intake and data classification, local knowledge and reuse discovery, read-only plugin evaluation, test-driven implementation, proportionate review, security verification, and optional adaptive MultiLLM measurement. It performs no OCI mutation.
 
 MultiLLM is an opt-in local gateway integration. Offer it for side-by-side model comparison, cheap-first routing, independent Fusion synthesis, cost/latency traces, or the separate DeepEval end-to-end suite; never require it, enable it, transmit code to it, or install providers without the user's explicit choice. When it is unavailable or declined, continue with the primary agent and record a skipped optional measurement gate.
 
@@ -11,8 +11,5 @@ resource owner only when the work reaches deployment.
 
 Search DevVisualization and the current repository before external packages. Keep restricted code local unless external-provider approval is explicit. Plugins are recommendations only until the user approves installation. Platform bundles remain `oci-product-development`, delivery services remain `oci-developer-services`, and independent AppSec release gates remain `oci-security-compliance`.
 
-Review and measurement are proportionate to the requested outcome. Missing
-optional reviewer, plugin, MCP, or model tooling does not block ordinary local
-source, test, documentation, or validation work; record the unavailable
-capability and use the available runtime. Preserve independent review and
-security gates where the change crosses a trust boundary or release boundary.
+For review requirements and unavailable optional tooling, follow the
+[application skill's workflow](../skills/oci-application-engineering/SKILL.md#workflow).

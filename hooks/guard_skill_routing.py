@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Prevent model-initiated OCI skill chains after the shared router loads.
+"""Nonregistered helper for model-initiated OCI skill-chain payloads.
 
-Direct slash-command skill invocations bypass PreToolUse and remain available.
-This guard applies only when Claude's model calls the Skill tool itself.
+Not registered by hooks/hooks.json; it does not automatically guard Skill calls.
+When explicitly invoked, evaluates only model-initiated PreToolUse Skill payloads.
+See references/tenancy-safety.md for the authoritative enforcement boundary.
 """
 from __future__ import annotations
 
