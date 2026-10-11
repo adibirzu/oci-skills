@@ -1,6 +1,6 @@
 """RED contract for the single-trial blinded Codex evaluation runner.
 
-These tests deliberately exercise the runner through its command-line boundary
+These tests exercise the public CLI main (plus a subprocess CLI smoke test)
 with a local fake ``codex`` executable.  The fake emits JSONL only so that the
 runner, rather than the test, must extract the response and usage telemetry.
 No provider, network, credential, or real evaluator asset is involved.
@@ -8,6 +8,8 @@ No provider, network, credential, or real evaluator asset is involved.
 from __future__ import annotations
 
 import hashlib
+import contextlib
+import io
 import argparse
 import json
 import os
@@ -23,6 +25,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "scripts" / "codex_forward_eval_trial.py"
 sys.path.insert(0, str(ROOT / "scripts"))
 
+import codex_forward_eval_trial as runner  # noqa: E402
 import forward_eval  # noqa: E402
 import release_evidence_packet  # noqa: E402
 
@@ -195,14 +198,24 @@ def _run_trial(
         command.extend(("--candidate-install", str(candidate_install)))
     if extra:
         command.extend(extra)
-    return subprocess.run(
-        command,
-        text=True,
-        capture_output=True,
-        check=False,
-        env=env,
-        timeout=timeout,
-    )
+    # Exercise the public CLI parser and runner in the coverage process. The
+    # actual fake executable still runs as a child with the real isolation,
+    # timeout, snapshot and publication code. Keep outer-timeout probes isolated.
+    if timeout is not None:
+        return subprocess.run(command, text=True, capture_output=True, check=False, env=env, timeout=timeout)
+    stdout, stderr = io.StringIO(), io.StringIO()
+    with pytest.MonkeyPatch.context() as patch, contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+        patch.setattr(sys, "argv", command[1:])
+        if env is not None:
+            for key in set(os.environ) - set(env):
+                patch.delenv(key)
+            for key, value in env.items():
+                patch.setenv(key, value)
+        try:
+            returncode = runner.main()
+        except SystemExit as exc:
+            returncode = exc.code
+    return subprocess.CompletedProcess(command, returncode, stdout.getvalue(), stderr.getvalue())
 
 
 def _negative_synthetic_install(tmp_path: pathlib.Path, *, digest: str = "a" * 64) -> pathlib.Path:
@@ -261,6 +274,7 @@ def test_one_trial_derives_paths_and_writes_private_response_and_telemetry(tmp_p
         codex,
         candidate_install=candidate,
         extra=["--session-cwd", str(clean_cwd)],
+        timeout=120,
     )
 
     assert result.returncode == 0, result.stderr

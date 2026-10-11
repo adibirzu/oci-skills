@@ -27,18 +27,7 @@ jobs:
       - name: redaction gate (no OCIDs/IPs/secrets in tracked files)
         run: |
           set -euo pipefail
-          fail=0
-          while IFS= read -r f; do
-            case "$f" in
-              *.png|*.jpg|*.jpeg|*.gif|*.pdf|*.ico) continue ;;
-            esac
-            if ! python3 scripts/redact.py --check "$f" >/dev/null 2>&1; then
-              echo "::error file=$f::sensitive value detected by redact.py"
-              python3 scripts/redact.py --summary "$f" >/dev/null || true
-              fail=1
-            fi
-          done < <(git ls-files)
-          exit "$fail"
+          git ls-files -z | python3 scripts/redaction_gate.py --root .
 
   lint:
     name: shell + python lint

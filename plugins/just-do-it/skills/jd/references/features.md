@@ -3,11 +3,13 @@
 ## Core JD delivery features
 
 - One user goal becomes an ordered PRD program and bounded dependency-aware tasks.
-- Luna workers own RED tests and isolated GREEN implementation; Terra handles planning and
-  integration; independent Sol reviewers gate correctness and sensitive trust boundaries.
-- Canonical path leases, optional worktree isolation, diff validation, bounded concurrency, and
-  retry budgets prevent collision and runaway execution.
-- Strict, supervised, and break-glass execution modes use explicit capability receipts.
+- Model-tiered planning and RED/GREEN implementation follow the
+  [role routing](../SKILL.md#3-expand-prds-into-bounded-tasks); see the
+  [review policy](../SKILL.md#5-review-proportionately) for review requirements.
+- Canonical path leases, optional worktree isolation, and diff validation prevent collisions;
+  [execution budgets](../SKILL.md#6-continue-autonomously) govern continued work.
+- [Execution modes](../SKILL.md#1-establish-the-authority-envelope) define the available controls
+  and required capability receipts.
 - Durable redacted reconciliation, `$jd status`, and bounded worker recovery support long runs.
 - Append-only event checkpoints, startup digests, decision holds, dependency/time gates, and
   evidence freshness make restarts deterministic without a daemon.
@@ -58,7 +60,7 @@ licensed project, as architectural inspiration. JD adapts these ideas to native 
 - bearings -> `$jd status` from a private redacted ledger;
 - restart reconciliation -> durable state checks at every wake;
 - stuck-crewmate recovery -> inspect, steer, relaunch, then fail;
-- explicit project autonomy -> strict, supervised, and scoped break-glass modes.
+- explicit project autonomy -> [JD execution modes](../SKILL.md#1-establish-the-authority-envelope);
 - session digest and durable wake state -> event cursor, checkpoint, and restart reconciliation;
 - decision waits and backlog gates -> decision holds plus dependency and `not-before` gates;
 - scout promotion -> linked ship tasks that preserve discovery evidence;

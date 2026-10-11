@@ -40,32 +40,79 @@ def _logical_commands(text: str) -> list[tuple[int, str]]:
     return commands
 
 
+def _command_fragments(command: str) -> list[str]:
+    """Keep outer invocations intact and scan nested shell scopes independently."""
+    def scope(index: int, closing: str = "") -> tuple[list[str], int]:
+        fragments: list[str] = []
+        current: list[str] = []
+        quote = ""
+        while index < len(command):
+            char = command[index]
+            if char == "\\" and quote != "'":
+                current.append(command[index:index + 2])
+                index += 2
+                continue
+            if not quote and closing and char == closing:
+                fragments.append("".join(current))
+                return fragments, index + 1
+            if quote != "'" and (command.startswith("$(", index) or char == "`"):
+                backtick = char == "`"
+                nested, index = scope(index + (1 if backtick else 2), "`" if backtick else ")")
+                fragments.extend(nested)
+                current.append("__substitution__")
+                continue
+            if char == quote and quote:
+                quote = ""
+            elif char in "\"'" and not quote:
+                quote = char
+            elif not quote and char == "(":
+                fragments.append("".join(current))
+                current = []
+                nested, index = scope(index + 1, ")")
+                fragments.extend(nested)
+                continue
+            elif not quote and char in ";&|)":
+                fragments.append("".join(current))
+                current = []
+                index += 1
+                continue
+            current.append(char)
+            index += 1
+        fragments.append("".join(current))
+        return fragments, index
+
+    return scope(0)[0]
+
+
 def scan_text(label: str, text: str) -> list[str]:
     errors: list[str] = []
-    for line, command in _logical_commands(text):
-        if BARE_OCI_RE.search(command):
-            errors.append(f"{label}:{line}: bare OCI command must use oci_cli")
-        if "oci_cli" in command:
-            guard = command.split("oci_cli", 1)[0]
-            invocation = command.split("oci_cli", 1)[1]
-            if MUTATION_RE.search(invocation) and "run_action" not in command:
-                errors.append(f"{label}:{line}: mutating oci_cli command must use run_action")
-            if DESTRUCTIVE_RE.search(invocation) and not re.search(
-                r"\brun_action\b.*\s--risk\s+destructive(?:\s|$)", guard,
-            ):
-                errors.append(
-                    f"{label}:{line}: destructive oci_cli command must declare --risk destructive"
-                )
-            match = SECRET_ARG_RE.search(invocation)
-            if match:
-                errors.append(
-                    f"{label}:{line}: secret-bearing {match.group(1)} must use a 0600 file:// payload"
-                )
-            for nested in INLINE_JSON_RE.finditer(invocation):
-                if nested.group(1) not in INLINE_JSON_EXEMPT:
+    for line, logical_command in _logical_commands(text):
+        for command in _command_fragments(logical_command):
+            if BARE_OCI_RE.search(command.lstrip()):
+                errors.append(f"{label}:{line}: bare OCI command must use oci_cli")
+            if "oci_cli" in command:
+                guard = command.split("oci_cli", 1)[0]
+                invocation = command.split("oci_cli", 1)[1]
+                if MUTATION_RE.search(invocation) and not re.search(
+                    r"\b(?:run_action|action_approval_id)\b", guard,
+                ):
+                    errors.append(f"{label}:{line}: mutating oci_cli command must use run_action")
+                if DESTRUCTIVE_RE.search(invocation) and not re.search(
+                    r"\b(?:run_action|action_approval_id)\b.*\s--risk\s+destructive(?:\s|$)", guard,
+                ):
                     errors.append(
-                        f"{label}:{line}: nested JSON for {nested.group(1)} must use a 0600 file:// payload"
+                        f"{label}:{line}: destructive oci_cli command must declare --risk destructive"
                     )
+                match = SECRET_ARG_RE.search(invocation)
+                if match:
+                    errors.append(
+                        f"{label}:{line}: secret-bearing {match.group(1)} must use a 0600 file:// payload"
+                    )
+                for nested in INLINE_JSON_RE.finditer(invocation):
+                    if nested.group(1) not in INLINE_JSON_EXEMPT:
+                        errors.append(
+                            f"{label}:{line}: nested JSON for {nested.group(1)} must use a 0600 file:// payload"
+                        )
     return errors
 
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""guard_destructive.py — PreToolUse guard for the OCI Administrator plugin.
+"""guard_destructive.py — nonregistered destructive-command helper for OCI Administrator.
 
 Blocks a command that would DESTROY or REPLACE state — an `oci` CLI call, a
 `kubectl`/`helm` Kubernetes mutation, or a `terraform destroy`/unreviewed
@@ -8,7 +8,7 @@ nudges the agent to preview/preflight and obtain explicit confirmation first —
 the same contract the skills follow (see oci-oke-admin's Safety notes and
 oci_tf.sh's reviewed-plan flow for the kubectl/helm/terraform side).
 
-Wired from hooks/hooks.json as a PreToolUse hook on the Bash tool. Reads the hook
+Not registered by `hooks/hooks.json`. When explicitly invoked, reads a hook-style
 payload as JSON on stdin:  {"tool_name": "...", "tool_input": {"command": "..."}}
 
 Exit codes:

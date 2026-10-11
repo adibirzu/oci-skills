@@ -1,7 +1,7 @@
 # JD Status
 
 - Goal: `<redacted label>`
-- Mode: `<strict | supervised | break-glass>`
+- Mode: `<strict | supervised | transparent-shared-workspace | break-glass>`
 - Delivery: `<local-only | change-request | landed; exact achieved state>`
 - Checkpoint: `<last event sequence/time; reconciled or stale>`
 - PRDs completed: `<ids>`
