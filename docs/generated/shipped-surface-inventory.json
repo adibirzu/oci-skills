@@ -15,14 +15,14 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "hooks/guard_destructive.py",
-      "sha256": "c40f49c337c58349248868720f6cdabadf0387af68fd20b848cea3f347ebfc55"
+      "sha256": "bf4ed92e508521add7b1c23320c510625095da05959cf36b79fb28bc9cf374f8"
     },
     {
       "classification": "reviewed-non-executable-source",
       "distribution": "source-only",
       "mode": "0644",
       "path": "hooks/guard_skill_routing.py",
-      "sha256": "d5a12c50d704689d5022c85db5378583fed70f413423f18f9a86b85391c41f79"
+      "sha256": "621c3b9a2d96d4b78806c14b02e6386a061a4337ef0cbcd6b2fd0a2a4bcf8a7b"
     },
     {
       "classification": "reviewed-non-executable-source",
@@ -291,5 +291,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "5b742d9804e9ccea18b0fbec78eb8479ae76c6bf3a3b8d6aa9e076f212165054"
+  "surfaces_sha256": "fb61171d38e2f15ff12d4818933f85b1e5905ed1feb8cc1d5776034661aebeea"
 }
