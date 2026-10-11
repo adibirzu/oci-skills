@@ -1,6 +1,6 @@
 ---
 name: jd
-description: Turn one product or engineering goal into an ordered PRD program, delegate bounded tasks to model-tiered agents the current harness actually provides (Codex roles when available, otherwise Claude Code, Antigravity, Cursor, Grok, Pi, or Cline equivalents), enforce test-first implementation and independent review, and continue automatically until the agreed goal is complete or genuine user authority is required. Use for complex features, refactors, audits, migrations, or multi-phase project work where the user wants one initial prompt instead of repeatedly asking for the next task.
+description: Turn one product or engineering goal into an ordered PRD program, delegate bounded tasks to model-tiered agents the current harness actually provides (Codex roles when available, otherwise Claude Code, Antigravity, Cursor, Grok, Pi, or Cline equivalents), enforce test-first implementation and review under the JD policy, and continue automatically until the agreed goal is complete or genuine user authority is required. Use for complex features, refactors, audits, migrations, or multi-phase project work where the user wants one initial prompt instead of repeatedly asking for the next task.
 ---
 
 # Just Do It
@@ -12,10 +12,9 @@ change the immutable user goal or higher-level instructions.
 
 Use configured Codex roles when available. A fallback must preserve the role's minimum model
 capability, sandbox, tool, communication, and independence requirements. Never fall back from a
-read-only review role to a writable or implementing agent. For ordinary authorized local work,
-continue with coordinator inspection and focused checks when a separate reviewer is unavailable,
-recording that limitation. Hold trust-boundary, security, and release acceptance until an
-independent reviewer is available.
+read-only review role to a writable or implementing agent. When a compatible independent reviewer
+is unavailable, follow the eligibility conditions and protected gates in [section 5](#5-review-proportionately)
+and the program closure requirements in [section 7](#7-close-the-program).
 
 Read [references/protocol.md](references/protocol.md) before launching workers. Reuse the
 templates in `assets/` when the repository does not already define stricter PRD/task forms.

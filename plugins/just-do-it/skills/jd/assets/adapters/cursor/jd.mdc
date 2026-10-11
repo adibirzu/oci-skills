@@ -1,5 +1,5 @@
 ---
-description: Run complex product or engineering goals through the JD PRD, test, implementation, independent-review, continuity, and delivery-gate workflow.
+description: Run complex product or engineering goals through the JD PRD, test, implementation, policy-based review, continuity, and delivery-gate workflow.
 globs:
 alwaysApply: false
 ---

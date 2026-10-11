@@ -13,8 +13,9 @@ them implicitly.
 - `landed`: merge only when the user explicitly authorizes the exact repository/change request
   or established repository policy delegates that authority. Never enable auto-merge.
 
-Record the mode independently from strict/supervised/transparent-shared-workspace/break-glass execution mode. Network and
-external writes still require the authority and capability checks defined by JD.
+Record the mode independently from the
+[execution mode](../SKILL.md#1-establish-the-authority-envelope). Network and external writes
+still require the authority and capability checks defined by JD.
 
 ## Promote scout evidence
 
@@ -27,10 +28,8 @@ When a read-only scout discovers a bounded fix:
 4. Assign a canonical path lease and execute the normal implementation and review loop.
 
 Promotion avoids duplicate discovery but never skips required tests, ownership, or review.
-For eligible ordinary reversible local-only work when a compatible independent reviewer is
-unavailable, apply `SKILL.md` section 5's `locally_verified_review_unavailable` fallback with all
-its conditions and limitations. Sensitive, IAM, credential, external-write, publication, and
-release work retain their required independent and security review gates.
+Apply the [review policy](../SKILL.md#5-review-proportionately), including its local-only fallback
+conditions and protected gates, and the [program closure requirements](../SKILL.md#7-close-the-program).
 
 ## Change-request readiness
 

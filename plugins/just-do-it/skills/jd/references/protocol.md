@@ -9,7 +9,7 @@ RESULT
 prd: <id>
 task: <id>
 status: complete | blocked | needs_review | deferred | cancelled | superseded
-attempt: <current>/<maximum>
+attempt: <count; explicit user limit if any>
 blocker_fingerprint: <stable digest or none>
 files: <changed or inspected paths>
 tests: <commands and outcomes>
@@ -96,15 +96,11 @@ Style-only preferences are not blocking. CRITICAL and HIGH findings block PRD co
 3. Lease canonical paths and reject post-task changes outside the lease.
 4. Require RED evidence before implementation for new behavior.
 5. Require focused GREEN evidence before integration.
-6. Require independent review before release acceptance or advancing a sensitive PRD. Consolidate
-   low-risk review when the same final diff and verification remain current. Task, PRD, and program
-   closure with `locally_verified_review_unavailable` must meet all conditions in `SKILL.md` section 5;
-   program closure must also satisfy section 7. Record the residual-review limitation and never
-   promote local verification to independent or protected review or release acceptance.
+6. Apply the [review policy](../SKILL.md#5-review-proportionately) and
+   [program closure requirements](../SKILL.md#7-close-the-program).
 7. Reopen a completed task when later integration invalidates its evidence.
-8. Track concurrency, attempt, review-cycle, and recursion counters. Treat defaults as advisory
-   resource policy; enforce an explicit user limit as a hold, and continue authorized local repair
-   when each attempt adds concrete new evidence and stays within the authority envelope.
+8. Track concurrency, attempt, review-cycle, and recursion counters under the
+   [execution budget policy](../SKILL.md#6-continue-autonomously).
 9. Stop only at a terminal condition defined in `SKILL.md`.
 10. Reconcile ledger state with live evidence after restart, compaction, or an interrupted turn.
 11. Expire capability grants before dispatching unrelated work.
@@ -116,7 +112,7 @@ RECOVERY
 prd: <id>
 task: <id>
 stage: inspect | steer | relaunch | fail
-attempt: <current>/<maximum>
+attempt: <count; explicit user limit if any>
 last_progress_digest: <redacted digest>
 blocker_fingerprint: <stable digest>
 action: <bounded action taken>

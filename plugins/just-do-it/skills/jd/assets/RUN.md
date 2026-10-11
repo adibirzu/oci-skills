@@ -27,7 +27,7 @@
 
 | Task | Owner | Path lease | Attempt | RED | GREEN | Status |
 |---|---|---|---|---|---|---|
-| <ID> | <role> | <canonical paths> | 0/3 | pending | pending | ready |
+| <ID> | <role> | <canonical paths> | <count; explicit limit if any> | pending | pending | ready |
 
 ## Decisions and user answers
 
