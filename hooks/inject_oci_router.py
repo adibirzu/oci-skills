@@ -8,7 +8,9 @@ classifies the user's prompt.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import os
 import sys
 from typing import Any, Dict, Optional
 
@@ -103,9 +105,36 @@ def main() -> int:
         return 0
 
     output = build_output(payload)
-    if output is not None:
+    if output is not None and _first_prompt_of_session(payload):
         sys.stdout.write(json.dumps(output, separators=(",", ":")) + "\n")
     return 0
+
+
+def _first_prompt_of_session(payload: Dict[str, Any]) -> bool:
+    """True once per session, so the contract is not re-sent with every prompt.
+
+    The marker is a hash of the session id only. Set
+    OCI_SKILLS_ROUTER_EVERY_PROMPT=1 to restore per-prompt injection (evals).
+    Any state error fails toward injecting.
+    """
+    if os.environ.get("OCI_SKILLS_ROUTER_EVERY_PROMPT") == "1":
+        return True
+    session_id = payload.get("session_id")
+    if not isinstance(session_id, str) or not session_id:
+        return True
+    state_home = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
+    state_dir = os.environ.get("OCI_SKILLS_ROUTER_STATE") or os.path.join(
+        state_home, "oci-skills", "router-sessions")
+    marker = os.path.join(state_dir, hashlib.sha256(session_id.encode("utf-8")).hexdigest()[:24])
+    try:
+        os.makedirs(state_dir, mode=0o700, exist_ok=True)
+        fd = os.open(marker, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        os.close(fd)
+        return True
+    except FileExistsError:
+        return False
+    except OSError:
+        return True
 
 
 if __name__ == "__main__":

@@ -29,7 +29,7 @@
       "distribution": "source-only",
       "mode": "0644",
       "path": "hooks/inject_oci_router.py",
-      "sha256": "c5d7e0721f64e02fe2b2ad1c68da66e63751812a879819a87dab2bdaeef2f812"
+      "sha256": "ba23c3a32e3efb26363e10fa557e88df97e0d2f738f213a2330a61fe17200b64"
     },
     {
       "classification": "executable",
@@ -291,5 +291,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "6063dbf93c73fe5e89619b341393cd4e0b76b3dc10baf19aca44a94115069c4d"
+  "surfaces_sha256": "81503f98c79921716e467d818e856523cf3a3596b7d597b4be8d3fdfc9ead581"
 }
