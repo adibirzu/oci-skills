@@ -16,7 +16,7 @@ import pytest  # noqa: E402
 
 @pytest.fixture(autouse=True)
 def _isolated_router_state(monkeypatch, tmp_path) -> None:
-    monkeypatch.setenv("OCI_SKILLS_ROUTER_STATE", str(tmp_path / "router-sessions"))
+    monkeypatch.setenv("XDG_STATE_HOME", str(tmp_path / "state"))
     monkeypatch.delenv("OCI_SKILLS_ROUTER_EVERY_PROMPT", raising=False)
 
 
