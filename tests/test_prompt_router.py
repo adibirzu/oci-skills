@@ -11,6 +11,32 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "hooks"))
 
 import inject_oci_router as router  # noqa: E402
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def _isolated_router_state(monkeypatch, tmp_path) -> None:
+    monkeypatch.setenv("OCI_SKILLS_ROUTER_STATE", str(tmp_path / "router-sessions"))
+    monkeypatch.delenv("OCI_SKILLS_ROUTER_EVERY_PROMPT", raising=False)
+
+
+def _run_main(monkeypatch, capsys, payload: dict[str, object]) -> str:
+    monkeypatch.setattr(sys, "stdin", io.StringIO(json.dumps(payload)))
+    assert router.main() == 0
+    return capsys.readouterr().out
+
+
+def test_main_injects_once_per_session(monkeypatch, capsys) -> None:
+    assert _run_main(monkeypatch, capsys, _payload()) != ""
+    assert _run_main(monkeypatch, capsys, _payload()) == ""
+    other = dict(_payload(), session_id="another-session")
+    assert _run_main(monkeypatch, capsys, other) != ""
+
+
+def test_every_prompt_override_restores_per_prompt_injection(monkeypatch, capsys) -> None:
+    monkeypatch.setenv("OCI_SKILLS_ROUTER_EVERY_PROMPT", "1")
+    assert _run_main(monkeypatch, capsys, _payload()) != ""
+    assert _run_main(monkeypatch, capsys, _payload()) != ""
 
 
 def _payload(prompt: object = "List OCI compute instances") -> dict[str, object]:
