@@ -123,8 +123,7 @@ def _first_prompt_of_session(payload: Dict[str, Any]) -> bool:
     if not isinstance(session_id, str) or not session_id:
         return True
     state_home = os.environ.get("XDG_STATE_HOME") or os.path.expanduser("~/.local/state")
-    state_dir = os.environ.get("OCI_SKILLS_ROUTER_STATE") or os.path.join(
-        state_home, "oci-skills", "router-sessions")
+    state_dir = os.path.join(state_home, "oci-skills", "router-sessions")
     marker = os.path.join(state_dir, hashlib.sha256(session_id.encode("utf-8")).hexdigest()[:24])
     try:
         os.makedirs(state_dir, mode=0o700, exist_ok=True)
