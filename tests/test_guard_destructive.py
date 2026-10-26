@@ -56,6 +56,8 @@ BLOCK_CASES = [
     # terraform: destroy (subcommand, not the `plan -destroy` flag) and any
     # apply that skips human review via -auto-approve
     ("terraform destroy -auto-approve", True),
+    ("  terraform destroy", True),
+    ("\tterraform apply -auto-approve", True),
     ("terraform -chdir=envs/prod destroy", True),
     ("terraform apply -auto-approve", True),
     ("terraform apply -auto-approve reviewed.tfplan", True),
