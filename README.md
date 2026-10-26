@@ -186,7 +186,7 @@ digests.
 6. Dry-run executes nothing. Redaction masks sensitive topology and credentials before output or persistence.
 7. Terraform owns durable resources by default. Direct CLI mutation is break-glass and must be reconciled in Terraform.
 
-`run_mutating` remains a deprecated additive compatibility alias for v2 migration. The Claude plugin registers a conditional router reminder and has no registered `PreToolUse` guards. The retained routing and destructive guard scripts are nonregistered helpers. Other harnesses use their native instruction adapters plus the authoritative in-script controls, so the README does not claim Claude hooks exist everywhere.
+`run_mutating` remains a deprecated additive compatibility alias for v2 migration. The Claude plugin registers a conditional router reminder once per session; set `OCI_SKILLS_ROUTER_EVERY_PROMPT=1` to inject it on every prompt for evals. It has no registered `PreToolUse` guards. The retained routing and destructive guard scripts are nonregistered helpers. Other harnesses use their native instruction adapters plus the authoritative in-script controls, so the README does not claim Claude hooks exist everywhere.
 
 ## Quick examples
 
