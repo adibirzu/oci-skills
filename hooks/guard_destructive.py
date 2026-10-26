@@ -105,10 +105,11 @@ HELM_DESTRUCTIVE = re.compile(r"\b(uninstall|rollback|delete)\b", re.IGNORECASE)
 #
 # Unlike OCI_INVOCATION, this one is anchored to the *leading* command token of
 # a shell segment (start of string, or right after `;`/`&`/`|`/`(`/backtick/
-# newline, with optional `VAR=val` env prefixes, an optional run of common
+# newline), allowing leading whitespace at either boundary, optional `VAR=val`
+# env prefixes, an optional run of common
 # wrapper commands — `sudo`, `command`, `nohup`, `env` with its own VAR=val
 # args, `timeout` with its duration — and an optional path prefix like
-# `/usr/local/bin/` or `~/bin/`). A plain substring match would also fire on
+# `/usr/local/bin/` or `~/bin/`. A plain substring match would also fire on
 # `terraform` as a bare *argument* — e.g. `-chdir=./terraform` or
 # `./scripts/oci_tf.sh destroy ./terraform ...` — which this pack's own schema
 # (`iac.path: terraform/`) and README/QUICKSTART examples use as the
