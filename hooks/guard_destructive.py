@@ -117,7 +117,7 @@ HELM_DESTRUCTIVE = re.compile(r"\b(uninstall|rollback|delete)\b", re.IGNORECASE)
 # directory argument. Quoted payloads (`bash -c 'terraform destroy'`) remain a
 # known limit of a regex guard.
 TERRAFORM_INVOCATION = re.compile(
-    r"(?:^|[;&|(`\n\r]\s*)"        # start of a shell command segment
+    r"(?:^|[;&|(`\n\r])\s*"        # start of a shell command segment
     r"(?:[A-Za-z_]\w*=\S*\s+)*"    # optional leading VAR=val env assignments
     r"(?:(?:sudo|command|nohup|env(?:\s+[A-Za-z_]\w*=\S*)*|timeout\s+[\d.]+[smhd]?)\s+)*"
     r"(?:~?[./\w-]*/)?"            # optional path prefix ending in `/`
