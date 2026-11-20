@@ -105,4 +105,4 @@ or a known zero-row state.
 
 ## Source pattern origins
 
-Distilled from `/Users/abirzu/dev/oci-zpr-visibility/docs/runbook.md`.
+Distilled from `oci-zpr-visibility/docs/runbook.md`.

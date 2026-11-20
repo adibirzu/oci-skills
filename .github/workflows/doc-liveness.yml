@@ -44,7 +44,19 @@ jobs:
           gh label create doc-rot --color B60205 \
             --description "Dead documentation link detected by doc-liveness" 2>/dev/null || true
           report="$(tail -50 /tmp/doclinks.txt)"
-          body="$(printf 'The weekly doc-liveness check failed — one or more `docs.oracle.com` URLs in `references/oracle-docs.md` no longer resolve.\n\nFix: update the moved/retired URL(s) in `references/oracle-docs.md` (and any KB `**See:**` / skill footer that cites them), verify with `python3 scripts/check_doc_links.py --live`, and close this issue.\n\nRun: %s/%s/actions/runs/%s\n\n```\n%s\n```\n' "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" "$report")"
+          body="$(cat <<'EOF'
+          The weekly doc-liveness check failed — one or more `docs.oracle.com` URLs in `references/oracle-docs.md` no longer resolve.
+
+          Fix: update the moved/retired URL(s) in `references/oracle-docs.md` (and any KB `**See:**` / skill footer that cites them), verify with `python3 scripts/check_doc_links.py --live`, and close this issue.
+          EOF
+          )"
+          body="$body
+
+          Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+
+          \`\`\`
+          $report
+          \`\`\`"
           existing="$(gh issue list --label doc-rot --state open --json number --jq '.[0].number // empty')"
           if [ -n "$existing" ]; then
             gh issue comment "$existing" --body "$body"

@@ -84,7 +84,7 @@ them (`jsondecode(var.x)`).
 
 ```json
 { "compartment_ocid": "<COMPARTMENT_OCID>", "region": "<REGION>",
-  "vcn_cidr": "192.0.2.1/16", "subnet_cidrs": "[\"10.0.1.0/24\",\"10.0.2.0/24\"]" }
+  "vcn_cidr": "192.0.2.1/16", "subnet_cidrs": "[\"<SUBNET_A_CIDR>\",\"<SUBNET_B_CIDR>\"]" }
 ```
 
 ## Packaging a Terraform bundle as a deployable stack (`schema.yaml`)

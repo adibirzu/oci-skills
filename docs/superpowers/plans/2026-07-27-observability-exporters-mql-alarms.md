@@ -1217,10 +1217,10 @@ The installer takes harness names as positional arguments.
 - [ ] **Step 6: Verify all owners and lifecycle commands in the installed copy**
 
 ```bash
-test -f /Users/abirzu/.codex/skills/oci-administrator/skills/oci-observability/SKILL.md
-test -f /Users/abirzu/.codex/skills/oci-administrator/skills/oci-linux-observability/SKILL.md
-test -f /Users/abirzu/.codex/skills/oci-administrator/skills/oci-windows-observability/SKILL.md
-test -f /Users/abirzu/.codex/skills/oci-administrator/skills/oci-observability-db/SKILL.md
+test -f "$HOME"/.codex/skills/oci-administrator/skills/oci-observability/SKILL.md
+test -f "$HOME"/.codex/skills/oci-administrator/skills/oci-linux-observability/SKILL.md
+test -f "$HOME"/.codex/skills/oci-administrator/skills/oci-windows-observability/SKILL.md
+test -f "$HOME"/.codex/skills/oci-administrator/skills/oci-observability-db/SKILL.md
 ./install.sh --list
 ```
 
