@@ -361,8 +361,8 @@ restore integrity, RTO/RPO, detection replay, data quality, lineage, and lag.
 ### ER-018 — Complete networking, OKE, event, and delivery acceptance packs
 
 **What to build:** Outcome packs for Bastion, networking/compute, OKE,
-events/functions, OS Management, and Developer Services. Cover expiring access,
-hybrid/IPv6/certificate paths, architecture-aware images, upgrade canaries,
+events/functions, OS Management, and Developer Services. Cover expiring access.
+Include IPv6, hybrid network and certificate paths, architecture-aware images, upgrade canaries,
 poison/retry/replay, staged patching, signed promotion, and rollback health.
 
 **Acceptance criteria:**
