@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -11,7 +12,18 @@ from redact import redact
 from shipped_surface_inventory import DEFAULT_OUTPUT, build_inventory
 
 
-def _is_verified_generated_inventory(root: Path, relative: str, path: Path) -> bool:
+PERSONAL_PATH = re.compile(
+    r"(?<![\w/])/(?:Users|home|Volumes)/[\w.-]+"
+    r"|[A-Z]:[\\/]+Users[\\/]+[\w.-]+",
+    re.IGNORECASE,
+)
+JUNK_SUFFIXES = {
+    ".db", ".db-shm", ".db-wal", ".log", ".lock", ".sqlite", ".sqlite3", ".sqlite-shm", ".sqlite-wal",
+    ".pyc", ".pyo", ".exe", ".dll", ".so", ".dylib", ".tfstate", ".tfplan",
+}
+
+
+def _is_verified_generated_inventory(root: Path, path: Path) -> bool:
     """Permit only the exact, source-derived public checksum inventory."""
     if path != (root / DEFAULT_OUTPUT.relative_to(DEFAULT_OUTPUT.parents[2])).resolve():
         return False
@@ -35,28 +47,33 @@ def main(argv: list[str] | None = None) -> int:
         relative = os.fsdecode(raw_path)
         path = root / relative
         try:
-            if path.is_symlink():
-                target = path.resolve()
-                if root not in target.parents or not target.is_file():
-                    print(f"FLAGGED: unsafe candidate path {relative}", file=sys.stderr)
-                    findings += 1
-                    continue
-                path = target
-            if not path.is_file():
+            source = path
+            path = source.resolve()
+            if not path.is_relative_to(root) or not path.is_file():
                 print(f"FLAGGED: unsafe candidate path {relative}", file=sys.stderr)
                 findings += 1
                 continue
-            if _is_verified_generated_inventory(root, relative, path):
+            if any(item.suffix.lower() in JUNK_SUFFIXES or item.name == ".DS_Store" for item in (source, path)):
+                print(f"FLAGGED: local artifact {relative}", file=sys.stderr)
+                findings += 1
+                continue
+            content = path.read_text(encoding="utf-8")
+            if "\0" in content:
+                print(f"FLAGGED: binary data in {relative}", file=sys.stderr)
+                findings += 1
+                continue
+            if _is_verified_generated_inventory(root, path):
                 continue
             _, counts = redact(
-                path.read_text(encoding="utf-8", errors="replace"),
+                content,
                 allow_terraform_checksums=path.name == ".terraform.lock.hcl",
+                source_package=True,
             )
-        except OSError as exc:
-            print(f"FLAGGED: cannot read {relative}: {exc}", file=sys.stderr)
+        except (OSError, RuntimeError, UnicodeError):
+            print(f"FLAGGED: cannot read text from {relative}", file=sys.stderr)
             findings += 1
             continue
-        if counts:
+        if counts or PERSONAL_PATH.search(content):
             print(f"FLAGGED: {relative}", file=sys.stderr)
             findings += 1
     return 1 if findings else 0

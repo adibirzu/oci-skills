@@ -68,12 +68,12 @@ oci_cli network subnet list --compartment-id "$COMPARTMENT_OCID" \
 # Public subnet (allows public IPs)
 run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create public subnet" -- \
   oci_cli network subnet create --compartment-id "$COMPARTMENT_OCID" \
-    --vcn-id "<VCN_OCID>" --cidr-block 10.0.1.0/24 --display-name public-1
+    --vcn-id "<VCN_OCID>" --cidr-block "<PUBLIC_SUBNET_CIDR>" --display-name public-1
 
 # Private subnet (no public IPs on VNICs)
 run_action --risk additive --compartment <COMPARTMENT_OCID> --description "create private subnet" -- \
   oci_cli network subnet create --compartment-id "$COMPARTMENT_OCID" \
-    --vcn-id "<VCN_OCID>" --cidr-block 10.0.2.0/24 --display-name private-1 \
+    --vcn-id "<VCN_OCID>" --cidr-block "<PRIVATE_SUBNET_CIDR>" --display-name private-1 \
     --prohibit-public-ip-on-vnic true
 ```
 
@@ -179,7 +179,7 @@ run_action --risk additive --compartment <COMPARTMENT_OCID> --description "creat
 # Register a backend instance
 run_action --risk additive --compartment <COMPARTMENT_OCID> --description "add backend" -- \
   oci_cli lb backend create --load-balancer-id "<LB_OCID>" \
-    --backend-set-name app-bes --ip-address 10.0.2.10 --port 8080
+    --backend-set-name app-bes --ip-address "<BACKEND_IP>" --port 8080
 
 # Check health (read-only)
 oci_cli lb backend-set-health get --load-balancer-id "<LB_OCID>" \

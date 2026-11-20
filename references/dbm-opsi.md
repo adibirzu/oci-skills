@@ -168,4 +168,4 @@ logging, error, and committed-artifact boundaries.
 
 ## Source pattern origins
 
-Distilled from `/Users/abirzu/dev/oci-dbman-opsi/KB.md`.
+Distilled from `oci-dbman-opsi/KB.md`.

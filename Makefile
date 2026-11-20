@@ -30,7 +30,7 @@ list: ## Show which harnesses are detected
 dry-run: ## Preview install actions without copying anything
 	@DRY_RUN=true $(INSTALL) claude codex gemini antigravity
 
-check: ## Lint scripts + run the secret/redaction gate
+check: ## Lint scripts + run the source package and redaction gate
 	@command -v shellcheck >/dev/null || { echo "required tool shellcheck is not installed" >&2; exit 127; }
 	@shellcheck -x --severity=warning scripts/*.sh install.sh bootstrap.sh
-	@git ls-files -z --cached --others --exclude-standard | python3 scripts/redaction_gate.py --root .
+	@bash -o pipefail -c 'git ls-files -z --cached --others --exclude-standard | python3 scripts/redaction_gate.py --root .'

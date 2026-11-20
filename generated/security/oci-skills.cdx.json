@@ -1,0 +1,99 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "components": [
+    {
+      "name": "registry.terraform.io/oracle/oci",
+      "purl": "pkg:generic/oracle/terraform-provider-oci@7.32.0?repository_url=https%3A%2F%2Fregistry.terraform.io%2Fproviders%2Foracle%2Foci",
+      "type": "library",
+      "version": "7.32.0"
+    },
+    {
+      "name": "coverage",
+      "purl": "pkg:pypi/coverage@7.6.1",
+      "type": "library",
+      "version": "7.6.1"
+    },
+    {
+      "name": "cryptography",
+      "purl": "pkg:pypi/cryptography@50.0.2",
+      "type": "library",
+      "version": "50.0.2"
+    },
+    {
+      "name": "jsonschema",
+      "purl": "pkg:pypi/jsonschema@4.23.0",
+      "type": "library",
+      "version": "4.23.0"
+    },
+    {
+      "name": "oci",
+      "purl": "pkg:pypi/oci@2.192.0",
+      "type": "library",
+      "version": "2.192.0"
+    },
+    {
+      "name": "pypdf",
+      "purl": "pkg:pypi/pypdf@6.21.4",
+      "type": "library",
+      "version": "6.21.4"
+    },
+    {
+      "name": "pytest",
+      "purl": "pkg:pypi/pytest@9.2.0",
+      "type": "library",
+      "version": "9.2.0"
+    },
+    {
+      "name": "pyyaml",
+      "purl": "pkg:pypi/pyyaml@6.0.2",
+      "type": "library",
+      "version": "6.0.2"
+    },
+    {
+      "name": "reportlab",
+      "purl": "pkg:pypi/reportlab@4.4.10",
+      "type": "library",
+      "version": "4.4.10"
+    },
+    {
+      "name": "ruff",
+      "purl": "pkg:pypi/ruff@0.6.9",
+      "type": "library",
+      "version": "0.6.9"
+    }
+  ],
+  "compositions": [
+    {
+      "aggregate": "incomplete"
+    }
+  ],
+  "metadata": {
+    "component": {
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "name": "oci-skills",
+      "purl": "pkg:github/adibirzu/oci-skills@2.0.0-rc.3",
+      "type": "application",
+      "version": "2.0.0-rc.3"
+    },
+    "lifecycles": [
+      {
+        "phase": "pre-build"
+      }
+    ],
+    "properties": [
+      {
+        "name": "oci-skills:sbom:scope",
+        "value": "Direct CI Python pins and Terraform providers locked in distributed skill sources"
+      }
+    ]
+  },
+  "specVersion": "1.6",
+  "version": 1
+}

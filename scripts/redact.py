@@ -195,7 +195,7 @@ def _b64_slash_is_secret(token: str) -> bool:
     return has_upper and has_lower and has_digit
 
 
-def _email_is_safe(addr: str) -> bool:
+def _email_is_safe(addr: str, *, source_package: bool) -> bool:
     """True for documentation/example addresses that may stay verbatim.
 
     Real personal or work addresses are PII and must be masked; the reserved
@@ -203,17 +203,18 @@ def _email_is_safe(addr: str) -> bool:
     """
     local, _, domain = addr.partition("@")
     domain = domain.lower()
-    if local.lower() in ("noreply", "no-reply", "you", "user", "name", "email"):
+    if not source_package and local.lower() in ("noreply", "no-reply", "you", "user", "name", "email"):
         return True
-    return domain in ("example.com", "example.org", "example.net", "localhost")
+    return domain in ("example.com", "example.org", "example.net", "localhost") or domain.endswith(
+        (".example", ".test", ".invalid")
+    )
 
 
-def _ip_is_safe(ip: str, strict: bool = False) -> bool:
+def _ip_is_safe(ip: str, strict: bool = False, allow_private_ipv4: bool = True) -> bool:
     """True for IPv4 values that are never sensitive and may stay verbatim.
 
-    Lenient (default): also treats RFC1918 private ranges and RFC5737
-    documentation ranges as safe, so the CI gate does not false-positive on the
-    generic example topology used throughout the docs.
+    Lenient (default): also allows RFC5737 documentation ranges and, when
+    allow_private_ipv4 is true, RFC1918 private ranges.
 
     Strict (`--strict`): only link-local (IMDS 169.254/16), loopback, and the
     unspecified/default address are safe. Use this when sanitizing *live* OCI
@@ -233,11 +234,7 @@ def _ip_is_safe(ip: str, strict: bool = False) -> bool:
         return True
     if strict:
         return False                        # everything else is masked in strict mode
-    if a == 10:                             # RFC1918
-        return True
-    if a == 172 and 16 <= b <= 31:          # RFC1918
-        return True
-    if a == 192 and b == 168:               # RFC1918
+    if allow_private_ipv4 and (a == 10 or (a == 172 and 16 <= b <= 31) or (a == 192 and b == 168)):
         return True
     return (a, b, c) in ((192, 0, 2), (198, 51, 100), (203, 0, 113))  # RFC5737 doc
 
@@ -246,6 +243,8 @@ def redact(
     text: str,
     strict: bool = False,
     allow_terraform_checksums: bool = False,
+    *,
+    source_package: bool = False,
 ) -> tuple[str, dict[str, int]]:
     """Return (redacted_text, {rule_name: count})."""
     counts: dict[str, int] = {}
@@ -257,9 +256,9 @@ def redact(
             _text: str = text,
         ) -> str:
             token = match.group(0)
-            if _name == "ipv4" and _ip_is_safe(token, strict):
+            if _name == "ipv4" and _ip_is_safe(token, strict, allow_private_ipv4=not source_package):
                 return token  # well-known non-sensitive address
-            if _name == "email" and _email_is_safe(token):
+            if _name == "email" and _email_is_safe(token, source_package=source_package):
                 return token  # documentation/example address, not PII
             if _name == "secret_blob" and _is_lowercase_url_path_token(_text, match):
                 return token  # long documentation URL slug, not a secret

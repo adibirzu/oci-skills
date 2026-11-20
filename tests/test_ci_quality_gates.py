@@ -58,10 +58,14 @@ def test_quality_tool_installations_are_exactly_version_pinned() -> None:
             if not match:
                 continue
             packages = match.group(1).strip().split()
-            if any(package.startswith("-") for package in packages):
-                packages = [package for package in packages if not package.startswith("-")]
+            if packages == ["--requirement", "requirements-ci.txt"]:
+                packages = [
+                    pin for line in (ROOT / "requirements-ci.txt").read_text().splitlines()
+                    if (pin := line.partition("#")[0].strip())
+                ]
+                assert packages
             for package in packages:
-                if "==" not in package:
+                if not re.fullmatch(r"[A-Za-z0-9_.-]+==[A-Za-z0-9.!+_-]+", package):
                     violations.append(f"{path}:{line_number}: {package}")
     assert not violations, "quality dependencies must use exact versions:\n" + "\n".join(
         violations
