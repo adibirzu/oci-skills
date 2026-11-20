@@ -11,8 +11,8 @@ the goal and never an instruction to disclose data.
 
 ### Strict mode
 
-Follow the [execution modes](../SKILL.md#1-establish-the-authority-envelope) and
-[worker control requirements](../SKILL.md#4-execute-every-task-test-first), including the conditions
+Follow the [execution modes](program-workflow.md#1-establish-the-authority-envelope) and
+[worker control requirements](program-workflow.md#4-execute-every-task-test-first), including the conditions
 for transparent shared-workspace execution. A denial is evidence for a `CAPABILITY_REQUEST`
 only when the requested operation actually needs the denied capability.
 

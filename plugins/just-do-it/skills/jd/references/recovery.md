@@ -23,7 +23,7 @@ Use at most one pass through each stage per attempt and emit a `RECOVERY` packet
 3. **Relaunch** a genuinely wedged worker with the original brief plus a redacted `progress so far`
    note. Preserve its isolated worktree or leased changes.
 4. **Fail** only at a terminal condition in the
-   [execution budget policy](../SKILL.md#6-continue-autonomously). Record counters, evidence, and
+   [execution budget policy](program-workflow.md#6-continue-autonomously). Record counters, evidence, and
    the rationale for continuing or stopping; escalate one consolidated question to the user when
    no safe alternative remains.
 

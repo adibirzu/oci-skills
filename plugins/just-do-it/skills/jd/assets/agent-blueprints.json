@@ -10,7 +10,7 @@
     },
     {
       "name": "scout",
-      "description": "Investigate one question without changing repository files.",
+      "description": "Luna-first routine discovery: investigate one question without changing repository files; escalate architectural uncertainty to the planner.",
       "capabilities": ["read", "search"],
       "model_tier": "standard",
       "deliverable": "Evidence-backed findings with file references, reproduction steps, uncertainty, and no edits."
@@ -24,10 +24,10 @@
     },
     {
       "name": "maker",
-      "description": "Implement one bounded task against an existing failing contract.",
+      "description": "Own one bounded RED-to-GREEN task, writing the focused failing contract unless a separate test writer is justified.",
       "capabilities": ["read", "search", "write", "test"],
       "model_tier": "standard",
-      "deliverable": "Changed files, implementation summary, GREEN evidence, and known risks."
+      "deliverable": "Changed files, expected RED failure, GREEN evidence, and known risks."
     },
     {
       "name": "checker",
