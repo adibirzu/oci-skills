@@ -7,7 +7,10 @@
 - Authorized mutations: <local changes only unless explicitly broader>
 - Not authorized: <commit/push/deploy/destructive/external actions unless stated>
 - Required evidence: <tests, coverage, security, docs>
-- Execution budgets: advisory defaults; explicit user attempt/time/cost limit if any
+- Workflow path: <bounded | program; reason>
+- Dispatch guidance: <advisory initial and repair counts; explicit user limit if any>
+- Dispatches consumed/reserved: <counts, including required review reserve>
+- Execution budgets: advisory defaults; enforce explicit user attempt/time/cost limits
 - Data policy: digests and redacted summaries only; no credentials/private content/topology
 - Execution mode: <strict | supervised | transparent shared-workspace | break-glass>
 - Delivery mode: <local-only | change-request | landed>
@@ -61,7 +64,14 @@
 
 ## Model and sandbox evidence
 
-- <task>: <actual role/model/sandbox/tool class or fallback blocker>
+- <task>: requested <role/model/effort>; actual <role/model/effort or unavailable>;
+  actual-model source <runtime receipt or unavailable>; sandbox/tool class;
+  input/cached/output tokens <reported values or unavailable>; cost <metered
+  amount/source or unavailable>; escalation reason <reason or none>
+- Cost ceiling: <explicit user limit or none>; cost remaining:
+  <metered value or unavailable>
+- Review identity: <reviewed diff digest, verification receipt, timestamp;
+  invalidated if relevant changes occur>
 
 ## Final evidence
 

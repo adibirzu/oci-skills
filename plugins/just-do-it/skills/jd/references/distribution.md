@@ -33,7 +33,7 @@ The approved installer performs these steps:
 5. restart Codex so role and skill discovery refreshes.
 
 Without named roles, follow [protocol.md's model fallback](protocol.md#model-fallback) and
-[SKILL.md section 5](../SKILL.md#5-review-proportionately) for review requirements and eligible
+[SKILL.md section 5](program-workflow.md#5-review-proportionately) for review requirements and eligible
 local-only closure. Never auto-enable `jd-elevated-worker`; it is merely available for an exact
 confirmed break-glass grant. Never copy secrets, local state, prompts, logs, or run ledgers into a
 plugin.
