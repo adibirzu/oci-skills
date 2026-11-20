@@ -202,8 +202,8 @@ Safe), the upstream `db/` domain of
 |---|---|
 | OCI Database service | <https://docs.oracle.com/en-us/iaas/Content/Database/home.htm> |
 | Base Database | <https://docs.oracle.com/en-us/iaas/base-database/index.html> |
-| Base Database lifecycle and backup/recovery | <https://docs.oracle.com/en-us/iaas/Content/Database/Tasks/backingupFRA.htm> |
-| Pluggable databases | <https://docs.oracle.com/en/cloud/paas/base-database/about-pdb/> |
+| Base Database lifecycle and backup/recovery | <https://docs.oracle.com/en/cloud/paas/base-database/guide/about.html> |
+| Pluggable databases | <https://docs.oracle.com/en/cloud/paas/base-database/guide/pdb-about.html> |
 | Exadata infrastructure maintenance | <https://docs.oracle.com/en-us/iaas/exadatacloud/doc/exa-conf-oracle-man-infra.html> |
 
 ## OKE — `oci-oke-admin`
@@ -309,7 +309,7 @@ The official Oracle guidance behind [solution-authoring.md](solution-authoring.m
 
 | Topic | Canonical doc |
 |---|---|
-| Architecture Center (reference architectures & solution playbooks) | <https://docs.oracle.com/en/solutions/> |
+| Architecture Center (reference architectures & solution playbooks) | <https://docs.oracle.com/solutions/> |
 | Cloud Adoption Framework (Well-Architected pillars) | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm> |
 | Cloud Adoption Framework — Security pillar (landing-zone guardrails) | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm> |
 | Security guide (best practices) | <https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm> |

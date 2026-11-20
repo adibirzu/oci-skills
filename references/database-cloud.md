@@ -69,8 +69,8 @@ delete sequence for non-TTY destructive recovery.
 
 - [OCI Database service](https://docs.oracle.com/en-us/iaas/Content/Database/home.htm)
 - [Base Database documentation](https://docs.oracle.com/en-us/iaas/base-database/index.html)
-- [About Base Database Service](https://docs.oracle.com/en-us/iaas/Content/Database/Tasks/backingupFRA.htm)
-- [Pluggable databases](https://docs.oracle.com/en/cloud/paas/base-database/about-pdb/)
+- [About Base Database Service](https://docs.oracle.com/en/cloud/paas/base-database/guide/about.html)
+- [Pluggable databases](https://docs.oracle.com/en/cloud/paas/base-database/guide/pdb-about.html)
 - [Exadata infrastructure maintenance](https://docs.oracle.com/en-us/iaas/exadatacloud/doc/exa-conf-oracle-man-infra.html)
 
 All URLs are registered in [oracle-docs.md](oracle-docs.md).

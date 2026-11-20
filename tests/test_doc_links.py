@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Offline lint for Oracle documentation links (no network).
 
-Fences three invariants so doc grounding does not silently rot:
+The lint checks four invariants.
 
 1. **Well-formed** — every `docs.oracle.com` URL in the pack is HTTPS, on the
    right host, free of spaces / `<placeholder>` tokens / stray markdown, and on
@@ -12,8 +12,9 @@ Fences three invariants so doc grounding does not silently rot:
 3. **KB citation coverage** — every `## KB-<n>` entry carries a `**See:**` line
    linking an authoritative `docs.oracle.com` page (OKF citation pattern).
 
-This is a *format* lint, not a liveness check — CI has no network. Liveness is
-verified by the author when a URL is added (see oracle-docs.md).
+4. **Retired URLs** are rejected in the index and in documents that cite it.
+
+The scheduled liveness check verifies current HTTP availability.
 """
 from __future__ import annotations
 
@@ -26,10 +27,13 @@ INDEX = ROOT / "references" / "oracle-docs.md"
 KB = ROOT / "references" / "KB.md"
 
 URL_RE = re.compile(r"https://docs\.oracle\.com[^\s)>\]]*")
-# Accept the two real OCI doc path shapes: most pages are /en-us/iaas/…, a few
-# legacy/global pages are /iaas/… or /en/solutions/… .
-PATH_OK = re.compile(r"^https://docs\.oracle\.com/(en-us/iaas/|iaas/|en/)")
+# The unlocalized /solutions/ path is the Oracle Architecture Center landing page.
+PATH_OK = re.compile(r"^https://docs\.oracle\.com/(en-us/iaas/|iaas/|en/|solutions/$)")
 RETIRED_URLS = {
+    "https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/vcn_flow_logs.htm",
+    "https://docs.oracle.com/en/cloud/paas/base-database/about-pdb/",
+    "https://docs.oracle.com/en-us/iaas/Content/Database/Tasks/backingupFRA.htm",
+    "https://docs.oracle.com/en/solutions/",
     "https://docs.oracle.com/en-us/iaas/Content/Compute/Tasks/runcmd.htm",
     "https://docs.oracle.com/en-us/iaas/Content/ContEng/Tasks/contenglistingclusters.htm",
     "https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/query-metric-data.htm",
@@ -90,7 +94,7 @@ def test_every_used_url_is_in_the_index() -> None:
 def test_retired_doc_urls_cannot_be_reintroduced() -> None:
     found: list[str] = []
     for f in _scan_files():
-        for url in set(_urls_in(f.read_text(encoding="utf-8"))) & RETIRED_URLS:
+        for url in sorted(set(_urls_in(f.read_text(encoding="utf-8"))) & RETIRED_URLS):
             found.append(f"{f.relative_to(ROOT)}: {url}")
     assert not found, "retired Oracle doc URLs were reintroduced:\n" + "\n".join(found)
 
