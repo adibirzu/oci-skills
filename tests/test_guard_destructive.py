@@ -239,3 +239,17 @@ def test_main_no_audit_env_suppresses_ledger(monkeypatch, tmp_path) -> None:
         json.dumps({"tool_name": "Bash", "tool_input": {"command": "oci os bucket delete --name x"}})))
     assert guard.main() == 2
     assert not ledger.exists()
+
+
+@pytest.mark.parametrize("value", ['"none"', "'none'", '"false"', "'false'"])
+def test_quoted_live_dry_run_values_are_blocked(value: str) -> None:
+    assert guard._should_block(f"kubectl delete pod sample --dry-run={value}")
+
+
+@pytest.mark.parametrize("value", ['n"one"', "n'one'", r"n\one"])
+def test_shell_split_live_dry_run_values_are_blocked(value: str) -> None:
+    assert guard._should_block(f"kubectl delete pod sample --dry-run={value}")
+
+
+def test_terraform_auto_approve_with_quoted_separator_is_blocked() -> None:
+    assert guard._should_block("terraform apply -var='x;y' -auto-approve")

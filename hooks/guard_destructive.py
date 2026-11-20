@@ -22,6 +22,7 @@ import json
 import os
 import pathlib
 import re
+import shlex
 import sys
 
 # An OCI invocation token. The previous single `\boci\b` matched only the raw
@@ -68,7 +69,7 @@ DESTRUCTIVE = re.compile(
 # the destructive verb: `--dry-run` in one segment must not exempt a chained
 # real mutation in the next. kubectl's `--dry-run=none`/`--dry-run=false`
 # values mean "execute for real" and never qualify as a preview.
-DRY_RUN_FLAG = re.compile(r"--dry-run(?!=(?:none|false)\b)(=|\b)", re.IGNORECASE)
+DRY_RUN_FLAG = re.compile(r"--dry-run(?!=[\"']?(?:none|false)\b)(=|\b)", re.IGNORECASE)
 # `#` opens a shell comment only at the start of a word. The comment is dead
 # text the shell never runs, so it must not earn the segment a dry-run
 # exemption (`kubectl delete pod x # previewed with --dry-run=server` still
@@ -147,7 +148,11 @@ def _classify(command: str) -> str | None:
     if OCI_INVOCATION.search(command) and DESTRUCTIVE.search(command):
         return "oci"
     for segment in SEGMENT_SEPARATOR.split(command):
-        if DRY_RUN_FLAG.search(TRAILING_COMMENT.sub("", segment)):
+        try:
+            words = shlex.split(segment, comments=True)
+        except ValueError:
+            words = []  # An incomplete shell expression cannot prove a safe preview.
+        if any(word.startswith("--dry-run") and DRY_RUN_FLAG.match(word) for word in words):
             continue
         if KUBECTL_INVOCATION.search(segment) and (
             KUBECTL_DESTRUCTIVE.search(segment) or KUBECTL_REPLACE_FORCE.search(segment)

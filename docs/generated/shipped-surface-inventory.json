@@ -15,7 +15,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "hooks/guard_destructive.py",
-      "sha256": "395434c9cf454bb2110d34b30a50a4aaef05899229ab05982150384e0722fa07"
+      "sha256": "2a16d708a307a7f92068d9992873b4c59e05899582795bf97e4d5287c4b076f0"
     },
     {
       "classification": "reviewed-non-executable-source",
@@ -64,7 +64,7 @@
       "distribution": "copy-install-runtime",
       "mode": "0755",
       "path": "scripts/common.sh",
-      "sha256": "883e508c5ff3e0b24d9f7e58dd08378650c0525fd1bedcee063b24070a5c1149"
+      "sha256": "b7feeab1034dd895106794fc42195df2d8ec23665287b85f51205c74c3b8da2d"
     },
     {
       "classification": "executable",
@@ -291,5 +291,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "c2804781f1ec3ef785b042fa485f3440bc9d9c8d6a02232cc840b466131b3d48"
+  "surfaces_sha256": "a6c531a69f4942745450802dfcebd4792d293105557db73bbe35e94229354d8b"
 }
