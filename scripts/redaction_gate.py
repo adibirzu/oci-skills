@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import sys
 from pathlib import Path
 
+from package_skill_pack import DEFAULT_OUTPUT as CHECKSUM_OUTPUT
+from package_skill_pack import build_checksum_manifest
 from redact import redact
 from shipped_surface_inventory import DEFAULT_OUTPUT, build_inventory
-
 
 PERSONAL_PATH = re.compile(
     r"(?<![\w/])/(?:Users|home|Volumes)/[\w.-]+"
@@ -25,14 +27,17 @@ JUNK_SUFFIXES = {
 
 def _is_verified_generated_inventory(root: Path, path: Path) -> bool:
     """Permit only the exact, source-derived public checksum inventory."""
-    if path != (root / DEFAULT_OUTPUT.relative_to(DEFAULT_OUTPUT.parents[2])).resolve():
-        return False
-    try:
-        import json
-
-        return json.loads(path.read_text(encoding="utf-8")) == build_inventory(root)
-    except (OSError, ValueError, json.JSONDecodeError):
-        return False
+    if path == (root / DEFAULT_OUTPUT.relative_to(DEFAULT_OUTPUT.parents[2])).resolve():
+        try:
+            return json.loads(path.read_text(encoding="utf-8")) == build_inventory(root)
+        except (OSError, ValueError, json.JSONDecodeError):
+            return False
+    if path == (root / CHECKSUM_OUTPUT).resolve():
+        try:
+            return json.loads(path.read_text(encoding="utf-8")) == build_checksum_manifest(root)
+        except (OSError, ValueError, json.JSONDecodeError):
+            return False
+    return False
 
 
 def main(argv: list[str] | None = None) -> int:

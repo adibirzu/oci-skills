@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/adibirzu/oci-skills/schemas/skill-pack-checksums.schema.json",
+  "title": "OCI Skills package checksum manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "algorithm",
+    "ordering",
+    "package",
+    "sbom",
+    "surfaces",
+    "file_count",
+    "manifest_sha256",
+    "files"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "algorithm": {"const": "sha256"},
+    "ordering": {"const": "bytewise-path"},
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "source_date_epoch"],
+      "properties": {
+        "name": {"const": "oci-skills"},
+        "version": {"type": "string", "minLength": 1},
+        "source_date_epoch": {"type": "integer", "minimum": 0}
+      }
+    },
+    "sbom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "format", "spec_version", "sha256"],
+      "properties": {
+        "path": {"const": "generated/security/oci-skills.cdx.json"},
+        "format": {"const": "CycloneDX"},
+        "spec_version": {"const": "1.6"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "surfaces": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plugin_manifests",
+        "install_manifest",
+        "mcp_surface",
+        "skill_pack_files"
+      ],
+      "properties": {
+        "plugin_manifests": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "install_manifest": {
+          "const": "docs/product/contracts/install-manifest.json"
+        },
+        "mcp_surface": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        },
+        "skill_pack_files": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "file_count": {"type": "integer", "minimum": 1},
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "files": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "category", "size_bytes", "sha256"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "category": {
+            "enum": [
+              "plugin-manifest",
+              "install-manifest",
+              "mcp-surface",
+              "skill-pack",
+              "sbom"
+            ]
+          },
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+        }
+      }
+    }
+  }
+}

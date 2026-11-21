@@ -1,0 +1,1329 @@
+{
+  "algorithm": "sha256",
+  "file_count": 186,
+  "files": [
+    {
+      "category": "plugin-manifest",
+      "path": ".claude-plugin/marketplace.json",
+      "sha256": "10f1e287433af1603c7187a90d7cf6c87deb2d8fd1848ff9a3673b38491bccb0",
+      "size_bytes": 2901
+    },
+    {
+      "category": "plugin-manifest",
+      "path": ".claude-plugin/plugin.json",
+      "sha256": "2b442b1b54594551b13b883cd0103a3d6936aecd4afe317dcb4225aff3022be4",
+      "size_bytes": 874
+    },
+    {
+      "category": "plugin-manifest",
+      "path": ".codex-plugin/plugin.json",
+      "sha256": "5fac68fb070a1ac59afb1777b07c18287bc5e4f885431243b212c96a3104e9f2",
+      "size_bytes": 1785
+    },
+    {
+      "category": "skill-pack",
+      "path": "LICENSE",
+      "sha256": "97952d306c199e4358de84754e05e0a64d1193ee61350e505a17c5cb1e937202",
+      "size_bytes": 1069
+    },
+    {
+      "category": "skill-pack",
+      "path": "SECURITY.md",
+      "sha256": "89cd234d277fc2e973a92c95babcf40f26fbc22369e1995a78a93651fb0edca3",
+      "size_bytes": 777
+    },
+    {
+      "category": "skill-pack",
+      "path": "SUPPORT.md",
+      "sha256": "e21c5c40977d5103c590c9886c9d541b2ed93f0bd7021e5606c4d55767106301",
+      "size_bytes": 953
+    },
+    {
+      "category": "skill-pack",
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "b8114ae299c2a4f6eb9c525af22b6eef367687a99e2219e94d91bcb1dc8a93bb",
+      "size_bytes": 2164
+    },
+    {
+      "category": "skill-pack",
+      "path": "docs/product/contracts/developer-knowledge-catalog.json",
+      "sha256": "955b84f4df418b0b7eeeddb36563697c4835102648b16e4c1e6b0e6506766783",
+      "size_bytes": 15070
+    },
+    {
+      "category": "install-manifest",
+      "path": "docs/product/contracts/install-manifest.json",
+      "sha256": "85dc78f491af4a1822779c8ea050c6278b750c8387249b85c00d83ebc3882412",
+      "size_bytes": 1366
+    },
+    {
+      "category": "sbom",
+      "path": "generated/security/oci-skills.cdx.json",
+      "sha256": "546b7633e0f06b0f1fc6900f427f2ffa989c80c741bc6ba2c681a52bbacc6f36",
+      "size_bytes": 2205
+    },
+    {
+      "category": "skill-pack",
+      "path": "install.sh",
+      "sha256": "1eefe9276f964286661c58bbbf699ec2b2ad31f41a786c25d1d7b13163f84fc2",
+      "size_bytes": 24037
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/KB.md",
+      "sha256": "4fb28ee52ea863445c2b1c9675e4b88ed147a60579a1b21b050d0ccb61f873cf",
+      "size_bytes": 146535
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/agent-safety.md",
+      "sha256": "b050132cf9938480a192f445472a9085b89602cae329457ca0c201e4db00241b",
+      "size_bytes": 7104
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/aiops-agent-evaluation.md",
+      "sha256": "ed1d9394c9ee6ab24764d740e789764049d34d4f582c98d0a314fde0899870e0",
+      "size_bytes": 2099
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/application-engineering.md",
+      "sha256": "b503aa105317a6753a60231c71c45d4da9be64acc8815d044558b48182e2260f",
+      "size_bytes": 1626
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/autonomous-db.md",
+      "sha256": "929dee04282e5747927268a78e8f0384df130bfdc9a226c571253c14bbdb2c3f",
+      "size_bytes": 19964
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/bastion-access.md",
+      "sha256": "b5d296decff04d27c1d7cfad1cefddb35b4a9f6e75da3d255ea77bcb1fa684df",
+      "size_bytes": 3662
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/cost-management.md",
+      "sha256": "9ca29e845d67c7abdf96447352f6cb9139d808f5fd0c1f72efd92db5e527647d",
+      "size_bytes": 6480
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/credential-management.md",
+      "sha256": "ab452c37218e3666e1d36723fc45c223eadc24d12547c1a6bf29cf8411a02c4b",
+      "size_bytes": 8550
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/data-platform.md",
+      "sha256": "a9651143fde06b2580bc6bf8f1c84dce06fb60140d0d864399550ba1f9f180b2",
+      "size_bytes": 4911
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/data-safe.md",
+      "sha256": "607491d0c6e259b1716682f78f1e858403fa2be1efdf5922ba760f42c90f9f1d",
+      "size_bytes": 5357
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/database-cloud.md",
+      "sha256": "194fbc835e93a42b68bf92ee6cf22132a36ea931c9d26d6871f05f88710c624c",
+      "size_bytes": 3984
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/dbm-opsi.md",
+      "sha256": "e2b063b4bb83ee39e3a3af6bf698466b7a0b42a8eddd5b80a5838aa7f005fa11",
+      "size_bytes": 7131
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/developer-knowledge.md",
+      "sha256": "3c98c812965feb300d10776baa5d6a651ba0fbd1cb0518ea71c2aae56c138b8b",
+      "size_bytes": 3033
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/developer-services.md",
+      "sha256": "0be4e2b78e78f288c9a66359148d7449e4141cce4b37b6a57cdc8cee3fafe6cc",
+      "size_bytes": 4892
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/disaster-recovery.md",
+      "sha256": "6fd455a43babcb420ae577923833d01696b15fe8933554cd04547f6e85aaea88",
+      "size_bytes": 2864
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/events-functions.md",
+      "sha256": "636353a2093e562880f7bae7c19ff1ef23f51f9777ccb325e014d1ec2cb2e6c6",
+      "size_bytes": 14060
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/grafana-dashboards.md",
+      "sha256": "6f1331a6598bd6fba94749849d42ed324fd6965285a348943243a34ef50f7ac3",
+      "size_bytes": 6398
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/helper-conventions.md",
+      "sha256": "1532ff8e6efd3a33bdb32d5f9a0e058bc83bdcd33404911cee67ff389d1a3625",
+      "size_bytes": 5083
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/iam-tenancy.md",
+      "sha256": "b08dcab9929d07524b39cfb4df7bde2552ae0ffe1947471f234329a1011bd04a",
+      "size_bytes": 13133
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/image-generation-prompts.md",
+      "sha256": "d352e5d2e3fa30fff48e4fb967b9b6ac7d29f5ebb0e857dfedba479aa16ef549",
+      "size_bytes": 10103
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/kb-ingestion.md",
+      "sha256": "670a825bb365617dd19a097746b2245b902dace001bba07290dd5125fc5b752b",
+      "size_bytes": 4755
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/landing-zone.md",
+      "sha256": "8ea3a847aeb6fde6c021c2eea3be59aab11102257912e7674668c78ff8623a21",
+      "size_bytes": 3792
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/log-analytics.md",
+      "sha256": "d0928f8fc9831c216796f7065a65fb3bacd362d67d157b87a36c5513b329a916",
+      "size_bytes": 23963
+    },
+    {
+      "category": "mcp-surface",
+      "path": "references/mcp-gateway.md",
+      "sha256": "704e22ffc173dc3601d7bc07b43b7350c03d5c84b74b65c9b2a1254ed9547633",
+      "size_bytes": 5485
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/named-contexts.md",
+      "sha256": "de7aa741b96827092ac345ab89322a02d1b0448cc00ab538ab6645e6aa8fb785",
+      "size_bytes": 3719
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/networking-compute.md",
+      "sha256": "9fb0fdb7892cac035b7bbf261f2642bf5708cfbd5bef98759d4906030787fe53",
+      "size_bytes": 12415
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/observability-db.md",
+      "sha256": "697cc40d99843f5762813003a891d5664164d91cc22eb46d4d16d72718fb61ff",
+      "size_bytes": 14535
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/oci-architecture-conventions.md",
+      "sha256": "4bcb8e3c59f13b36d196705950e72dd5525049e12cafae1c6318c114b97a5c7d",
+      "size_bytes": 583
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/oci-error-catalog.md",
+      "sha256": "895c17970c8c6048f7ffd131abb60e830aa134d2c97aa99482adac38be3c23dd",
+      "size_bytes": 12450
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/oke-operations.md",
+      "sha256": "f10d6775f4d6a330a4b5e15382d5fc3e46f86748d864eea390f647576906758a",
+      "size_bytes": 40150
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/oracle-db-diagnostics.md",
+      "sha256": "27fa31e0b0f4876de83839ca137c604dd18cc3aaec6656e6f3d1ec93edadbeaf",
+      "size_bytes": 13874
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/oracle-docs.md",
+      "sha256": "95791f8a2dba4b6a2de39415bd4013571587e70cb93d2a8cb41883cdbf1bce3f",
+      "size_bytes": 28178
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/oracle-skills-alignment.md",
+      "sha256": "642780b44d74a13a1ad2bdb1b2be42802f135d4ab37e16f5a37233671cd958ba",
+      "size_bytes": 10640
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/os-management.md",
+      "sha256": "afba539eab4a99eb654de3db7a684bfd34b3bbca5b7c44056d689ffd949fade3",
+      "size_bytes": 4534
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/product-development.md",
+      "sha256": "ea630dac850028489566b3b523124bc311c9b5d290383ca9322496952d716bd5",
+      "size_bytes": 6376
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/project-phase1-bootstrap.md",
+      "sha256": "feb57637c90a5bf24b7ca30486e32648c7fc19c0911500092d7472249be78395",
+      "size_bytes": 2891
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/project-phase2-status.md",
+      "sha256": "af0c61146bc7d02c3561ccb89675f383b2e4e8b682aacf3b64021f053cbf5e2e",
+      "size_bytes": 2078
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/project-phase3-deploy.md",
+      "sha256": "77f28edfd422d95ad19b8018f8f7ef0746a1db3cce01f3e414f099597963cc1c",
+      "size_bytes": 1340
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/project-phase4-teardown.md",
+      "sha256": "dd6e953e750f878b6346166cb106185e5c5eed95b8e1dd18d52a33235c1c4a70",
+      "size_bytes": 2034
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/project-workflow.md",
+      "sha256": "e0f5a233ba1bd5d9eeaa1e88aee33d5f945a4e9fc19032727408ebc675bc472e",
+      "size_bytes": 4757
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/prometheus-mql-host-dashboards.md",
+      "sha256": "934345a389e5fdc396974fe9b61cfb46cceac6a0da5aab3b26ec7778ab70354d",
+      "size_bytes": 7381
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/resource-manager.md",
+      "sha256": "cdc95a2d8b8bb8703e2c39782e72bb164d6dd879b76d44f9b3195af8e1e2f18d",
+      "size_bytes": 6184
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/security-compliance.md",
+      "sha256": "094acd40d223a9b571dd38caec7d8ed325a1bab2e2f871862eae86b70500ab5c",
+      "size_bytes": 18723
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/security-development.md",
+      "sha256": "f26dc63756de66303740b38bc4d4613513d73ff44342f1d43e6386d19e35d106",
+      "size_bytes": 5192
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/skill-quality-standard.md",
+      "sha256": "faf268d98ee5bb7a0957e4ef7253c1b1db98c11254a53cb5d15dc6286c4c1248",
+      "size_bytes": 4863
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/solution-authoring.md",
+      "sha256": "d7268c511f2792d6c1feb218600121655ec488eaeb775a35fae0e03be5751bb3",
+      "size_bytes": 13051
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/storage.md",
+      "sha256": "dc2ed062c866d638e2637df75dc262d3834b88d917a1661ba7d67f243fdddadc",
+      "size_bytes": 3857
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/tenancy-safety.md",
+      "sha256": "4109f49c5e67f7a729c4c6b2d1da7e67728199e8c74bfde854694b8b6d044fa1",
+      "size_bytes": 8805
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/terraform-authoring.md",
+      "sha256": "16b14c365339f8e9827313ff671c238d70d29ab0b97931a4bf99c9e449cc9231",
+      "size_bytes": 9031
+    },
+    {
+      "category": "skill-pack",
+      "path": "references/zpr-visibility.md",
+      "sha256": "ba4bcb2721ac253eec7f9810296084d7a4c9637e577b7e01e5977ac130d19d6d",
+      "size_bytes": 4243
+    },
+    {
+      "category": "skill-pack",
+      "path": "schemas/application-workflow.schema.json",
+      "sha256": "8bfa803f1f9ee183dca8518e6b71c19f69e142a9b650f93856d3887f2b8d1993",
+      "size_bytes": 1146
+    },
+    {
+      "category": "skill-pack",
+      "path": "schemas/developer-knowledge-catalog.schema.json",
+      "sha256": "38bb2fb6143447660f614c1d45a98d8d9ace0f51685e5c5d4ac707b55ef18554",
+      "size_bytes": 1789
+    },
+    {
+      "category": "skill-pack",
+      "path": "schemas/evidence-envelope.schema.json",
+      "sha256": "044b1113e9c503cf5971211086f483ca19955281deceb7e339f903dcac2e1e4f",
+      "size_bytes": 1149
+    },
+    {
+      "category": "skill-pack",
+      "path": "schemas/platform-bundle.schema.json",
+      "sha256": "64d9f24b75ff255d9d8d60d67f1683550a7320ad7a4275c125c6039f42e91659",
+      "size_bytes": 1546
+    },
+    {
+      "category": "skill-pack",
+      "path": "schemas/skill-pack-checksums.schema.json",
+      "sha256": "22d6c7b6802cded17670671f0abf7234d4972b4b4ba5bb859c489379fa486c7c",
+      "size_bytes": 2967
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/check_doc_links.py",
+      "sha256": "909a3d15803b04c6bd6165cd4772b5389c3b6b17d02b81f7ddf9f05cf8429931",
+      "size_bytes": 3940
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/common.sh",
+      "sha256": "b7feeab1034dd895106794fc42195df2d8ec23665287b85f51205c74c3b8da2d",
+      "size_bytes": 33869
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/enterprise_workflow.py",
+      "sha256": "b6331772f5e7a8f3e436670d876139be2e467047ebf8e2a0ae2514c6da1dd29f",
+      "size_bytes": 53202
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/iam_audit.py",
+      "sha256": "d22869dd921a8ec6318e44a164fb70b592cc01d788ef983d5920c5016940c5d3",
+      "size_bytes": 7266
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/kb_lookup.py",
+      "sha256": "6288b7be0f3bc16809362aa3af22ae4c6404bc20373202f0e9fb10a2d8116fac",
+      "size_bytes": 4126
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_adb.sh",
+      "sha256": "50548e15839a7a12a64e0c5781626f5832ad35ce60ee6f399e731e614af76965",
+      "size_bytes": 3328
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_cli_help.py",
+      "sha256": "4d22d1b588a49805897ba94d6e5d8daf4fa09f0480425a86b6a493bc74ae87ee",
+      "size_bytes": 7409
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_cli_lint.py",
+      "sha256": "a89f0cb7186aa18182553131dce254f73185a019ebdc23d8f9f9f391decc210c",
+      "size_bytes": 9726
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_context.py",
+      "sha256": "ae625d133ca93d8f3554b992664ae643fa0ba0fc71e9c8b97007ad42b4ded7b1",
+      "size_bytes": 10430
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_cost.sh",
+      "sha256": "eb70b9fe9952c16c577aad90a103f2f1f2f96fd822c228a601125e68ada1980e",
+      "size_bytes": 5963
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_datasafe.sh",
+      "sha256": "186485e908cb579abb7e87acca24196913951794ad3af8388d1cd672e9b4faea",
+      "size_bytes": 2564
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_developer_knowledge.py",
+      "sha256": "d59ad9ae6fb59fa704e493e4cfdaddfd7f1119c358432463dfe9ab1005155c59",
+      "size_bytes": 29446
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_logan.sh",
+      "sha256": "3190436cf9a12b764e1decfc395ae2b54f96f0e31c700c387ecab9b375b36db9",
+      "size_bytes": 6198
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_oke_demo_troubleshoot.py",
+      "sha256": "0dc83d7e37d11d96a89b30c49ab2c0205db76345588309454756d959483efd1e",
+      "size_bytes": 27325
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_orm.sh",
+      "sha256": "db878072289b74003ba1b48ef143e004937e79198df816b54033b1c2c7a4ec94",
+      "size_bytes": 2735
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_preflight.sh",
+      "sha256": "f5c19fcd9f7fac17142037dcfb505fa4a05ecafa315b976944a6bbd4ce777d99",
+      "size_bytes": 2878
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_project.sh",
+      "sha256": "b1707f94a59cbdb1f317bff28467426c3771e0e4593ad3ab1f54c91c2de34447",
+      "size_bytes": 18628
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_tf.sh",
+      "sha256": "24baa44e80d795e666c706ede4722c09b46b312bcb2db366995ccd718fe2f516",
+      "size_bytes": 7899
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/oci_tf_plan.py",
+      "sha256": "b5e56f77165c5f96e709b4c8c40fd240dd64e90d2cc954dc23f74015e5718fb9",
+      "size_bytes": 7755
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/platform_bundle.py",
+      "sha256": "40798db573b7e53eb5555eff618bfcba9f526ccb25577582e0eabed89a69e445",
+      "size_bytes": 15675
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/redact.py",
+      "sha256": "55dc19986bbd8ae5a3e595ead6fea711a825559712052b41fd5f379902b9bf0b",
+      "size_bytes": 13549
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/shipped_surface_inventory.py",
+      "sha256": "bb453c0f1ba5ec020acecbc9c6bed95c0046c2f56117ecfb9391109bab7b7bcb",
+      "size_bytes": 5406
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/target_derived_plan.py",
+      "sha256": "91d1f938b615906e32349bd8d9a4560b52e6e401ae0835dc18d3e42cd1d18a31",
+      "size_bytes": 6561
+    },
+    {
+      "category": "skill-pack",
+      "path": "scripts/workflow_eval.py",
+      "sha256": "cc721dd4673f4ff0a886894206e7cabd17b06c7e2c859bde2a77b96e2f547ccc",
+      "size_bytes": 10044
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-administrator/SKILL.md",
+      "sha256": "bcd9be6316fbd65e324f812dbd10353ffa40264ed7353d1641e51e5224c9fb2e",
+      "size_bytes": 29455
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-administrator/agents/openai.yaml",
+      "sha256": "b606086046a55608a98f04297645620c8093fdd7d780bb7705ed87deaa0c30e4",
+      "size_bytes": 219
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-aiops-agent-evaluation/SKILL.md",
+      "sha256": "71bf7aff384cd563c83b5815d4d50d0e6314f03895fcd36da7912cc1d1c9024b",
+      "size_bytes": 4907
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-aiops-agent-evaluation/agents/openai.yaml",
+      "sha256": "89427bc2d54508b0f4245053b6c333742ae32d0a3bcc4085567b691de00420e2",
+      "size_bytes": 293
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-aiops-agent-evaluation/assets/datasets/oci-platform-operations-evaluation-cases.v1.jsonl",
+      "sha256": "97ad925d5ee6e2d97aba44161ce5c91befd72db67c3225f64f2f329550f0d5e8",
+      "size_bytes": 4865
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-application-engineering/SKILL.md",
+      "sha256": "26c4d1073f16f1a81e99cf51a488a0501549d89c8a1effec966cd43f7d455dd7",
+      "size_bytes": 7976
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-application-engineering/agents/openai.yaml",
+      "sha256": "fd69f95a07d9c40b0db7a9df2caa90a82b9541966c43895d5b3d988557c8d9ee",
+      "size_bytes": 252
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-application-engineering/assets/eval-fixtures/manifest.json",
+      "sha256": "080a8984bf5cbad00fc9b011ea8a49ca7982c77ff6abdce76b44b4e47e59540f",
+      "size_bytes": 446
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-application-engineering/references/harness-engineering.md",
+      "sha256": "3671c66609f25ccacafe14cd38ae092fa4f905febe35fffdfb2f4277635f05b3",
+      "size_bytes": 4261
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-application-engineering/references/rlm-analysis.md",
+      "sha256": "de2e679ff257d4aef2993c6eb1fb0cc9cec5338b6ce0383ae03dcedc44b1a673",
+      "size_bytes": 2336
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-application-engineering/references/workflow.md",
+      "sha256": "0a297c4c92b054822cedc8b1f81c2fd0ff882546cdcabfe131d4463a6c4f3b0a",
+      "size_bytes": 3219
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-autonomous-db/SKILL.md",
+      "sha256": "fa2a4ddcb9298fcdb1aafd47436144d947e2538ca4c68cd78925215e5519bf53",
+      "size_bytes": 18834
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-autonomous-db/agents/openai.yaml",
+      "sha256": "1a9ec4512a4ca1a641d244285868b0988896e59f9170a4800507fd8190257758",
+      "size_bytes": 216
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-bastion-access/SKILL.md",
+      "sha256": "3fb3fdf3d63ba46881ad385201f6ca57e02097348f2341f5989dc00343e7ed94",
+      "size_bytes": 5202
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-bastion-access/agents/openai.yaml",
+      "sha256": "0670eb05c424a1b4ee830e935a3c91f0bc9531f08a8b036847301dfe1dcfb6ab",
+      "size_bytes": 227
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-cost/SKILL.md",
+      "sha256": "5b49d73bf3143a20bb86e1a0e382758532733240ee5edffcdc24c719cb1f1901",
+      "size_bytes": 6224
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-cost/agents/openai.yaml",
+      "sha256": "ea5f92ee3f44abd3466d3bdb19235b507f51cab0b800db81b009fcbe2122906e",
+      "size_bytes": 201
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-data-platform/SKILL.md",
+      "sha256": "fa1b4626c38c5105f505d827307a13ae825be445c989e6f41a36623303e93e06",
+      "size_bytes": 6095
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-data-platform/agents/openai.yaml",
+      "sha256": "304e64e566add77f5683ef949ed676af7e8df4131dc6546a06572439e1ce82ee",
+      "size_bytes": 221
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-data-safe/SKILL.md",
+      "sha256": "1ed3d3ec30094b56451075c6004dd23719a7f22d893c57be53451596dce3f6aa",
+      "size_bytes": 6215
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-data-safe/agents/openai.yaml",
+      "sha256": "c38f8855ef5dcb9a4542e858695a9ca30aab642fe9fe2d3cfbc9ffdb68d90501",
+      "size_bytes": 204
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-database-cloud/SKILL.md",
+      "sha256": "fd09864f5be6200f054ef17d7b1a1087b0ca9aade16f18b6f0d0d332ae75bf1b",
+      "size_bytes": 5603
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-database-cloud/agents/openai.yaml",
+      "sha256": "d626ee62b86d29774feefc7bd96a9cad805038642f1b2376782f6b2311aad228",
+      "size_bytes": 239
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-dbm-opsi/SKILL.md",
+      "sha256": "87401e083aa4e981fd0803fb83799e0e64ac22ab5d0bf48f0eaf38d4ade756c8",
+      "size_bytes": 6258
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-dbm-opsi/agents/openai.yaml",
+      "sha256": "ab4f74e4ec39dcc3ef63f611818d0064bf6496b14bde1c95da122563e7aa194f",
+      "size_bytes": 210
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-knowledge/SKILL.md",
+      "sha256": "2e39934ed2ce02e26bb54f2f4901f613d33e5e12538a3fa6fc5b52101b61bdf6",
+      "size_bytes": 2978
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-knowledge/agents/openai.yaml",
+      "sha256": "a74bd7bec953fe964345e6e19092599aa3b01588848a3a532135af84a1bb4f7e",
+      "size_bytes": 251
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-services/SKILL.md",
+      "sha256": "bab7c87945e1955e0d735d1929b60ab048054d667d3018770846ce7ccb49b1c1",
+      "size_bytes": 7653
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-services/agents/openai.yaml",
+      "sha256": "6a0f2958f9e9c621b1011647b1832a75bdc566334839ad71df99b3e8d5a030a9",
+      "size_bytes": 225
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-services/assets/terraform/private-platform/.terraform.lock.hcl",
+      "sha256": "3582bc7e3c123c5edd46dd4b7a76e9f7b812c19ca819665714ab32d516d7d506",
+      "size_bytes": 1404
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-services/assets/terraform/private-platform/main.tf",
+      "sha256": "5510282573e3e167893d26950ffa40234ff1db69864997170e868eb1243f5498",
+      "size_bytes": 2089
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-services/assets/terraform/private-platform/variables.tf",
+      "sha256": "05775b3371b876b9509c3846f874ee6b62b3afd3dee7eaf367e9a267ff198a91",
+      "size_bytes": 953
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-developer-services/assets/terraform/private-platform/versions.tf",
+      "sha256": "bd0d6d0ebba8a1dd9aacd73a9d376292b69e099c36047f7844e7281c7f4d3f3e",
+      "size_bytes": 147
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/SKILL.md",
+      "sha256": "1705ade1482226b3947521f67518d10a41f1cd02151082bc0c5ba8d0aba25ec7",
+      "size_bytes": 5360
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/agents/openai.yaml",
+      "sha256": "d2666698962474a130c919555ab7151c4ce29c64e00bf0f76054e3faaebed178",
+      "size_bytes": 258
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/assets/examples/oci-observability-pipeline.drawio",
+      "sha256": "b82b104f64b99058cd3f1d3879bb966bfcfeac72fbbce544ea656b6fc2851787",
+      "size_bytes": 7729
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/assets/examples/oci-observability-pipeline.excalidraw",
+      "sha256": "f24258be7754f9a12b276a4ead17a91e52a7c0c52803ed428ff9fc790588d695",
+      "size_bytes": 23414
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/assets/examples/oci-observability-pipeline.json",
+      "sha256": "d95616ee7f41fad74fa4576466eaaec7481414585c1a49cfacc06a55f4a2bd74",
+      "size_bytes": 2620
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/assets/examples/oci-observability-pipeline.mmd",
+      "sha256": "64366a62979babc578ceadcf92241abfedcd2f70c0ec8becef590b4de15c79b3",
+      "size_bytes": 1660
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/references/formats.md",
+      "sha256": "26a39a621adbad9a96c5866e6cecaf81fcdac50f7c13b9cbdf98cf043e414f0b",
+      "size_bytes": 1454
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/references/oci-architecture-conventions.md",
+      "sha256": "e9e39eba0eae2f36f0e820b52e9ec38465adfe1c24025b46189d015d23cda653",
+      "size_bytes": 3020
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-diagramming/scripts/oci_diagram.py",
+      "sha256": "04690b2df5805744fac8c91489dea2af9da92889f4106f14d48f23ac79bf6a57",
+      "size_bytes": 24429
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-disaster-recovery/SKILL.md",
+      "sha256": "2a4665b87e2195ee4665da6558bab50257d43590f5f3088819834b013ccb1ebc",
+      "size_bytes": 5312
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-disaster-recovery/agents/openai.yaml",
+      "sha256": "3da7e163c31e71fcab4ebcad1908113417c0f6f33a50892dc44c2f13d39fa3fa",
+      "size_bytes": 232
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-events-functions/SKILL.md",
+      "sha256": "d26e8aa5fe2b25dfc3d58776f0bb49e6ba2c8cc28530ee45183eb0bbc490377d",
+      "size_bytes": 7733
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-events-functions/agents/openai.yaml",
+      "sha256": "68134b0bf7165b2d77fe0012ff138979070ca19d32aac77c1e3618121b0da585",
+      "size_bytes": 225
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-events-functions/assets/terraform/queue/.terraform.lock.hcl",
+      "sha256": "3582bc7e3c123c5edd46dd4b7a76e9f7b812c19ca819665714ab32d516d7d506",
+      "size_bytes": 1404
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-events-functions/assets/terraform/queue/main.tf",
+      "sha256": "0e0fe97fa8aa3a99f53675d6c18d2de08174c3cdfd1fe9eba055c3d17e525aff",
+      "size_bytes": 456
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-events-functions/assets/terraform/queue/variables.tf",
+      "sha256": "8e1e69c989d27775e59326c0ca455e500a878a65b67a3250d737736ae2236801",
+      "size_bytes": 207
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-events-functions/assets/terraform/queue/versions.tf",
+      "sha256": "bd0d6d0ebba8a1dd9aacd73a9d376292b69e099c36047f7844e7281c7f4d3f3e",
+      "size_bytes": 147
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-iam-admin/SKILL.md",
+      "sha256": "2990a8a08f6997f7b8a3a7ce1ee800a8cfb8d404a068cbbaf02761594f0834da",
+      "size_bytes": 8360
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-iam-admin/agents/openai.yaml",
+      "sha256": "11d549b2478a155cf961cff50ced4e7ea1e7ecd0192e011d1b93d952f1ee1f95",
+      "size_bytes": 202
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-landing-zone/SKILL.md",
+      "sha256": "a94b109d10636598cde2b54ec5618c4b5ea62134a633ad3760204f33615796c1",
+      "size_bytes": 5311
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-landing-zone/agents/openai.yaml",
+      "sha256": "b73a6e9586046cd271b9bcf77e0ff931412a27b15e8747e1dd2fca84cfd24e44",
+      "size_bytes": 216
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-log-analytics/SKILL.md",
+      "sha256": "df9b8f4a395697632c386e6bcb19e03b54f1064b67bfcb9106c1463a240b48c3",
+      "size_bytes": 15428
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-log-analytics/agents/openai.yaml",
+      "sha256": "bef79b957b36cbac82be862913d922ed190652a7320e890011e592ee15d150ce",
+      "size_bytes": 212
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-networking-compute/SKILL.md",
+      "sha256": "7c92e43a08bb74cadf4b51901824b57c7b81dffe8875f46287e6abe38221e8f1",
+      "size_bytes": 5522
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-networking-compute/agents/openai.yaml",
+      "sha256": "33d7fcead832b5828fcb09227d9d4825d82357b8435588c307338e647d16f288",
+      "size_bytes": 221
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-observability-db/SKILL.md",
+      "sha256": "f63544aa3b6fcf609ce770501dadf4b569e9af60e6f946c1aa441ec3790324ff",
+      "size_bytes": 6681
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-observability-db/agents/openai.yaml",
+      "sha256": "351d704a57b25a4fc9e4fff75c4cff7ead915bae6477a8ede2c03ded37af06e4",
+      "size_bytes": 248
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-observability-db/assets/host-dashboard-profiles.json",
+      "sha256": "a2f41e3033b2d088f2e6c065bc7edda6baf507de7ad48ca1df5517f2433e1ece",
+      "size_bytes": 9129
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-observability-db/scripts/promql_to_mql.py",
+      "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21",
+      "size_bytes": 11484
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-oke-admin/SKILL.md",
+      "sha256": "6509423bb175bc49b830ef7018d8be7f7a458b9f62847b80737b3d663bfd43e4",
+      "size_bytes": 29210
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-oke-admin/agents/openai.yaml",
+      "sha256": "2734c1a8f1a400b18f55814f3db004d62a2a3b0f4484c8ba37e33b9e9dd138fd",
+      "size_bytes": 217
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-os-management/SKILL.md",
+      "sha256": "9ba12acea85fb133062d2593bd81bbd72c18b2094fd179ee026ca3b2ca1ec78c",
+      "size_bytes": 5444
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-os-management/agents/openai.yaml",
+      "sha256": "fc2937e3ab90802cb02df927d3acaadb3450f304ec04537142d513e69ceedaab",
+      "size_bytes": 224
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/SKILL.md",
+      "sha256": "6fe2ee2c6fd8955675076350fe2eeb464b6c45abcce4d1a990de3024a146b716",
+      "size_bytes": 7088
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/agents/openai.yaml",
+      "sha256": "6443ae7543dd432aeb8e0e5f077766e07b18047c8004d28c7904043e8226c785",
+      "size_bytes": 214
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/assets/common/delivery/build_spec.yaml",
+      "sha256": "ba8b75f82be8dfb6b462c845a9d84f46bafab0d235f9b67cbb12e98e60c39ee2",
+      "size_bytes": 332
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/assets/common/delivery/deploy_spec.yaml",
+      "sha256": "f27cfbc4a1e5a26caffde69b1ba3d7c7b2b709bcecf960916f0cfc85452e8d47",
+      "size_bytes": 228
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/assets/common/iam/policies.md",
+      "sha256": "05916f456bf78d3a58c8e579bca77624531c398917580cfd1124905437306fa7",
+      "size_bytes": 421
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/assets/common/openapi/openapi.yaml",
+      "sha256": "71f7caa0220a9c703ddc03db56d832cec63942e04563233b00ba75e9900f4bea",
+      "size_bytes": 261
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-product-development/assets/common/runbook.md",
+      "sha256": "2336c1a9966623a288bcb9d0b07c56f02de525feda3c9467bbe0d2baa963ade7",
+      "size_bytes": 714
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-project/SKILL.md",
+      "sha256": "f99a6068787f273a4f43f2bad8f4d6f6103312c3a1efd3570611c5cbb987a7ca",
+      "size_bytes": 13038
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-project/agents/openai.yaml",
+      "sha256": "0197f235dbd0dfb102a03600358009608491be07e25105a33c2bed22351dd9e0",
+      "size_bytes": 221
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-resource-manager/SKILL.md",
+      "sha256": "625256ee3f0846079a549a90b3fbf6c4ff5be01ba0722bb2fb6fda392331aff7",
+      "size_bytes": 5841
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-resource-manager/agents/openai.yaml",
+      "sha256": "9efe75d66b31eb63345bae5ed4bf7da58569d039f40755d3c2fc079e07051da6",
+      "size_bytes": 217
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-security-compliance/SKILL.md",
+      "sha256": "718d0f1675ccd20326c22e301c6c67ae07f5d73b2136182d86d6aba0b891b5a0",
+      "size_bytes": 15545
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-security-compliance/agents/openai.yaml",
+      "sha256": "7dc711e06c5c64a610c20c5211ca6c817d28eb6a9b1b5426239aafb4328d5285",
+      "size_bytes": 318
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-security-compliance/assets/security-release-evidence.yaml",
+      "sha256": "78b30db49025f4c275bf010dd23057e35dfb3fdf2fe98d4bbc222a5d6d7ab866",
+      "size_bytes": 1044
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-storage/SKILL.md",
+      "sha256": "8d9e9455589acf96829f5beba93a82bef036b4d730b5848ea575a0a49ee1cf47",
+      "size_bytes": 7050
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-storage/agents/openai.yaml",
+      "sha256": "f03e2a47ea69adfd213c9d981530125e3b8190c473bb600f7fe7ec9509fbf091",
+      "size_bytes": 215
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/SKILL.md",
+      "sha256": "48792a75716c9979e9468de57bff0b7d6eec72fe2de34f924f7674121197b175",
+      "size_bytes": 8646
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/agents/openai.yaml",
+      "sha256": "740b8e2eb1d77c7f53bcc08d65cb770cbfbfcdcdc71f07f4729394b3da4d83f7",
+      "size_bytes": 220
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/.gitignore",
+      "sha256": "947cce6d2c0cc4a4a9f8c5d5200754679aa5ab472aac4a8572b703eeb2fb04fd",
+      "size_bytes": 204
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/.terraform.lock.hcl",
+      "sha256": "3582bc7e3c123c5edd46dd4b7a76e9f7b812c19ca819665714ab32d516d7d506",
+      "size_bytes": 1404
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/locals.tf",
+      "sha256": "6c0fdd26f5e59a6d9a31fc72de06a4ba7802b56ff93f06ca0ee50aaa5b0fa0f5",
+      "size_bytes": 134
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/outputs.tf",
+      "sha256": "e52812e3d285d79fadffa0b5ec921fa33c8fa0f9a323a9003b0ce8777867e983",
+      "size_bytes": 111
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/provider.tf",
+      "sha256": "640110a983fd07b8c3efa3cfd991d7d6f084c7633e4b1bd0a6c84f6ab1a542d4",
+      "size_bytes": 94
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/schema.yaml",
+      "sha256": "f670c9861ee81b4192c7eb6c8f55c6364a11ff78aa02dca449ee72e0f65f81d6",
+      "size_bytes": 432
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/terraform.tfvars.example",
+      "sha256": "e3859d66d6a8d261e9680e7e1d87f323487a3b8f6b2499ed0c1b74a6635ac89d",
+      "size_bytes": 179
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/tests/starter.tftest.hcl",
+      "sha256": "5141dd3ac2d382a32a9d846e8a0d6749544980e3a8e08f198898774887a88e9b",
+      "size_bytes": 316
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/variables.tf",
+      "sha256": "48b08f508835413482d1b238e71b92a1288b5209a50ef6ae80c22a4fe691ab16",
+      "size_bytes": 404
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-terraform-authoring/assets/starter/versions.tf",
+      "sha256": "bd0d6d0ebba8a1dd9aacd73a9d376292b69e099c36047f7844e7281c7f4d3f3e",
+      "size_bytes": 147
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-zpr-visibility/SKILL.md",
+      "sha256": "b3e6332ebdc202ec832b89165cacb5507b74eed3a9580f346f066e1a1b6eafc6",
+      "size_bytes": 5691
+    },
+    {
+      "category": "skill-pack",
+      "path": "skills/oci-zpr-visibility/agents/openai.yaml",
+      "sha256": "f0a6d712498dd0b2d6dea5bf5ca2d18a0bb6e8344f9531d6f476b118b0dfd1ed",
+      "size_bytes": 216
+    }
+  ],
+  "manifest_sha256": "e49f82b520f6b57d983b612505dea60952577347b3f69ea3d33a6fb43d54016e",
+  "ordering": "bytewise-path",
+  "package": {
+    "name": "oci-skills",
+    "source_date_epoch": 0,
+    "version": "2.0.0-rc.3"
+  },
+  "sbom": {
+    "format": "CycloneDX",
+    "path": "generated/security/oci-skills.cdx.json",
+    "sha256": "546b7633e0f06b0f1fc6900f427f2ffa989c80c741bc6ba2c681a52bbacc6f36",
+    "spec_version": "1.6"
+  },
+  "schema_version": 1,
+  "surfaces": {
+    "install_manifest": "docs/product/contracts/install-manifest.json",
+    "mcp_surface": [
+      "references/mcp-gateway.md"
+    ],
+    "plugin_manifests": [
+      ".claude-plugin/marketplace.json",
+      ".claude-plugin/plugin.json",
+      ".codex-plugin/plugin.json"
+    ],
+    "skill_pack_files": [
+      "LICENSE",
+      "SECURITY.md",
+      "SUPPORT.md",
+      "THIRD_PARTY_NOTICES.md",
+      "docs/product/contracts/developer-knowledge-catalog.json",
+      "install.sh",
+      "references/KB.md",
+      "references/agent-safety.md",
+      "references/aiops-agent-evaluation.md",
+      "references/application-engineering.md",
+      "references/autonomous-db.md",
+      "references/bastion-access.md",
+      "references/cost-management.md",
+      "references/credential-management.md",
+      "references/data-platform.md",
+      "references/data-safe.md",
+      "references/database-cloud.md",
+      "references/dbm-opsi.md",
+      "references/developer-knowledge.md",
+      "references/developer-services.md",
+      "references/disaster-recovery.md",
+      "references/events-functions.md",
+      "references/grafana-dashboards.md",
+      "references/helper-conventions.md",
+      "references/iam-tenancy.md",
+      "references/image-generation-prompts.md",
+      "references/kb-ingestion.md",
+      "references/landing-zone.md",
+      "references/log-analytics.md",
+      "references/named-contexts.md",
+      "references/networking-compute.md",
+      "references/observability-db.md",
+      "references/oci-architecture-conventions.md",
+      "references/oci-error-catalog.md",
+      "references/oke-operations.md",
+      "references/oracle-db-diagnostics.md",
+      "references/oracle-docs.md",
+      "references/oracle-skills-alignment.md",
+      "references/os-management.md",
+      "references/product-development.md",
+      "references/project-phase1-bootstrap.md",
+      "references/project-phase2-status.md",
+      "references/project-phase3-deploy.md",
+      "references/project-phase4-teardown.md",
+      "references/project-workflow.md",
+      "references/prometheus-mql-host-dashboards.md",
+      "references/resource-manager.md",
+      "references/security-compliance.md",
+      "references/security-development.md",
+      "references/skill-quality-standard.md",
+      "references/solution-authoring.md",
+      "references/storage.md",
+      "references/tenancy-safety.md",
+      "references/terraform-authoring.md",
+      "references/zpr-visibility.md",
+      "schemas/application-workflow.schema.json",
+      "schemas/developer-knowledge-catalog.schema.json",
+      "schemas/evidence-envelope.schema.json",
+      "schemas/platform-bundle.schema.json",
+      "schemas/skill-pack-checksums.schema.json",
+      "scripts/check_doc_links.py",
+      "scripts/common.sh",
+      "scripts/enterprise_workflow.py",
+      "scripts/iam_audit.py",
+      "scripts/kb_lookup.py",
+      "scripts/oci_adb.sh",
+      "scripts/oci_cli_help.py",
+      "scripts/oci_cli_lint.py",
+      "scripts/oci_context.py",
+      "scripts/oci_cost.sh",
+      "scripts/oci_datasafe.sh",
+      "scripts/oci_developer_knowledge.py",
+      "scripts/oci_logan.sh",
+      "scripts/oci_oke_demo_troubleshoot.py",
+      "scripts/oci_orm.sh",
+      "scripts/oci_preflight.sh",
+      "scripts/oci_project.sh",
+      "scripts/oci_tf.sh",
+      "scripts/oci_tf_plan.py",
+      "scripts/platform_bundle.py",
+      "scripts/redact.py",
+      "scripts/shipped_surface_inventory.py",
+      "scripts/target_derived_plan.py",
+      "scripts/workflow_eval.py",
+      "skills/oci-administrator/SKILL.md",
+      "skills/oci-administrator/agents/openai.yaml",
+      "skills/oci-aiops-agent-evaluation/SKILL.md",
+      "skills/oci-aiops-agent-evaluation/agents/openai.yaml",
+      "skills/oci-aiops-agent-evaluation/assets/datasets/oci-platform-operations-evaluation-cases.v1.jsonl",
+      "skills/oci-application-engineering/SKILL.md",
+      "skills/oci-application-engineering/agents/openai.yaml",
+      "skills/oci-application-engineering/assets/eval-fixtures/manifest.json",
+      "skills/oci-application-engineering/references/harness-engineering.md",
+      "skills/oci-application-engineering/references/rlm-analysis.md",
+      "skills/oci-application-engineering/references/workflow.md",
+      "skills/oci-autonomous-db/SKILL.md",
+      "skills/oci-autonomous-db/agents/openai.yaml",
+      "skills/oci-bastion-access/SKILL.md",
+      "skills/oci-bastion-access/agents/openai.yaml",
+      "skills/oci-cost/SKILL.md",
+      "skills/oci-cost/agents/openai.yaml",
+      "skills/oci-data-platform/SKILL.md",
+      "skills/oci-data-platform/agents/openai.yaml",
+      "skills/oci-data-safe/SKILL.md",
+      "skills/oci-data-safe/agents/openai.yaml",
+      "skills/oci-database-cloud/SKILL.md",
+      "skills/oci-database-cloud/agents/openai.yaml",
+      "skills/oci-dbm-opsi/SKILL.md",
+      "skills/oci-dbm-opsi/agents/openai.yaml",
+      "skills/oci-developer-knowledge/SKILL.md",
+      "skills/oci-developer-knowledge/agents/openai.yaml",
+      "skills/oci-developer-services/SKILL.md",
+      "skills/oci-developer-services/agents/openai.yaml",
+      "skills/oci-developer-services/assets/terraform/private-platform/.terraform.lock.hcl",
+      "skills/oci-developer-services/assets/terraform/private-platform/main.tf",
+      "skills/oci-developer-services/assets/terraform/private-platform/variables.tf",
+      "skills/oci-developer-services/assets/terraform/private-platform/versions.tf",
+      "skills/oci-diagramming/SKILL.md",
+      "skills/oci-diagramming/agents/openai.yaml",
+      "skills/oci-diagramming/assets/examples/oci-observability-pipeline.drawio",
+      "skills/oci-diagramming/assets/examples/oci-observability-pipeline.excalidraw",
+      "skills/oci-diagramming/assets/examples/oci-observability-pipeline.json",
+      "skills/oci-diagramming/assets/examples/oci-observability-pipeline.mmd",
+      "skills/oci-diagramming/references/formats.md",
+      "skills/oci-diagramming/references/oci-architecture-conventions.md",
+      "skills/oci-diagramming/scripts/oci_diagram.py",
+      "skills/oci-disaster-recovery/SKILL.md",
+      "skills/oci-disaster-recovery/agents/openai.yaml",
+      "skills/oci-events-functions/SKILL.md",
+      "skills/oci-events-functions/agents/openai.yaml",
+      "skills/oci-events-functions/assets/terraform/queue/.terraform.lock.hcl",
+      "skills/oci-events-functions/assets/terraform/queue/main.tf",
+      "skills/oci-events-functions/assets/terraform/queue/variables.tf",
+      "skills/oci-events-functions/assets/terraform/queue/versions.tf",
+      "skills/oci-iam-admin/SKILL.md",
+      "skills/oci-iam-admin/agents/openai.yaml",
+      "skills/oci-landing-zone/SKILL.md",
+      "skills/oci-landing-zone/agents/openai.yaml",
+      "skills/oci-log-analytics/SKILL.md",
+      "skills/oci-log-analytics/agents/openai.yaml",
+      "skills/oci-networking-compute/SKILL.md",
+      "skills/oci-networking-compute/agents/openai.yaml",
+      "skills/oci-observability-db/SKILL.md",
+      "skills/oci-observability-db/agents/openai.yaml",
+      "skills/oci-observability-db/assets/host-dashboard-profiles.json",
+      "skills/oci-observability-db/scripts/promql_to_mql.py",
+      "skills/oci-oke-admin/SKILL.md",
+      "skills/oci-oke-admin/agents/openai.yaml",
+      "skills/oci-os-management/SKILL.md",
+      "skills/oci-os-management/agents/openai.yaml",
+      "skills/oci-product-development/SKILL.md",
+      "skills/oci-product-development/agents/openai.yaml",
+      "skills/oci-product-development/assets/common/delivery/build_spec.yaml",
+      "skills/oci-product-development/assets/common/delivery/deploy_spec.yaml",
+      "skills/oci-product-development/assets/common/iam/policies.md",
+      "skills/oci-product-development/assets/common/openapi/openapi.yaml",
+      "skills/oci-product-development/assets/common/runbook.md",
+      "skills/oci-project/SKILL.md",
+      "skills/oci-project/agents/openai.yaml",
+      "skills/oci-resource-manager/SKILL.md",
+      "skills/oci-resource-manager/agents/openai.yaml",
+      "skills/oci-security-compliance/SKILL.md",
+      "skills/oci-security-compliance/agents/openai.yaml",
+      "skills/oci-security-compliance/assets/security-release-evidence.yaml",
+      "skills/oci-storage/SKILL.md",
+      "skills/oci-storage/agents/openai.yaml",
+      "skills/oci-terraform-authoring/SKILL.md",
+      "skills/oci-terraform-authoring/agents/openai.yaml",
+      "skills/oci-terraform-authoring/assets/starter/.gitignore",
+      "skills/oci-terraform-authoring/assets/starter/.terraform.lock.hcl",
+      "skills/oci-terraform-authoring/assets/starter/locals.tf",
+      "skills/oci-terraform-authoring/assets/starter/outputs.tf",
+      "skills/oci-terraform-authoring/assets/starter/provider.tf",
+      "skills/oci-terraform-authoring/assets/starter/schema.yaml",
+      "skills/oci-terraform-authoring/assets/starter/terraform.tfvars.example",
+      "skills/oci-terraform-authoring/assets/starter/tests/starter.tftest.hcl",
+      "skills/oci-terraform-authoring/assets/starter/variables.tf",
+      "skills/oci-terraform-authoring/assets/starter/versions.tf",
+      "skills/oci-zpr-visibility/SKILL.md",
+      "skills/oci-zpr-visibility/agents/openai.yaml"
+    ]
+  }
+}

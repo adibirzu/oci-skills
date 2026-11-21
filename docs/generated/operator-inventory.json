@@ -1046,7 +1046,7 @@
       }
     }
   ],
-  "source_only_and_runtime_surface_count": 42,
+  "source_only_and_runtime_surface_count": 44,
   "support_documents": {
     "SECURITY.md": "present",
     "SUPPORT.md": "present",
