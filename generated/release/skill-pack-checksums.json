@@ -107,8 +107,8 @@
     {
       "category": "skill-pack",
       "path": "references/KB.md",
-      "sha256": "4fb28ee52ea863445c2b1c9675e4b88ed147a60579a1b21b050d0ccb61f873cf",
-      "size_bytes": 146535
+      "sha256": "02c05d8eae0da65a781cbb579055d399bc271f86e7770a6c8865de63e02b47cd",
+      "size_bytes": 146573
     },
     {
       "category": "skill-pack",
@@ -167,8 +167,8 @@
     {
       "category": "skill-pack",
       "path": "references/database-cloud.md",
-      "sha256": "194fbc835e93a42b68bf92ee6cf22132a36ea931c9d26d6871f05f88710c624c",
-      "size_bytes": 3984
+      "sha256": "4dc4b8f3b37c0372a232b9273974c5a781f8b6b78f24e751977810132cc30038",
+      "size_bytes": 3988
     },
     {
       "category": "skill-pack",
@@ -293,8 +293,8 @@
     {
       "category": "skill-pack",
       "path": "references/oracle-docs.md",
-      "sha256": "95791f8a2dba4b6a2de39415bd4013571587e70cb93d2a8cb41883cdbf1bce3f",
-      "size_bytes": 28178
+      "sha256": "5a78314735fa196f07bfe707d9d198384570cf486039934ba955de4228ddd5d8",
+      "size_bytes": 28241
     },
     {
       "category": "skill-pack",
@@ -377,8 +377,8 @@
     {
       "category": "skill-pack",
       "path": "references/solution-authoring.md",
-      "sha256": "d7268c511f2792d6c1feb218600121655ec488eaeb775a35fae0e03be5751bb3",
-      "size_bytes": 13051
+      "sha256": "2274d932a5d57dec0cbc95a65524884c51d5a6a2e48dc3f37e10568ab5c6d2d8",
+      "size_bytes": 13030
     },
     {
       "category": "skill-pack",
@@ -821,8 +821,8 @@
     {
       "category": "skill-pack",
       "path": "skills/oci-diagramming/references/oci-architecture-conventions.md",
-      "sha256": "e9e39eba0eae2f36f0e820b52e9ec38465adfe1c24025b46189d015d23cda653",
-      "size_bytes": 3020
+      "sha256": "9c96945f83e680786e64298c3290316468aff7fdc47024bb311d4a4eed81dc0c",
+      "size_bytes": 3017
     },
     {
       "category": "skill-pack",
@@ -977,8 +977,8 @@
     {
       "category": "skill-pack",
       "path": "skills/oci-product-development/SKILL.md",
-      "sha256": "6fe2ee2c6fd8955675076350fe2eeb464b6c45abcce4d1a990de3024a146b716",
-      "size_bytes": 7088
+      "sha256": "aea0d198e661200ed3edc04e9ba213da0b7d87ff0cf584b181c6bfb2d2a7b953",
+      "size_bytes": 7085
     },
     {
       "category": "skill-pack",
@@ -1155,7 +1155,7 @@
       "size_bytes": 216
     }
   ],
-  "manifest_sha256": "cb2226441b725ec4d6c8b2b1ff85122280d74c7d07b365be967bed53815909ae",
+  "manifest_sha256": "3bfc90bb32c879a7dc59d8d3cbcca726d3bbd3035779c8710f8e969dbe945199",
   "ordering": "bytewise-path",
   "package": {
     "name": "oci-skills",
