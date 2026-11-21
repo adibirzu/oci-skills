@@ -14,7 +14,7 @@ source that backs its claim.
 >
 > Two checks guard these links: the **offline** lint (`tests/test_doc_links.py`,
 > runs in PR CI — well-formed + every used URL registered here + KB citation
-> coverage) and a **live** checker (`scripts/check_doc_links.py --live`, run
+> coverage + retired URLs rejected) and a **live** checker (`scripts/check_doc_links.py --live`, run
 > weekly by `.github/workflows/doc-liveness.yml`) that HTTP-verifies each URL so
 > link rot is caught even when the format is fine. On a dead link that workflow
 > opens (or comments on) a `doc-rot` issue and fails, so rot becomes a tracked
