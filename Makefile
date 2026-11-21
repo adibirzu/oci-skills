@@ -32,5 +32,5 @@ dry-run: ## Preview install actions without copying anything
 
 check: ## Lint scripts + run the source package and redaction gate
 	@command -v shellcheck >/dev/null || { echo "required tool shellcheck is not installed" >&2; exit 127; }
-	@shellcheck -x --severity=warning scripts/*.sh install.sh bootstrap.sh
+	@shellcheck -x --severity=warning scripts/*.sh scripts/ci/*.sh install.sh bootstrap.sh
 	@bash -o pipefail -c 'git ls-files -z --cached --others --exclude-standard | python3 scripts/redaction_gate.py --root .'

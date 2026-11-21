@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "source_manifest": "docs/product/contracts/install-manifest.json",
-  "surface_count": 42,
+  "surface_count": 44,
   "surfaces": [
     {
       "classification": "executable",
@@ -51,6 +51,13 @@
       "mode": "0755",
       "path": "scripts/check_doc_links.py",
       "sha256": "909a3d15803b04c6bd6165cd4772b5389c3b6b17d02b81f7ddf9f05cf8429931"
+    },
+    {
+      "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/ci/gate.sh",
+      "sha256": "25574c418eda35d9e020897b74e6c44e4d306d9bff1daaec9a62d2db9b8a6683"
     },
     {
       "classification": "executable",
@@ -222,6 +229,13 @@
     },
     {
       "classification": "executable",
+      "distribution": "source-only",
+      "mode": "0755",
+      "path": "scripts/package_skill_pack.py",
+      "sha256": "ffbefb4c0782c4fc6544cc03dcd92527483ca9fd560946066d92683c0f3adb0c"
+    },
+    {
+      "classification": "executable",
       "distribution": "copy-install-runtime",
       "mode": "0755",
       "path": "scripts/platform_bundle.py",
@@ -246,7 +260,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/redaction_gate.py",
-      "sha256": "3787092e3b1a99a8899307c42021b345e83ae10607d31fdbe81c9ab733bb144e"
+      "sha256": "2bf005dc80a91c5128a047bed156c75e9e1a958947cdb4df0c6d21b06f5e0bb2"
     },
     {
       "classification": "executable",
@@ -298,5 +312,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "9320bccfcfff3a2fceebb0023fc8a75676a830f63dfef5c4c15205b64cf68a45"
+  "surfaces_sha256": "e5f5139d7f22e05c90434f9b632f4f6490316c9c6a46e248484d5d8bf9d4aeba"
 }
