@@ -58,7 +58,7 @@ execution_tiers:
       - name: redaction_gate
         command: "git ls-files -z --cached --others --exclude-standard | python3.11 scripts/redaction_gate.py --root ."
       - name: ruff_lint
-        command: "ruff check --select E4,E7,E9,F scripts/*.py"
+        command: "ruff check --select E4,E7,E9,F scripts/*.py tests/test_package_skill_pack.py tests/test_delivery_pipeline_gate.py && ruff check scripts/package_skill_pack.py tests/test_package_skill_pack.py tests/test_delivery_pipeline_gate.py"
       - name: shellcheck_lint
         command: "shellcheck -x --severity=warning scripts/*.sh scripts/ci/gate.sh install.sh bootstrap.sh"
       - name: deterministic_pytest

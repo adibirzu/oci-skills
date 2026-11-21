@@ -26,7 +26,12 @@ DEFAULT_OUTPUT = Path("generated/release/skill-pack-checksums.json")
 SCHEMA_REL = Path("schemas/skill-pack-checksums.schema.json")
 INSTALL_MANIFEST_REL = Path("docs/product/contracts/install-manifest.json")
 SBOM_REL = Path("generated/security/oci-skills.cdx.json")
-PLUGIN_MANIFEST_DIRS = (Path(".claude-plugin"), Path(".codex-plugin"))
+PLUGIN_MANIFEST_DIRS = (
+    Path(".claude-plugin"),
+    Path(".codex-plugin"),
+    Path("harness/gemini/gemini-extension.json"),
+)
+HARNESS_ADAPTER_DIRS = (Path("harness"),)
 MCP_SURFACE_FILES = (Path("references/mcp-gateway.md"),)
 DEFAULT_SOURCE_DATE_EPOCH = 0
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -196,10 +201,16 @@ def build_checksum_manifest(root: Path = ROOT) -> dict[str, Any]:
     claude_plugin = _read_json_object(
         root / ".claude-plugin/plugin.json", "claude plugin manifest"
     )
+    gemini_plugin = _read_json_object(
+        root / "harness/gemini/gemini-extension.json", "gemini extension manifest"
+    )
     version = codex_plugin.get("version")
     if not isinstance(version, str) or not version:
         raise PackageChecksumError("codex plugin manifest missing version")
-    if claude_plugin.get("version") != version:
+    if (
+        claude_plugin.get("version") != version
+        or gemini_plugin.get("version") != version
+    ):
         raise PackageChecksumError("plugin manifest versions do not match")
 
     sbom_path = root / SBOM_REL
@@ -246,7 +257,7 @@ def build_checksum_manifest(root: Path = ROOT) -> dict[str, Any]:
 
     add_file(sbom_path, "sbom")
 
-    for item in payload:
+    for item in (*payload, *(p.as_posix() for p in HARNESS_ADAPTER_DIRS)):
         for file_path in _collect_regular_files(root, Path(item), exclusions):
             add_file(file_path, "skill-pack")
 

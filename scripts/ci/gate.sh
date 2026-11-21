@@ -32,8 +32,25 @@ command -v shellcheck >/dev/null 2>&1 || { echo "required tool shellcheck is not
 echo "[stage 1/6] SBOM freshness (scripts/generate_sbom.py --check)"
 "$PYTHON_BIN" scripts/generate_sbom.py --check
 
-echo "[stage 2/6] Package checksum manifest (scripts/package_skill_pack.py --check)"
+echo "[stage 2/6] Package checksum manifest and archive installer smoke (scripts/package_skill_pack.py)"
 "$PYTHON_BIN" scripts/package_skill_pack.py --check
+GATE_ARCHIVE_TMP="$(mktemp -d "${TMPDIR:-/tmp}/oci-skills-gate-archive.XXXXXX")"
+trap 'rm -rf "$GATE_ARCHIVE_TMP"' EXIT
+"$PYTHON_BIN" scripts/package_skill_pack.py --build-archive "$GATE_ARCHIVE_TMP/dist" >/dev/null
+ARCHIVE_FILE="$(find "$GATE_ARCHIVE_TMP/dist" -maxdepth 1 -name 'oci-skills-*.tar.gz' -print -quit)"
+[[ -n "$ARCHIVE_FILE" ]] || { echo "ERROR: package archive was not created" >&2; exit 1; }
+mkdir -p "$GATE_ARCHIVE_TMP/extract"
+tar -xzf "$ARCHIVE_FILE" -C "$GATE_ARCHIVE_TMP/extract"
+EXTRACTED_DIR="$(find "$GATE_ARCHIVE_TMP/extract" -mindepth 1 -maxdepth 1 -type d -print -quit)"
+[[ -n "$EXTRACTED_DIR" ]] || { echo "ERROR: extracted package directory not found" >&2; exit 1; }
+for adapter in claude gemini codex antigravity; do
+  (
+    cd "$EXTRACTED_DIR"
+    DRY_RUN=true bash install.sh "$adapter" >/dev/null
+  )
+done
+rm -rf "$GATE_ARCHIVE_TMP"
+trap - EXIT
 
 echo "[stage 3/6] Redaction gate (scripts/redaction_gate.py)"
 git ls-files -z --cached --others --exclude-standard | "$PYTHON_BIN" scripts/redaction_gate.py --root .

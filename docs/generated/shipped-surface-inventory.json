@@ -57,7 +57,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/ci/gate.sh",
-      "sha256": "6a08be4e9b716c5f49bbd5b036e7c7fcfecf3d12088af27a13dacef1f1992995"
+      "sha256": "25574c418eda35d9e020897b74e6c44e4d306d9bff1daaec9a62d2db9b8a6683"
     },
     {
       "classification": "executable",
@@ -232,7 +232,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/package_skill_pack.py",
-      "sha256": "d236318ef2ddde93fb8ceea12ae0a3952785c2944f1b3f1769c5b3afa6012600"
+      "sha256": "1cd701886b72a7fb0a18a2f9f230af3b3c5466ee5880cdf425c8dd358c04ae72"
     },
     {
       "classification": "executable",
@@ -312,5 +312,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "7b65f10973c562f1596a58fbd9fc0db96d6c023afd131b34062493af2ab3028b"
+  "surfaces_sha256": "f07f0b0ad25b95d6ff4367026197031b8fe84da2eef173d3a6702a73038fc090"
 }

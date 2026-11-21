@@ -1,6 +1,6 @@
 {
   "algorithm": "sha256",
-  "file_count": 186,
+  "file_count": 192,
   "files": [
     {
       "category": "plugin-manifest",
@@ -61,6 +61,42 @@
       "path": "generated/security/oci-skills.cdx.json",
       "sha256": "546b7633e0f06b0f1fc6900f427f2ffa989c80c741bc6ba2c681a52bbacc6f36",
       "size_bytes": 2205
+    },
+    {
+      "category": "skill-pack",
+      "path": "harness/antigravity/AGENTS.md",
+      "sha256": "0256ba0b26925ef9d1add99645c18c882d6bdb3696bfe125998f308287c48d34",
+      "size_bytes": 3032
+    },
+    {
+      "category": "skill-pack",
+      "path": "harness/codex/agents/openai.yaml",
+      "sha256": "4b27506ca3f202c82a749417c130f0adbeaa22d3525988e63ad9cbcbc052ed77",
+      "size_bytes": 3319
+    },
+    {
+      "category": "skill-pack",
+      "path": "harness/gemini/GEMINI.md",
+      "sha256": "67b8199630387027aad91348a2fb8258a2f3cc0d2d24a9f682044f5f7cb3a8de",
+      "size_bytes": 3309
+    },
+    {
+      "category": "skill-pack",
+      "path": "harness/gemini/commands/iam-audit.toml",
+      "sha256": "137a9ade3a16307fe76905b9ae1baa557dd4c373910c798a7b2631f484555246",
+      "size_bytes": 606
+    },
+    {
+      "category": "skill-pack",
+      "path": "harness/gemini/commands/preflight.toml",
+      "sha256": "ea75fa499e52100106f30e697ebb675020ea89b0b521e73df03c3382aee1062f",
+      "size_bytes": 579
+    },
+    {
+      "category": "plugin-manifest",
+      "path": "harness/gemini/gemini-extension.json",
+      "sha256": "c6ac3057ed293663349a4d3298ea0a0291a96929f04b3ceaab9fcc4b563eafa2",
+      "size_bytes": 279
     },
     {
       "category": "skill-pack",
@@ -1119,7 +1155,7 @@
       "size_bytes": 216
     }
   ],
-  "manifest_sha256": "e49f82b520f6b57d983b612505dea60952577347b3f69ea3d33a6fb43d54016e",
+  "manifest_sha256": "cb2226441b725ec4d6c8b2b1ff85122280d74c7d07b365be967bed53815909ae",
   "ordering": "bytewise-path",
   "package": {
     "name": "oci-skills",
@@ -1141,7 +1177,8 @@
     "plugin_manifests": [
       ".claude-plugin/marketplace.json",
       ".claude-plugin/plugin.json",
-      ".codex-plugin/plugin.json"
+      ".codex-plugin/plugin.json",
+      "harness/gemini/gemini-extension.json"
     ],
     "skill_pack_files": [
       "LICENSE",
@@ -1149,6 +1186,11 @@
       "SUPPORT.md",
       "THIRD_PARTY_NOTICES.md",
       "docs/product/contracts/developer-knowledge-catalog.json",
+      "harness/antigravity/AGENTS.md",
+      "harness/codex/agents/openai.yaml",
+      "harness/gemini/GEMINI.md",
+      "harness/gemini/commands/iam-audit.toml",
+      "harness/gemini/commands/preflight.toml",
       "install.sh",
       "references/KB.md",
       "references/agent-safety.md",

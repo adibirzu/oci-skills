@@ -52,6 +52,11 @@ def test_delivery_pipeline_yaml_declares_versioned_metadata_and_tiers() -> None:
     assert arm64["arch"] == "arm64"
     assert arm64["container_execution"] is False
     assert arm64["entrypoint"] == "scripts/ci/gate.sh"
+    stages = {stage["name"]: stage["command"] for stage in arm64["stages"]}
+    assert (
+        stages["ruff_lint"]
+        == "ruff check --select E4,E7,E9,F scripts/*.py tests/test_package_skill_pack.py tests/test_delivery_pipeline_gate.py && ruff check scripts/package_skill_pack.py tests/test_package_skill_pack.py tests/test_delivery_pipeline_gate.py"
+    )
     assert amd64["arch"] == "linux/amd64"
     assert amd64["container_execution"] is True
     assert amd64["workstation_refusal_env"] == "GATE_FORCE_CONTAINER=1"
@@ -104,6 +109,9 @@ def test_gate_sh_runs_required_workstation_checks_without_containers() -> None:
     for expected in (
         "scripts/generate_sbom.py --check",
         "scripts/package_skill_pack.py --check",
+        "scripts/package_skill_pack.py --build-archive",
+        "DRY_RUN=true bash install.sh",
+        "claude gemini codex antigravity",
         "scripts/redaction_gate.py",
         "ruff",
         "shellcheck",
