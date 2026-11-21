@@ -232,7 +232,7 @@
       "distribution": "source-only",
       "mode": "0755",
       "path": "scripts/package_skill_pack.py",
-      "sha256": "1cd701886b72a7fb0a18a2f9f230af3b3c5466ee5880cdf425c8dd358c04ae72"
+      "sha256": "ffbefb4c0782c4fc6544cc03dcd92527483ca9fd560946066d92683c0f3adb0c"
     },
     {
       "classification": "executable",
@@ -312,5 +312,5 @@
       "sha256": "587e983e6545369d791126a5384d0790468bfd103fbf2449f1b64d08d7a88a21"
     }
   ],
-  "surfaces_sha256": "f07f0b0ad25b95d6ff4367026197031b8fe84da2eef173d3a6702a73038fc090"
+  "surfaces_sha256": "e5f5139d7f22e05c90434f9b632f4f6490316c9c6a46e248484d5d8bf9d4aeba"
 }

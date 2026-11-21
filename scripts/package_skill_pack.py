@@ -327,7 +327,11 @@ def build_archive(root: Path, output_dir: Path, source_date_epoch: int) -> Path:
     committed = root / DEFAULT_OUTPUT
     if committed.is_symlink():
         raise PackageChecksumError("checksum manifest cannot be a symlink")
-    if committed.is_file() and committed.read_bytes() != render_manifest_bytes(manifest):
+    if not committed.is_file():
+        raise PackageChecksumError(
+            "checksum manifest missing; run python3 scripts/package_skill_pack.py --write"
+        )
+    if committed.read_bytes() != render_manifest_bytes(manifest):
         raise PackageChecksumError(
             "checksum manifest is stale; run python3 scripts/package_skill_pack.py --write"
         )

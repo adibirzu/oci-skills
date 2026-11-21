@@ -135,6 +135,36 @@ def test_committed_checksum_manifest_matches_source_and_validates_schema() -> No
     assert result.returncode == 0, result.stderr
 
 
+@pytest.mark.parametrize("entry_point", ["api", "cli"])
+def test_build_archive_requires_committed_checksum_manifest(
+    tmp_path: Path, entry_point: str
+) -> None:
+    repo = tmp_path / "repo"
+    _copy_minimal_pack_repo(repo)
+    assert not (repo / CHECKSUMS_PATH.relative_to(ROOT)).exists()
+    output_dir = tmp_path / "dist"
+
+    if entry_point == "api":
+        module = _load_module()
+        with pytest.raises(module.PackageChecksumError, match="checksum manifest missing"):
+            module.build_archive(repo, output_dir, 0)
+    else:
+        result = subprocess.run(
+            [
+                sys.executable, str(repo / "scripts/package_skill_pack.py"),
+                "--build-archive", str(output_dir),
+            ],
+            cwd=repo,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 1, result.stderr
+        assert "checksum manifest missing" in result.stderr
+
+    assert not output_dir.exists()
+
+
 def test_write_and_build_archive_are_byte_identical_across_repeated_runs(
     tmp_path: Path,
 ) -> None:
