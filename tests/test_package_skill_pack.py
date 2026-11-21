@@ -125,7 +125,7 @@ def test_committed_checksum_manifest_matches_source_and_validates_schema() -> No
 
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     result = subprocess.run(
-        ["python3.11", str(SCRIPT), "--check"],
+        [sys.executable, str(SCRIPT), "--check"],
         cwd=ROOT,
         env=env,
         capture_output=True,
