@@ -14,7 +14,7 @@ source that backs its claim.
 >
 > Two checks guard these links: the **offline** lint (`tests/test_doc_links.py`,
 > runs in PR CI — well-formed + every used URL registered here + KB citation
-> coverage) and a **live** checker (`scripts/check_doc_links.py --live`, run
+> coverage + retired URLs rejected) and a **live** checker (`scripts/check_doc_links.py --live`, run
 > weekly by `.github/workflows/doc-liveness.yml`) that HTTP-verifies each URL so
 > link rot is caught even when the format is fine. On a dead link that workflow
 > opens (or comments on) a `doc-rot` issue and fails, so rot becomes a tracked
@@ -202,8 +202,8 @@ Safe), the upstream `db/` domain of
 |---|---|
 | OCI Database service | <https://docs.oracle.com/en-us/iaas/Content/Database/home.htm> |
 | Base Database | <https://docs.oracle.com/en-us/iaas/base-database/index.html> |
-| Base Database lifecycle and backup/recovery | <https://docs.oracle.com/en-us/iaas/Content/Database/Tasks/backingupFRA.htm> |
-| Pluggable databases | <https://docs.oracle.com/en/cloud/paas/base-database/about-pdb/> |
+| Base Database lifecycle and backup/recovery | <https://docs.oracle.com/en/cloud/paas/base-database/guide/about.html> |
+| Pluggable databases | <https://docs.oracle.com/en/cloud/paas/base-database/guide/pdb-about.html> |
 | Exadata infrastructure maintenance | <https://docs.oracle.com/en-us/iaas/exadatacloud/doc/exa-conf-oracle-man-infra.html> |
 
 ## OKE — `oci-oke-admin`
@@ -309,7 +309,7 @@ The official Oracle guidance behind [solution-authoring.md](solution-authoring.m
 
 | Topic | Canonical doc |
 |---|---|
-| Architecture Center (reference architectures & solution playbooks) | <https://docs.oracle.com/en/solutions/> |
+| Architecture Center (reference architectures & solution playbooks) | <https://docs.oracle.com/solutions/> |
 | Cloud Adoption Framework (Well-Architected pillars) | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm> |
 | Cloud Adoption Framework — Security pillar (landing-zone guardrails) | <https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm> |
 | Security guide (best practices) | <https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm> |
@@ -364,7 +364,7 @@ rather than the service home (all verified live):
 | Resource Manager jobs (plan/apply) | <https://docs.oracle.com/en-us/iaas/Content/ResourceManager/Tasks/usingconsole.htm> | KB-007 |
 | Managing dynamic groups (matching rules) | <https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingdynamicgroups.htm> | KB-021 |
 | Managing alarms (MQL query-text) | <https://docs.oracle.com/en-us/iaas/Content/Monitoring/Tasks/managingalarms.htm> | KB-027 |
-| Register Data Safe target databases | <https://docs.oracle.com/en-us/iaas/data-safe/doc/register-target-databases.html> | KB-057 |
+| Data Safe target database registration | <https://docs.oracle.com/en-us/iaas/data-safe/doc/target-database-registration.html> | KB-057 |
 | Creating/deploying Functions | <https://docs.oracle.com/en-us/iaas/Content/Functions/Tasks/functionscreatingfunctions.htm> | KB-084 |
 | Managing streams (stream vs stream pool) | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/managingstreams.htm> | KB-091 |
 | Streaming Kafka API configuration | <https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/kafkacompatibility_topic-Configuration.htm> | KB-106 |
@@ -381,6 +381,6 @@ rather than the service home (all verified live):
 | Network security groups | <https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/networksecuritygroups.htm> | KB-138 |
 | Deleting VCNs (current task page) | <https://docs.oracle.com/en-us/iaas/Content/Network/Tasks/delete_vcn.htm> | KB-139 |
 | Log Analytics CLI command reference | <https://docs.oracle.com/en-us/iaas/tools/oci-cli/latest/oci_cli_docs/cmdref/log-analytics.html> | KB-140 |
-| Data Safe audit reports | <https://docs.oracle.com/en-us/iaas/data-safe/doc/audit-reports.html> | KB-141 |
+| View and manage Data Safe audit reports | <https://docs.oracle.com/en-us/iaas/data-safe/doc/view-and-manage-audit-reports.html> | KB-141 |
 | Enable DB Management for Autonomous Databases | <https://docs.oracle.com/en-us/iaas/database-management/doc/enable-database-management-autonomous-databases.html> | KB-142 |
 | Calling services from an instance (IMDS auth) | <https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/callingservicesfrominstances.htm> | KB-143 |

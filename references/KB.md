@@ -500,7 +500,7 @@ not replicated into the consuming cluster/namespace.
 **Symptom:** A Data Safe target registers but stays `NEEDS_ATTENTION`; lifecycle details show "Failed to connect... ORA-01017" although the network path is fine.
 **Root cause:** Stale/invalid service-account password.
 **Fix:** Rotate the account password `CONTAINER=ALL`, then update both the Vault secret and the Data Safe target (`data-safe target-database update --credentials file://... --force`; work request → `--wait-for-state SUCCEEDED`).
-**See:** [Register Data Safe target databases](https://docs.oracle.com/en-us/iaas/data-safe/doc/register-target-databases.html)
+**See:** [Data Safe target database registration](https://docs.oracle.com/en-us/iaas/data-safe/doc/target-database-registration.html)
 **Status:** resolved.
 
 ## KB-058 — DB-system create blocked by a per-AD `database` service limit (observability-db)
@@ -1334,7 +1334,7 @@ with the private DSN from a host that has a route into the VCN.
 **Symptom:** SDK error `list_audit_events got unknown kwargs: ['time_started', 'time_ended']`; audit activity stays empty.
 **Root cause:** `DataSafeClient.list_audit_events()` does not accept `time_started`/`time_ended`; time filtering is only supported through the `scim_query` parameter.
 **Fix:** Build an RFC3339 window and pass it via `scim_query`, e.g. `(auditEventTime ge "<START>") and (auditEventTime le "<END>")`, with `sort_by="auditEventTime"`; inspect the SDK's expected kwargs before adding optional filters.
-**See:** [Data Safe audit reports](https://docs.oracle.com/en-us/iaas/data-safe/doc/audit-reports.html)
+**See:** [View and manage Data Safe audit reports](https://docs.oracle.com/en-us/iaas/data-safe/doc/view-and-manage-audit-reports.html)
 **Status:** resolved.
 
 ## KB-142 — Database Management AWR on Autonomous DB needs full diagnostics or valid named credentials (observability-db)

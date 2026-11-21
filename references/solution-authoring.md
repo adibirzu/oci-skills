@@ -45,9 +45,9 @@ Oracle doc that grounds the decision. Work top-to-bottom; do not skip discovery.
 
 | # | Step | Decide | Domain skill(s) | Official ground |
 |---|------|--------|-----------------|-----------------|
-| 1 | **Discovery** | What is the workload, who are the users, what data sensitivity, which regions, what compliance (CIS / ISO / PCI)? | — (interview) | [Architecture Center](https://docs.oracle.com/en/solutions/) |
+| 1 | **Discovery** | What is the workload, who are the users, what data sensitivity, which regions, what compliance (CIS / ISO / PCI)? | - (interview) | [Architecture Center](https://docs.oracle.com/solutions/) |
 | 2 | **Requirements → pillars** | Non-functionals per the Well-Architected pillars: security, reliability, performance, cost, operations. | — | [Cloud Adoption Framework](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) |
-| 3 | **Reference architecture** | Pick / adapt a proven pattern (3-tier, microservices on OKE, data lake, HA DB). Do not invent topology from scratch. | oci-networking-compute, oci-observability-db | [Architecture Center](https://docs.oracle.com/en/solutions/) |
+| 3 | **Reference architecture** | Pick / adapt a proven pattern (3-tier, microservices on OKE, data lake, HA DB). Do not invent topology from scratch. | oci-networking-compute, oci-observability-db | [Architecture Center](https://docs.oracle.com/solutions/) |
 | 4 | **Guardrail design** | Compartment layout, least-privilege IAM, network isolation (VCN/subnet/NSG), encryption (Vault), budget. Map to a landing-zone baseline. | oci-iam-admin, oci-security-compliance, oci-networking-compute | [CAF — Security pillar](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm) · [CIS Benchmark](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html) |
 | 5 | **Cost shape** | Sizing → estimated spend; set the budget + 80% forecast alert and cost-tracking tags *before* build. | oci-cost, oci-iam-admin | [Security guide](https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm) |
 | 6 | **Build** | Express the design as a Resource Manager stack (preferred) or guided domain calls; bootstrap the project context first. | oci-project, oci-resource-manager | [CAF](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) |
@@ -58,7 +58,7 @@ Oracle doc that grounds the decision. Work top-to-bottom; do not skip discovery.
 1. **Discovery** — capture the requirement in the customer's words, then
    classify: workload type, data sensitivity, region(s)/residency, availability
    target, and the compliance regime. Browse the [Architecture
-   Center](https://docs.oracle.com/en/solutions/) for a matching solution
+   Center](https://docs.oracle.com/solutions/) for a matching solution
    playbook before designing.
 2. **Requirements → pillars** — translate each requirement into a measurable
    non-functional under a Well-Architected pillar. "Must survive an AD failure"
@@ -148,7 +148,7 @@ in the blueprint.
 | **OCI CIS Landing Zone** | A CIS-aligned tenancy baseline as Terraform — compartments, IAM, VCNs, NSGs, logging, Cloud Guard, Vault. The default guardrail scaffold. | <https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart> |
 | **Oracle Enterprise Landing Zone** | A modular, larger-scale landing zone (operating-model / multi-team tenancies). | <https://github.com/oracle-quickstart/oci-landing-zones> |
 | **Terraform OKE module** | The Kubernetes workload layer on top of a landing zone. | <https://github.com/oracle-terraform-modules/terraform-oci-oke> |
-| **Architecture Center** | Reference architectures & solution playbooks (topology patterns by workload). | <https://docs.oracle.com/en/solutions/> |
+| **Architecture Center** | Reference architectures & solution playbooks (topology patterns by workload). | <https://docs.oracle.com/solutions/> |
 
 These deploy through `oci-resource-manager` (they are Terraform/RM stacks). For
 deep OKE day-2 operation of the resulting cluster, hand off to `oracle/skills`
@@ -190,6 +190,6 @@ on key metrics, Data Safe Security Assessment run.
 
 ## Official documentation
 
-[Architecture Center](https://docs.oracle.com/en/solutions/) · [Cloud Adoption Framework](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) · [CAF — Security pillar](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm) · [Security guide](https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm) · [CIS Benchmark](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html). Full index in [oracle-docs.md](oracle-docs.md). Reference implementations (GitHub): [CIS Landing Zone](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart) · [Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones).
+[Architecture Center](https://docs.oracle.com/solutions/) · [Cloud Adoption Framework](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/home.htm) · [CAF security pillar](https://docs.oracle.com/en-us/iaas/Content/cloud-adoption-framework/security.htm) · [Security guide](https://docs.oracle.com/en-us/iaas/Content/Security/Concepts/security_guide.htm) · [CIS Benchmark](https://docs.oracle.com/en/solutions/cis-oci-benchmark/index.html). Full index in [oracle-docs.md](oracle-docs.md). Reference implementations (GitHub): [CIS Landing Zone](https://github.com/oracle-quickstart/oci-cis-landingzone-quickstart) · [Enterprise Landing Zone](https://github.com/oracle-quickstart/oci-landing-zones).
 
 **Open Knowledge Format grounding** — every doc link here is registered and liveness-checked in the [oracle-docs.md index](oracle-docs.md) (the pack's single source of truth). When extending this workflow to design a new OCI customer solution, cite the most specific official page through that index so every claim stays verifiable; the non-official MCP gateway is never a source of truth.

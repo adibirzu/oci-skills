@@ -49,7 +49,7 @@ without storing secrets or customer content by default.
 
 - Oracle OCI Architecture Icons and diagrams: https://docs.oracle.com/en-us/iaas/Content/General/Reference/graphicsfordiagrams.htm
 - Layered Draw.io technique: https://blogs.oracle.com/cloud-infrastructure/layered-architecture-diagrams-drawio
-- OCI Architecture Center: https://docs.oracle.com/en/solutions/
+- OCI Architecture Center: https://docs.oracle.com/solutions/
 - OCI security architecture: https://www.oracle.com/a/ocom/docs/oracle-cloud-infrastructure-security-architecture.pdf
 - OCI Network Firewall examples: https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/whitepapers/learn-oci-network-firewall-with-examples.pdf
 - OCI IAM OAuth/OIDC flows: https://docs.oracle.com/en-us/iaas/Content/Resources/Assets/whitepapers/oci-iam-oauth-flows-best-practices.pdf
