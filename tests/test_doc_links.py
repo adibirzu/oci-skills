@@ -42,6 +42,8 @@ RETIRED_URLS = {
     "https://docs.oracle.com/en-us/iaas/Content/Streaming/Tasks/creating-streams-and-stream-pools.htm",
     "https://docs.oracle.com/en-us/iaas/application-performance-monitoring/doc/manage-apm-domains.html",
     "https://docs.oracle.com/en-us/iaas/log-analytics/doc/use-cli-manage-log-analytics.html",
+    "https://docs.oracle.com/en-us/iaas/data-safe/doc/register-target-databases.html",
+    "https://docs.oracle.com/en-us/iaas/data-safe/doc/audit-reports.html",
 }
 
 
